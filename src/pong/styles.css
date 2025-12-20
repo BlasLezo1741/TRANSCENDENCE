@@ -1,0 +1,31 @@
+body
+{
+	background: gray;
+	margin: 0;
+	padding: 20px;
+}
+
+header
+{
+    margin-bottom: 20px;
+}
+
+h1
+{
+	color: green;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+p
+{
+	color: yellow;
+	font-family: Helvetica;
+}
+
+canvas
+{
+	background: black;
+	border: 10px solid white;
+	display: block;
+	margin: 20px auto;
+}
