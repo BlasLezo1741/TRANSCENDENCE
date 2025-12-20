@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Base de Datos: Requisito de persistencia [cite: 182]
+  db:
+    image: postgres:15-alpine
+    container_name: transcendence_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - ft_network
+
+  # Backend: Usando HTTPS obligatorio 
+  backend:
+    build: ./src/backend
+    container_name: transcendence_backend
+    volumes:
+      - ./src/backend:/app
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASSWORD}
+    depends_on:
+      - db
+    networks:
+      - ft_network
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+
+  # Frontend: Debe ser responsivo y accesible [cite: 179]
+  frontend:
+    build: ./src/frontend
+    container_name: transcendence_frontend
+    volumes:
+      - ./src/frontend:/app
+    ports:
+      - "${FRONT_PORT}:${FRONT_PORT}"
+    networks:
+      - ft_network
+
+networks:
+  ft_network:
+    driver: bridge
+
+volumes:
+  db_data:
