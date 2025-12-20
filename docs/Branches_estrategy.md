@@ -66,11 +66,12 @@ Para facilitar la gestión de versiones entre el Frontend y el Backend, recomien
 
 /
 ├── .github/          # Templates de issues y Workflows de Actions
-├── src/
+├── srcs/
 │   ├── backend/      # Framework de backend (NestJS, Django, etc.) [cite: 236]
 │   ├── frontend/     # Framework de frontend (React, Vue, etc.) [cite: 234]
-│   └── common/       # Tipos compartidos y lógica de juego (Core)
-├── docker-compose.yml # Despliegue con un solo comando 
+│   ├── common/       # Tipos compartidos y lógica de juego (Core)
+│   └──docker-compose.yml # con includes de docker compose por cada servicio
+├── Makefile          # Despliegue con un solo comando
 └── README.md         # Documentación obligatoria [cite: 624]
 ```
 
