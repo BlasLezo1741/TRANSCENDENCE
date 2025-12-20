@@ -19,9 +19,8 @@ function App() {
       <h1>Vite + React</h1>
       <h1>Blas is comming soon!</h1>
       <div className="card">
-      <img src="/lezo.jpg" alt="Blas Logo" style={{ width: '200px' }} />
+      <img src="/lezo.jpg" alt="Blas Logo" style={{ width: '400px' }} />
       </div>
-
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
