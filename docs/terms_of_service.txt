@@ -1,0 +1,29 @@
+
+2. Términos de Servicio (Terms of Service)
+
+Última actualización: [Fecha actual], 2025
+Aceptación de los Términos
+
+Al acceder a [Nombre de tu Proyecto], aceptas cumplir con estos términos y condiciones. Este proyecto ha sido creado como parte del currículo de 42 por los miembros del equipo: namada72, luismiguelcasadodiaz, xcatalabalta, adrmarqu y mvelazqu.
+
+Reglas de Conducta y Multijugador
+
+    Interacción en Tiempo Real: Los usuarios deben comportarse de manera respetuosa en el chat y durante las partidas multijugador.
+
+Prohibición de Trampas: El uso de software externo para alterar el resultado de los juegos (ej. Pong, Ajedrez) está estrictamente prohibido.
+
+Uso del Chat: No se permite el envío de spam, contenido ofensivo o malware a través de las funciones de mensajería.
+
+Propiedad Intelectual
+
+    El código fuente y la arquitectura de este sitio son propiedad de sus autores como parte de un proyecto académico.
+
+Las tecnologías utilizadas (React, Django, Docker, etc.) pertenecen a sus respectivos proveedores de licencias.
+
+Limitación de Responsabilidad
+
+    Esta aplicación es un proyecto educativo en fase de desarrollo. No garantizamos la disponibilidad ininterrumpida ni nos hacemos responsables de la pérdida de datos de juego durante las actualizaciones.
+
+Contacto de Soporte
+
+Para cualquier consulta técnica relacionada con el proyecto, los usuarios pueden dirigirse a los desarrolladores a través del repositorio oficial en la organización BlasLezo1741.
