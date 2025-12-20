@@ -1,45 +1,53 @@
 services:
-  # 1. PostgreSQL Database (Mandatory Requirement)
+  # 1. Base de Datos (Persistencia Obligatoria)
   db:
-    image: postgres:15
-    container_name: battleship_db
+    image: postgres:15-alpine
+    container_name: transcendence_db
     restart: always
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: transcendence
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DB_USER:-myuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mypassword}
+      POSTGRES_DB: ${DB_NAME:-transcendence}
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
       - trans_network
 
-  # 2. Backend (NestJS)
+  # 2. Backend (NestJS + Socket.io Gateway)
   backend:
     build: ./backend
-    container_name: battleship_backend
+    container_name: transcendence_backend
     restart: on-failure
     depends_on:
       - db
     ports:
-      - "3000:3000"
+      - "3000:3000" # Puerto para API y WebSockets
     volumes:
       - ./backend:/app
       - /app/node_modules
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME:-transcendence}
+      - DB_USER=${DB_USER:-myuser}
+      - DB_PASS=${DB_PASSWORD:-mypassword}
+      # Variable crítica para tu parte:
+      - PORT=3000 
     networks:
       - trans_network
 
   # 3. Frontend (React + Vite)
   frontend:
     build: ./frontend
-    container_name: battleship_frontend
+    container_name: transcendence_frontend
     restart: on-failure
     ports:
       - "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    environment:
+      # El frontend necesita saber dónde está el backend para los sockets
+      - VITE_BACKEND_URL=http://localhost:3000
     networks:
       - trans_network
 
@@ -48,4 +56,5 @@ volumes:
 
 networks:
   trans_network:
+    name: trans_network
     driver: bridge
