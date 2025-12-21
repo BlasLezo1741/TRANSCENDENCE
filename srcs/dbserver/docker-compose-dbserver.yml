@@ -1,8 +1,9 @@
 services:
   # Base de Datos: Requisito de persistencia [cite: 182]
-  db:
+  dbserver:
+    command: echo "I'm ${COMPOSE_PROJECT_NAME}/dbserver"  
     image: postgres:15
-    container_name: transcendence_db
+    container_name: dbserver
     restart: always
     build:
       context: .
@@ -20,13 +21,6 @@ services:
         ipv4_address: 192.168.1.2  # Fixed IP
         aliases:
           - in_net
-
-
-  dbserver:
-    command: echo "I'm running ${COMPOSE_PROJECT_NAME}/webserver"
-    container_name: dbserver
-    image: dbserver # EL nombre de la imagen debe coincidir con el nombre del servicio
-
 
 
 

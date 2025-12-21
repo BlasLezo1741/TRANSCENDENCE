@@ -22,11 +22,11 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: "${USER_HOME_DIR}/data/db"
+      device: "${TRANSCENDENCE_HOME}/data/dbserver"
       o: bind
   wp_data:
     driver: local
     driver_opts:
       type: none
-      device: "${USER_HOME_DIR}/data/wp"
+      device: "${TRANSCENDENCE_HOME}/data/wp"
       o: bind
