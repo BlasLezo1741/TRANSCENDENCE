@@ -11,7 +11,7 @@ Propongo una estrategia basada en un GitHub Flow evolucionado con Feature Branch
 
 + `develop`: Es la rama de integración. Aquí es donde se consolidan las funcionalidades terminadas antes de pasar a producción.
 
-## Ramas de Corta Duración (Temporales)
+## Ramas de Corta Duración (Temporales) COLGANDO DE `develop`
 
 + `feat/xxx`: Para nuevas funcionalidades (ej. `feat/pong-logic`, `feat/oauth-auth`).
 
