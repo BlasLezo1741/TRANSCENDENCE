@@ -10,6 +10,7 @@ erDiagram
         utinyint u_lang FK
         utinyint u_country FK
         utinyint u_role FK
+        
     }
     COUNTRY {
         utinyint Coun_pk PK
@@ -62,7 +63,6 @@ erDiagram
     USER }o--o{ FRIEND : has
     USER ||--o{ COMPETITOR : is    
     USER }o--o{ ORGANIZATION : "is member of"
-    ORDER ||--|{ LINE-ITEM : contains
     USER ||--|| ROLE : has
     USER ||--|| COUNTRY : has
     USER ||--|| LANGUAGE : has
@@ -70,6 +70,8 @@ erDiagram
     MATCH }o--o{ MATCHMETRIC : has
     MATCH ||--o{ COMPETITOR : has
     METRIC ||--o{ MATCHMETRIC : "has values"
+    METRIC ||--o{ COMPETITORMETRIC : "has values"    
+    USER ||--o{ COMPETITORMETRIC : has
     
 ```
 	
