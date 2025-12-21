@@ -1,14 +1,14 @@
 name: transcendence
-include:
-  - ./srcs/dbserver/docker-compose-dbserver.yml
-  - ./srcs/backendserver/docker-compose-backendserver.yml
-  - ./srcs/frontendserver/docker-compose-frontendserver.yml
-  - ./srcs/2faserver/docker-compose-2faserver.yml
+include: # Please keep alphabetic order
+  #- ./2faserver/docker-compose-2faserver.yml
+  #- ./backendserver/docker-compose-backendserver.yml  
+  - ./dbserver/docker-compose-dbserver.yml
+  #- ./frontendserver/docker-compose-frontendserver.yml
 
 
 
 networks:
-  trancendence_net:
+  transcendence_net:
     name: thenet
     driver: bridge
     ipam:

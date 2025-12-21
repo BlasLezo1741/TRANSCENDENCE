@@ -14,6 +14,7 @@ SERVICES = $(SERVICE1)
 # --also saves space. Deletes all images not used by any containers, even tagged ones.
 # docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped
 all:
+	echo $(HOME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
 
