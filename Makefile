@@ -4,22 +4,17 @@ SERVICE1 = webserver
 SERVICE2 = dbserver
 SERVICE3 = contentserver
 SERVICE9 = adminer
-SERVICES = $(SERVICE1) $(SERVICE2) $(SERVICE3)
+#SERVICES = $(SERVICE1) $(SERVICE2) $(SERVICE3)
+SERVICES = $(SERVICE1)
 
 
-.PHONY: all web db content client webclean dbclean contentclean clientclean 
+.PHONY: all web db content client webclean dbclean contentclean clientclean
 # --build image if not exists and run it in detached mode (-d)
-# --hints about .env location. 
+# --hints about .env location.
 # --also saves space. Deletes all images not used by any containers, even tagged ones.
-# docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped 
+# docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped
 all:
-	cp ../data/certs/* srcs/requirements/webserver
-#	mkdir -p /home/luicasad/data/db
-#   doas chown -R 1000:1000 /home/luicasad/data/db
-#	mkdir -p /home/luicasad/data/wp
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
-#	docker image prune -a
-	
 
 
 # Individual rules
@@ -41,7 +36,7 @@ contentclean:
 	docker image rm $(SERVICE3)
 
 
-# global rules 
+# global rules
 .PHONY: up down stop logs clean fclean
 # Ejecutar docker compose up
 up:
@@ -69,3 +64,4 @@ fclean: clean
 	docker system prune -a --volumes
 	doas rm -rf $(HOME)/data/db/*
 	doas rm -rf $(HOME)/data/wp/*
+

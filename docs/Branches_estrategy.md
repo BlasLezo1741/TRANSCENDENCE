@@ -65,14 +65,22 @@ Para facilitar la gestión de versiones entre el Frontend y el Backend, recomien
 ```bash
 
 /
-├── .github/          # Templates de issues y Workflows de Actions
+├── .github/               # Templates de issues y Workflows de Actions
 ├── srcs/
-│   ├── backend/      # Framework de backend (NestJS, Django, etc.) [cite: 236]
-│   ├── frontend/     # Framework de frontend (React, Vue, etc.) [cite: 234]
-│   ├── common/       # Tipos compartidos y lógica de juego (Core)
-│   └──docker-compose.yml # con includes de docker compose por cada servicio
-├── Makefile          # Despliegue con un solo comando
-└── README.md         # Documentación obligatoria [cite: 624]
+│   ├── backend/           # Framework de backend (NestJS, Django, etc.) [cite: 236]
+|   |   ├── docker-compose.yml
+│   ├── frontend/          # Framework de frontend (React, Vue, 
+|   |   ├── docker-compose.yml
+│   ├── 2fa/               # Framework de frontend (React, Vue, 
+|   |   ├── docker-compose.yml
+│   ├── db/                # Postgres container
+|   |   ├── docker-compose.yml
+│   ├── common/            # Framework de frontend (React, Vue, 
+|   |   ├── docker-compose.yml
+etc.) [cite: 234]
+│   └── docker-compose.yml # Tipos compartidos y lógica de juego (Core)
+├── Makefile               # Despliegue con un solo comando 
+└── README.md              # Documentación obligatoria [cite: 624]
 ```
 
 

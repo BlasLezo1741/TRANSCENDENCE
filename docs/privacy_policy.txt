@@ -1,0 +1,33 @@
+
+1. Política de Privacidad (Privacy Policy)
+
+Última actualización: [Fecha actual], 2025
+Introducción
+
+En [Nombre de tu Proyecto], accesible desde la plataforma creada por el equipo de la organización BlasLezo1741, nos tomamos en serio la privacidad de nuestros usuarios. Este documento describe qué información recopilamos y cómo la utilizamos para garantizar una experiencia segura y transparente.
+
+Datos que Recopilamos
+
+    Información de Registro: Al crear una cuenta, solicitamos obligatoriamente un correo electrónico y una contraseña, la cual es almacenada de forma segura mediante algoritmos de hashing y salting.
+
+Datos de Perfil: Nombre de usuario, avatar y estadísticas de juego (victorias, derrotas, nivel).
+
+Autenticación de Terceros: Si utilizas OAuth (42, GitHub o Google), recibimos tu ID de usuario y correo electrónico de dicho proveedor.
+
+Uso de la Información
+
+    Utilizamos tus datos exclusivamente para gestionar tu cuenta, permitir la interacción con otros usuarios (chat y amigos) y mostrar tu progreso en las tablas de clasificación.
+
+No compartimos datos personales con terceros externos al entorno de evaluación académica.
+
+Seguridad de los Datos
+
+    Toda la comunicación entre tu navegador y nuestros servidores se realiza mediante protocolos cifrados HTTPS.
+
+Implementamos medidas de ciberseguridad para prevenir el acceso no autorizado y la corrupción de datos.
+
+Tus Derechos (GDPR)
+
+    Puedes solicitar la exportación de tus datos en un formato legible.
+
+Tienes derecho a solicitar la eliminación definitiva de tu cuenta y todos los datos asociados.
