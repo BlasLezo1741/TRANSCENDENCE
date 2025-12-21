@@ -43,7 +43,7 @@ function App() {
       <h1>Vite + React</h1>
       {/* Mostramos el estado de la conexión según la V.19  */}
       <p>Estado Red: {isConnected ? '🟢 Online' : '🔴 Offline'}</p>
-      <h1>Blas by by. PONG is comming!</h1>
+      <h1>Blas bye bye. PONG is comming!</h1>
       <div className="card">
       <img src="/lezo.jpg" alt="Blas Logo" style={{ width: '400px' }} />
       </div>
