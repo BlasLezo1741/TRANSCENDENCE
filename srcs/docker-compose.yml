@@ -1,0 +1,32 @@
+name: transcendence
+include:
+  - ./srcs/dbserver/docker-compose-dbserver.yml
+  - ./srcs/backendserver/docker-compose-backendserver.yml
+  - ./srcs/frontendserver/docker-compose-frontendserver.yml
+  - ./srcs/2faserver/docker-compose-2faserver.yml
+
+
+
+networks:
+  trancendence_net:
+    name: thenet
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/28  # Define the IP range
+
+
+volumes:
+  volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${USER_HOME_DIR}/data/db"
+      o: bind
+  wp_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${USER_HOME_DIR}/data/wp"
+      o: bind
