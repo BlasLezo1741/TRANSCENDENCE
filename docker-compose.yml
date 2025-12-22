@@ -45,9 +45,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    environment:
       # El frontend necesita saber dónde está el backend para los sockets
-      - VITE_BACKEND_URL=http://localhost:3000
+    env_file:
+      - ./frontend/.env
     networks:
       - trans_network
 

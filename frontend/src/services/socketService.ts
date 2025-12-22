@@ -3,8 +3,12 @@ import { io, Socket } from 'socket.io-client';
 // Usamos la variable de entorno que definimos en Docker
 // VITE_ permite que React acceda a ella en tiempo de ejecución
 //const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-const SOCKET_URL = 'https://sturdy-happiness-jjjjw444x7q7h57q6-3000.app.github.dev';
-
+// 1. Obtenemos la URL del .env
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL
+// 2. Verificación de seguridad para ti como desarrolladora
+if (!SOCKET_URL) {
+  console.error("⚠️ ERROR: VITE_BACKEND_URL no está definida en el archivo .env");
+}
 // Configuramos la conexión única
 export const socket: Socket = io(SOCKET_URL, {
   autoConnect: true,
