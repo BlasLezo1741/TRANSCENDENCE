@@ -6,7 +6,7 @@ SERVICE2 = dbserver
 SERVICE3 = contentserver
 SERVICE9 = adminer
 #SERVICES = $(SERVICE1) $(SERVICE2) $(SERVICE3)
-SERVICES = $(SERVICE1)
+SERVICES = $(SERVICE2)
 
 
 # dbserver data directory
@@ -71,5 +71,5 @@ clean: down
 fclean: clean
 	docker volume rm transcendence_db_data
 	docker system prune -a --volumes
-	doas rm -rf $(TRANSCENDENCE_HOME)/data/db/*
+	sudo rm -rf $(TRANSCENDENCE_HOME)/data/db/*
 
