@@ -1,0 +1,92 @@
+import { Player } from './Player.ts'
+
+export class Ball
+{
+    // Current pos
+    private                 x: number;
+    private                 y: number;
+    // Initial pos
+    private readonly        spawnX: number;
+    private readonly        spawnY: number;
+    // Direction
+    private                 dirX: number;
+    private                 dirY: number;
+    // Canvas size
+    private readonly        canvasWidth: number;
+    private readonly        canvasHeight: number;
+    // Ball data
+    static readonly         radious: number = 5;
+    static readonly         initialSpeed: number = 4;
+    static readonly         speed: number = 12;
+    private                 reset: boolean;
+
+    constructor(x: number, y: number, width: number, height: number)
+    {
+        this.x = this.spawnX = x;
+        this.y = this.spawnY = y;
+
+        const dirX = Math.random() < 0.5 ? -1 : 1;
+        const dirY = Math.random() * 2 - 1;
+        const leng = Math.sqrt(dirX * dirX + dirY * dirY);
+
+        this.dirX = (dirX / leng) * Ball.initialSpeed;
+        this.dirY = (dirY / leng) * Ball.initialSpeed;
+
+        this.canvasWidth = width;
+        this.canvasHeight = height;
+
+        this.reset = false;        
+    }
+
+    private score()
+    {
+        if (this.x <= 20 || this.x >= this.canvasWidth - 20)
+        {            
+            // this.reset = true;
+            this.x = this.spawnX;
+            this.y = this.spawnY;
+        }
+    }
+
+    paddleCollision(p: Player)
+    {
+        const px = p.getX();
+        const py = p.getY();
+        const pw = p.getWidth();
+        const ph = p.getHeight();
+
+        if (this.x + Ball.radious >= px && this.x - Ball.radious <= px + pw)
+        {
+            if (this.y >= py && this.y <= py + ph)
+                this.dirX = -this.dirX;
+        }
+    }
+
+    private wallCollision()
+    {
+        // Top wall
+        if (this.y <= 0 + Ball.radious)
+            this.dirY = -this.dirY;
+        // Bottom wall
+        else if (this.y >= this.canvasHeight - Ball.radious)
+            this.dirY = -this.dirY;
+    }
+
+    move()
+    {
+        this.wallCollision();
+        this.x += this.dirX;
+        this.y += this.dirY;
+        this.score();
+    }
+
+    draw(ctx: CanvasRenderingContext2D)
+    {
+        if (!this.reset)
+        {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, Ball.radious, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}

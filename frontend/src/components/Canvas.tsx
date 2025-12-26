@@ -1,6 +1,7 @@
 import React, {useRef, useEffect} from "react";
 import { Player } from '../ts/models/Player.ts';
 import type { PlayerDir } from "../ts/types/direction.ts";
+import { Ball } from '../ts/models/Ball.ts'
 
 const getDir: Record<string, PlayerDir> = {
     ArrowUp: "up",
@@ -24,13 +25,15 @@ const Canvas: React.FC = () =>
         canvas.width = 800;
         canvas.height = 600;
 
-        // 1. Create game objects
+        // Create game objects
 
         const players: Player[] = [
             new Player("Jose Luis", 20, 50, "w", "s", canvas.height),
             new Player("Alberto", 760, 50, "ArrowUp", "ArrowDown", canvas.height)
         ];
-        // const ball = new Ball();
+        const ball = new Ball(canvas.width / 2, canvas.height / 2, canvas.width, canvas.height);
+
+        // Keys
 
         const keysPressed: Record<string, boolean> = {};
 
@@ -41,15 +44,19 @@ const Canvas: React.FC = () =>
             if (getDir[e.key]) keysPressed[e.key] = true;
         });
 
+        // Update positions
+
         const update = () =>
         {
-            
-            // ball.move();
             players.forEach(p => 
             {
                 p.move(keysPressed);
+                ball.paddleCollision(p);
             });
+            ball.move();
         }
+
+        // Draw objects
 
         const draw = () =>
         {
@@ -59,13 +66,11 @@ const Canvas: React.FC = () =>
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             ctx.fillStyle = "white";
-            players[0].draw(ctx);
-            players[1].draw(ctx);
-            // players.forEach( p =>
-            // {
-            //     p.draw(ctx);
-            // });
-            // ball.draw(ctx);
+            players.forEach( p =>
+            {
+                p.draw(ctx);
+            });
+            ball.draw(ctx);
         }
 
         const gameLoop = () =>
@@ -77,11 +82,6 @@ const Canvas: React.FC = () =>
 
         gameLoop();
 
-        // Clean listener
-        // return () => 
-        // {
-        //     window.removeEventListener("keydown", handleKeyDown);
-        // };
     }, []);
 
     return <canvas ref={canvasRef}/>;

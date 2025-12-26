@@ -35,4 +35,9 @@ export class Player
     {
         ctx.fillRect(this.x, this.y, Player.width, Player.height);
     }
+
+    getX() { return this.x; }
+    getY() { return this.y; }
+    getWidth() { return Player.width; }
+    getHeight() { return Player.height; }
 }
