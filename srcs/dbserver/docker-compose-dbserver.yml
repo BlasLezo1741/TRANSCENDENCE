@@ -6,8 +6,10 @@ services:
     container_name: dbserver
     environment:
       POSTGRES_PASSWORD: example
+      POSTGRES_DB: transcendence
+      POSTGRES_USER: postgres
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d transcendence"]
       interval: 1s
       timeout: 5s
       retries: 10
