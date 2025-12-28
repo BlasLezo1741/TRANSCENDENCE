@@ -1,0 +1,184 @@
+lang_pk,lang_name, lang_status
+"aa","Afar", false
+"ab","Abkhazian", false
+"ae","Avestan", false
+"af","Afrikaans", false
+"ak","Akan", false
+"am","Amharic", false
+"an","Aragonese", false
+"ar","Arabic", false
+"as","Assamese", false
+"av","Avaric", false
+"ay","Aymara", false
+"az","Azerbaijani", false
+"ba","Bashkir", false
+"be","Belarusian", false
+"bg","Bulgarian", false
+"bi","Bislama", false
+"bm","Bambara", false
+"bn","Bengali", false
+"bo","Tibetan", false
+"br","Breton", false
+"bs","Bosnian", false
+"ca","Catalan; Valencian", true
+"ce","Chechen", false
+"ch","Chamorro", false
+"co","Corsican", false
+"cr","Cree", false
+"cs","Czech", false
+"cu","Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic", false
+"cv","Chuvash", false
+"cy","Welsh", false
+"da","Danish", false
+"de","German", false
+"dv","Divehi; Dhivehi; Maldivian", false
+"dz","Dzongkha", false
+"ee","Ewe", false
+"el","Greek, Modern (1453-)", false
+"en","English", true
+"eo","Esperanto", false
+"es","Spanish; Castilian", true
+"et","Estonian", false
+"eu","Basque", false
+"fa","Persian", false
+"ff","Fulah", false
+"fi","Finnish", false
+"fj","Fijian", false
+"fo","Faroese", false
+"fr","French", true
+"fy","Western Frisian", false
+"ga","Irish", false
+"gd","Gaelic; Scottish Gaelic", false
+"gl","Galician", false
+"gn","Guarani", false
+"gu","Gujarati", false
+"gv","Manx", false
+"ha","Hausa", false
+"he","Hebrew", false
+"hi","Hindi", false
+"ho","Hiri Motu", false
+"hr","Croatian", false
+"ht","Haitian; Haitian Creole", false
+"hu","Hungarian", false
+"hy","Armenian", false
+"hz","Herero", false
+"ia","Interlingua (International Auxiliary Language Association)", false
+"id","Indonesian", false
+"ie","Interlingue; Occidental", false
+"ig","Igbo", false
+"ii","Sichuan Yi; Nuosu", false
+"ik","Inupiaq", false
+"io","Ido", false
+"is","Icelandic", false
+"it","Italian", false
+"iu","Inuktitut", false
+"ja","Japanese", false
+"jv","Javanese", false
+"ka","Georgian", false
+"kg","Kongo", false
+"ki","Kikuyu; Gikuyu", false
+"kj","Kuanyama; Kwanyama", false
+"kk","Kazakh", false
+"kl","Kalaallisut; Greenlandic", false
+"km","Central Khmer", false
+"kn","Kannada", false
+"ko","Korean", false
+"kr","Kanuri", false
+"ks","Kashmiri", false
+"ku","Kurdish", false
+"kv","Komi", false
+"kw","Cornish", false
+"ky","Kirghiz; Kyrgyz", false
+"la","Latin", false
+"lb","Luxembourgish; Letzeburgesch", false
+"lg","Ganda", false
+"li","Limburgan; Limburger; Limburgish", false
+"ln","Lingala", false
+"lo","Lao", false
+"lt","Lithuanian", false
+"lu","Luba-Katanga", false
+"lv","Latvian", false
+"mg","Malagasy", false
+"mh","Marshallese", false
+"mi","Maori", false
+"mk","Macedonian", false
+"ml","Malayalam", false
+"mn","Mongolian", false
+"mr","Marathi", false
+"ms","Malay", false
+"mt","Maltese", false
+"my","Burmese", false
+"na","Nauru", false
+"nb","Bokmål, Norwegian; Norwegian Bokmål", false
+"nd","Ndebele, North; North Ndebele", false
+"ne","Nepali", false
+"ng","Ndonga", false
+"nl","Dutch; Flemish", false
+"nn","Norwegian Nynorsk; Nynorsk, Norwegian", false
+"no","Norwegian", false
+"nr","Ndebele, South; South Ndebele", false
+"nv","Navajo; Navaho", false
+"ny","Chichewa; Chewa; Nyanja", false
+"oc","Occitan (post 1500)", false
+"oj","Ojibwa", false
+"om","Oromo", false
+"or","Oriya", false
+"os","Ossetian; Ossetic", false
+"pa","Panjabi; Punjabi", false
+"pi","Pali", false
+"pl","Polish", false
+"ps","Pushto; Pashto", false
+"pt","Portuguese", true
+"qu","Quechua", false
+"rm","Romansh", false
+"rn","Rundi", false
+"ro","Romanian; Moldavian; Moldovan", false
+"ru","Russian", false
+"rw","Kinyarwanda", false
+"sa","Sanskrit", false
+"sc","Sardinian", false
+"sd","Sindhi", false
+"se","Northern Sami", false
+"sg","Sango", false
+"si","Sinhala; Sinhalese", false
+"sk","Slovak", false
+"sl","Slovenian", false
+"sm","Samoan", false
+"sn","Shona", false
+"so","Somali", false
+"sq","Albanian", false
+"sr","Serbian", false
+"ss","Swati", false
+"st","Sotho, Southern", false
+"su","Sundanese", false
+"sv","Swedish", false
+"sw","Swahili", false
+"ta","Tamil", false
+"te","Telugu", false
+"tg","Tajik", false
+"th","Thai", false
+"ti","Tigrinya", false
+"tk","Turkmen", false
+"tl","Tagalog", false
+"tn","Tswana", false
+"to","Tonga (Tonga Islands)", false
+"tr","Turkish", false
+"ts","Tsonga", false
+"tt","Tatar", false
+"tw","Twi", false
+"ty","Tahitian", false
+"ug","Uighur; Uyghur", false
+"uk","Ukrainian", false
+"ur","Urdu", false
+"uz","Uzbek", false
+"ve","Venda", false
+"vi","Vietnamese", false
+"vo","Volapük", false
+"wa","Walloon", false
+"wo","Wolof", false
+"xh","Xhosa", false
+"yi","Yiddish", false
+"yo","Yoruba", false
+"za","Zhuang; Chuang", false
+"zh","Chinese", false
+"zu","Zulu", false
