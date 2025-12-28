@@ -8,6 +8,8 @@ services:
       POSTGRES_PASSWORD: example
       POSTGRES_DB: transcendence
       POSTGRES_USER: postgres
+      PGDATA: /var/lib/postgresql/18/docker
+      PGDATESTYLE: ISO, DMY
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d transcendence"]
       interval: 1s
@@ -15,6 +17,9 @@ services:
       retries: 10
     volumes:
       - db_data:/var/lib/postgresql/18/docker
+      - ./ER-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./language-codes.csv:/docker-entrypoint-initdb.d/languages.csv
+      - ./country-codes.csv:/docker-entrypoint-initdb.d/countries.csv
     networks:
       transcendence_net:
         ipv4_address: 192.168.1.2  # Fixed IP
