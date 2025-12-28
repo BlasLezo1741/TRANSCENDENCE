@@ -214,6 +214,7 @@ This structure supports a comprehensive competitive gaming platform with social 
 
 |Member|Individual contributions|
 |------|------------------------|
+|Adria||
 |Natalia||
 |Xavi||
 |Luis| Readme|
@@ -221,3 +222,6 @@ This structure supports a comprehensive competitive gaming platform with social 
 # Documentation 
 # Credits
 # License
+# Data sources
++ [language codes](https://github.com/datasets/language-codes/tree/main)
++ [Country codes](https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv)
