@@ -24,8 +24,13 @@ all: .env $(DB_DATA_DIR)
 
 # Create data directory if does not exists
 $(DB_DATA_DIR):
-	@mkdir -p $(DB_DATA_DIR)
-	@echo "Directorio $(DB_DATA_DIR) creado"
+	@if [ -d "$(DB_DATA_DIR)" ]; then \
+		rm -rf $(DB_DATA_DIR)/*; \
+		echo "Contenido de $(DB_DATA_DIR) eliminado"; \
+	else \
+		mkdir -p $(DB_DATA_DIR); \
+		echo "Directorio $(DB_DATA_DIR) creado"; \
+	fi
 
 # Individual rules
 
@@ -71,5 +76,5 @@ clean: down
 fclean: clean
 	docker volume rm transcendence_db_data
 	docker system prune -a --volumes
-	sudo rm -rf $(TRANSCENDENCE_HOME)/data/db/*
+	sudo rm -rf $(TRANSCENDENCE_HOME)/data/dbserver
 
