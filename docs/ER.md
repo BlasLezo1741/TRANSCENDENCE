@@ -1,26 +1,26 @@
 ```mermaid
 erDiagram
-    USER {
-        int    u_pk PK
-        string u_nick
-        string u_mail UK
-        string u_pass
-        timestamp u_reg "User creation Day"
-        date u_bir 
-        utinyint u_lang FK
-        utinyint u_country FK
-        utinyint u_role FK
+    PLAYER {
+        int    p_pk PK
+        string p_nick
+        string p_mail UK
+        string p_pass
+        timestamp p_reg "User creation Day"
+        date p_bir 
+        utinyint p_lang FK
+        utinyint p_country FK
+        utinyint p_role FK
         
     }
     COUNTRY {
         utinyint Coun_pk PK
         string coun_name
     }
-    LANGUAGE {
+    P_LANGUAGE {
         utinyint lang_pk PK
         string lang_name
     }
-    ROLE {
+    P_ROLE {
         utinyint role_pk PK
         string role_name
     }
@@ -46,7 +46,7 @@ erDiagram
     }
     COMPETITOR {
         integer mc_match_fk FK,PK
-        integer mc_user_fk FK,PK
+        integer mc_player_fk FK,PK
     }    
     COMPETITORMETRIC {
         integer mcm_match_fk FK,PK
@@ -54,24 +54,32 @@ erDiagram
         tinyint mcm_metric_fk PK
         float   mcm_value
     } 
-    FRIEND {
+    PLAYER_FRIEND {
         int f_1 FK,PK
         int f_2 FK,PK
         date f_date "inicio  o fin de amistad"
         boolean f_tipo "TRUE = Creada, FALSE= Rota"
     }   
-    USER }o--o{ FRIEND : has
-    USER ||--o{ COMPETITOR : is    
-    USER }o--o{ ORGANIZATION : "is member of"
-    USER ||--|| ROLE : has
-    USER ||--|| COUNTRY : has
-    USER ||--|| LANGUAGE : has
-    USER ||--|| STATUS : has
+    ORGANIZATION {
+        smallint org_pk OK
+        string org_name
+    }
+    PLAYER_ORGANIZATION {
+        smallint org_pk FK, PK
+        int p_pk FK, PF
+    }
+    PLAYER }o--o{ FRIEND : has
+    PLAYER ||--o{ COMPETITOR : is    
+    PLAYER }o--o{ ORGANIZATION : "is member of"
+    PLAYER ||--|| ROLE : has
+    PLAYER ||--|| COUNTRY : has
+    PLAYER ||--|| LANGUAGE : has
+    PLAYER ||--|| STATUS : has
     MATCH }o--o{ MATCHMETRIC : has
     MATCH ||--o{ COMPETITOR : has
     METRIC ||--o{ MATCHMETRIC : "has values"
     METRIC ||--o{ COMPETITORMETRIC : "has values"    
-    USER ||--o{ COMPETITORMETRIC : has
+    PLAYER ||--o{ COMPETITORMETRIC : has
     
 ```
 	
