@@ -49,8 +49,14 @@ CREATE TABLE PLAYER (
 );
 
 CREATE TABLE METRIC_CATEGORY ( 
-    metric_cate_pk smallint generated always as identity PRIMARY KEY,
-    metric_cate_name VARCHAR(255)
+    metric_cate_pk smallint generated always as identity PRIMARY KEY
+);
+
+CREATE TABLE METRIC_CATEGORY_I18N (
+    mci_cat_fk smallint REFERENCES METRIC_CATEGORY(metric_cate_pk) ON DELETE CASCADE,
+    mci_lang_fk char(2) REFERENCES P_LANGUAGE(lang_pk) ON DELETE CASCADE,
+    mci_name VARCHAR(100) NOT NULL,
+    PRIMARY KEY (mci_cat_fk, mci_lang_fk)
 );
 
 CREATE TABLE METRIC ( 
@@ -153,10 +159,44 @@ VALUES
 
 INSERT INTO METRIC_CATEGORY (metric_cate_name) 
 VALUES 
-    ('Competitor Stats'),
-    ('Match Stats'),
-    ('Organization Stats'),
-    ('Tournament Stats');
+    (1),
+    (2),
+    (3),
+    (4),
+    (5);
+INSERT INTO METRIC_CATEGORY_I18N (mci_cat_fk, mci_lang_fk, mci_name) 
+VALUES 
+    (1, 'en', 'Competitor Stats'),
+    (2, 'en', 'Match Stats'),
+    (3, 'en', 'Organization Stats'),
+    (4, 'en', 'Tournament Stats'),
+    (5, 'en', 'System Stats'),
+    (1, 'es', 'Estadísticas del Competidor'),
+    (2, 'es', 'Estadísticas del Partido'),
+    (3, 'es', 'Estadísticas de la Organización'),
+    (4, 'es', 'Estadísticas del Torneo'),
+    (5, 'es', 'Estadísticas del Sistema'),
+    (1, 'fr', 'Statistiques du Compétiteur'),
+    (2, 'fr', 'Statistiques du Match'),
+    (3, 'fr', "Statistiques de l'Organisation"),
+    (4, 'fr', 'Statistiques du Tournoi'),
+    (5, 'fr', 'Statistiques du Système'),
+    (1, 'de', 'Wettbewerberstatistiken'),
+    (2, 'de', 'Spielstatistiken'),
+    (3, 'de', 'Organisationsstatistiken'),
+    (4, 'de', 'Turnierstatistiken'),
+    (5, 'de', 'Systemstatistiken'),
+    (1, 'it', 'Statistiche del Competitore'),
+    (2, 'it', 'Statistiche della Partita'),
+    (3, 'it', "Statistiche dell'Organizzazione"),
+    (4, 'it', 'Statistiche del Torneo'),
+    (5, 'it', 'Statistiche del Sistema'),
+    (1, 'pt', 'Estatísticas do Competidor'),
+    (2, 'pt', 'Estatísticas da Partida'),
+    (3, 'pt', 'Estatísticas da Organização'),
+    (4, 'pt', 'Estatísticas do Torneio'),
+    (5, 'pt', 'Estatísticas do Sistema');
+
 
 INSERT INTO METRIC (metric_name, category) 
 VALUES 
