@@ -1,20 +1,22 @@
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 
-// Componente del menú principal
-type MenuProps = {
-  onGame: () => void;
-};
-
-export function MenuScreen({ onGame }: MenuProps) {
-
+function MenuScreen({ dispatch }: ScreenProps)
+{
   const { t } = useTranslation();
   
   return (
     <div>
       <LanguageSwitcher />
       <h1>{t('menu')}</h1>
-      <button onClick={onGame}>Jugar</button>
+      
+      <button onClick={() => dispatch({ type: "OPTIONS" })}>
+        Opciones
+      </button>
+
     </div>
   );
 }
+
+export default MenuScreen;

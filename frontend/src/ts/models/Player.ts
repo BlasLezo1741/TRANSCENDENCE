@@ -1,43 +1,51 @@
 export class Player
 {
-    private             nickname: string;
-    private             x: number;
-    private             y: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    speed: number;
+    canvasHeight: number;
 
-    static readonly     width: number = 10;
-    static readonly     height: number = 100;
-    static readonly     speed: number = 10;
-
-    private             keyUp: string;
-    private             keyDown: string;
-
-    private readonly    h: number
-
-    constructor(nickname: string, x: number, y: number, up: string, down: string, h: number)
+    constructor(x: number, h: number)
     {
-        this.nickname = nickname;
         this.x = x;
-        this.y = y;
-        this.keyUp = up;
-        this.keyDown = down;
-        this.h = h;
+        this.y = 250;
+        this.width = 10;
+        this.height = 100;
+        this.speed = 10;
+        this.canvasHeight = h;
     }
 
-    move(keysPressed: Record<string, boolean>)
+    moveIA(ballPosition: number)
     {
-        if (keysPressed[this.keyUp])
-            this.y = Math.max(0, this.y - Player.speed);
-        else if (keysPressed[this.keyDown])
-            this.y = Math.min(this.h - Player.height, this.y + Player.speed);
+        const center = this.y + this.height / 2;
+        const diff = ballPosition - center;
+        const speed = 5;
+
+        if (Math.abs(diff) > speed)
+            this.y += speed * Math.sign(diff);
+        else
+            this.y += diff;
+
+        if (this.y < 0)
+            this.y = 0;
+        else if (this.y + this.height > this.canvasHeight)
+            this.y = this.canvasHeight - this.height;
+    }
+
+    moveUp()
+    {
+        this.y = Math.max(0, this.y - this.speed);
+    }
+
+    moveDown()
+    {
+        this.y = Math.min(this.canvasHeight - this.height, this.y + this.speed);
     }
 
     draw(ctx: CanvasRenderingContext2D)
     {
-        ctx.fillRect(this.x, this.y, Player.width, Player.height);
+        ctx.fillRect(this.x, this.y, this.width, this.height);
     }
-
-    getX() { return this.x; }
-    getY() { return this.y; }
-    getWidth() { return Player.width; }
-    getHeight() { return Player.height; }
 }

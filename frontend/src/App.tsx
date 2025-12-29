@@ -1,18 +1,48 @@
+import { useReducer } from 'react';
 import { useState } from 'react';
-import { MenuScreen } from './screens/MenuScreen.tsx'
-import { GameScreen } from './screens/GameScreen.tsx'
+import { screenReducer } from './ts/screenConf/screenReducer.ts';
 
-type Screen = "menu" | "game";
+import type { Screen, GameMode } from "./ts/types.ts"
 
-function App() {
-  const [screen, setScreen] = useState<Screen>("menu");
+import MenuScreen from './screens/MenuScreen.tsx'
+import OptionScreen from './screens/OptionScreen.tsx'
+import PongScreen from './screens/PongScreen.tsx'
+
+import Header from './components/Header.tsx'
+import Footer from './components/Footer.tsx'
+
+function App()
+{
+  const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
+
+  const [mode, setMode] = useState<GameMode>("ia");
+
+  function renderScreen()
+  {
+    switch (screen)
+    {
+      case "menu":
+        return <MenuScreen dispatch={dispatch} />;
+      case "options":
+        return <OptionScreen dispatch={dispatch} setMode={setMode} />;
+      case "pong":
+        return <PongScreen dispatch={dispatch} mode={mode}/>;
+      default:
+        return null;
+    }
+  }
   
   return (
-    <div>
-        {screen === "menu" && <MenuScreen onGame={() => setScreen("game")} />}
-        {screen === "game" && <GameScreen onMenu={() => setScreen("menu")} />}
-    </div>
-  );
+    <div>{renderScreen()}</div>
+  )
+
+  // return (
+  //   <div>
+  //     <Header />
+  //     <main>{renderScreen()}</main>
+  //     <Footer />
+  //   </div>
+  // );
 }
 
 export default App;
