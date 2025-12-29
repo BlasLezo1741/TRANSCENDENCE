@@ -20,22 +20,30 @@ export class Ball
     static readonly         speed: number = 12;
     private                 reset: boolean;
 
+    private setDirection(s: number)
+    {
+        const dirX = Math.random() < 0.5 ? -1 : 1;
+        const dirY = Math.random() * 2 - 1;
+        const leng = Math.sqrt(dirX * dirX + dirY * dirY);
+
+        this.dirX = (dirX / leng) * s;
+        this.dirY = (dirY / leng) * s;
+    }
+
     constructor(x: number, y: number, width: number, height: number)
     {
         this.x = this.spawnX = x;
         this.y = this.spawnY = y;
 
-        const dirX = Math.random() < 0.5 ? -1 : 1;
-        const dirY = Math.random() * 2 - 1;
-        const leng = Math.sqrt(dirX * dirX + dirY * dirY);
+        this.dirX = this.dirY = 0;
+        this.reset = false;
 
-        this.dirX = (dirX / leng) * Ball.initialSpeed;
-        this.dirY = (dirY / leng) * Ball.initialSpeed;
+        this.setDirection(Ball.initialSpeed);
 
         this.canvasWidth = width;
         this.canvasHeight = height;
 
-        this.reset = false;        
+              
     }
 
     private score()
@@ -48,6 +56,15 @@ export class Ball
         }
     }
 
+    private setSpeed()
+    {
+        const leng = Math.sqrt(this.dirX * this.dirX + this.dirY * this.dirY);
+
+        this.dirX = (this.dirX / leng) * Ball.speed;
+        this.dirY = (this.dirY / leng) * Ball.speed;
+    }
+
+    // Ball collision with player
     paddleCollision(p: Player)
     {
         const px = p.getX();
@@ -58,7 +75,10 @@ export class Ball
         if (this.x + Ball.radious >= px && this.x - Ball.radious <= px + pw)
         {
             if (this.y >= py && this.y <= py + ph)
+            {
                 this.dirX = -this.dirX;
+                this.setSpeed();
+            }
         }
     }
 
@@ -72,6 +92,7 @@ export class Ball
             this.dirY = -this.dirY;
     }
 
+    // Move the ball + wall collision + score
     move()
     {
         this.wallCollision();
@@ -80,6 +101,7 @@ export class Ball
         this.score();
     }
 
+    // Draw the ball
     draw(ctx: CanvasRenderingContext2D)
     {
         if (!this.reset)
