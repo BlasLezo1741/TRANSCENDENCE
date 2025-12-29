@@ -44,18 +44,25 @@ CREATE TABLE PLAYER (
     p_bir DATE,
     p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),
     p_country char(2) REFERENCES COUNTRY(coun2_pk),
-    p_role smallint REFERENCES P_ROLE(role_pk)
+    p_role smallint REFERENCES P_ROLE(role_pk),
+    p_status smallint REFERENCES STATUS(status_pk)
+);
+
+CREATE TABLE METRIC_CATEGORY ( 
+    metric_cate_pk smallint generated always as identity PRIMARY KEY,
+    metric_cate_name VARCHAR(255)
 );
 
 CREATE TABLE METRIC ( 
     metric_pk smallint generated always as identity PRIMARY KEY,
-    metric_name VARCHAR(255)
+    metric_name VARCHAR(255),
+    metric_cate_fk smallint REFERENCES METRIC_CATEGORY(metric_cate_pk)
 );
 
 CREATE TABLE MATCH ( 
     m_pk integer generated always as identity PRIMARY KEY,
     m_date TIMESTAMP,
-    m_duration time,
+    m_duration interval,
     m_winner_fk integer REFERENCES PLAYER(p_pk)
 );
 
@@ -71,13 +78,14 @@ CREATE TABLE COMPETITOR (
     mc_player_fk integer REFERENCES PLAYER(p_pk),
     PRIMARY KEY (mc_match_fk,mc_player_fk)
 );
-
-CREATE TABLE COMPETITORMETRIC ( 
-    mcm_match_fk integer REFERENCES MATCH(m_pk),
-    mcm_user_fk integer REFERENCES PLAYER(p_pk),
+CREATE TABLE COMPETITORMETRIC (
+    mcm_match_fk integer,
+    mcm_player_fk integer,
     mcm_metric_fk smallint REFERENCES METRIC(metric_pk) ,
     mcm_value FLOAT,
-    PRIMARY KEY (mcm_match_fk,mcm_user_fk,mcm_metric_fk)
+    PRIMARY KEY (mcm_match_fk,mcm_player_fk,mcm_metric_fk),
+    CONSTRAINT fk_mcm_match_player FOREIGN KEY (mcm_match_fk, mcm_player_fk) 
+        REFERENCES COMPETITOR(mc_match_fk, mc_player_fk)
     );
 
 
@@ -134,3 +142,122 @@ VALUES
     ('Guest'),
     ('Organization_Admin'),
     ('Banned');
+
+INSERT INTO ORGANIZATION (org_name) 
+VALUES 
+    ('Org Alpha'),
+    ('Beta Gamers'),
+    ('Gamma Esports'),
+    ('Delta Clan'),
+    ('Epsilon Team');
+
+INSERT INTO METRIC_CATEGORY (metric_cate_name) 
+VALUES 
+    ('Competitor Stats'),
+    ('Match Stats'),
+    ('Organization Stats'),
+    ('Tournament Stats');
+
+INSERT INTO METRIC (metric_name, category) 
+VALUES 
+    -- Competitor Stats: Focused on individual skill/performance
+    ('Points Scored', 1),
+    ('Paddle Hits', 1),
+    ('Service Aces', 1),
+    ('Misses', 1),
+    ('Winning Streak', 1),
+    
+    -- Match Stats: Focused on ball physics and game dynamics
+    ('Peak Ball Speed', 2),
+    ('Max Rally Length', 2),
+    ('Total Wall Bounces', 2),
+    ('Average Volley Duration', 2),
+    ('Net Touches', 2),
+    
+    -- Organization Stats: Focused on team/clan aggregate performance
+    ('Total Org Wins', 3),
+    ('Member Participation Count', 3),
+    ('Org Average Elo', 3),
+    ('Total Tournament Trophies', 3),
+    
+    -- Tournament Stats: Focused on the bracket and event health
+    ('Upsets Count', 4),
+    ('Average Match Margin', 4),
+    ('Total Participants', 4),
+    ('Tournament Duration', 4),
+    ('Forfeit Count', 4);
+
+
+
+
+
+-- Generate 100 Players
+INSERT INTO PLAYER (p_nick, p_mail, p_pass, p_reg, p_bir, p_lang, p_country, p_role, p_status)
+SELECT 
+    'user_' || i,
+    'user_' || i || '@example.com',
+    md5(random()::text),
+    NOW() - (random() * INTERVAL '365 days'),
+    '1990-01-01'::date + (random() * 7000)::integer,
+    rand_lang.lang_pk,
+    rand_coun.coun2_pk,
+    rand_role.role_pk,
+    rand_stat.status_pk
+FROM generate_series(1, 100) s(i)
+-- The LATERAL keyword forces the subquery to run for every 'i'
+CROSS JOIN LATERAL (
+    SELECT lang_pk 
+    FROM P_LANGUAGE 
+    WHERE i > 0 -- This "fake" dependency forces re-execution per row
+    ORDER BY random() 
+    LIMIT 1
+) rand_lang
+CROSS JOIN LATERAL (
+    SELECT coun2_pk 
+    FROM COUNTRY 
+    WHERE i > 0 -- This "fake" dependency forces re-execution per row
+    ORDER BY random() 
+    LIMIT 1
+) rand_coun
+CROSS JOIN LATERAL (
+    SELECT role_pk 
+    FROM P_ROLE 
+    WHERE i > 0 -- This "fake" dependency forces re-execution per row
+    ORDER BY random() 
+    LIMIT 1
+) rand_role
+CROSS JOIN LATERAL (
+    SELECT status_pk 
+    FROM STATUS
+    WHERE i > 0 -- This "fake" dependency forces re-execution per row 
+    ORDER BY random() 
+    LIMIT 1
+) rand_stat;
+
+-- Generate 50 Matches
+INSERT INTO MATCH (m_date, m_duration, m_winner_fk)
+SELECT 
+    NOW() - (random() * INTERVAL '30 days'),
+    (random() * 3600 || ' seconds')::interval,
+    (SELECT p_pk FROM PLAYER WHERE i > 0 ORDER BY random() LIMIT 1)
+FROM generate_series(1, 50) s(i);
+
+-- Assign 2 Competitors per Match
+INSERT INTO COMPETITOR (mc_match_fk, mc_player_fk)
+SELECT 
+    m.m_pk, 
+    c.p_pk
+FROM MATCH m
+CROSS JOIN LATERAL (
+    -- 1. The Winner (already in the Match table)
+    SELECT m.m_winner_fk AS p_pk
+    
+    UNION ALL
+    
+    -- 2. The Loser (Randomly picked, but NOT the winner)
+    (SELECT p_pk 
+     FROM PLAYER 
+     WHERE p_pk <> m.m_winner_fk  -- This forces re-execution per match
+     ORDER BY random() 
+     LIMIT 1)
+) c;
