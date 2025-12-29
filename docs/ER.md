@@ -31,7 +31,16 @@ erDiagram
     METRIC {
         utinyint metric_pk PK
         string metric_name
-    }    
+        integer metric_category_fk
+    } 
+
+    METRIC_CATEGORY {
+        integer cat_pk PK
+        string cat_name
+    }
+
+
+       
     MATCH {
         integer m_pk PK
         timestamp m_date "match starts"
