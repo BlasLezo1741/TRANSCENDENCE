@@ -35,7 +35,7 @@ function App() {
   }, []);
   
   return (
-    <div>
+    <div className="App">
       {/* 3. Indicador visual de red (útil para depurar en Codespaces) */}
       <div style={{ 
         position: 'fixed', top: 10, right: 10, 
