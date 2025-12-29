@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react' // 1. Añadimos useEffect
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react' // Añadimos useEffect
+import { MenuScreen } from './screens/MenuScreen.tsx';
+import { GameScreen } from './screens/GameScreen.tsx';
+// 1. Importamos los estilos para que el layout funcione
 import './App.css'
-// 2. Importamos tu servicio de socket [cite: 239, 244]
-import { socket, sendMove } from './services/socketService'
+// 2. Importamos tu infraestructura de comunicación
+import { socket } from './services/socketService'
+
+type Screen = "menu" | "game";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [screen, setScreen] = useState<Screen>("menu");
+// 2. Mantenemos el estado de conexión que pide la V.19
 // Estado para ver si la conexión funciona 
   const [isConnected, setIsConnected] = useState(socket.connected)
 
@@ -31,35 +35,22 @@ function App() {
   }, []);
   
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div>
+      {/* 3. Indicador visual de red (útil para depurar en Codespaces) */}
+      <div style={{ 
+        position: 'fixed', top: 10, right: 10, 
+        padding: '5px 10px', borderRadius: '5px',
+        background: isConnected ? '#2ecc71' : '#e74c3c',
+        color: 'white', fontSize: '12px', zIndex: 1000
+      }}>
+        {isConnected ? '🟢 Server Connected' : '🔴 Server Offline'}
       </div>
-      <h1>Vite + React</h1>
-      {/* Mostramos el estado de la conexión según la V.19  */}
-      <p>Estado Red: {isConnected ? '🟢 Online' : '🔴 Offline'}</p>
-      <h1>Blas bye bye. PONG is comming!</h1>
-      <div className="card">
-      <img src="/lezo.jpg" alt="Blas Logo" style={{ width: '400px' }} />
-      </div>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      {/* 4. Navegación del juego de tu compañero */}
+      {screen === "menu" && <MenuScreen onGame={() => setScreen("game")} />}
+      {screen === "game" && <GameScreen onMenu={() => setScreen("menu")} />}
+    </div>
+  );
 }
 
-export default App
+export default App;

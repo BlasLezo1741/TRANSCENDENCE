@@ -25,4 +25,8 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"]
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/game

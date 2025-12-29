@@ -23,4 +23,8 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["vite.config.ts"]
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/game
