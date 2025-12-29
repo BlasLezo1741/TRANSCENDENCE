@@ -44,6 +44,22 @@ db:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build dbserver
 dbclean:
 	docker image rm $(SERVICE2)
+test-db-content:
+	# 1. Ensure the containers are up and HEALTHY
+	docker compose -f srcs/docker-compose.yml up -d dbserver
+	
+	# 2. Wait for Postgres to be ready (prevents race conditions)
+	docker exec dbserver sh -c 'until pg_isready -U postgres; do sleep 1; done'
+	
+	# 3. Precise count matching using awk or psql -t (tuples only mode)
+	@COUNT=$$(docker exec dbserver psql -U postgres -d transcendence -t -c "SELECT count(*) FROM PLAYER;" | xargs); \
+	if [ "$$COUNT" -eq 50 ]; then \
+		echo "✅ Test Passed: Found exactly 50 players."; \
+	else \
+		echo "❌ Test Failed: Expected 50 players, found $$COUNT."; \
+		exit 1; \
+	fi
+	docker exec -it $(SERVICE2) mysql -u postgres -ptranscendence -e "SHOW DATABASES;"
 
 content:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build contentserver
