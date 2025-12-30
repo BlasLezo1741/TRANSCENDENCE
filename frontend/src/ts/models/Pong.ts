@@ -11,9 +11,6 @@ export class Pong
     player2: Player;
     ball: Ball;
 
-    // control1: boolean;
-    // control2: boolean;
-
     keysPressed: { [key: string]: boolean } = {};
     playerNumber: number;
 
@@ -26,7 +23,6 @@ export class Pong
         this.player2 = new Player(760, c.height);
         this.ball = new Ball(c);
         this.playerNumber = n;
-        // this.control1 = this.control2 = true;   
     }
 
     updatePlayer(p: Player, up: string, down: string)
@@ -62,7 +58,6 @@ export class Pong
             else
                 this.updatePlayer(this.player2, "w", "s");
         }
-        
     }
 
     draw()

@@ -14,6 +14,8 @@ export class Ball
     spawnX: number;
     spawnY: number;
 
+    waiting: boolean;
+
     constructor(c: HTMLCanvasElement)
     {
         this.x = this.spawnX = c.width / 2;
@@ -23,6 +25,7 @@ export class Ball
         this.speed = 5;
         this.canvasWidth = c.width;
         this.canvasHeight = c.height;
+        this.waiting = false;
 
         this.setDirection();
     }
@@ -44,24 +47,31 @@ export class Ball
         ctx.fill();
     }
 
+    private delay(ms: number): Promise<void>
+    {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     private wallCollision()
     {
-        // Top wall
-        if (this.y <= this.radious)
-            this.dirY = -this.dirY;
-        // Bottom wall
-        else if (this.y >= this.canvasHeight - this.radious)
+        if (this.y <= this.radious || this.y >= this.canvasHeight - this.radious)
             this.dirY = -this.dirY;
     }
 
-    private reset()
+    private async reset(): Promise<void>
     {
+        this.waiting = true;
+
         this.x = this.spawnX;
         this.y = this.spawnY;
         this.setDirection();
+
+        await this.delay(1000);
+
+        this.waiting = false;
     }
 
-    private score()
+    private async score()
     {
         if (this.x <= 5)
         {
@@ -75,8 +85,11 @@ export class Ball
         }
     }
 
-    update()
+    async update()
     {
+        if (this.waiting)
+            return ;
+
         this.wallCollision();
         this.x += this.dirX;
         this.y += this.dirY;
