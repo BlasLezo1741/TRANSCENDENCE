@@ -27,12 +27,12 @@ CREATE TABLE P_LANGUAGE (
 
 CREATE TABLE P_ROLE ( 
     role_pk smallint generated always as identity PRIMARY KEY,
-    role_name VARCHAR(255)
+    role_i18n_name JSONB NOT NULL -- Estructura: {"en": "Administrator", "es": "Administrador"}
 );
 
 CREATE TABLE STATUS ( 
     status_pk smallint generated always as identity PRIMARY KEY,
-    status_name VARCHAR(255)
+    status_i18n_name JSONB NOT NULL -- Estructura: {"en": "Busy", "es": "Ocupado"}
 );
 
 CREATE TABLE PLAYER ( 
@@ -49,27 +49,15 @@ CREATE TABLE PLAYER (
 );
 
 CREATE TABLE METRIC_CATEGORY ( 
-    metric_cate_pk smallint generated always as identity PRIMARY KEY
+    metric_cate_pk smallint generated always as identity PRIMARY KEY,
+    metric_cate_i18n_name JSONB NOT NULL -- Estructura: {"en": "Competitor Stats", "es": "Estadísticas del Competidor"}
 );
 
-CREATE TABLE METRIC_CATEGORY_I18N (
-    mci_cat_fk smallint REFERENCES METRIC_CATEGORY(metric_cate_pk) ON DELETE CASCADE,
-    mci_lang_fk char(2) REFERENCES P_LANGUAGE(lang_pk) ON DELETE CASCADE,
-    mci_name VARCHAR(100) NOT NULL,
-    PRIMARY KEY (mci_cat_fk, mci_lang_fk)
-);
 CREATE TABLE METRIC ( 
     metric_pk smallint generated always as identity PRIMARY KEY,
-    metric_cat_fk smallint REFERENCES METRIC_CATEGORY(metric_cate_pk)
-);
-
--- The Metric Name/Description i18n (from previous step)
-CREATE TABLE METRIC_I18N (
-    mi18n_metric_fk smallint REFERENCES METRIC(metric_pk) ON DELETE CASCADE,
-    mi18n_lang_fk char(2) REFERENCES P_LANGUAGE(lang_pk) ON DELETE CASCADE,
-    mi18n_name VARCHAR(255) NOT NULL,
-    mi18n_description TEXT,
-    PRIMARY KEY (mi18n_metric_fk, mi18n_lang_fk)
+    metric_cat_fk smallint REFERENCES METRIC_CATEGORY(metric_cate_pk),
+    metric_i18n_name JSONB NOT NULL, -- Estructura: {"en": "Points Scored", "es": "Puntos Anotados"}
+    metric_i18n_description JSONB NOT NULL -- Estructura: {"en": "Total points scored by the competitor during the match.", "es": "Total de puntos anotados por el compet
 );
 
 
@@ -140,22 +128,23 @@ WITH (
     HEADER true
 );
 
-INSERT INTO STATUS (status_name) 
+INSERT INTO STATUS (status_i18n_name) 
 VALUES 
-    ('Unconnected'),
-    ('Connected'),
-    ('Inactive for 5 minutes'),
-    ('Inactive for 10 minutes'),
-    ('Busy');
+    ('{"en":"Unconnected","es":"Desconectado","fr":"Déconnecté","pt":"Desconectado","ca":"Desconnectat"}'),
+    ('{"en":"Connected","es":"Conectado","fr":"Connecté","pt":"Conectado","ca":"Connectat"}'),
+    ('{"en":"Inactive for 5 minutes","es":"Inactivo por 5 minutos","fr":"Inactif pendant 5 minutes","pt":"Inativo por 5 minutos","ca":"Inactiu durant 5 minuts"}'),
+    ('{"en":"Inactive for 10 minutes","es":"Inactivo por 10 minutos","fr":"Inactif pendant 10 minutes","pt":"Inativo por 10 minutos","ca":"Inactiu durant 10 minuts"}'),
+    ('{"en":"Busy","es":"Ocupado","fr":"Occupé","pt":"Ocupado","ca":"Ocupat"}');
 
-INSERT INTO P_ROLE (role_name) 
-VALUES 
-    ('Administrator'),
-    ('Moderator'),
-    ('User'),
-    ('Guest'),
-    ('Organization_Admin'),
-    ('Banned');
+INSERT INTO P_ROLE (role_i18n_name)
+VALUES
+    ('{"en":"Moderator","es":"Moderador","fr":"Modérateur","pt":"Moderador","ca":"Moderador"}'),
+    ('{"en":"Administrator","es":"Administrador","fr":"Administrateur","pt":"Administrador","ca":"Administrador"}'),
+    ('{"en":"User","es":"Usuario","fr":"Utilisateur","pt":"Usuário","ca":"Usuari"}'),
+    ('{"en":"Guest","es":"Invitado","fr":"Invité","pt":"Convidado","ca":"Convidat"}'),
+    ('{"en":"Organization Admin","es":"Administrador de la Organización","fr":"Administrateur de l''Organisation","pt":"Administrador da Organização","ca":"Administrador de l''Organització"}'),
+    ('{"en":"Banned","es":"Prohibido","fr":"Banni","pt":"Banido","ca":"Prohibit"}');
+
 
 INSERT INTO ORGANIZATION (org_name) 
 VALUES 
@@ -165,148 +154,212 @@ VALUES
     ('Delta Clan'),
     ('Epsilon Team');
 
-INSERT INTO METRIC_CATEGORY (metric_cate_pk) 
-OVERRIDING SYSTEM VALUE
+INSERT INTO METRIC_CATEGORY (metric_cate_i18n_name) 
 VALUES 
-    (1),
-    (2),
-    (3),
-    (4),
-    (5);
-INSERT INTO METRIC_CATEGORY_I18N (mci_cat_fk, mci_lang_fk, mci_name) 
-VALUES 
-    (1, 'en', 'Competitor Stats'),
-    (2, 'en', 'Match Stats'),
-    (3, 'en', 'Organization Stats'),
-    (4, 'en', 'Tournament Stats'),
-    (5, 'en', 'System Stats'),
-    (1, 'es', 'Estadísticas del Competidor'),
-    (2, 'es', 'Estadísticas del Partido'),
-    (3, 'es', 'Estadísticas de la Organización'),
-    (4, 'es', 'Estadísticas del Torneo'),
-    (5, 'es', 'Estadísticas del Sistema'),
-    (1, 'fr', 'Statistiques du Compétiteur'),
-    (2, 'fr', 'Statistiques du Match'),
-    (3, 'fr', 'Statistiques de l''Organisation'),
-    (4, 'fr', 'Statistiques du Tournoi'),
-    (5, 'fr', 'Statistiques du Système'),
-    (1, 'pt', 'Estatísticas do Competidor'),
-    (2, 'pt', 'Estatísticas da Partida'),
-    (3, 'pt', 'Estatísticas da Organização'),
-    (4, 'pt', 'Estatísticas do Torneio'),
-    (5, 'pt', 'Estatísticas do Sistema');
+    ('{"en":"Competitor Stats","es":"Estadísticas del Competidor","fr":"Statistiques du Compétiteur","pt":"Estatísticas do Competidor","ca":"Estadístiques del Competidor"}'),
+    ('{"en":"Match Stats","es":"Estadísticas del Partido","fr":"Statistiques du Match","pt":"Estatísticas da Partida","ca":"Estadístiques del Partit"}'),
+    ('{"en":"Organization Stats","es":"Estadísticas de la Organización","fr":"Statistiques de l''Organisation","pt":"Estatísticas da Organização","ca":"Estadístiques de l''Organització"}'),
+    ('{"en":"Tournament Stats","es":"Estadísticas del Torneo","fr":"Statistiques du Tournoi","pt":"Estatísticas do Torneio","ca":"Estadístiques del Torneig"}'),
+    ('{"en":"System Stats","es":"Estadísticas del Sistema","fr":"Statistiques du Système","pt":"Estatísticas do Sistema","ca":"Estadístiques del Sistema"}');
 
-INSERT INTO METRIC (metric_pk, metric_cat_fk)
+
+INSERT INTO METRIC (metric_pk, metric_cat_fk, metric_i18n_name, metric_i18n_description)
 OVERRIDING SYSTEM VALUE
 VALUES 
-    -- Competitor Stats: Focused on individual skill/performance
-    (1, 1), -- Point Scored
-    (2, 1), -- Paddle Hits
-    (3, 1), -- Service Aces
-    (4, 1), -- Misses
-    (5, 1), -- Winning Streak
+    -- CATEGORÍA 1: Competitor Stats
+    (1, 1, 
+        '{"en": "Points Scored", "es": "Puntos Anotados", "fr": "Points Marqués", "pt": "Pontos Marcados", "ca": "Punts Anotats"}', 
+        '{"en": "Total points scored by the competitor during the match.", 
+          "es": "Total de puntos anotados por el competidor durante el partido.", 
+          "fr": "Total des points marqués par le compétiteur pendant le match.", 
+          "pt": "Total de pontos marcados pelo competidor durante a partida.",
+          "ca": "Total de punts anotats pel competidor durant el partit."}'
+          ),
+    (2, 1, 
+        '{"en": "Paddle Hits", "es": "Golpes con la Pala", "fr": "Coups de Raquette", "pt": "Golpes com a Raquete", "ca": "Colps amb la Pala"}', 
+        '{"en": "Number of times the competitor hit the ball with their paddle.", 
+          "es": "Número de veces que el competidor golpeó la pelota con su pala.", 
+          "fr": "Nombre de fois que le compétiteur a frappé la balle avec sa raquette.", 
+          "pt": "Número de vezes que o competidor golpeou a bola com sua raquete.",
+          "ca": "Nombre de vegades que el competidor va colpejar la pilota amb la seva pala."}'
+          ),
+    (3, 1, 
+        '{"en": "Service Aces", "es": "Ases de Servicio", "fr": "As de Service", "pt": "Aces de Serviço", "ca": "Asos de Servei"}', 
+        '{"en": "Number of unreturned serves by the competitor.", 
+          "es": "Número de servicios no devueltos por el competidor.", 
+          "fr": "Nombre de services non retournés par le compétiteur.", 
+          "pt": "Número de serviços não devolvidos pelo competidor.",
+          "ca": "Nombre de serveis no retornats pel competidor."}'
+          ),
+    (4, 1, 
+        '{"en": "Misses", "es": "Errores", "fr": "Erreurs", "pt": "Erros", "ca": "Errors"}', 
+        '{"en": "Number of times the competitor failed to return the ball.", 
+          "es": "Número de veces que el competidor no logró devolver la pelota.", 
+          "fr": "Nombre de fois que le compétiteur n''a pas réussi à retourner la balle.", 
+          "pt": "Número de vezes que o competidor não conseguiu devolver a bola.",
+          "ca": "Nombre de vegades que el competidor no va aconseguir retornar la pilota."}'
+          ),
+    (5, 1, 
+        '{"en": "Winning Streak", "es": "Racha Ganadora", "fr": "Série de Victoires", "pt": "Sequência Vencedora", "ca": "Ratxa Guanyadora"}', 
+        '{"en": "Longest consecutive points won by the competitor.", 
+          "es": "Mayor cantidad de puntos consecutivos ganados por el competidor.", 
+          "fr": "Plus grand nombre de points consécutifs gagnés par le compétiteur.", 
+          "pt": "Maior quantidade de pontos consecutivos ganhos pelo competidor.",
+          "ca": "Màxima quantitat de punts consecutius guanyats pel competidor."}'
+          ),
+
+    -- CATEGORÍA 2: Match Stats
+    (6, 2, 
+        '{"en": "Peak Ball Speed", "es": "Velocidad Máxima de la Pelota", "fr": "Vitesse Maximale de la Balle", "pt": "Velocidade Máxima da Bola", "ca": "Velocitat Màxima de la Pilota"}', 
+        '{"en": "Highest speed reached by the ball during the match.", 
+          "es": "Velocidad más alta alcanzada por la pelota durante el partido.", 
+          "fr": "Vitesse la plus élevée atteinte par la balle pendant le match.", 
+          "pt": "Velocidade mais alta alcançada pela bola durante a partida.",
+          "ca": "Velocitat més alta assolida per la pilota durant el partit."}'
+        ),
+    (7, 2, 
+        '{"en": "Max Rally Length", "es": "Longitud Máxima de Ráfaga", "fr": "Longueur Maximale du Rallye", "pt": "Comprimento Máximo de Troca", "ca": "Longitud Màxima de Ràfega"}', 
+        '{"en": "Longest sequence of consecutive hits without a point being scored.", 
+          "es": "Secuencia más larga de golpes consecutivos sin que se anote un punto.", 
+          "fr": "Plus longue séquence de coups consécutifs sans qu''un point soit marqué.", 
+          "pt": "Sequência mais longa de golpes consecutivos sem que um ponto seja marcado.",
+          "ca": "Seqüència més llarga de cops consecutius sense que es marqui un punt."}'
+        ),
+    (8, 2, 
+        '{"en": "Total Wall Bounces", "es": "Total de Rebotes en Paredes", "fr": "Total des Rebondissements sur les Murs", "pt": "Total de Rebotes nas Paredes", "ca": "Total de Rebotades a les Paretos"}', 
+        '{"en": "Total number of times the ball bounced off walls during the match.", 
+          "es": "Número total de veces que la pelota rebotó en las paredes durante el partido.", 
+          "fr": "Nombre total de fois que la balle a rebondi sur les murs pendant le match.", 
+          "pt": "Número total de vezes que a bola rebateu nas paredes durante a partida.",
+          "ca": "Nombre total de vegades que la pilota va rebotar a les parets durant el partit."}'
+          ),
+    (9, 2, 
+        '{"en": "Average Volley Duration", "es": "Duración Promedio del Volea", "fr": "Durée Moyenne des Volées", "pt": "Duração Média do Voleio", "ca": "Durada Mitjana del Volea"}', 
+        '{"en": "Average time duration of volleys during the match.", 
+          "es": "Tiempo promedio de duración de los voleas durante el partido.", 
+          "fr": "Durée moyenne des volées pendant le match.", 
+          "pt": "Tempo médio de duração dos voleios durante a partida.",
+          "ca": "Temps mitjà de durada dels voleas durant el partit."}'
+        ),
+    (10, 2, 
+        '{"en": "Net Touches", "es": "Toques en la Red", "fr": "Touches du Filet", "pt": "Toques na Rede", "ca": "Toques a la Xarxa"}', 
+        '{"en": "Number of times the ball touched the net during play.", 
+          "es": "Número de veces que la pelota tocó la red durante el juego.", 
+          "fr": "Nombre de fois que la balle a touché le filet pendant le jeu.", 
+          "pt": "Número de vezes que a bola tocou a rede durante o jogo.",
+          "ca": "Nombre de vegades que la pilota va tocar la xarxa durant el joc."}'
+          ),
+
+    -- CATEGORÍA 3: Organization Stats
+    (11, 3, 
+        '{"en": "Total Org Wins", "es": "Total de Victorias de la Organización", "fr": "Total des Victoires de l''Organisation", "pt": "Total de Vitórias da Organização", "ca": "Total de Victòries de l''Organització"}', 
+        '{"en": "Total number of wins by the organization across all matches.", 
+          "es": "Número total de victorias de la organización en todos los partidos.", 
+          "fr": "Nombre total de victoires de l''organisation dans tous les matchs.", 
+          "pt": "Número total de vitórias da organização em todas as partidas.",
+          "ca": "Nombre total de victòries de l''organització en tots els partits."}'
+          ),
+    (12, 3, 
+        '{"en": "Member Participation Count", "es": "Conteo de Participación de Miembros", "fr": "Nombre de Participation des Membres", "pt": "Contagem de Participação de Membros", "ca": "Comptatge de Participació de Membres"}', 
+        '{"en": "Number of unique members from the organization who participated in matches.", 
+          "es": "Número de miembros únicos de la organización que participaron en partidos.", 
+          "fr": "Nombre de membres uniques de l''organisation ayant participé aux matchs.", 
+          "pt": "Número de membros únicos da organização que participaram em partidas.",
+          "ca": "Nombre de membres únics de l''organització que van participar en partits."}'
+          ),
+    (13, 3, 
+        '{"en": "Org Average Elo", "es": "Elo Promedio de la Organización", "fr": "Elo Moyen de l''Organisation", "pt": "Elo Médio da Organização", "ca": "Elo Mitjà de l''Organització"}', 
+        '{"en": "Average Elo rating of all members in the organization.", 
+          "es": "Calificación Elo promedio de todos los miembros de la organización.", 
+          "fr": "Classement Elo moyen de tous les membres de l''organisation.", 
+          "pt": "Classificação Elo média de todos os membros da organização.",
+          "ca": "Classificació Elo mitjana de tots els membres de l''organització."}'
+          ),
+    (14, 3, 
+        '{"en": "Total Tournament Trophies", "es": "Total de Trofeos en Torneos", "fr": "Total des Trophées en Tournois", "pt": "Total de Troféus em Torneios", "ca": "Total de Trofeus en Torneigs"}', 
+        '{"en": "Total number of trophies won by the organization in tournaments.", 
+          "es": "Número total de trofeos ganados por la organización en torneos.", 
+          "fr": "Nombre total de trophées remportés par l''organisation dans les tournois.", 
+          "pt": "Número total de troféus ganhos pela organização em torneios.",
+          "ca": "Nombre total de trofeus guanyats per l''organització en tornejos."}'
+          ),
+
+    -- CATEGORÍA 4: Tournament Stats
+    (15, 4, 
+        '{"en": "Upsets Count", "es": "Conteo de Sorpresas", "fr": "Nombre d''Upsets", "pt": "Contagem de Surpresas", "ca": "Comptatge d''Upsets"}', 
+        '{"en": "Number of matches where a lower-ranked competitor defeated a higher-ranked competitor.", 
+          "es": "Número de partidos donde un competidor con menor clasificación derrotó a uno con mayor clasificación.", 
+          "fr": "Nombre de matchs où un compétiteur moins bien classé a battu un compétiteur mieux classé.", 
+          "pt": "Número de partidas onde um competidor com menor classificação derrotou um com maior classificação.",
+          "ca": "Nombre de partits on un competidor amb menor classificació va derrotar un amb major classificació."}'
+          ),
+    (16, 4, 
+        '{"en": "Average Match Margin", "es": "Margen Promedio del Partido", "fr": "Marge Moyenne du Match", "pt": "Margem Média da Partida", "ca": "Marge Mitjana del Partit"}', 
+        '{"en": "Average point difference between competitors in matches.",
+          "es": "Diferencia promedio de puntos entre competidores en los partidos.", 
+          "fr": "Différence moyenne de points entre les compétiteurs dans les matchs.", 
+          "pt": "Diferença média de pontos entre competidores nas partidas.",
+          "ca": "Diferència mitjana de punts entre competidors en els partits."}'
+          ),
+    (17, 4, 
+        '{"en": "Total Participants", "es": "Total de Participantes", "fr": "Total des Participants", "pt": "Total de Participantes", "ca": "Total de Participants"}', 
+        '{"en": "Total number of participants in the tournament.",
+          "es": "Número total de participantes en el torneo.",
+          "fr": "Nombre total de participants au tournoi.", 
+          "pt": "Número total de participantes no torneio.",
+          "ca": "Nombre total de participants en el torneig."}'
+          ),
+    (18, 4, 
+        '{"en": "Tournament Duration", "es": "Duración del Torneo", "fr": "Durée du Tournoi", "pt": "Duração do Torneio", "ca": "Durada del Torneig"}', 
+        '{"en": "Total duration of the tournament from start to finish.", 
+          "es": "Duración total del torneo desde el inicio hasta el final.",
+          "fr": "Durée totale du tournoi du début à la fin.", 
+          "pt": "Duração total do torneio desde o início até o final.",
+          "ca": "Durada total del torneig des de l''inici fins al final."}'
+          ),
+    (19, 4, 
+        '{"en": "Forfeit Count", "es": "Conteo de Forfaits", "fr": "Nombre d''Abandons", "pt": "Contagem de Desistências", "ca": "Comptatge de Forfets"}', 
+        '{"en": "Number of matches forfeited by competitors in the tournament.", 
+          "es": "Número de partidos forfeitados por competidores en el torneo.", 
+          "fr": "Nombre de matchs abandonnés par les compétiteurs dans le tournoi.", 
+          "pt": "Contagem de Desistências.",
+          "ca": "Nombre de partits forfeitats per competidors en el torneig."}'
+          ),
+    -- CATEGORÍA 5: System Stats (pueden añadirse métricas adicionales aquí
     
-    -- Match Stats: Focused on ball physics and game dynamics
-    (6, 2), -- Peak Ball Speed
-    (7, 2), -- Max Rally Length
-    (8, 2), -- Total Wall Bounces
-    (9, 2), -- Average Volley Duration
-    (10, 2), -- Net Touches
-    
-    -- Organization Stats: Focused on team/clan aggregate performance
-    (11, 3), -- Total Org Wins
-    (12, 3), -- Member Participation Count
-    (13, 3), -- Org Average Elo
-    (14, 3), -- Total Tournament Trophies
-    
-    -- Tournament Stats: Focused on the bracket and event health
-    (15, 4), -- Upsets Count
-    (16, 4), -- Average Match Margin
-    (17, 4), -- Total Participants
-    (18, 4), -- Tournament Duration
-    (19, 4); -- Forfeit Count
-    
-INSERT INTO METRIC_I18N (mi18n_metric_fk, mi18n_lang_fk, mi18n_name, mi18n_description) 
-VALUES 
-    (1, 'en', 'Points Scored', 'Total points scored by the competitor during the match.'),
-    (2, 'en', 'Paddle Hits', 'Number of times the competitor hit the ball with their paddle.'),
-    (3, 'en', 'Service Aces', 'Number of unreturned serves by the competitor.'),
-    (4, 'en', 'Misses', 'Number of times the competitor failed to return the ball.'),
-    (5, 'en', 'Winning Streak', 'Longest consecutive points won by the competitor.'),
-    (6, 'en', 'Peak Ball Speed', 'Highest speed reached by the ball during the match.'),
-    (7, 'en', 'Max Rally Length', 'Longest sequence of consecutive hits without a point being scored.'),
-    (8, 'en', 'Total Wall Bounces', 'Total number of times the ball bounced off walls during the match.'),
-    (9, 'en', 'Average Volley Duration', 'Average time duration of volleys during the match.'),
-    (10, 'en', 'Net Touches', 'Number of times the ball touched the net during play.'),
-    (11, 'en', 'Total Org Wins', 'Total number of wins by the organization across all matches.'),
-    (12, 'en', 'Member Participation Count', 'Number of unique members from the organization who participated in matches.'),
-    (13, 'en', 'Org Average Elo', 'Average Elo rating of all members in the organization.'),
-    (14, 'en', 'Total Tournament Trophies', 'Total number of trophies won by the organization in tournaments.'),
-    (15, 'en', 'Upsets Count', 'Number of matches where a lower-ranked competitor defeated a higher-ranked competitor.'),
-    (16, 'en', 'Average Match Margin', 'Average point difference between competitors in matches.'),
-    (17, 'en', 'Total Participants', 'Total number of participants in the tournament.'),
-    (18, 'en', 'Tournament Duration', 'Total duration of the tournament from start to finish.'),
-    (19, 'en', 'Forfeit Count', 'Number of matches forfeited by competitors in the tournament.'),
-    -- Additional translations can be added here
-    (1, 'es', 'Puntos Anotados', 'Total de puntos anotados por el competidor durante el partido.'),
-    (2, 'es', 'Golpes con la Pala', 'Número de veces que el competidor golpeó la pelota con su pala.'),
-    (3, 'es', 'Ases de Servicio', 'Número de servicios no devueltos por el competidor.'),
-    (4, 'es', 'Errores', 'Número de veces que el competidor no logró devolver la pelota.'),
-    (5, 'es', 'Racha Ganadora', 'Mayor cantidad de puntos consecutivos ganados por el competidor.'),
-    (6, 'es', 'Velocidad Máxima de la Pelota', 'Velocidad más alta alcanzada por la pelota durante el partido.'),
-    (7, 'es', 'Longitud Máxima de Ráfaga', 'Secuencia más larga de golpes consecutivos sin que se anote un punto.'),
-    (8, 'es', 'Total de Rebotes en Paredes', 'Número total de veces que la pelota rebotó en las paredes durante el partido.'),
-    (9, 'es', 'Duración Promedio del Volea', 'Tiempo promedio de duración de los voleas durante el partido.'),
-    (10, 'es', 'Toques en la Red', 'Número de veces que la pelota tocó la red durante el juego.'),
-    (11, 'es', 'Total de Victorias de la Organización', 'Número total de victorias de la organización en todos los partidos.'),
-    (12, 'es', 'Conteo de Participación de Miembros', 'Número de miembros únicos de la organización que participaron en partidos.'),
-    (13, 'es', 'Elo Promedio de la Organización', 'Calificación Elo promedio de todos los miembros de la organización.'),
-    (14, 'es', 'Total de Trofeos en Torneos', 'Número total de trofeos ganados por la organización en torneos.'),
-    (15, 'es', 'Conteo de Sorpresas', 'Número de partidos donde un competidor con menor clasificación derrotó a uno con mayor clasificación.'),
-    (16, 'es', 'Margen Promedio del Partido', 'Diferencia promedio de puntos entre competidores en los partidos.'),
-    (17, 'es', 'Total de Participantes', 'Número total de participantes en el torneo.'),
-    (18, 'es', 'Duración del Torneo', 'Duración total del torneo desde el inicio hasta el final.'),
-    (19, 'es', 'Conteo de Forfaits', 'Número de partidos forfeitados por competidores en el torneo.'),
-    -- Additional translations can be added here
-    (1, 'fr', 'Points Marqués', 'Total des points marqués par le compétiteur pendant le match.'),
-    (2, 'fr', 'Coups de Raquette', 'Nombre de fois que le compétiteur a frappé la balle avec sa raquette.'),
-    (3, 'fr', 'As de Service', 'Nombre de services non retournés par le compétiteur.'),
-    (4, 'fr', 'Erreurs', 'Nombre de fois que le compétiteur n''a pas réussi à retourner la balle.'),
-    (5, 'fr', 'Série de Victoires', 'Plus grand nombre de points consécutifs gagnés par le compétiteur.'),
-    (6, 'fr', 'Vitesse Maximale de la Balle', 'Vitesse la plus élevée atteinte par la balle pendant le match.'),
-    (7, 'fr', 'Longueur Maximale du Rallye', 'Plus longue séquence de coups consécutifs sans qu''un point soit marqué.'),
-    (8, 'fr', 'Total des Rebondissements sur les Murs', 'Nombre total de fois que la balle a rebondi sur les murs pendant le match.'),
-    (9, 'fr', 'Durée Moyenne des Volées', 'Durée moyenne des volées pendant le match.'),
-    (10, 'fr', 'Touches du Filet', 'Nombre de fois que la balle a touché le filet pendant le jeu.'),
-    (11, 'fr', 'Total des Victoires de l''Organisation', 'Nombre total de victoires de l''organisation dans tous les matchs.'),
-    (12, 'fr', 'Nombre de Participation des Membres', 'Nombre de membres uniques de l''organisation ayant participé aux matchs.'),
-    (13, 'fr', 'Elo Moyen de l''Organisation', 'Classement Elo moyen de tous les membres de l''organisation.'),
-    (14, 'fr', 'Total des Trophées en Tournois', 'Nombre total de trophées remportés par l''organisation dans les tournois.'),
-    (15, 'fr', 'Nombre d''Upsets', 'Nombre de matchs où un compétiteur moins bien classé a battu un compétiteur mieux classé.'),
-    (16, 'fr', 'Marge Moyenne du Match', 'Différence moyenne de points entre les compétiteurs dans les matchs.'),
-    (17, 'fr', 'Total des Participants', 'Nombre total de participants au tournoi.'),
-    (18, 'fr', 'Durée du Tournoi', 'Durée totale du tournoi du début à la fin.'),
-    (19, 'fr', 'Nombre d''Abandons', 'Nombre de matchs abandonnés par les compétiteurs dans le tournoi.'),
-    -- Additional translations can be added here    
-    (1, 'pt', 'Pontos Marcados', 'Total de pontos marcados pelo competidor durante a partida.'),
-    (2, 'pt', 'Golpes com a Raquete', 'Número de vezes que o competidor golpeou a bola com sua raquete.'),
-    (3, 'pt', 'Aces de Serviço', 'Número de serviços não devolvidos pelo competidor.'),
-    (4, 'pt', 'Erros', 'Número de vezes que o competidor não conseguiu devolver a bola.'),
-    (5, 'pt', 'Sequência Vencedora', 'Maior quantidade de pontos consecutivos ganhos pelo competidor.'),
-    (6, 'pt', 'Velocidade Máxima da Bola', 'Velocidade mais alta alcançada pela bola durante a partida.'),
-    (7, 'pt', 'Comprimento Máximo de Troca', 'Sequência mais longa de golpes consecutivos sem que um ponto seja marcado.'),
-    (8, 'pt', 'Total de Rebotes nas Paredes', 'Número total de vezes que a bola rebateu nas paredes durante a partida.'),
-    (9, 'pt', 'Duração Média do Voleio', 'Tempo médio de duração dos voleios durante a partida.'),
-    (10, 'pt', 'Toques na Rede', 'Número de vezes que a bola tocou a rede durante o jogo.'),
-    (11, 'pt', 'Total de Vitórias da Organização', 'Número total de vitórias da organização em todas as partidas.'),
-    (12, 'pt', 'Contagem de Participação de Membros', 'Número de membros únicos da organização que participaram em partidas.'),
-    (13, 'pt', 'Elo Médio da Organização', 'Classificação Elo média de todos os membros da organização.'),
-    (14, 'pt', 'Total de Troféus em Torneios', 'Número total de troféus ganhos pela organização em torneios.'),
-    (15, 'pt', 'Contagem de Surpresas', 'Número de partidas onde um competidor com menor classificação derrotou um com maior classificação.'),
-    (16, 'pt', 'Margem Média da Partida', 'Diferença média de pontos entre competidores nas partidas.'),
-    (17, 'pt', 'Total de Participantes', 'Número total de participantes no torneio.'),
-    (18, 'pt', 'Duração do Torneio', 'Duração total do torneio desde o início até o final.'),
-    (19, 'pt', 'Contagem de Desistências', 'Número de partidas em que houve desistência por competidores no torneio.');
+    (20, 5, 
+        '{"en": "Server Uptime", "es": "Tiempo de Actividad del Servidor", "fr": "Temps de Fonctionnement du Serveur", "pt": "Tempo de Atividade do Servidor", "ca": "Temps d''Activitat del Servidor"}', 
+        '{"en": "Total time the server has been operational without interruptions.", 
+          "es": "Tiempo total que el servidor ha estado operativo sin interrupciones.", 
+          "fr": "Temps total pendant lequel le serveur a été opérationnel sans interruptions.", 
+          "pt": "Tempo total que o servidor esteve operacional sem interrupções.",
+          "ca": "Temps total que el servidor ha estat operatiu sense interrupcions."}'
+          ),
+    (21, 5,
+        '{"en": "Request Rate per Session", "es": "Tasa de Solicitudes por Sesión", "fr": "Taux de Requêtes par Session", "pt": "Taxa de Solicitações por Sessão", "ca": "Taxa de Sol·licituds per Sessió"}', 
+        '{"en": "Monitors if a user is trying to break the game by sending thousands of moves per second (Bot/Spam detection).", 
+          "es": "Monitorea si un usuario está intentando romper el juego enviando miles de movimientos por segundo (detección de bots/spam).", 
+          "fr": "Surveille si un utilisateur essaie de casser le jeu en envoyant des milliers de mouvements par seconde (détection de bot/spam).", 
+          "pt": "Monitora se um usuário está tentando quebrar o jogo enviando milhares de movimentos por segundo (detecção de bot/spam).",
+          "ca": "Monitora si un usuari està intentant trencar el joc enviant milers de moviments per segon (detecció de bot/spam)."}'
+          ),
+    (22, 5,
+        '{"en": "Input Validation Failures", "es": "Fallos de Validación de Entrada", "fr": "Échecs de Validation des Entrées", "pt": "Falhas de Validação de Entrada", "ca": "Errors de Validació d''Entrada"}', 
+        '{"en": "How many times a client sent prohibited data (e.g., moving the paddle off-screen). This demonstrates that your server validates and protects the game.", 
+          "es": "Cuántas veces un cliente envió datos prohibidos (por ejemplo, mover la pala fuera de la pantalla). Esto demuestra que su servidor valida y protege el juego.", 
+          "fr": "Combien de fois un client a envoyé des données interdites (par exemple, déplacer la raquette hors écran). Cela démontre que votre serveur valide et protège le jeu.", 
+          "pt": "Quantas vezes um cliente enviou dados proibidos (por exemplo, mover a raquete para fora da tela). Isso demonstra que seu servidor valida e protege o jogo.",
+          "ca": "Quantes vegades un client ha enviat dades prohibides (per exemple, moure la pala fora de la pantalla). Això demostra que el vostre servidor valida i protegeix el joc."}'
+          ),
+    (23, 5,
+        '{"en": "Average Reconnection Time", "es": "Tiempo Promedio de Reconexión", "fr": "Temps Moyen de Reconnexion", "pt": "Tempo Médio de Reconexão", "ca": "Temps Mitjà de Reconnexió"}', 
+        '{"en": "How long it takes for a player to return after a network drop. Measures the efficiency of your WebSocket reconnection system.", 
+          "es": "Cuánto tiempo tarda un jugador en regresar después de una caída de red. Mide la eficiencia de su sistema de reconexión WebSocket.", 
+          "fr": "Combien de temps il faut à un joueur pour revenir après une coupure réseau. Mesure l''efficacité de votre système de reconnexion WebSocket.", 
+          "pt": "Quanto tempo leva para um jogador retornar após uma queda de rede. Mede a eficiência do seu sistema de reconexão WebSocket.",
+          "ca": "Quant de temps triga un jugador a tornar després d''una caiguda de xarxa. Mesura l''eficiència del vostre sistema de reconnexió WebSocket."}'
+          );
+
 
 
 -- Generate 100 Players
@@ -379,3 +432,22 @@ CROSS JOIN LATERAL (
      ORDER BY random() 
      LIMIT 1)
 ) c;
+
+
+INSERT INTO MATCHMETRIC (mm_match_fk, mm_code_fk, mm_value)
+SELECT 
+    m.m_pk,
+    metrics.id,
+    -- Custom random logic for each specific metric type
+    CASE 
+        WHEN metrics.id = 6 THEN (random() * 60 + 40)      -- Peak Ball Speed (e.g., 40-100 km/h)
+        WHEN metrics.id = 7 THEN floor(random() * 30 + 5)  -- Max Rally Length (e.g., 5-35 hits)
+        WHEN metrics.id = 8 THEN floor(random() * 150 + 20) -- Total Wall Bounces
+        WHEN metrics.id = 9 THEN (random() * 10 + 2)       -- Average Volley Duration (2-12 sec)
+        WHEN metrics.id = 10 THEN floor(random() * 15)     -- Net Touches (0-15)
+    END + (m.m_pk * 0) -- Fake dependency to force re-calculation per match
+FROM MATCH m
+CROSS JOIN (
+    SELECT unnest(ARRAY[6, 7, 8, 9, 10]) AS id
+) AS metrics;
+
