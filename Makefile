@@ -44,7 +44,7 @@ db:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build dbserver
 dbclean:
 	docker image rm $(SERVICE2)
-test-db-content:
+test-db:
 	# 1. Ensure the containers are up and HEALTHY
 	docker compose -f srcs/docker-compose.yml up -d dbserver
 	
