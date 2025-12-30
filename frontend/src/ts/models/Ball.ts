@@ -56,12 +56,6 @@ export class Ball
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    private wallCollision()
-    {
-        if (this.y <= this.radious || this.y >= this.canvasHeight - this.radious)
-            this.dirY = -this.dirY;
-    }
-
     private async reset(): Promise<void>
     {
         this.waiting = true;
@@ -91,12 +85,24 @@ export class Ball
         }
     }
 
-    update()
+    private wallCollision()
+    {
+        if (this.y <= this.radious || this.y >= this.canvasHeight - this.radious)
+            this.dirY = -this.dirY;
+    }
+
+    private paddleCollision(p1: number[], p2: number[])
+    {
+
+    }
+
+    update(p1: number[], p2: number[])
     {
         if (this.waiting)
             return ;
 
         this.wallCollision();
+        this.paddleCollision(p1, p2);
         this.x += this.dirX;
         this.y += this.dirY;
         this.goal();
