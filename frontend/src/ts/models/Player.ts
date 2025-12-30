@@ -5,6 +5,7 @@ export class Player
     width: number;
     height: number;
     speed: number;
+    speedIA: number;
     canvasHeight: number;
 
     constructor(x: number, h: number)
@@ -14,6 +15,7 @@ export class Player
         this.width = 10;
         this.height = 100;
         this.speed = 10;
+        this.speedIA = 5;
         this.canvasHeight = h;
     }
 
@@ -21,10 +23,9 @@ export class Player
     {
         const center = this.y + this.height / 2;
         const diff = ballPosition - center;
-        const speed = 5;
 
-        if (Math.abs(diff) > speed)
-            this.y += speed * Math.sign(diff);
+        if (Math.abs(diff) > this.speedIA)
+            this.y += this.speedIA * Math.sign(diff);
         else
             this.y += diff;
 

@@ -16,6 +16,8 @@ export class Ball
 
     waiting: boolean;
 
+    score: number[] = [];
+
     constructor(c: HTMLCanvasElement)
     {
         this.x = this.spawnX = c.width / 2;
@@ -26,6 +28,8 @@ export class Ball
         this.canvasWidth = c.width;
         this.canvasHeight = c.height;
         this.waiting = false;
+        this.score[0] = 0;
+        this.score[1] = 0;
 
         this.setDirection();
     }
@@ -71,21 +75,23 @@ export class Ball
         this.waiting = false;
     }
 
-    private async score()
+    private goal()
     {
         if (this.x <= 5)
         {
             // Score player2
+            this.score[1]++;
             this.reset();
         }
         else if (this.x >= this.canvasWidth - 5)
         {
             // Score player 1
+            this.score[0]++;
             this.reset();
         }
     }
 
-    async update()
+    update()
     {
         if (this.waiting)
             return ;
@@ -93,7 +99,12 @@ export class Ball
         this.wallCollision();
         this.x += this.dirX;
         this.y += this.dirY;
-        this.score();
+        this.goal();
+    }
+
+    getScore(): number[]
+    {
+        return this.score;
     }
 }
 

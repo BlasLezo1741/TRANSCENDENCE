@@ -18,8 +18,8 @@ function OptionScreen({ dispatch, setMode }: OptionsProps)
 
       <button onClick={() => handleMode("ia")}>player vs ia</button>
       <button onClick={() => handleMode("local")}>player vs player</button>
-      <button onClick={() => handleMode("casual")}>player vs remote</button>
-      <button onClick={() => handleMode("tournament")}>tournament</button>
+      <button onClick={() => handleMode("remote")}>player vs remote</button>
+      <button onClick={() => handleMode("remote")}>tournament</button>
 
       <button onClick={() => dispatch({ type: "MENU" })}>
         Volver al Menu

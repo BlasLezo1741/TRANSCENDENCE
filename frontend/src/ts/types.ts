@@ -11,5 +11,4 @@ export type Action =
 export type GameMode =
     | "ia"
     | "local"
-    | "remote"
-    | "tournament";
+    | "remote";
