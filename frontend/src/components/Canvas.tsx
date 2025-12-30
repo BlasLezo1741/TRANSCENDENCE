@@ -34,7 +34,7 @@ function Canvas({ mode, playerNumber = 1 }: CanvasProps)
             game.keysPressed[e.key] = true;
 
             if (e.code === "Space" && mode != "remote")
-                game.setPause();
+                game.setPause();  
         }
 
         window.addEventListener("keyup", handleKeyUp);
