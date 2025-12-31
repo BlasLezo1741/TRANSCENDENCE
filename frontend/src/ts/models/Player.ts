@@ -1,5 +1,6 @@
 export class Player
 {
+    nickname: string;
     x: number;
     y: number;
     width: number;
@@ -8,8 +9,9 @@ export class Player
     speedIA: number;
     canvasHeight: number;
 
-    constructor(x: number, h: number)
+    constructor(name: string, x: number, h: number)
     {
+        this.nickname = name;
         this.x = x;
         this.y = 250;
         this.width = 10;
@@ -48,5 +50,30 @@ export class Player
     draw(ctx: CanvasRenderingContext2D)
     {
         ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    getX(): number
+    {
+        return this.x;
+    }
+
+    getY(): number
+    {
+        return this.y;
+    }
+
+    getWidth(): number
+    {
+        return this.width;
+    }
+
+    getHeight(): number
+    {
+        return this.height;
+    }
+
+    getName(): string
+    {
+        return this.nickname;
     }
 }

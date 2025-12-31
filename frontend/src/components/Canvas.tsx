@@ -22,7 +22,7 @@ function Canvas({ mode, playerNumber = 1 }: CanvasProps)
         canvas.width = 800;
         canvas.height = 600;
 
-        const game = new Pong(canvas, ctx, mode, playerNumber);
+        const game = new Pong(canvas, ctx, mode, playerNumber, 5);
 
         // Keys
 

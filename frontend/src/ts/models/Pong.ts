@@ -14,19 +14,21 @@ export class Pong
     keysPressed: { [key: string]: boolean } = {};
     playerNumber: number;
 
+    maxScore: number;
     score: number[] = [0, 0];
     pause: boolean;
 
-    constructor(c: HTMLCanvasElement, ctx: CanvasRenderingContext2D, mode: GameMode, n: number)
+    constructor(c: HTMLCanvasElement, ctx: CanvasRenderingContext2D, mode: GameMode, n: number, max: number)
     {
         this.c = c;
         this.ctx = ctx;
         this.mode = mode;
-        this.player1 = new Player(20, c.height);
-        this.player2 = new Player(c.width - 30, c.height);
+        this.player1 = new Player("Jose Luis", 20, c.height);
+        this.player2 = new Player("Miguel", c.width - 30, c.height);
         this.ball = new Ball(c);
         this.playerNumber = n;
         this.pause = false;
+        this.maxScore = max;
     }
 
     setPause()
@@ -42,14 +44,15 @@ export class Pong
             p.moveDown();
     }
 
+    private winMatch(p: Player)
+    {
+        alert("Player " + p.getName() + " has won!");
+    }
+
     update()
     {
         if (this.pause)
             return ;
-
-        // Update ball
-
-        this.ball.update();
 
         // Update players
 
@@ -70,6 +73,17 @@ export class Pong
             else
                 this.updatePlayer(this.player2, "ArrowUp", "ArrowDown");
         }
+
+        // Update ball
+
+        this.ball.update([this.player1, this.player2]);
+
+        const score: number[] = this.ball.getScore();
+
+        if (score[0] == this.maxScore)
+            this.winMatch(this.player1);
+        else if (score[1] == this.maxScore)
+            this.winMatch(this.player2);
     }
 
     private drawPause()
