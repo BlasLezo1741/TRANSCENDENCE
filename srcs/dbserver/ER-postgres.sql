@@ -96,19 +96,20 @@ CREATE TABLE ORGANIZATION (
     org_name VARCHAR(255)
 );
 
+CREATE TABLE PLAYER_ORGANIZATION ( 
+    po_p_fk integer REFERENCES PLAYER(p_pk),
+    po_org_fk smallint REFERENCES ORGANIZATION(org_pk)
+);
 
 CREATE TABLE PLAYER_FRIEND( 
     friend_pk integer generated always as identity PRIMARY KEY,
     f_1 integer REFERENCES PLAYER(p_pk),
     f_2 integer REFERENCES PLAYER(p_pk),
     f_date timestamp,
-    f_tipe boolean
+    f_type boolean
 );
 
-CREATE TABLE PLAYER_ORGANIZATION ( 
-    po_p_fk integer REFERENCES PLAYER(p_pk),
-    po_org_fk smallint REFERENCES ORGANIZATION(org_pk)
-);
+
 
 -- 2. Ejecutar la carga masiva
 COPY COUNTRY(coun_name, coun2_pk, coun3,coun_code ,coun_iso_code, coun_region, coun_region_sub, coun_region_int, coun_region_code, coun_region_sub_code, coun_region_int_code)
@@ -433,7 +434,7 @@ CROSS JOIN LATERAL (
      LIMIT 1)
 ) c;
 
-
+-- Assign 5 match metrics to each Match
 INSERT INTO MATCHMETRIC (mm_match_fk, mm_code_fk, mm_value)
 SELECT 
     m.m_pk,
@@ -451,3 +452,113 @@ CROSS JOIN (
     SELECT unnest(ARRAY[6, 7, 8, 9, 10]) AS id
 ) AS metrics;
 
+-- Assign 5 competitor metrics to each Competitor
+INSERT INTO COMPETITORMETRIC (mcm_match_fk, mcm_player_fk, mcm_metric_fk, mcm_value)
+SELECT 
+    c.mc_match_fk,
+    c.mc_player_fk,
+    m.metric_id,
+    -- Logic to generate realistic values for the first 5 metrics
+    CASE 
+        WHEN m.metric_id = 1 THEN floor(random() * 5000 + 500)  -- Score (500-5500)
+        WHEN m.metric_id = 2 THEN floor(random() * 40)         -- Kills (0-40)
+        WHEN m.metric_id = 3 THEN floor(random() * 25)         -- Deaths (0-25)
+        WHEN m.metric_id = 4 THEN floor(random() * 15)         -- Assists (0-15)
+        WHEN m.metric_id = 5 THEN (random() * 100)             -- Accuracy (0-100%)
+    END 
+    -- Adding 0 multiplied by foreign keys forces the optimizer to re-calculate 
+    -- random() for every unique player-match combination.
+    + (c.mc_match_fk * 0) + (c.mc_player_fk * 0) 
+FROM COMPETITOR c
+CROSS JOIN (
+    SELECT unnest(ARRAY[1, 2, 3, 4, 5]) AS metric_id
+) m;
+
+
+-- Assign Players to Organizations (15% chance per organization)
+INSERT INTO PLAYER_ORGANIZATION (po_p_fk, po_org_fk)
+SELECT 
+    p.p_pk,
+    o.org_pk
+FROM PLAYER p
+CROSS JOIN ORGANIZATION o
+WHERE random() < 0.15; -- Each player has a 15% chance to belong to any given organization
+-- 1. The Cartesian Product (CROSS JOIN) 
+-- The query starts by performing a CROSS JOIN between PLAYER (100 rows) and ORGANIZATION (5 rows). 
+-- This creates a temporary result set of 500 possible combinations (every player paired with every organization).
+--
+-- 2. The Random Filter (WHERE random() < 0.15) 
+-- For every one of those 500 possible pairs, PostgreSQL executes the random() function, 
+-- which returns a value between 0.0 and 1.0.
+--
+-- If the random number is less than 0.15, the pair is kept and inserted into the table.
+-- If the random number is higher, the pair is discarded.
+--
+-- 3. The Statistical Result Statistically, this results in:
+--
+-- Total Records: Approximately 75 total assignments (500×0.15).
+-- Player Distribution: Most players will have 1 organization, 
+-- some will have 0 (Free Agents), and a small handful might have 2 or 3.
+
+
+-- Generate Player Friendships
+-- Constraint 1: No duplicate friendships (i.e., if (A, B) exists, (B, A) cannot exist)
+-- Constraint 2: f_type is true at the beginning (active friendship)
+-- Constraint 3: 20% of friendships break over time (f_type becomes false)
+INSERT INTO PLAYER_FRIEND (f_1, f_2, f_date, f_type)
+SELECT 
+    p1.p_pk,
+    p2.p_pk,
+    NOW() - (random() * INTERVAL '100 days'),
+    true -- Constraint 2: Always true at the beginning
+FROM PLAYER p1
+JOIN PLAYER p2 ON p1.p_pk < p2.p_pk -- Constraint 1: Prevents (45, 23) if (23, 45) exists
+WHERE random() < 0.05               -- Probability of a friendship forming
+LIMIT 200;
+
+INSERT INTO PLAYER_FRIEND (f_1, f_2, f_date, f_type)
+SELECT 
+    f_1, 
+    f_2, 
+    -- The friendship breaks between 1 and 30 days after it started
+    f_date + (random() * INTERVAL '30 days' + INTERVAL '1 day'), 
+    false -- Marks the relationship as broken
+FROM PLAYER_FRIEND
+WHERE f_type = true -- Only break existing active friendships
+ORDER BY random()
+LIMIT (SELECT count(*) * 0.2 FROM PLAYER_FRIEND WHERE f_type = true);
+
+
+-- Function to get active friends of a player
+CREATE OR REPLACE FUNCTION get_player_friends(target_p_pk INTEGER)
+RETURNS TABLE (
+    friend_nick VARCHAR(255),
+    friend_lang CHAR(2),
+    friendship_since TIMESTAMP
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        -- Determinamos quién es el amigo (si p1 o p2) basándonos en el target_p_pk
+        CASE 
+            WHEN p1.p_pk = target_p_pk THEN p2.p_nick 
+            ELSE p1.p_nick 
+        END AS friend_nick,
+        CASE 
+            WHEN p1.p_pk = target_p_pk THEN p2.p_lang 
+            ELSE p1.p_lang 
+        END AS friend_lang,
+        active_friends.f_date
+    FROM (
+        -- Subconsulta para encontrar el estado más reciente de cada pareja
+        SELECT f_1, f_2, f_type, f_date,
+               ROW_NUMBER() OVER(PARTITION BY f_1, f_2 ORDER BY f_date DESC) as last_event
+        FROM PLAYER_FRIEND
+        WHERE f_1 = target_p_pk OR f_2 = target_p_pk -- Filtramos por el jugador antes de calcular
+    ) active_friends
+    JOIN PLAYER p1 ON active_friends.f_1 = p1.p_pk
+    JOIN PLAYER p2 ON active_friends.f_2 = p2.p_pk
+    WHERE active_friends.last_event = 1 
+      AND active_friends.f_type = true;
+END;
+$$ LANGUAGE plpgsql;
