@@ -1,7 +1,0 @@
-FROM alpine:3.21.3
-LABEL org.label-schema.schema-version = "1.0"
-LABEL org.label-schema.maintainer="Luis Miguel Casado Díaz <luicasad@student.42barcelona.com>"
-LABEL org.label-schema.version="11.4.5"
-LABEL org.label-schema.description="A Docker image running MariaDB server on Alpine Linux."
-LABEL org.label-schema.url="[https://github.com/luismiguelcasadodiaz/inception]"
-LABEL org. label-schema.date="May 2025"

@@ -1,0 +1,45 @@
+FROM alpine:3.21.3
+LABEL org.label-schema.schema-version = "1.0"
+LABEL org.label-schema.maintainer="Luis Miguel Casado Díaz <luicasad@student.42barcelona.com>"
+LABEL org.label-schema.version="11.4.5"
+LABEL org.label-schema.description="A Docker image running MariaDB sql server on Alpine Linux."
+LABEL org.label-schema.url="[https://github.com/luismiguelcasadodiaz/inception]"
+LABEL org. label-schema.date="Dic 2025"
+
+
+RUN apk add --no-cache mariadb mariadb-client 
+
+# Change UID/GID of the mysql user to avoid conflicts with host users
+# above apk add created mysql UID(100) GID(101)
+# There is a collision with Host user Klogd
+# Change UID in /etc/passwd
+RUN sed -i 's/^mysql:x:[0-9]*:[0-9]*/mysql:x:1000:1000/' /etc/passwd
+
+# Change GID in /etc/group
+RUN sed -i 's/^mysql:x:[0-9]*/mysql:x:1000/' /etc/group
+
+# RUN usermod -u 1000 -o mysql && groupmod -g 1000 -o mysql
+
+# recreate mysql folder with appropiate ownerrship
+RUN set -ex; \
+    rm -rf /var/lib/mysql; \
+    mkdir -p /var/lib/mysql /var/run/mysql; \
+    chown -R mysql:mysql /var/lib/mysql /var/run/mysql; \
+    chmod 777 /var/run/mysql
+
+VOLUME /var/lib/mysql
+
+COPY docker-entrypoint.sh /usr/local/sbin/docker-entrypoint.sh
+COPY healthcheck.sh /usr/local/sbin/healthcheck.sh
+
+RUN chmod +x /usr/local/sbin/docker-entrypoint.sh ; \
+    chmod +x /usr/local/sbin/healthcheck.sh ; \
+    sed -i -e '/^skip-networking/ s/^skip-networking/#skip-networking/' /etc/my.cnf.d/mariadb-server.cnf
+
+EXPOSE 3306
+
+ENTRYPOINT ["/usr/local/sbin/docker-entrypoint.sh"]
+
+#HEALTHCHECK --interval=10s --timeout=5s --retries=3 CMD mariadb-admin ping -u mysql --password="${DBSERVER_MSQL_PASSWORD}"-h localhost || exit 1
+#  Dockerfile does not acces secrets, only .env defined variables. These is the reason to create a healthycheck script.
+HEALTHCHECK --start-period=40s --interval=30s --timeout=6s --retries=5 CMD /usr/local/sbin/healthcheck.sh || exit 1

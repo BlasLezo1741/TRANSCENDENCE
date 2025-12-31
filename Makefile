@@ -6,7 +6,7 @@ SERVICE2 = dbserver
 SERVICE3 = contentserver
 SERVICE9 = adminer
 #SERVICES = $(SERVICE1) $(SERVICE2) $(SERVICE3)
-SERVICES = $(SERVICE1)
+SERVICES = $(SERVICE2)
 
 
 # dbserver data directory
@@ -24,8 +24,13 @@ all: .env $(DB_DATA_DIR)
 
 # Create data directory if does not exists
 $(DB_DATA_DIR):
-	@mkdir -p $(DB_DATA_DIR)
-	@echo "Directorio $(DB_DATA_DIR) creado"
+	@if [ -d "$(DB_DATA_DIR)" ]; then \
+		rm -rf $(DB_DATA_DIR)/*; \
+		echo "Contenido de $(DB_DATA_DIR) eliminado"; \
+	else \
+		mkdir -p $(DB_DATA_DIR); \
+		echo "Directorio $(DB_DATA_DIR) creado"; \
+	fi
 
 # Individual rules
 
@@ -39,6 +44,22 @@ db:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build dbserver
 dbclean:
 	docker image rm $(SERVICE2)
+test-db:
+	# 1. Ensure the containers are up and HEALTHY
+	docker compose -f srcs/docker-compose.yml up -d dbserver
+	
+	# 2. Wait for Postgres to be ready (prevents race conditions)
+	docker exec dbserver sh -c 'until pg_isready -U postgres; do sleep 1; done'
+	
+	# 3. Precise count matching using awk or psql -t (tuples only mode)
+	@COUNT=$$(docker exec dbserver psql -U postgres -d transcendence -t -c "SELECT count(*) FROM PLAYER;" | xargs); \
+	if [ "$$COUNT" -eq 50 ]; then \
+		echo "✅ Test Passed: Found exactly 50 players."; \
+	else \
+		echo "❌ Test Failed: Expected 50 players, found $$COUNT."; \
+		exit 1; \
+	fi
+	docker exec -it $(SERVICE2) mysql -u postgres -ptranscendence -e "SHOW DATABASES;"
 
 content:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build contentserver
@@ -71,5 +92,5 @@ clean: down
 fclean: clean
 	docker volume rm transcendence_db_data
 	docker system prune -a --volumes
-	doas rm -rf $(TRANSCENDENCE_HOME)/data/db/*
+	sudo rm -rf $(TRANSCENDENCE_HOME)/data/dbserver
 
