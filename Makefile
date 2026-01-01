@@ -4,25 +4,27 @@ export TRANSCENDENCE_HOME
 SERVICE1 = webserver
 SERVICE2 = dbserver
 SERVICE3 = contentserver
+SERVICE8 = grafana
 SERVICE9 = adminer
 #SERVICES = $(SERVICE1) $(SERVICE2) $(SERVICE3)
-SERVICES = $(SERVICE2)
+SERVICES = $(SERVICE2) $(SERVICE9) $(SERVICE8)
 
 
-# dbserver data directory
+# data directories
 DB_DATA_DIR = $(TRANSCENDENCE_HOME)/data/dbserver
+GRAFANA_DATA_DIR = $(TRANSCENDENCE_HOME)/data/grafana
 
 .PHONY: all web db content client webclean dbclean contentclean clientclean
 # --build image if not exists and run it in detached mode (-d)
 # --hints about .env location.
 # --also saves space. Deletes all images not used by any containers, even tagged ones.
 # docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped
-all: .env $(DB_DATA_DIR)
+all: .env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
 	echo $(TRANSCENDENCE_HOME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
 
-# Create data directory if does not exists
+# Create postgres data directory if does not exists
 $(DB_DATA_DIR):
 	@if [ -d "$(DB_DATA_DIR)" ]; then \
 		rm -rf $(DB_DATA_DIR)/*; \
@@ -32,17 +34,31 @@ $(DB_DATA_DIR):
 		echo "Directorio $(DB_DATA_DIR) creado"; \
 	fi
 
+# Create grafana data directory if does not exists
+$(GRAFANA_DATA_DIR):
+	@if [ -d "$(GRAFANA_DATA_DIR)" ]; then \
+		rm -rf $(GRAFANA_DATA_DIR)/*; \
+		echo "Contenido de $(GRAFANA_DATA_DIR) eliminado"; \
+	else \
+		mkdir -p $(GRAFANA_DATA_DIR); \
+		echo "Directorio $(GRAFANA_DATA_DIR) creado"; \
+	fi
+
 # Individual rules
 
+$(SERVICE8):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE8)
+$(SERVICE8)clean:
+	docker image rm $(SERVICE8)
 
-web:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build webserver
-webclean:
-	docker image rm $(SERVICE1)
+$(SERVICE9):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE9)
+$(SERVICE9)clean:
+	docker image rm $(SERVICE9)
 
-db:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build dbserver
-dbclean:
+$(SERVICE2):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE2)
+$(SERVICE2)clean:
 	docker image rm $(SERVICE2)
 test-db:
 	# 1. Ensure the containers are up and HEALTHY
