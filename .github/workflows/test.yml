@@ -2,7 +2,7 @@ name: DB Validation Tests
 
 on:
   push:
-    branches: [ "main", "develop" ] # Adjust these to your default branches
+    branches: [ "main", "develop" , "53-docker-dbserver" ] # Adjust these to your default branches
   pull_request:
     branches: [ "main" ]
 
@@ -11,7 +11,7 @@ jobs:
       runs-on: ubuntu-latest
       services:
         dbserver:
-          image: dbserver:latest # The image with synthetic data
+          image: postgres:18 # The image with synthetic data
           env:
             POSTGRES_PASSWORD: example
             POSTGRES_DB: transcendence
