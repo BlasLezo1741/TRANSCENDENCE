@@ -11,8 +11,8 @@ function MenuScreen({ dispatch }: ScreenProps)
       <LanguageSwitcher />
       <h1>{t('menu')}</h1>
       
-      <button onClick={() => dispatch({ type: "OPTIONS" })}>
-        Opciones
+      <button onClick={() => dispatch({ type: "GAME" })}>
+        Juegos
       </button>
 
     </div>

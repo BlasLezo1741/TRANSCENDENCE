@@ -5,7 +5,7 @@ type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
 };
 
-function OptionScreen({ dispatch, setMode }: OptionsProps)
+function ModeScreen({ dispatch, setMode }: OptionsProps)
 {
   const handleMode = (mode: GameMode) => {
     setMode(mode);
@@ -25,8 +25,12 @@ function OptionScreen({ dispatch, setMode }: OptionsProps)
         Volver al Menu
       </button>
 
+      <button onClick={() => dispatch({ type: "GAME" })}>
+        Volver al Game
+      </button>
+
     </div>
   );
 }
 
-export default OptionScreen;
+export default ModeScreen;

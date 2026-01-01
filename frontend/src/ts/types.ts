@@ -1,11 +1,13 @@
 export type Screen =
     | "menu"
-    | "options"
+    | "game"
+    | "mode"
     | "pong";
 
 export type Action =
     | { type: "MENU" }
-    | { type: "OPTIONS" }
+    | { type: "GAME" }
+    | { type: "MODE" }
     | { type: "PONG" };
 
 export type GameMode =
