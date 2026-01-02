@@ -69,7 +69,7 @@ $(SERVICE2):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE2)
 $(SERVICE2)clean:
 	docker image rm $(SERVICE2)
-test-db:
+test-db: .env $(DB_DATA_DIR)
 	# 1. Ensure the containers are up and HEALTHY
 	docker compose -f srcs/docker-compose.yml up -d dbserver
 	
