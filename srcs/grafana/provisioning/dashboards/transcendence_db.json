@@ -6,7 +6,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "postgres", "uid": "Postgres_Transcendence" },
+      "datasource": { "type": "postgres", "uid": "transcendence_001" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -35,10 +35,10 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "Postgres_Transcendence" },
+          "datasource": { "type": "postgres", "uid": "transcendence_001" },
           "editorMode": "code",
           "format": "table",
-          "rawSql": "SELECT count(*) FROM PLAYERS;",
+          "rawSql": "SELECT count(*) as "Total Players" FROM PLAYER;",
           "refId": "A"
         }
       ],

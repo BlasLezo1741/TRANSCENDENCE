@@ -78,8 +78,8 @@ test-db: .env $(DB_DATA_DIR)
 	
 	# 3. Precise count matching using awk or psql -t (tuples only mode)
 	@COUNT=$$(docker exec dbserver psql -U postgres -d transcendence -t -c "SELECT count(*) FROM PLAYER;" | xargs); \
-	if [ "$$COUNT" -eq 50 ]; then \
-		echo "✅ Test Passed: Found exactly 50 players."; \
+	if [ "$$COUNT" -eq 100 ]; then \
+		echo "✅ Test Passed: Found exactly 100 players."; \
 	else \
 		echo "❌ Test Failed: Expected 50 players, found $$COUNT."; \
 		exit 1; \

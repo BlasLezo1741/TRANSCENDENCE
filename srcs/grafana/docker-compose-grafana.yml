@@ -10,7 +10,10 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_POSTGRES_VERSION=${DB_POSTGRES_VERSION}      
+      - DB_POSTGRES_VERSION=${DB_POSTGRES_VERSION}    
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_SECURITY_ALLOW_EMBEDDING=true # Permite incrustar el dashboard si lo necesitas luego        
     depends_on:
       - dbserver
     volumes:

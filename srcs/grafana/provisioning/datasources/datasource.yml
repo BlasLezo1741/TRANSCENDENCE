@@ -2,6 +2,7 @@ apiVersion: 1
 
 datasources:
   - name: Postgres_Transcendence
+    uid: transcendence_001
     type: postgres
     url: ${DB_HOST}:${DB_PORT}
     database: ${DB_NAME}
