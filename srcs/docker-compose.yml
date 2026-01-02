@@ -1,11 +1,11 @@
 name: transcendence
 include: # Please keep alphabetic order
-  - ./adminer/docker-compose-adminer.yml
-  #- ./2faserver/docker-compose-2faserver.yml
-  #- ./backendserver/docker-compose-backendserver.yml  
-  - ./dbserver/docker-compose-dbserver.yml
-  #- ./frontendserver/docker-compose-frontendserver.yml
-  - ./grafana/docker-compose-grafana.yml
+  - adminer/docker-compose-adminer.yml
+  #- path ./2faserver/docker-compose-2faserver.yml
+  #- path ./backendserver/docker-compose-backendserver.yml  
+  - dbserver/docker-compose-dbserver.yml
+  #- path ./frontendserver/docker-compose-frontendserver.yml
+  - grafana/docker-compose-grafana.yml
 
 networks:
   transcendence_net:

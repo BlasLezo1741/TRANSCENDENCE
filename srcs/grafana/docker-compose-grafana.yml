@@ -5,20 +5,22 @@ services:
     restart: always
     container_name: grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${DB_PASSWORD}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_PASSWORD}
       # Pasamos estas variables para que Grafana las use en el provisioning
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_POSTGRES_VERSION=${DB_POSTGRES_VERSION}    
+      - DB_VERSION=${DB_POSTGRES_VERSION}    
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
       - GF_SECURITY_ALLOW_EMBEDDING=true # Permite incrustar el dashboard si lo necesitas luego        
     depends_on:
       - dbserver
     volumes:
-      - ./provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards    
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources/
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards/   
       - grafana_data:/var/lib/grafana
     ports:
       - 3000:3000
@@ -27,5 +29,8 @@ services:
         ipv4_address: 192.168.1.4  # Fixed IP
         aliases:
           - in_net
-
-
+    logging:
+      driver: "json-file" # Use json-file for easier access if you need to debug raw logs
+      options:
+        max-size: "30k" # Keep each log file up to 30KB
+        max-file: "3"   # Keep the 3 most recent log files 

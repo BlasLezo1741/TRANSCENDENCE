@@ -19,7 +19,7 @@ GRAFANA_DATA_DIR = $(TRANSCENDENCE_HOME)/data/grafana
 # --hints about .env location.
 # --also saves space. Deletes all images not used by any containers, even tagged ones.
 # docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped
-all: .env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
+all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
 	echo $(TRANSCENDENCE_HOME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
@@ -49,7 +49,7 @@ $(GRAFANA_DATA_DIR):
 	else \
 		mkdir -p $(GRAFANA_DATA_DIR); \
 		echo "Directorio $(GRAFANA_DATA_DIR) creado"; \
-	
+	fi
 	@sync
 	@sleep 1
 
@@ -69,7 +69,7 @@ $(SERVICE2):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE2)
 $(SERVICE2)clean:
 	docker image rm $(SERVICE2)
-test-db: .env $(DB_DATA_DIR)
+test-db: srcs/.env $(DB_DATA_DIR)
 	# 1. Ensure the containers are up and HEALTHY
 	docker compose -f srcs/docker-compose.yml up -d dbserver
 	
@@ -115,7 +115,6 @@ clean: down
 	docker image rm -f $(SERVICES)
 
 fclean: clean
-	docker volume rm transcendence_db_data
 	docker system prune -a --volumes
 	sudo rm -rf $(TRANSCENDENCE_HOME)/data/dbserver
-
+	sudo rm -rf $(TRANSCENDENCE_HOME)/data/grafana

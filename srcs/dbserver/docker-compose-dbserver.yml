@@ -24,3 +24,8 @@ services:
         aliases:
           - in_net
 
+    logging:
+      driver: "json-file" # Use json-file for easier access if you need to debug raw logs
+      options:
+        max-size: "30k" # Keep each log file up to 30KB
+        max-file: "3"   # Keep the 3 most recent log files    
