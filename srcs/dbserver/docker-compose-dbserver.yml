@@ -5,9 +5,9 @@ services:
     restart: always
     container_name: dbserver
     environment:
-      POSTGRES_PASSWORD: example
-      POSTGRES_DB: transcendence
-      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
       PGDATA: /var/lib/postgresql/18/docker
       PGDATESTYLE: ISO, DMY
     healthcheck:
@@ -17,45 +17,10 @@ services:
       retries: 10
     volumes:
       - db_data:/var/lib/postgresql/18/docker
-      - ./ER-postgres.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./language-codes.csv:/docker-entrypoint-initdb.d/languages.csv
-      - ./country-codes.csv:/docker-entrypoint-initdb.d/countries.csv
+      - ./scripts_init:/docker-entrypoint-initdb.d/
     networks:
       transcendence_net:
         ipv4_address: 192.168.1.2  # Fixed IP
         aliases:
           - in_net
 
-  # Use postgres/example user/password credentials
-      # environment:
-      # POSTGRES_USER: myuser
-      # POSTGRES_PASSWORD: mypassword
-      # POSTGRES_DB: transcendence
-
-#services:
-
-  # db4:
-  #   image: postgres
-  #   restart: always
-  #   # set shared memory limit when using docker compose
-  #   shm_size: 128mb
-  #   # or set shared memory limit when deploy via swarm stack
-  #   #volumes:
-  #   #  - type: tmpfs
-  #   #    target: /dev/shm
-  #   #    tmpfs:
-  #   #      size: 134217728 # 128*2^20 bytes = 128Mb
-  #   environment:
-  #     POSTGRES_PASSWORD: example
-
-  # adminer:
-  #   image: adminer
-  #   restart: always
-  #   container_name: adminer    
-  #   ports:
-  #     - 8080:8080
-  #   networks:
-  #     transcendence_net:
-  #       ipv4_address: 192.168.1.3  # Fixed IP
-  #       aliases:
-  #         - in_net

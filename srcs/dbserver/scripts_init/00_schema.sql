@@ -1,0 +1,111 @@
+-- SQL script generated from Mermaid JS ERD to PostgreSQL
+-- Schema: mySchema
+
+
+
+CREATE TABLE COUNTRY (
+    coun_name CHAR(52),
+    coun2_pk char(2) PRIMARY KEY,
+    coun3 char(3),
+    coun_code char(3),
+    coun_iso_code char(13),
+    coun_region char(8),
+    coun_region_sub CHAR(31),
+    coun_region_int CHAR(15),
+    coun_region_code char(3),
+    coun_region_sub_code CHAR(3),
+    coun_region_int_code CHAR(3)
+);
+
+
+CREATE TABLE P_LANGUAGE ( 
+    lang_pk char(2) PRIMARY KEY,
+    lang_name VARCHAR(255),
+    lang_status BOOLEAN  
+);
+
+
+CREATE TABLE P_ROLE ( 
+    role_pk smallint generated always as identity PRIMARY KEY,
+    role_i18n_name JSONB NOT NULL -- Estructura: {"en": "Administrator", "es": "Administrador"}
+);
+
+CREATE TABLE STATUS ( 
+    status_pk smallint generated always as identity PRIMARY KEY,
+    status_i18n_name JSONB NOT NULL -- Estructura: {"en": "Busy", "es": "Ocupado"}
+);
+
+CREATE TABLE PLAYER ( 
+    p_pk integer generated always as identity PRIMARY KEY,
+    p_nick VARCHAR(255),
+    p_mail VARCHAR(255),
+    p_pass VARCHAR(255),
+    p_reg TIMESTAMP,
+    p_bir DATE,
+    p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),
+    p_country char(2) REFERENCES COUNTRY(coun2_pk),
+    p_role smallint REFERENCES P_ROLE(role_pk),
+    p_status smallint REFERENCES STATUS(status_pk)
+);
+
+CREATE TABLE METRIC_CATEGORY ( 
+    metric_cate_pk smallint generated always as identity PRIMARY KEY,
+    metric_cate_i18n_name JSONB NOT NULL -- Estructura: {"en": "Competitor Stats", "es": "Estadísticas del Competidor"}
+);
+
+CREATE TABLE METRIC ( 
+    metric_pk smallint generated always as identity PRIMARY KEY,
+    metric_cat_fk smallint REFERENCES METRIC_CATEGORY(metric_cate_pk),
+    metric_i18n_name JSONB NOT NULL, -- Estructura: {"en": "Points Scored", "es": "Puntos Anotados"}
+    metric_i18n_description JSONB NOT NULL -- Estructura: {"en": "Total points scored by the competitor during the match.", "es": "Total de puntos anotados por el compet
+);
+
+
+CREATE TABLE MATCH ( 
+    m_pk integer generated always as identity PRIMARY KEY,
+    m_date TIMESTAMP,
+    m_duration interval,
+    m_winner_fk integer REFERENCES PLAYER(p_pk)
+);
+
+CREATE TABLE MATCHMETRIC ( 
+    mm_pk integer generated always as identity PRIMARY KEY,    
+    mm_match_fk integer REFERENCES MATCH(m_pk),
+    mm_code_fk smallint REFERENCES METRIC(metric_pk),
+    mm_value FLOAT
+);
+
+CREATE TABLE COMPETITOR ( 
+    mc_match_fk integer REFERENCES MATCH(m_pk),
+    mc_player_fk integer REFERENCES PLAYER(p_pk),
+    PRIMARY KEY (mc_match_fk,mc_player_fk)
+);
+CREATE TABLE COMPETITORMETRIC (
+    mcm_match_fk integer,
+    mcm_player_fk integer,
+    mcm_metric_fk smallint REFERENCES METRIC(metric_pk) ,
+    mcm_value FLOAT,
+    PRIMARY KEY (mcm_match_fk,mcm_player_fk,mcm_metric_fk),
+    CONSTRAINT fk_mcm_match_player FOREIGN KEY (mcm_match_fk, mcm_player_fk) 
+        REFERENCES COMPETITOR(mc_match_fk, mc_player_fk)
+    );
+
+
+CREATE TABLE ORGANIZATION ( 
+    org_pk smallint generated always as identity PRIMARY KEY,
+    org_name VARCHAR(255)
+);
+
+CREATE TABLE PLAYER_ORGANIZATION ( 
+    po_p_fk integer REFERENCES PLAYER(p_pk),
+    po_org_fk smallint REFERENCES ORGANIZATION(org_pk)
+);
+
+CREATE TABLE PLAYER_FRIEND( 
+    friend_pk integer generated always as identity PRIMARY KEY,
+    f_1 integer REFERENCES PLAYER(p_pk),
+    f_2 integer REFERENCES PLAYER(p_pk),
+    f_date timestamp,
+    f_type boolean
+);
+
