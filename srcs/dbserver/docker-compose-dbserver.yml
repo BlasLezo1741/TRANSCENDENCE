@@ -1,14 +1,14 @@
 services:
   # Base de Datos: Requisito de persistencia [cite: 182]
   dbserver:
-    image: postgres
+    image: postgres:${DB_POSTGRES_VERSION}
     restart: always
     container_name: dbserver
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
-      PGDATA: /var/lib/postgresql/18/docker
+      PGDATA: /var/lib/postgresql/${DB_POSTGRES_VERSION}/docker
       PGDATESTYLE: ISO, DMY
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d transcendence"]
@@ -16,7 +16,7 @@ services:
       timeout: 5s
       retries: 10
     volumes:
-      - db_data:/var/lib/postgresql/18/docker
+      - db_data:/var/lib/postgresql/${DB_POSTGRES_VERSION}/docker
       - ./scripts_init:/docker-entrypoint-initdb.d/
     networks:
       transcendence_net:
