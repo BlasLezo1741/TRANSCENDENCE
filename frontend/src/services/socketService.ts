@@ -12,10 +12,15 @@ if (!SOCKET_URL) {
 // Configuramos la conexión única
 export const socket: Socket = io(SOCKET_URL, {
   autoConnect: true,
-  transports: ['websocket'], // Forzamos WebSocket para la V.19
-  secure: true,
+  transports: ['polling', 'websocket'], // Forzamos WebSocket para la V.19
+  //secure: true,
   reconnection: true,        // Habilitamos reconexiones automáticas
   reconnectionAttempts: 5,
+  withCredentials: true,
+  // Esta opción ayuda a que el handshake no falle en proxies estrictos
+  rememberUpgrade: true
+  // Forzamos a que socket.io no intente otros caminos si falla el primero
+  //forceNew: true,
 });
 
 // --- EMISORES (Enviar datos al servidor) ---
@@ -45,4 +50,9 @@ export const onGameUpdate = (callback: (data: any) => void) => {
 
 export const onGameOver = (callback: (data: any) => void) => {
   socket.on('game_over', callback);
+};
+
+// Notificación de que alguien se ha desconectado (Módulo Web / Robustez)
+export const onPlayerOffline = (callback: (data: { userId: string, reconnectWindow: number }) => void) => {
+  socket.on('player_offline', callback);
 };
