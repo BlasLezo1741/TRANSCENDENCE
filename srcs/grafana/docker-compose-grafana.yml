@@ -5,10 +5,17 @@ services:
     restart: always
     container_name: grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${DB_PASSWORD}
+      # Pasamos estas variables para que Grafana las use en el provisioning
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_POSTGRES_VERSION=${DB_POSTGRES_VERSION}      
     depends_on:
       - dbserver
     volumes:
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards    
       - grafana_data:/var/lib/grafana
     ports:
       - 3000:3000
