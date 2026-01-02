@@ -81,10 +81,10 @@ test-db: .env $(DB_DATA_DIR)
 	if [ "$$COUNT" -eq 100 ]; then \
 		echo "✅ Test Passed: Found exactly 100 players."; \
 	else \
-		echo "❌ Test Failed: Expected 50 players, found $$COUNT."; \
+		echo "❌ Test Failed: Expected 100 players, found $$COUNT."; \
 		exit 1; \
 	fi
-	docker exec -it $(SERVICE2) mysql -u postgres -ptranscendence -e "SHOW DATABASES;"
+
 
 content:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build contentserver
