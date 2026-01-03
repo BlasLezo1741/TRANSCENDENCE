@@ -16,7 +16,7 @@ services:
       - ${GF_CONTAINER_PORT}:${GF_CONTAINER_PORT}
     networks:
       transcendence_net:
-        ipv4_address: 192.168.1.4  # Fixed IP
+        ipv4_address: 192.168.1.9 # Fixed IP
         aliases:
           - in_net
     logging:

@@ -1,0 +1,51 @@
+services:
+  # 1. PostgreSQL Database (Mandatory Requirement)
+  db:
+    image: postgres:15
+    container_name: battleship_db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: transcendence
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - trans_network
+
+  # 2. Backend (NestJS)
+  backend:
+    build: ./backend
+    container_name: battleship_backend
+    restart: on-failure
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - trans_network
+
+  # 3. Frontend (React + Vite)
+  frontend:
+    build: ./frontend
+    container_name: battleship_frontend
+    restart: on-failure
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - trans_network
+
+volumes:
+  pg_data:
+
+networks:
+  trans_network:
+    driver: bridge

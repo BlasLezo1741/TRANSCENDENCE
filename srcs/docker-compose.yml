@@ -3,9 +3,9 @@ name: ${PROJECT_NAME}
 include: # Please keep alphabetic order
   - adminer/docker-compose-adminer.yml
   #- path ./2faserver/docker-compose-2faserver.yml
-  #- path ./backendserver/docker-compose-backendserver.yml  
+  - backend/docker-compose-backend.yml  
   - dbserver/docker-compose-dbserver.yml
-  #- path ./frontendserver/docker-compose-frontendserver.yml
+  - frontend/docker-compose-frontend.yml
   - grafana/docker-compose-grafana.yml
 
 networks:
