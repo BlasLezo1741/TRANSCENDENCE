@@ -1,13 +1,18 @@
 # Definir el nombre del servicio
 TRANSCENDENCE_HOME = $(shell echo $$HOME)
 export TRANSCENDENCE_HOME
+
+export VITE_BACKEND_URL="https://${CODESPACE_NAME}-3000.app.github.dev"
+
+# Definir los nombres de los servicios
 SERVICE1 = webserver
 SERVICE2 = dbserver
-SERVICE3 = contentserver
+SERVICE3 = backend
+SERVICE4 = frontend
 SERVICE8 = grafana
 SERVICE9 = adminer
 #SERVICES = $(SERVICE1) $(SERVICE2) $(SERVICE3)
-SERVICES = $(SERVICE2) $(SERVICE9) $(SERVICE8)
+SERVICES = $(SERVICE2) $(SERVICE4) $(SERVICE9) $(SERVICE8)
 
 
 # data directories
@@ -55,6 +60,7 @@ $(GRAFANA_DATA_DIR):
 
 # Individual rules
 
+
 $(SERVICE8):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE8)
 $(SERVICE8)clean:
@@ -64,6 +70,16 @@ $(SERVICE9):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE9)
 $(SERVICE9)clean:
 	docker image rm $(SERVICE9)
+
+$(SERVICE3):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE3)
+$(SERVICE3)clean:
+	docker image rm $(SERVICE3)
+
+$(SERVICE4):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE4)
+$(SERVICE4)clean:
+	docker image rm $(SERVICE4)	
 
 $(SERVICE2):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE2)
