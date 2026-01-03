@@ -1,6 +1,11 @@
 # Definir el nombre del servicio
 TRANSCENDENCE_HOME = $(shell echo $$HOME)
 export TRANSCENDENCE_HOME
+# En tu terminal de Codespaces
+export VITE_BACKEND_URL="https://${CODESPACE_NAME}-3000.app.github.dev"
+
+
+# Definir los nombres de los servicios
 SERVICE1 = webserver
 SERVICE2 = dbserver
 SERVICE3 = backend
