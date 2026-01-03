@@ -1,4 +1,5 @@
-name: transcendence
+name: ${PROJECT_NAME}
+
 include: # Please keep alphabetic order
   - adminer/docker-compose-adminer.yml
   #- path ./2faserver/docker-compose-2faserver.yml
