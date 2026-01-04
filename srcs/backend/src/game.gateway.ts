@@ -20,6 +20,11 @@ import { MatchFoundResponse } from './dto/match-found.response';
 import { GameUpdateResponse } from './dto/game-update.response';
 import { ScoreUpdateResponse } from './dto/score-update.response';
 
+//Conexion con la base de datos
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Match } from './match.entity';
+
 //@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Protección global del Gateway
 @UsePipes(new ValidationPipe({ whitelist: true }))
 
@@ -38,6 +43,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+//AÑADIMOS EL CONSTRUCTOR PARA INYECTAR LA DB
+  constructor(
+    @InjectRepository(Match)
+    private readonly matchRepository: Repository<Match>,
+  ) {}
+
+
 // Manejo de conexiones (V.19)
 handleConnection(client: Socket) {
     console.log(`✅ Cliente conectado: ${client.id}`);
@@ -54,13 +66,26 @@ handleConnection(client: Socket) {
 
   // EVENTO: Búsqueda de partida (Validado con DTO)
   @SubscribeMessage('join_queue')
-  handleJoinQueue(
+  async andleJoinQueue(
     @ConnectedSocket() client: Socket, 
     @MessageBody() payload: JoinQueueDto // Ahora usa el DTO
   ) {
     // Ahora el log imprimirá dinámicamente el modo validado
     console.log(`📢 [NUEVA PARTIDA] Usuario: ${payload.userId} | Modo: ${payload.mode}`);
   
+    // --- LÓGICA DE PERSISTENCIA --- 
+    try {
+      const newMatch = this.matchRepository.create({
+        mode: payload.mode
+        // Aquí podrías añadir: date: new Date() si quieres ser explícito
+      });
+      await this.matchRepository.save(newMatch);
+      console.log(`💾 Guardado en DB con ID: ${newMatch.id}`);
+    } catch (error) {
+      console.error('❌ Error al guardar partida:', error);
+    }
+    // ------------------------------
+
     const roomId = `room_${payload.mode}_${client.id}`;
     client.join(roomId);
 

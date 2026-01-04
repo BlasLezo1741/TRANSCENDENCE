@@ -12,15 +12,14 @@ function ModeScreen({ dispatch, setMode }: OptionsProps)
 {
   const { t } = useTranslation();
   const handleMode = (mode: GameMode) => {
-//Filtramos: Si no es contra la IA, necesitamos al servidor
-  if (mode !== "ia") {
-    // Mapeamos el modo del Frontend al modo que entiende el Backend (DTO)
-    // 'local' y 'remote' cuentan como partidas '1v1'
-    // 'tournament' se envía como tal
-    const socketMode = (mode === "tournament") ? "tournament" : "1v1";
-    
-    // 3. Llamamos al socket con el modo dinámico
-    joinQueue("Jugador_Natalia", socketMode);
+    let socketMode = "";
+  //Filtramos: Si no es contra la IA, necesitamos al servidor
+    if (mode !== "ia") {
+      if (mode === "local") socketMode = "1v1_local";
+      else if (mode === "remote") socketMode = "1v1_remote";
+      else if (mode === "tournament") socketMode = "tournament";
+      console.log("🚀 Enviando al Socket:", socketMode);
+      joinQueue("Jugador_Natalia", socketMode);
   }
 
     // Lógica actual de navegación
