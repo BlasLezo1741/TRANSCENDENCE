@@ -1,20 +1,25 @@
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
+import { joinQueue } from '../services/socketService';
 
-function MenuScreen({ dispatch }: ScreenProps)
-{
+// Cambiamos MenuProps por ScreenProps para usar el dispatch
+export function MenuScreen({ dispatch }: ScreenProps) {
   const { t } = useTranslation();
+
+  const handleStartButtonClick = () => {
+    dispatch({ type: "GAME" }); 
+  };
   
   return (
     <div>
       <LanguageSwitcher />
       <h1>{t('menu')}</h1>
       
-      <button onClick={() => dispatch({ type: "GAME" })}>
-      {t('juegos')}
+      {/* El botón ahora ejecuta la lógica combinada */}
+      <button onClick={handleStartButtonClick}>
+        {t('Jugar')}
       </button>
-
     </div>
   );
 }

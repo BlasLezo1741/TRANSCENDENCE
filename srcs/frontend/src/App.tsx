@@ -2,6 +2,7 @@ import { useReducer } from 'react';
 import { useState } from 'react';
 import { screenReducer } from './ts/screenConf/screenReducer.ts';
 
+
 import type { Screen, GameMode } from "./ts/types.ts"
 
 import MenuScreen from './screens/MenuScreen.tsx'
@@ -11,6 +12,8 @@ import GameScreen from './screens/GameScreen.tsx'
 
 import Header from './components/Header.tsx'
 import Footer from './components/Footer.tsx'
+import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
+
 
 function App()
 {
@@ -34,10 +37,18 @@ function App()
         return null;
     }
   }
-  
   return (
-    <div>{renderScreen()}</div>
-  )
+    <div>
+      {/* 1. Ponemos el indicador arriba de todo */}
+      <StatusBadge /> 
+      
+      {/* 2. El resto de la aplicación */}
+      <main>{renderScreen()}</main>
+    </div>
+  );
+  // return (
+  //   <div>{renderScreen()}</div>
+  // )
 
   // return (
   //   <div>

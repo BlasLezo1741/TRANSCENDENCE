@@ -22,29 +22,6 @@ import { ScoreUpdateResponse } from './dto/score-update.response';
 
 //@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Protección global del Gateway
 @UsePipes(new ValidationPipe({ whitelist: true }))
-/*
-@WebSocketGateway({
-  cors: {
-    origin: '*', // Permitir que React se conecte
-  },
-})
-*/
-/*
-@WebSocketGateway({
-  cors: {
-    origin: "http://localhost:5173", // El puerto de tu Frontend
-    credentials: true
-  },
-})
-*/
-
-// @WebSocketGateway({
-//   cors: {
-//     origin: true, // Permite que el socket acepte la conexión desde la URL de Codespaces
-//     credentials: true
-//   },
-//   transports: ['polling', 'websocket']
-// })
 
 @WebSocketGateway({
   cors: {
@@ -81,9 +58,10 @@ handleConnection(client: Socket) {
     @ConnectedSocket() client: Socket, 
     @MessageBody() payload: JoinQueueDto // Ahora usa el DTO
   ) {
-    console.log(`Buscando partida para: ${payload.userId} en modo ${payload.mode}`);
-    
-    const roomId = 'partida_1';
+    // Ahora el log imprimirá dinámicamente el modo validado
+    console.log(`📢 [NUEVA PARTIDA] Usuario: ${payload.userId} | Modo: ${payload.mode}`);
+  
+    const roomId = `room_${payload.mode}_${client.id}`;
     client.join(roomId);
 
 // Usamos la interfaz de respuesta para cumplir el protocolo
