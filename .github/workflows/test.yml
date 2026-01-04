@@ -2,7 +2,7 @@ name: DB Validation Tests
 
 on:
   push:
-    branches: [ "main", "develop" , "53-docker-dbserver" ] # Adjust these to your default branches
+    branches: [ "main", "develop" , "53_game_nata" ] # Adjust these to your default branches
   pull_request:
     branches: [ "main" ]
 
