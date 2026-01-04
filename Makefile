@@ -1,8 +1,9 @@
 # Definir el nombre del servicio
 TRANSCENDENCE_HOME = $(shell echo $$HOME)
+CODESPACE_NAME = $(shell echo $$CODESPACE_NAME)
 export TRANSCENDENCE_HOME
 # En tu terminal de Codespaces
-export VITE_BACKEND_URL="https://${CODESPACE_NAME}-3000.app.github.dev"
+
 
 
 # Definir los nombres de los servicios
@@ -21,15 +22,23 @@ SERVICES = $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8)
 DB_DATA_DIR = $(TRANSCENDENCE_HOME)/data/dbserver
 GRAFANA_DATA_DIR = $(TRANSCENDENCE_HOME)/data/grafana
 
-.PHONY: all web db content client webclean dbclean contentclean clientclean
 # --build image if not exists and run it in detached mode (-d)
 # --hints about .env location.
 # --also saves space. Deletes all images not used by any containers, even tagged ones.
 # docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped
 all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
 	echo $(TRANSCENDENCE_HOME)
+	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
+# Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces
+update-env:
+	@if [ -n "$(CODESPACE_NAME)" ]; then \
+		echo "Actualizando VITE_BACKEND_URL en .env para Codespace: $(CODESPACE_NAME)"; \
+		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+	else \
+		echo "No se detectó CODESPACE_NAME, manteniendo .env sin cambios"; \
+	fi
 
 # Create postgres data directory if does not exists
 $(DB_DATA_DIR):
@@ -104,14 +113,9 @@ test-db: srcs/.env $(DB_DATA_DIR)
 	fi
 
 
-content:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build contentserver
-contentclean:
-	docker image rm $(SERVICE3)
 
 
-# global rules
-.PHONY: up down stop logs clean fclean
+
 # Ejecutar docker compose up
 up:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up
@@ -136,3 +140,10 @@ fclean: clean
 	docker system prune -a --volumes
 	sudo rm -rf $(TRANSCENDENCE_HOME)/data/dbserver
 	sudo rm -rf $(TRANSCENDENCE_HOME)/data/grafana
+
+.PHONY: all update-env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
+.PHONU: test-db
+.PHONY: $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) 
+.PHONY: $(SERVICE2)clean $(SERVICE3)clean $(SERVICE4)clean $(SERVICE9)clean $(SERVICE8)clean
+# global rules
+.PHONY: up down stop logs clean fclean
