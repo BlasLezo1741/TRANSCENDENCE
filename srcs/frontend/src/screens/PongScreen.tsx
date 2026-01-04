@@ -1,5 +1,6 @@
 import Canvas from '../components/Canvas.tsx';
-
+import Header from "../components/Header";
+import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../ts/types.ts';
 
@@ -8,14 +9,16 @@ type PongScreenProps = ScreenProps & {
 };
 
 function PongScreen({ dispatch, mode }: PongScreenProps) {
+  const { t } = useTranslation();
   return (
     <div>
-      <h1>Juego modo: {mode}</h1>
+      <Header />
+      <h1>{t('juego_mode')}{mode}</h1>
       
       <Canvas mode={mode} />
 
       <button onClick={() => dispatch({ type: "MENU" })}>
-        Volver al Menú
+      {t('menu')}
       </button>
     </div>
   );

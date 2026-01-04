@@ -12,7 +12,7 @@ function MenuScreen({ dispatch }: ScreenProps)
       <h1>{t('menu')}</h1>
       
       <button onClick={() => dispatch({ type: "GAME" })}>
-        Juegos
+      {t('juegos')}
       </button>
 
     </div>

@@ -148,6 +148,8 @@ fclean: clean
 # (This now includes the 'alpine' image since it is no longer in use)
 	docker system prune -a --volumes -f
 
+re: fclean all
+
 .PHONY: all update-env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
 .PHONY: test-db
 .PHONY: $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) 

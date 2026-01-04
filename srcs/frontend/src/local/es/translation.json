@@ -1,6 +1,8 @@
 {
-    "menu": "Menu principal",
+    "menu": "Menú principal",
     "temp": "Blas prosigue su heroico recorrido en otros lares.\nBienvenidos al PONG.",
     "sel_lang": "Selecciona el idioma",
-    "count": "Somos "
+    "count": "Somos ",
+    "modo": "Elige el modo de juego",
+    "juegos": "Juegos"
 }

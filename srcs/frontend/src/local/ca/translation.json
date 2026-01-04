@@ -2,5 +2,8 @@
     "menu": "Menú principal",
     "temp": "En Blas ha marxat a Benidorm i ja no vindrà.\nJugarem al PONG.",
     "sel_lang": "Tria el teu idioma",
-    "count": "Ara som "
+    "count": "Ara som ",
+    "modo": "Tria el teu mode de joc",
+    "juego_mode": "Joc en mode: ",
+    "juegos": "Jocs"
 }

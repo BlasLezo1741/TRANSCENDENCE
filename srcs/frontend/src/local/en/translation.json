@@ -2,5 +2,8 @@
     "menu": "Main menu",
     "temp": "Blas has other campaigns to win.\nWelcome to PONG.",
     "sel_lang": "Choice your language",
-    "count": "We are "
+    "count": "We are ",
+    "modo": "Choose your game mode",
+    "juego_mode": "Game mode: ",
+    "juegos": "Games"
 }
