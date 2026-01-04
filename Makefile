@@ -62,6 +62,7 @@ $(GRAFANA_DATA_DIR):
 
 # Individual rules
 
+
 $(SERVICE8):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE8)
 $(SERVICE8)clean:

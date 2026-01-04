@@ -1,56 +1,51 @@
-import { useState, useEffect } from 'react' // Añadimos useEffect
-import { MenuScreen } from './screens/MenuScreen.tsx';
-import { GameScreen } from './screens/GameScreen.tsx';
-// 1. Importamos los estilos para que el layout funcione
-import './App.css'
-// 2. Importamos tu infraestructura de comunicación
-import { socket } from './services/socketService'
+import { useReducer } from 'react';
+import { useState } from 'react';
+import { screenReducer } from './ts/screenConf/screenReducer.ts';
 
-type Screen = "menu" | "game";
+import type { Screen, GameMode } from "./ts/types.ts"
 
-function App() {
-  const [screen, setScreen] = useState<Screen>("menu");
-// 2. Mantenemos el estado de conexión que pide la V.19
-// Estado para ver si la conexión funciona 
-  const [isConnected, setIsConnected] = useState(socket.connected)
+import MenuScreen from './screens/MenuScreen.tsx'
+import ModeScreen from './screens/ModeScreen.tsx'
+import PongScreen from './screens/PongScreen.tsx'
+import GameScreen from './screens/GameScreen.tsx'
 
-  // 3. Bloque de comunicación 
-  useEffect(() => {
-    function onConnect() {
-      setIsConnected(true);
-      console.log("¡Conectado al servidor!");
+import Header from './components/Header.tsx'
+import Footer from './components/Footer.tsx'
+
+function App()
+{
+  const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
+
+  const [mode, setMode] = useState<GameMode>("ia");
+
+  function renderScreen()
+  {
+    switch (screen)
+    {
+      case "menu":
+        return <MenuScreen dispatch={dispatch} />;
+        case "game":
+          return <GameScreen dispatch={dispatch} />
+      case "mode":
+        return <ModeScreen dispatch={dispatch} setMode={setMode} />;
+      case "pong":
+        return <PongScreen dispatch={dispatch} mode={mode}/>;
+      default:
+        return null;
     }
-
-    function onDisconnect() {
-      setIsConnected(false);
-    }
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-    };
-  }, []);
+  }
   
   return (
-    <div className="App">
-      {/* 3. Indicador visual de red (útil para depurar en Codespaces) */}
-      <div style={{ 
-        position: 'fixed', top: 10, right: 10, 
-        padding: '5px 10px', borderRadius: '5px',
-        background: isConnected ? '#2ecc71' : '#e74c3c',
-        color: 'white', fontSize: '12px', zIndex: 1000
-      }}>
-        {isConnected ? '🟢 Server Connected' : '🔴 Server Offline'}
-      </div>
+    <div>{renderScreen()}</div>
+  )
 
-      {/* 4. Navegación del juego de tu compañero */}
-      {screen === "menu" && <MenuScreen onGame={() => setScreen("game")} />}
-      {screen === "game" && <GameScreen onMenu={() => setScreen("menu")} />}
-    </div>
-  );
+  // return (
+  //   <div>
+  //     <Header />
+  //     <main>{renderScreen()}</main>
+  //     <Footer />
+  //   </div>
+  // );
 }
 
 export default App;
