@@ -137,12 +137,19 @@ clean: down
 	docker image rm -f $(SERVICES)
 
 fclean: clean
-	docker system prune -a --volumes
-	sudo rm -rf $(TRANSCENDENCE_HOME)/data/dbserver
-	sudo rm -rf $(TRANSCENDENCE_HOME)/data/grafana
+# 1. Remove containers, networks, AND volumes defined in the compose file
+	docker compose --project-directory srcs -f srcs/docker-compose.yml down -v
+# 2. Force prune docker data without prompting (-f)
+	docker system prune -a --volumes -f
+	
+# 3. Use a temporary alpine container to delete the data.
+# We mount the home directory to /clean_zone inside the container.
+# Since the container is root, it can delete the files permission-free.
+	docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/data/dbserver /clean_zone/data/grafana
+
 
 .PHONY: all update-env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
-.PHONU: test-db
+.PHONY: test-db
 .PHONY: $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) 
 .PHONY: $(SERVICE2)clean $(SERVICE3)clean $(SERVICE4)clean $(SERVICE9)clean $(SERVICE8)clean
 # global rules
