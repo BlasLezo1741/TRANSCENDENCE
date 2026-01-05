@@ -22,9 +22,9 @@ import { ScoreUpdateResponse } from './dto/score-update.response';
 
 // --- CAMBIO PARA DRIZZLE ---
 import { DRIZZLE } from './database.module';
-import { match } from './schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import * as schema from './schema';
+import * as schema from './schema'; // Importamos todas las tablas juntas
+import { eq, sql } from 'drizzle-orm'; // Operadores: eq (igual), sql (para fechas)
 // ---------------------------
 
 //@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Protección global del Gateway
@@ -67,33 +67,48 @@ handleConnection(client: Socket) {
   }
 
   // EVENTO: Búsqueda de partida (Validado con DTO)
-  @SubscribeMessage('join_queue')
+@SubscribeMessage('join_queue')
   async handleJoinQueue(
     @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: JoinQueueDto // Ahora usa el DTO
+    @MessageBody() payload: JoinQueueDto 
   ) {
-    console.log(`📢 [NUEVA PARTIDA - DRIZZLE] Usuario: ${payload.userId} | Modo: ${payload.mode}`);
-  
-    try {
-      // --- INSERT ACTUALIZADO CON LOS NOMBRES DEL SQL ---
-      const result = await this.db.insert(match).values({
-        mMode: payload.mode,   // Antes 'mode', ahora 'mMode'
-        mDate: new Date().toISOString(),     // Antes 'date', ahora 'mDate'
-      }).returning({ insertedId: match.mPk }); // Antes 'id', ahora 'mPk'
+    console.log(`📢 [DRIZZLE] Buscando modo: ${payload.mode}`);
 
-      console.log(`💾 Guardado en DB con ID: ${result[0].insertedId}`);
+    try {
+      // PASO 1: Buscar el ID numérico del modo (ej: "1v1_local" -> ID 1)
+      // Usamos 'findFirst' para buscar en la tabla match_mode
+      const modeResult = await this.db.query.matchMode.findFirst({
+        where: eq(schema.matchMode.mmodName, payload.mode)
+      });
+
+      // Validación: Si no existe el modo en la DB, paramos para no romper nada
+      if (!modeResult) {
+        console.error(`❌ Error: El modo '${payload.mode}' no existe en la tabla match_mode.`);
+        console.error('💡 PISTA: ¿Has ejecutado los INSERT en la base de datos?');
+        return;
+      }
+
+      // PASO 2: Insertar la partida usando el ID encontrado (mmodPk)
+      const newMatch = await this.db.insert(schema.match).values({
+        mModeFk: modeResult.mmodPk, // <--- Aquí usamos el número (Foreign Key)
+        mDate: sql`NOW()`,          // Generamos la fecha actual en Postgres
+      }).returning({ insertedId: schema.match.mPk }); // Pedimos que devuelva el ID creado
+
+      console.log(`✅ Partida insertada. ID Partida: ${newMatch[0].insertedId} | Modo ID: ${modeResult.mmodPk}`);
+
     } catch (error) {
-      console.error('❌ Error Drizzle al guardar:', error);
+      console.error('❌ Error crítico al guardar en DB:', error);
+      // No hacemos 'return' aquí para permitir que sigan jugando aunque falle el guardado (opcional)
     }
 
+    // --- LÓGICA DE SOCKETS (se mantiene igual) ---
     const roomId = `room_${payload.mode}_${client.id}`;
     client.join(roomId);
 
-// Usamos la interfaz de respuesta para cumplir el protocolo
     const response: MatchFoundResponse = {
       roomId,
       side: 'left',
-      opponent: { name: 'Oponente Beta', avatar: 'default.png' }
+      opponent: { name: 'DrizzleBot', avatar: 'default.png' }
     };
 
     this.server.to(roomId).emit('match_found', response);

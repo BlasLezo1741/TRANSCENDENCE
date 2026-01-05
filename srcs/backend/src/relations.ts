@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { metricCategory, metric, pLanguage, player, country, pRole, status, match, matchmetric, playerOrganization, organization, playerFriend, competitor, competitormetric } from "./schema";
+import { metricCategory, metric, pLanguage, player, country, pRole, status, matchMode, match, matchmetric, playerOrganization, organization, playerFriend, competitor, competitormetric } from "./schema";
 
 export const metricRelations = relations(metric, ({one, many}) => ({
 	metricCategory: one(metricCategory, {
@@ -69,13 +69,22 @@ export const matchmetricRelations = relations(matchmetric, ({one}) => ({
 	}),
 }));
 
+export const matchModeRelations = relations(matchMode, ({many}) => ({
+    matches: many(match),
+}));
+
 export const matchRelations = relations(match, ({one, many}) => ({
-	matchmetrics: many(matchmetric),
-	player: one(player, {
-		fields: [match.mWinnerFk],
-		references: [player.pPk]
-	}),
-	competitors: many(competitor),
+    matchmetrics: many(matchmetric),
+    player: one(player, {
+        fields: [match.mWinnerFk],
+        references: [player.pPk]
+    }),
+    // AÑADE ESTA RELACIÓN
+    matchMode: one(matchMode, {
+        fields: [match.mModeFk],
+        references: [matchMode.mmodPk]
+    }),
+    competitors: many(competitor),
 }));
 
 export const playerOrganizationRelations = relations(playerOrganization, ({one}) => ({
