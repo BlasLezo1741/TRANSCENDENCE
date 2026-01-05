@@ -42,10 +42,11 @@ CROSS JOIN LATERAL (
 ) rand_stat;
 
 -- Generate 50 Matches
-INSERT INTO MATCH (m_date, m_duration, m_winner_fk)
+INSERT INTO MATCH (m_date, m_duration, m_mode_fk, m_winner_fk)
 SELECT 
     NOW() - (random() * INTERVAL '30 days'),
     (random() * 3600 || ' seconds')::interval,
+    (SELECT mmod_pk FROM MATCH_MODE WHERE i > 0 ORDER BY random() LIMIT 1),
     (SELECT p_pk FROM PLAYER WHERE i > 0 ORDER BY random() LIMIT 1)
 FROM generate_series(1, 50) s(i);
 

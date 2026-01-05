@@ -18,6 +18,13 @@ WITH (
     HEADER true
 );
 
+INSERT INTO MATCH_MODE(mmod_name)
+VALUES
+('1v1_local'),
+('1v1_remote'),
+('1v1_ia'),
+('Tournement');
+
 INSERT INTO STATUS (status_i18n_name) 
 VALUES 
     ('{"en":"Unconnected","es":"Desconectado","fr":"Déconnecté","pt":"Desconectado","ca":"Desconnectat"}'),

@@ -60,12 +60,15 @@ CREATE TABLE METRIC (
     metric_i18n_description JSONB NOT NULL -- Estructura: {"en": "Total points scored by the competitor during the match.", "es": "Total de puntos anotados por el compet
 );
 
-
+CREATE TABLE MATCH_MODE (
+    mmod_pk smallint generated always as identity PRIMARY KEY,
+    mmod_name VARCHAR(20) -- Natalia, para el tipo de modo de juego
+);
 CREATE TABLE MATCH ( 
     m_pk integer generated always as identity PRIMARY KEY,
     m_date TIMESTAMP,
     m_duration interval,
-    m_mode VARCHAR(20), -- Natalia, para el tipo de modo de juego
+    m_mode_fk smallint REFERENCES MATCH_MODE(mmod_pk),
     m_winner_fk integer REFERENCES PLAYER(p_pk)
 );
 
