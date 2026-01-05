@@ -1,8 +1,8 @@
-import type { ScreenProps } from "../ts/screenConf/screenProps.ts";
-import type { GameMode } from "../ts/types.ts";
-import Header from "../components/Header";
+import type { ScreenProps } from "../../ts/screenConf/screenProps.ts";
+import type { GameMode } from "../../ts/types.ts";
+import Header from "../../components/Header.tsx";
 import { useTranslation } from 'react-i18next';
-import { joinQueue } from '../services/socketService';
+import { joinQueue } from '../../services/socketService.ts';
 
 type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;

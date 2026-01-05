@@ -1,8 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { joinQueue } from '../services/socketService';
 
-import Header from "../components/Header.tsx";
-
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../ts/types.ts';
 
@@ -10,7 +8,7 @@ type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
 };
 
-export function MenuScreen({ dispatch, setMode }: OptionsProps)
+const MenuScreen = ({ dispatch, setMode }: OptionsProps) =>
 {
     const { t } = useTranslation();
     const handleMode = (mode: GameMode) => {
@@ -31,7 +29,6 @@ export function MenuScreen({ dispatch, setMode }: OptionsProps)
 
     return (
         <div>
-            <Header dispatch={dispatch}/>
             <h1>{t('modo')}</h1>
 
             <button onClick={() => handleMode("ia")}>player vs ia</button>

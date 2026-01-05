@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '../components/LanguageSwitcher.tsx';
-import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
-import { joinQueue } from '../services/socketService.ts';
+import { LanguageSwitcher } from '../../components/LanguageSwitcher.tsx';
+import type { ScreenProps } from '../../ts/screenConf/screenProps.ts';
+import { joinQueue } from '../../services/socketService.ts';
 
 // Cambiamos MenuProps por ScreenProps para usar el dispatch
 export function MenuScreen({ dispatch }: ScreenProps) {
