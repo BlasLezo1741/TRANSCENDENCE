@@ -26,7 +26,7 @@ GRAFANA_DATA_DIR = $(TRANSCENDENCE_HOME)/data/grafana
 # --hints about .env location.
 # --also saves space. Deletes all images not used by any containers, even tagged ones.
 # docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped
-all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
+all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) update-env
 	echo $(TRANSCENDENCE_HOME)
 	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
@@ -38,6 +38,7 @@ update-env:
 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
 	else \
 		echo "No se detectó CODESPACE_NAME, manteniendo .env sin cambios"; \
+		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://localhost:3000|' srcs/.env; \
 	fi
 
 # Create postgres data directory if does not exists
