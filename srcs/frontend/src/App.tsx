@@ -6,9 +6,9 @@ import { screenReducer } from './ts/screenConf/screenReducer.ts';
 import type { Screen, GameMode } from "./ts/types.ts"
 
 import MenuScreen from './screens/MenuScreen.tsx'
-// import SignScreen from './screens/SignScreen.tsx'
+import SignScreen from './screens/SignScreen.tsx'
 import LoginScreen from './screens/LoginScreen.tsx'
-// import PongScreen from './screens/PongScreen.tsx'
+import PongScreen from './screens/PongScreen.tsx'
 // import SettingsScreen from './screens/SettingsScreen.tsx'
 
 // import Header from './components/Header.tsx'
@@ -26,14 +26,14 @@ function App()
     {
       case "menu":
         return <MenuScreen dispatch={dispatch} setMode={setMode} />;
-      // case "sign":
-      //   return <SignScreen dispatch={dispatch} />;
+      case "sign":
+        return <SignScreen dispatch={dispatch} />;
       case "login":
         return <LoginScreen dispatch={dispatch} />;
       // case "settings":
       //   return <SettingsScreen dispatch={dispatch} />;
-      // case "pong":
-      //   return <PongScreen dispatch={dispatch} mode={mode} />;
+      case "pong":
+         return <PongScreen dispatch={dispatch} mode={mode} />;
       default:
           return null;
     }
