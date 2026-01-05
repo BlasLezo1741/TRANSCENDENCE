@@ -6,7 +6,7 @@ export class JoinQueueDto {
   userId: string; 
 
   @IsString()
-  @IsIn(['1v1', 'tournament'], {
+  @IsIn(['1v1_local', '1v1_remote', 'tournament'], {
     message: 'El modo de juego debe ser 1v1 o tournament',
   })
   mode: string;
