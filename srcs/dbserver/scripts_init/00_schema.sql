@@ -65,6 +65,7 @@ CREATE TABLE MATCH (
     m_pk integer generated always as identity PRIMARY KEY,
     m_date TIMESTAMP,
     m_duration interval,
+    m_mode VARCHAR(20), -- Natalia, para el tipo de modo de juego
     m_winner_fk integer REFERENCES PLAYER(p_pk)
 );
 

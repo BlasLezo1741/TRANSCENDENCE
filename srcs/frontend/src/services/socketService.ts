@@ -22,12 +22,20 @@ export const socket: Socket = io(SOCKET_URL, {
   // Forzamos a que socket.io no intente otros caminos si falla el primero
   //forceNew: true,
 });
+// --- COMIENZA EL TESTIGO DE CONEXIÓN ---
+socket.on('connect', () => {
+  console.log("✅ Conectado al Backend con ID:", socket.id);
+});
+
+socket.on('connect_error', (error) => {
+  console.error("❌ Error de conexión al Socket:", error);
+});
+// --- TERMINA EL TESTIGO DE CONEXIÓN ---
 
 // --- EMISORES (Enviar datos al servidor) ---
-
-// Buscar partida
-export const joinQueue = (userId: string) => {
-  socket.emit('join_queue', { userId, mode: '1v1' });
+export const joinQueue = (userId: string, mode: string) => {
+  console.log(`📡 Socket emitiendo join_queue: User=${userId}, Mode=${mode}`);
+  socket.emit('join_queue', { userId, mode }); 
 };
 
 // Enviar movimiento (Ya lo tenías, lo mantenemos)
