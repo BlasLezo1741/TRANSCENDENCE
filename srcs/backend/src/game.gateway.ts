@@ -8,7 +8,7 @@ import {
   MessageBody      
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { UsePipes, ValidationPipe, Inject } from '@nestjs/common';
 
 // DTOs (Entrada)
 import { JoinQueueDto } from './dto/join-queue.dto';
@@ -20,10 +20,12 @@ import { MatchFoundResponse } from './dto/match-found.response';
 import { GameUpdateResponse } from './dto/game-update.response';
 import { ScoreUpdateResponse } from './dto/score-update.response';
 
-//Conexion con la base de datos
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Match } from './match.entity';
+// --- CAMBIO PARA DRIZZLE ---
+import { DRIZZLE } from './database.module';
+import { match } from './schema';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import * as schema from './schema';
+// ---------------------------
 
 //@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Protección global del Gateway
 @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -43,10 +45,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-//AÑADIMOS EL CONSTRUCTOR PARA INYECTAR LA DB
-  constructor(
-    @InjectRepository(Match)
-    private readonly matchRepository: Repository<Match>,
+//AÑADIMOS EL CONSTRUCTOR PARA DRIZZLE PARA INYECTAR LA DB
+constructor(
+    @Inject(DRIZZLE) 
+    private readonly db: PostgresJsDatabase<typeof schema>,
   ) {}
 
 
@@ -66,25 +68,23 @@ handleConnection(client: Socket) {
 
   // EVENTO: Búsqueda de partida (Validado con DTO)
   @SubscribeMessage('join_queue')
-  async andleJoinQueue(
+  async handleJoinQueue(
     @ConnectedSocket() client: Socket, 
     @MessageBody() payload: JoinQueueDto // Ahora usa el DTO
   ) {
-    // Ahora el log imprimirá dinámicamente el modo validado
-    console.log(`📢 [NUEVA PARTIDA] Usuario: ${payload.userId} | Modo: ${payload.mode}`);
+    console.log(`📢 [NUEVA PARTIDA - DRIZZLE] Usuario: ${payload.userId} | Modo: ${payload.mode}`);
   
-    // --- LÓGICA DE PERSISTENCIA --- 
     try {
-      const newMatch = this.matchRepository.create({
-        mode: payload.mode
-        // Aquí podrías añadir: date: new Date() si quieres ser explícito
-      });
-      await this.matchRepository.save(newMatch);
-      console.log(`💾 Guardado en DB con ID: ${newMatch.id}`);
+      // --- INSERT ACTUALIZADO CON LOS NOMBRES DEL SQL ---
+      const result = await this.db.insert(match).values({
+        mMode: payload.mode,   // Antes 'mode', ahora 'mMode'
+        mDate: new Date().toISOString(),     // Antes 'date', ahora 'mDate'
+      }).returning({ insertedId: match.mPk }); // Antes 'id', ahora 'mPk'
+
+      console.log(`💾 Guardado en DB con ID: ${result[0].insertedId}`);
     } catch (error) {
-      console.error('❌ Error al guardar partida:', error);
+      console.error('❌ Error Drizzle al guardar:', error);
     }
-    // ------------------------------
 
     const roomId = `room_${payload.mode}_${client.id}`;
     client.join(roomId);
