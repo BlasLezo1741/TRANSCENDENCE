@@ -46,7 +46,7 @@ $(DB_DATA_DIR):
 	@echo "Asegurando que $(SERVICE2) no está usando  $(DB_DATA_DIR)"
 	@docker compose -f srcs/docker-compose.yml down $(SERVICE2) 2>/dev/null || true
 	@if [ -d "$(DB_DATA_DIR)" ]; then \
-		rm -rf $(DB_DATA_DIR)/*; \
+		sudo rm -rf $(DB_DATA_DIR)/*; \
 		echo "Contenido de $(DB_DATA_DIR) eliminado"; \
 	else \
 		mkdir -p $(DB_DATA_DIR); \
@@ -61,7 +61,7 @@ $(GRAFANA_DATA_DIR):
 	@docker compose -f srcs/docker-compose.yml down $(SERVICE8) 2>/dev/null || true
 	
 	@if [ -d "$(GRAFANA_DATA_DIR)" ]; then \
-		rm -rf $(GRAFANA_DATA_DIR)/*; \
+		sudo rm -rf $(GRAFANA_DATA_DIR)/*; \
 		echo "Contenido de $(GRAFANA_DATA_DIR) eliminado"; \
 	else \
 		mkdir -p $(GRAFANA_DATA_DIR); \
