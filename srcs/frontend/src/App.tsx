@@ -6,19 +6,18 @@ import { screenReducer } from './ts/screenConf/screenReducer.ts';
 import type { Screen, GameMode } from "./ts/types.ts"
 
 import MenuScreen from './screens/MenuScreen.tsx'
-import ModeScreen from './screens/ModeScreen.tsx'
+import SignScreen from './screens/SignScreen.tsx'
+import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
-import GameScreen from './screens/GameScreen.tsx'
+// import SettingsScreen from './screens/SettingsScreen.tsx'
 
-import Header from './components/Header.tsx'
-import Footer from './components/Footer.tsx'
+// import Header from './components/Header.tsx'
+// import Footer from './components/Footer.tsx'
 import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
-
 
 function App()
 {
   const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
-
   const [mode, setMode] = useState<GameMode>("ia");
 
   function renderScreen()
@@ -26,17 +25,20 @@ function App()
     switch (screen)
     {
       case "menu":
-        return <MenuScreen dispatch={dispatch} />;
-        case "game":
-          return <GameScreen dispatch={dispatch} />
-      case "mode":
-        return <ModeScreen dispatch={dispatch} setMode={setMode} />;
+        return <MenuScreen dispatch={dispatch} setMode={setMode} />;
+      case "sign":
+        return <SignScreen dispatch={dispatch} />;
+      case "login":
+        return <LoginScreen dispatch={dispatch} />;
+      // case "settings":
+      //   return <SettingsScreen dispatch={dispatch} />;
       case "pong":
-        return <PongScreen dispatch={dispatch} mode={mode}/>;
+         return <PongScreen dispatch={dispatch} mode={mode} />;
       default:
-        return null;
+          return null;
     }
   }
+
   return (
     <div>
       {/* 1. Ponemos el indicador arriba de todo */}
@@ -46,17 +48,6 @@ function App()
       <main>{renderScreen()}</main>
     </div>
   );
-  // return (
-  //   <div>{renderScreen()}</div>
-  // )
-
-  // return (
-  //   <div>
-  //     <Header />
-  //     <main>{renderScreen()}</main>
-  //     <Footer />
-  //   </div>
-  // );
 }
 
 export default App;

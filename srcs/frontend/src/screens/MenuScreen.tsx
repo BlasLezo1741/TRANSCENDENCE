@@ -1,27 +1,45 @@
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '../components/LanguageSwitcher';
-import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import { joinQueue } from '../services/socketService';
 
-// Cambiamos MenuProps por ScreenProps para usar el dispatch
-export function MenuScreen({ dispatch }: ScreenProps) {
-  const { t } = useTranslation();
+import Header from "../components/Header.tsx";
 
-  const handleStartButtonClick = () => {
-    dispatch({ type: "GAME" }); 
-  };
-  
-  return (
-    <div>
-      <LanguageSwitcher />
-      <h1>{t('menu')}</h1>
-      
-      {/* El botón ahora ejecuta la lógica combinada */}
-      <button onClick={handleStartButtonClick}>
-        {t('Jugar')}
-      </button>
-    </div>
-  );
+import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
+import type { GameMode } from '../ts/types.ts';
+
+type OptionsProps = ScreenProps & {
+  setMode: React.Dispatch<React.SetStateAction<GameMode>>;
+};
+
+export function MenuScreen({ dispatch, setMode }: OptionsProps)
+{
+    const { t } = useTranslation();
+    const handleMode = (mode: GameMode) => {
+        let socketMode = "";
+        //Filtramos: Si no es contra la IA, necesitamos al servidor
+        if (mode !== "ia")
+        {
+            if (mode === "local") socketMode = "1v1_local";
+            else if (mode === "remote") socketMode = "1v1_remote";
+            else if (mode === "tournament") socketMode = "tournament";
+            console.log("🚀 Enviando al Socket:", socketMode);
+            joinQueue("Jugador_Natalia", socketMode);
+        }
+        // Lógica actual de navegación
+        setMode(mode);
+        dispatch({ type: "PONG" });
+    };
+
+    return (
+        <div>
+            <Header dispatch={dispatch}/>
+            <h1>{t('modo')}</h1>
+
+            <button onClick={() => handleMode("ia")}>player vs ia</button>
+            <button onClick={() => handleMode("local")}>player vs player</button>
+            <button onClick={() => handleMode("remote")}>player vs remote</button>
+            <button onClick={() => handleMode("remote")}>tournament</button>
+        </div>
+    );
 }
 
 export default MenuScreen;

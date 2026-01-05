@@ -18,6 +18,9 @@ export class Pong
     score: number[] = [0, 0];
     pause: boolean;
 
+    winner: string;
+    end: boolean;
+
     constructor(c: HTMLCanvasElement, ctx: CanvasRenderingContext2D, mode: GameMode, n: number, max: number)
     {
         this.c = c;
@@ -27,7 +30,8 @@ export class Pong
         this.player2 = new Player("Miguel", c.width - 30, c.height);
         this.ball = new Ball(c);
         this.playerNumber = n;
-        this.pause = false;
+        this.pause = this.end = false;
+        this.winner = "none";
         this.maxScore = max;
     }
 
@@ -46,7 +50,8 @@ export class Pong
 
     private winMatch(p: Player)
     {
-        alert("Player " + p.getName() + " has won!");
+        this.winner = p.getName();
+        this.end = true;
     }
 
     update()
@@ -118,5 +123,15 @@ export class Pong
 
         this.ctx.fillStyle = "white";
         this.pause ? this.drawPause() : this.drawGame();
+    }
+
+    hasWinner(): boolean
+    {
+        return this.end;
+    }
+
+    getWinner(): string
+    {
+        return this.winner;
     }
 }
