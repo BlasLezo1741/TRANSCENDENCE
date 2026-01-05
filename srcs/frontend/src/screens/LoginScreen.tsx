@@ -14,12 +14,12 @@ const LoginScreen = ({ dispatch }: ScreenProps) =>
         setError("");
 
         // Check syntaxis
-        if (!checkSyntax(password))
-        {
-            setError("La password debe de tener una majuscula, una minuscula y un numero");
-            setPassword("");
-            return;
-        }
+        //if (!checkSyntax(password))
+        //{
+        //    setError("La password debe de tener una majuscula, una minuscula y un numero");
+        //    setPassword("");
+        //    return;
+        //}
 
         // Check login
         const result = checkLogin(user, password);
@@ -77,6 +77,11 @@ const LoginScreen = ({ dispatch }: ScreenProps) =>
                 <button type="submit">Enviar</button>
 
             </form>
+            <a href="#" onClick={(e) => {
+                e.preventDefault(); dispatch({ type: "SIGN" });
+            }}>
+                No tenies cuenta? Se tu propio jefe
+            </a>
         </div>
     );
 };

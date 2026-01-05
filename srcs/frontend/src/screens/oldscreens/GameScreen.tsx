@@ -1,6 +1,6 @@
-import type { ScreenProps } from "../ts/screenConf/screenProps";
+import type { ScreenProps } from "../../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 
 function GameScreen({ dispatch }: ScreenProps)
 {

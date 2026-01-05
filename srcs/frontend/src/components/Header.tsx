@@ -1,15 +1,19 @@
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import type { ScreenProps } from '../ts/screenConf/screenProps';
 
-function Header({dispatch}: ScreenProps)
+const Header = ({dispatch}: ScreenProps) =>
 {
     return (
         <header>
             <h1></h1>
             <LanguageSwitcher />
 
+            <button onClick={() => dispatch({type: "MENU"})}>
+                Home
+            </button>
+
             <button onClick={() => dispatch({ type: "LOGIN" })}>
-                SignIn
+                Login
             </button>
         </header>
     );
