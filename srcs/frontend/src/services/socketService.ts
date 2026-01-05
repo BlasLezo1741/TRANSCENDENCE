@@ -1,0 +1,58 @@
+import { io, Socket } from 'socket.io-client';
+
+// Usamos la variable de entorno que definimos en Docker
+// VITE_ permite que React acceda a ella en tiempo de ejecución
+//const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+// 1. Obtenemos la URL del .env
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL
+// 2. Verificación de seguridad para ti como desarrolladora
+if (!SOCKET_URL) {
+  console.error("⚠️ ERROR: VITE_BACKEND_URL no está definida en el archivo .env");
+}
+// Configuramos la conexión única
+export const socket: Socket = io(SOCKET_URL, {
+  autoConnect: true,
+  transports: ['polling', 'websocket'], // Forzamos WebSocket para la V.19
+  //secure: true,
+  reconnection: true,        // Habilitamos reconexiones automáticas
+  reconnectionAttempts: 5,
+  withCredentials: true,
+  // Esta opción ayuda a que el handshake no falle en proxies estrictos
+  rememberUpgrade: true
+  // Forzamos a que socket.io no intente otros caminos si falla el primero
+  //forceNew: true,
+});
+
+// --- EMISORES (Enviar datos al servidor) ---
+
+// Buscar partida
+export const joinQueue = (userId: string) => {
+  socket.emit('join_queue', { userId, mode: '1v1' });
+};
+
+// Enviar movimiento (Ya lo tenías, lo mantenemos)
+export const sendMove = (direction: 'up' | 'down' | 'stop') => {
+  if (socket.connected) {
+    socket.emit('paddle_move', { direction });
+  }
+};
+
+// --- RECEPTORES (Escuchar datos del servidor) ---
+
+// Usamos callbacks para que los componentes de React reaccionen
+export const onMatchFound = (callback: (data: any) => void) => {
+  socket.on('match_found', callback);
+};
+
+export const onGameUpdate = (callback: (data: any) => void) => {
+  socket.on('game_update', callback);
+};
+
+export const onGameOver = (callback: (data: any) => void) => {
+  socket.on('game_over', callback);
+};
+
+// Notificación de que alguien se ha desconectado (Módulo Web / Robustez)
+export const onPlayerOffline = (callback: (data: { userId: string, reconnectWindow: number }) => void) => {
+  socket.on('player_offline', callback);
+};

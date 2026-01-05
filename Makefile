@@ -1,43 +1,121 @@
 # Definir el nombre del servicio
-HOME = $(shell echo $$HOME)
+TRANSCENDENCE_HOME = $(shell echo $$HOME)
+CODESPACE_NAME = $(shell echo $$CODESPACE_NAME)
+export TRANSCENDENCE_HOME
+# En tu terminal de Codespaces
+
+
+
+# Definir los nombres de los servicios
 SERVICE1 = webserver
 SERVICE2 = dbserver
-SERVICE3 = contentserver
+SERVICE3 = backend
+SERVICE4 = frontend
+SERVICE8 = grafana
 SERVICE9 = adminer
-#SERVICES = $(SERVICE1) $(SERVICE2) $(SERVICE3)
-SERVICES = $(SERVICE1)
+
+#SERVICES = $(SERVICE2) $(SERVICE9) $(SERVICE8)
+SERVICES = $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8)
 
 
-.PHONY: all web db content client webclean dbclean contentclean clientclean
+# data directories
+DB_DATA_DIR = $(TRANSCENDENCE_HOME)/data/dbserver
+GRAFANA_DATA_DIR = $(TRANSCENDENCE_HOME)/data/grafana
+
 # --build image if not exists and run it in detached mode (-d)
 # --hints about .env location.
 # --also saves space. Deletes all images not used by any containers, even tagged ones.
 # docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped
-all:
+all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
+	echo $(TRANSCENDENCE_HOME)
+	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
+# Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces
+update-env:
+	@if [ -n "$(CODESPACE_NAME)" ]; then \
+		echo "Actualizando VITE_BACKEND_URL en .env para Codespace: $(CODESPACE_NAME)"; \
+		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+	else \
+		echo "No se detectó CODESPACE_NAME, manteniendo .env sin cambios"; \
+	fi
+
+# Create postgres data directory if does not exists
+$(DB_DATA_DIR):
+	@echo "Asegurando que $(SERVICE2) no está usando  $(DB_DATA_DIR)"
+	@docker compose -f srcs/docker-compose.yml down $(SERVICE2) 2>/dev/null || true
+	@if [ -d "$(DB_DATA_DIR)" ]; then \
+		rm -rf $(DB_DATA_DIR)/*; \
+		echo "Contenido de $(DB_DATA_DIR) eliminado"; \
+	else \
+		mkdir -p $(DB_DATA_DIR); \
+		echo "Directorio $(DB_DATA_DIR) creado"; \
+	fi
+	@sync
+	@sleep 1
+
+# Create grafana data directory if does not exists
+$(GRAFANA_DATA_DIR):
+	@echo "Asegurando que $(SERVICE8) no está usando el $(GRAFANA_DATA_DIR)"
+	@docker compose -f srcs/docker-compose.yml down $(SERVICE8) 2>/dev/null || true
+	
+	@if [ -d "$(GRAFANA_DATA_DIR)" ]; then \
+		rm -rf $(GRAFANA_DATA_DIR)/*; \
+		echo "Contenido de $(GRAFANA_DATA_DIR) eliminado"; \
+	else \
+		mkdir -p $(GRAFANA_DATA_DIR); \
+		echo "Directorio $(GRAFANA_DATA_DIR) creado"; \
+	fi
+	@sync
+	@sleep 1
 
 # Individual rules
 
 
-web:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build webserver
-webclean:
-	docker image rm $(SERVICE1)
+$(SERVICE8):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE8)
+$(SERVICE8)clean:
+	docker image rm $(SERVICE8)
 
-db:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build dbserver
-dbclean:
-	docker image rm $(SERVICE2)
+$(SERVICE9):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE9)
+$(SERVICE9)clean:
+	docker image rm $(SERVICE9)
 
-content:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build contentserver
-contentclean:
+$(SERVICE3):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE3)
+$(SERVICE3)clean:
 	docker image rm $(SERVICE3)
 
+$(SERVICE4):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE4)
+$(SERVICE4)clean:
+	docker image rm $(SERVICE4)		
 
-# global rules
-.PHONY: up down stop logs clean fclean
+$(SERVICE2):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE2)
+$(SERVICE2)clean:
+	docker image rm $(SERVICE2)
+test-db: srcs/.env $(DB_DATA_DIR)
+	# 1. Ensure the containers are up and HEALTHY
+	docker compose -f srcs/docker-compose.yml up -d dbserver
+	
+	# 2. Wait for Postgres to be ready (prevents race conditions)
+	docker exec dbserver sh -c 'until pg_isready -U postgres; do sleep 1; done'
+	
+	# 3. Precise count matching using awk or psql -t (tuples only mode)
+	@COUNT=$$(docker exec dbserver psql -U postgres -d transcendence -t -c "SELECT count(*) FROM PLAYER;" | xargs); \
+	if [ "$$COUNT" -eq 100 ]; then \
+		echo "✅ Test Passed: Found exactly 100 players."; \
+	else \
+		echo "❌ Test Failed: Expected 100 players, found $$COUNT."; \
+		exit 1; \
+	fi
+
+
+
+
+
 # Ejecutar docker compose up
 up:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up
@@ -59,9 +137,22 @@ clean: down
 	docker image rm -f $(SERVICES)
 
 fclean: clean
-	docker volume rm inception_db_data
-	docker volume rm inception_wp_data
-	docker system prune -a --volumes
-	doas rm -rf $(HOME)/data/db/*
-	doas rm -rf $(HOME)/data/wp/*
+# 1. Force remove the local data directories using a temporary container
+# (We do this first so the alpine image is available to be pruned later)
+	docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/data/dbserver /clean_zone/data/grafana
 
+# 2. Remove containers, networks, AND volumes defined in the compose file
+	docker compose --project-directory srcs -f srcs/docker-compose.yml down -v
+
+# 3. Prune any remaining unused docker system data
+# (This now includes the 'alpine' image since it is no longer in use)
+	docker system prune -a --volumes -f
+
+re: fclean all
+
+.PHONY: all update-env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
+.PHONY: test-db
+.PHONY: $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) 
+.PHONY: $(SERVICE2)clean $(SERVICE3)clean $(SERVICE4)clean $(SERVICE9)clean $(SERVICE8)clean
+# global rules
+.PHONY: up down stop logs clean fclean

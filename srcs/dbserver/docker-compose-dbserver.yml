@@ -1,0 +1,27 @@
+services:
+  # Base de Datos: Requisito de persistencia [cite: 182]
+  dbserver:
+    image: postgres:${DB_POSTGRES_VERSION}
+    restart: always
+    container_name: dbserver
+    env_file:
+      - ../.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d transcendence"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db_data:/var/lib/postgresql/${DB_POSTGRES_VERSION}/docker
+      - ./scripts_init:/docker-entrypoint-initdb.d/
+    networks:
+      transcendence_net:
+        ipv4_address: 192.168.1.2  # Fixed IP
+        aliases:
+          - in_net
+
+    logging:
+      driver: "json-file" # Use json-file for easier access if you need to debug raw logs
+      options:
+        max-size: "30k" # Keep each log file up to 30KB
+        max-file: "3"   # Keep the 3 most recent log files    

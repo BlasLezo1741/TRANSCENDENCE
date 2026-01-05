@@ -1,0 +1,26 @@
+services:
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    restart: always
+    container_name: ${GF_CONTAINER_NAME}
+    env_file:
+      - ../.env
+    depends_on:
+      - ${DB_CONTAINER_NAME}
+    volumes:
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources/
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards/   
+      - grafana_data:/var/lib/grafana
+    ports:
+      - ${GF_CONTAINER_PORT}:${GF_SERVER_HTTP_PORT}
+    networks:
+      transcendence_net:
+        ipv4_address: 192.168.1.9 # Fixed IP
+        aliases:
+          - in_net
+    logging:
+      driver: "json-file" # Use json-file for easier access if you need to debug raw logs
+      options:
+        max-size: "30k" # Keep each log file up to 30KB
+        max-file: "3"   # Keep the 3 most recent log files 

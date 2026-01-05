@@ -1,0 +1,23 @@
+services:
+
+  # 3. Frontend (React + Vite)
+  frontend:
+    build: .
+    container_name: ${FE_CONTAINER_NAME}
+    restart: on-failure
+    ports:
+      - ${FE_CONTAINER_PORT}:${FE_CONTAINER_PORT} # Puerto para el frontend
+    volumes:
+      - .:/app
+      - /app/node_modules
+      # El frontend necesita saber dónde está el backend para los sockets
+    env_file:
+      - ../.env
+    networks:
+      transcendence_net:
+        ipv4_address: 192.168.1.4  # Fixed IP
+        aliases:
+          - in_net
+    depends_on:
+      - ${BE_CONTAINER_NAME}
+

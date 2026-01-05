@@ -42,6 +42,54 @@ Victory Coins of Hubris: An optional feature allows the British player to claim 
 
 The 'Half-Man's' Tenacity: The Spanish commander gains an increasing bonus to their defensive die rolls as their fortifications fall, embodying Blas de Lezo's indomitable will and determination when his forces were at their lowest ebb.
 
+
+### Game metrics 
+#### 1. Competitor Stats (Individual Performance)
+
++ **Points Scored**: The total number of times you successfully put the ball past your opponent. This is your primary measure of victory.
+
++ **Paddle Hits**: Every time you make contact with the ball. A high number shows active gameplay and defensive skill.
+
++ **Service Aces**: Points won directly from your serve without the opponent ever touching the ball. Measures the power and precision of your opening move.
+
++ **Misses**: The number of times the ball passed your paddle. Lowering this number is the fastest way to improve your win rate.
+
++ **Winning Streak**: The number of consecutive matches won without a loss. A true mark of dominance on the platform.
+
+#### 2. Match Stats (Game Dynamics)
+
++ **Peak Ball Speed**: The fastest recorded speed of the ball during a single volley. Higher speeds test your reflexes to the limit.
+
++ **Max Rally Length**: The highest number of consecutive hits between players before a point was scored. It represents the most intense moment of the match.
+
++ **Total Wall Bounces**: How many times the ball hit the top or bottom boundaries. Tracks how much "geometry" and angling players are using.
+
++ **Average Volley Duration**: The average amount of time the ball stays in play per point. High averages indicate two very evenly matched players.
+
++ **Net Touches**: (In variants with a net) How often the ball grazed the center line. This often leads to unpredictable ball behavior.
+
+#### 3. Organization Stats (Team/Clan Performance)
+
++ **Total Org Wins**: The combined victory count of every player representing this organization. Measures the collective power of the group.
+
++ **Member Participation**: The total number of matches played by all organization members. High participation shows a highly active and engaged community.
+
++ **Org Average Elo**: The mean skill rating of all members. This tells you the "weight class" of the organization in the global rankings.
+
++ **Tournament Trophies**: The count of first-place finishes in official tournaments. This is the ultimate bragging right for any organization.
+
+#### 4. Tournament Stats (Event Analysis)
+
++ **Upsets Count** : How many times a lower-ranked "underdog" defeated a higher-seeded player. High upset counts indicate a high-chaos, exciting tournament.
+
++ **Average Match Margin** : The average score gap between winners and losers (e.g., 11–2 vs 11–9). Narrower margins mean the tournament was highly competitive.
+
++ **Total Participants**: The total number of unique players who entered the bracket. Measures the scale of the event.
+
++ **Tournament Duration**: The total time elapsed from the first serve of Round 1 to the final point of the Championship.
+
++ **Forfeit Count**: How many matches were decided by a player failing to show up or disconnecting. A metric used to gauge the reliability of the player pool.
+
 # Instructions
 
 ## Prerequisites
@@ -214,6 +262,7 @@ This structure supports a comprehensive competitive gaming platform with social 
 
 |Member|Individual contributions|
 |------|------------------------|
+|Adria||
 |Natalia||
 |Xavi||
 |Luis| Readme|
@@ -221,3 +270,6 @@ This structure supports a comprehensive competitive gaming platform with social 
 # Documentation 
 # Credits
 # License
+# Data sources
++ [language codes](https://github.com/datasets/language-codes/tree/main)
++ [Country codes](https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv)

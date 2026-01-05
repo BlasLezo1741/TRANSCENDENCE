@@ -1,10 +1,10 @@
 # --- SEGURIDAD Y CONFIGURACIÓN (REQUISITO MANDATORIO) ---
 # No subir credenciales ni variables de entorno 
-.env
-.env.local
-.env.*.local
-*.env
-!env.example
+#.env
+#.env.local
+#.env.*.local
+#*.env
+#!env.example
 
 # --- SISTEMA OPERATIVO ---
 .DS_Store

@@ -1,0 +1,36 @@
+name: DB Validation Tests
+
+on:
+  push:
+    branches: [ "main", "develop" , "53_game_nata" ] # Adjust these to your default branches
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-db:
+      runs-on: ubuntu-latest
+      services:
+        dbserver:
+          image: postgres:18 # The image with synthetic data
+          env:
+            POSTGRES_PASSWORD: example
+            POSTGRES_DB: transcendence
+            POSTGRES_USER: postgres
+            PGDATA: /var/lib/postgresql/18/docker
+            PGDATESTYLE: ISO, DMY
+          ports:
+            - 5432:5432
+          # Ensure the DB is ready before starting tests
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+
+      steps:
+        - uses: actions/checkout@v4
+        
+        - name: Run Database Checks
+          run: make test-db
+          env:
+            DB_URL: postgresql://postgres:your_password@localhost:5432/TRANSCENCENDE
