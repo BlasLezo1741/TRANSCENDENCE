@@ -1,13 +1,15 @@
 export type Screen =
     | "menu"
-    | "game"
-    | "mode"
+    | "sign"
+    | "login"
+    | "settings"
     | "pong";
 
 export type Action =
     | { type: "MENU" }
-    | { type: "GAME" }
-    | { type: "MODE" }
+    | { type: "SIGN" }
+    | { type: "LOGIN" }
+    | { type: "SETTINGS" }
     | { type: "PONG" };
 
 export type GameMode =

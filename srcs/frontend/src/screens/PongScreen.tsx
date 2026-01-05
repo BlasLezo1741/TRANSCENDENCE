@@ -15,7 +15,7 @@ function PongScreen({ dispatch, mode }: PongScreenProps) {
       <Header />
       <h1>{t('juego_mode')}{mode}</h1>
       
-      <Canvas mode={mode} />
+      <Canvas mode={mode} dispatch={dispatch}/>
 
       <button onClick={() => dispatch({ type: "MENU" })}>
       {t('menu')}

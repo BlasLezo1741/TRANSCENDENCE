@@ -5,10 +5,11 @@ import type { GameMode } from "../ts/types.ts";
 
 type CanvasProps = {
     mode: GameMode;
+    dispatch: React.Dispatch<any>;
     playerNumber?: 1 | 2; // Only for remote
 };
 
-function Canvas({ mode, playerNumber = 1 }: CanvasProps)
+function Canvas({ mode, dispatch, playerNumber = 1 }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -46,6 +47,14 @@ function Canvas({ mode, playerNumber = 1 }: CanvasProps)
         {
             game.update();
             game.draw();
+
+            if (game.hasWinner())
+            {
+                alert("The player " + game.getWinner() + " has won!");
+                dispatch({ type: "MENU"});
+                return ;
+            }
+
             animationId = requestAnimationFrame(gameLoop);
         };
         gameLoop();
