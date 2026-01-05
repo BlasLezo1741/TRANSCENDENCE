@@ -37,6 +37,14 @@
   padding-top: 20px;
 }
 
+.flag-icon {
+  width: 20px;          /* Sets width */
+  height: 20px;         /* Sets height */
+  object-fit: cover;    /* Prevents the image from looking squashed */
+  border-radius: 50%;   /* Makes it circular (remove this for a square) */
+  display: block;       /* Ensures it aligns correctly */
+}
+
 /* --- YOUR ORIGINAL STYLES BELOW --- */
 
 .logo {
