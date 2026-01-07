@@ -17,57 +17,51 @@ import { FinishGameDto } from './dto/finish-game.dto';
 
 // Interfaces (Salida)
 import { MatchFoundResponse } from './dto/match-found.response';
-import { GameUpdateResponse } from './dto/game-update.response';
 import { ScoreUpdateResponse } from './dto/score-update.response';
+// import { GameUpdateResponse } from './dto/game-update.response'; // Descomentar si la usas
 
-// --- CAMBIO PARA DRIZZLE ---
+// --- DRIZZLE & DB ---
 import { DRIZZLE } from './database.module';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import * as schema from './schema'; // Importamos todas las tablas juntas
-import { eq, sql } from 'drizzle-orm'; // Operadores: eq (igual), sql (para fechas)
-// ---------------------------
+import * as schema from './schema'; 
+import { eq, sql } from 'drizzle-orm'; 
+// --------------------
 
-//@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Protección global del Gateway
 @UsePipes(new ValidationPipe({ whitelist: true }))
-
 @WebSocketGateway({
   cors: {
-    // Permitimos explícitamente tu URL de frontend y también 'true' para mayor compatibilidad
     origin: true,
     methods: ["GET", "POST"],
     credentials: true
   },
   transports: ['polling', 'websocket']
 })
-
-
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-//AÑADIMOS EL CONSTRUCTOR PARA DRIZZLE PARA INYECTAR LA DB
-constructor(
+  constructor(
     @Inject(DRIZZLE) 
     private readonly db: PostgresJsDatabase<typeof schema>,
   ) {}
 
+  // --- CONEXIÓN / DESCONEXIÓN ---
 
-// Manejo de conexiones (V.19)
-handleConnection(client: Socket) {
+  handleConnection(client: Socket) {
     console.log(`✅ Cliente conectado: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
     console.log(`❌ Cliente desconectado: ${client.id}`);
-    // Notificamos la desconexión al resto (Módulo Web)
     this.server.emit('player_offline', {
       userId: client.id,
       reconnectWindow: 30
     });
   }
 
-  // EVENTO: Búsqueda de partida (Validado con DTO)
-@SubscribeMessage('join_queue')
+  // --- JOIN QUEUE (Inicio de partida + DB Insert) ---
+
+  @SubscribeMessage('join_queue')
   async handleJoinQueue(
     @ConnectedSocket() client: Socket, 
     @MessageBody() payload: JoinQueueDto 
@@ -75,100 +69,119 @@ handleConnection(client: Socket) {
     console.log(`📢 [DRIZZLE] Buscando modo: ${payload.mode}`);
 
     try {
-      // PASO 1: Buscar el ID numérico del modo (ej: "1v1_local" -> ID 1)
-      // Usamos 'findFirst' para buscar en la tabla match_mode
+      // 1. Buscar ID del modo
       const modeResult = await this.db.query.matchMode.findFirst({
         where: eq(schema.matchMode.mmodName, payload.mode)
       });
 
-      // Validación: Si no existe el modo en la DB, paramos para no romper nada
       if (!modeResult) {
         console.error(`❌ Error: El modo '${payload.mode}' no existe en la tabla match_mode.`);
-        console.error('💡 PISTA: ¿Has ejecutado los INSERT en la base de datos?');
         return;
       }
 
-      // PASO 2: Insertar la partida usando el ID encontrado (mmodPk)
+      // 2. Insertar partida en DB
       const newMatch = await this.db.insert(schema.match).values({
-        mModeFk: modeResult.mmodPk, // <--- Aquí usamos el número (Foreign Key)
-        mDate: sql`NOW()`,          // Generamos la fecha actual en Postgres
-      }).returning({ insertedId: schema.match.mPk }); // Pedimos que devuelva el ID creado
+        mModeFk: modeResult.mmodPk,
+        mDate: sql`NOW()`,
+      }).returning({ insertedId: schema.match.mPk });
 
       console.log(`✅ Partida insertada. ID Partida: ${newMatch[0].insertedId} | Modo ID: ${modeResult.mmodPk}`);
 
+      // 3. Gestión de Sala y Respuesta
+      const roomId = `room_${payload.mode}_${client.id}`;
+      
+      // IMPORTANTE: Esperar a que el join se complete antes de emitir
+      await client.join(roomId); 
+      console.log(`🚪 Cliente ${client.id} unido a sala: ${roomId}`);
+
+      const response: MatchFoundResponse = { 
+        roomId,
+        matchId: newMatch[0].insertedId, // Enviamos el ID de DB al frontend
+        side: 'left',
+        opponent: { name: 'DrizzleBot', avatar: 'default.png' }
+      };
+
+      // Emitir DIRECTAMENTE al cliente para asegurar que recibe el ID
+      client.emit('match_found', response);
+
     } catch (error) {
-      console.error('❌ Error crítico al guardar en DB:', error);
-      // No hacemos 'return' aquí para permitir que sigan jugando aunque falle el guardado (opcional)
+      console.error('❌ Error crítico en handleJoinQueue:', error);
     }
-
-    // --- LÓGICA DE SOCKETS (se mantiene igual) ---
-    const roomId = `room_${payload.mode}_${client.id}`;
-    await client.join(roomId); 
-    console.log(`🚪 Cliente ${client.id} unido a sala: ${roomId}`);
-
-    const response: MatchFoundResponse = {
-      roomId,
-      side: 'left',
-      opponent: { name: 'DrizzleBot', avatar: 'default.png' }
-    };
-    // CAMBIO ESTRATÉGICO: Emitir directamente al cliente que acaba de entrar
-    // Esto garantiza que el frontend reciba el match_found y guarde el currentRoomId
-    client.emit('match_found', response);
-    //this.server.to(roomId).emit('match_found', response);//codigo antiguo
-    // Opcional: Avisar a otros en la sala (si los hubiera)
-    // client.to(roomId).emit('opponent_joined', { ... });
   }
 
-// EVENTO: Movimiento (Validado con DTO - para el modulo de gaming)
-@SubscribeMessage('paddle_move')
+  // --- PADDLE MOVE (Juego en tiempo real) ---
+
+  @SubscribeMessage('paddle_move')
   handlePaddleMove(
     @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: PaddleMoveDto // <--- Usa el nuevo DTO
+    @MessageBody() payload: PaddleMoveDto 
   ) {
-    // --- LOG TEMPORAL PARA DEPURAR ---
-    console.log(`🏓 [MOVE] Cliente: ${client.id} | Sala: ${payload.roomId} | Dir: ${payload.direction}`);
+    // console.log(`🏓 [MOVE] Cliente: ${client.id} | Dir: ${payload.direction}`);
     
-    // 1. Verificación de Seguridad (Anti-Trampas básico)
-    // El cliente dice que está en la sala X, verificamos si el socket realmente está unido a esa sala.
-    const isClientInRoom = client.rooms.has(payload.roomId);
-    
-    if (!isClientInRoom) {
-        console.warn(`⚠️ Alerta: El usuario ${client.id} intentó mover en una sala ajena: ${payload.roomId}`);
+    // Seguridad: Verificar que el socket pertenece a la sala que dice
+    if (!client.rooms.has(payload.roomId)) {
+        console.warn(`⚠️ Alerta: El usuario ${client.id} intentó mover en una sala ajena.`);
         return;
     }
 
-    // 2. Lógica de Juego (Solo en memoria, NO DB)
-    // Reenviamos el movimiento a todos en la sala EXCEPTO al que lo envió (broadcast)
-    // Así el oponente ve que te mueves.
+    // Reenviar movimiento al oponente (Broadcast a la sala, excluyendo al emisor)
     client.to(payload.roomId).emit('game_update', {
       playerId: client.id,
       move: payload.direction
     });
-    
-    // Si quisieras logs depurados (cuidado, esto spamea mucho la consola):
-    // console.log(`🏓 ${payload.roomId} | ${client.id} -> ${payload.direction}`);
   }
 
-// EVENTO: Finalización (Validado con DTO para el módulo User Management)
-@SubscribeMessage('finish_game')
-  handleFinishGame(
+  // --- FINISH GAME (Cierre de partida + DB Update) ---
+
+  @SubscribeMessage('finish_game')
+  async handleFinishGame(
     @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: FinishGameDto // Aplicamos el contrato de datos
+    @MessageBody() payload: FinishGameDto 
   ) {
-    // Buscamos la sala para notificar a ambos jugadores
-    const roomId = payload.roomId || Array.from(client.rooms)[1];
+    console.log(`🏁 [FIN] Sala: ${payload.roomId} | Ganador: ${payload.winnerId} | Match PK: ${payload.matchId}`);
 
-    console.log(`🏆 Partida finalizada. Ganador: ${payload.winnerId} en sala: ${roomId}`);
-
-    if (roomId) {
-      this.server.to(roomId).emit('game_over', {
-        winner: payload.winnerId,
-        timestamp: new Date().toISOString(),
-        status: 'validated' // Indicamos que los datos pasaron el protocolo
-      });
+    // Seguridad básica
+    if (!client.rooms.has(payload.roomId)) {
+        console.warn(`⚠️ Intento de cerrar juego ajeno. User: ${client.id}`);
     }
+
+    try {
+        // 1. Buscar ID del Jugador Ganador por su Nick
+        const winnerPlayer = await this.db.query.player.findFirst({
+            where: eq(schema.player.pNick, payload.winnerId)
+        });
+
+        if (winnerPlayer) {
+            // 2. Actualizar la partida con el Ganador y Duración
+            await this.db.update(schema.match)
+                .set({ 
+                    mWinnerFk: winnerPlayer.pPk, 
+                    mDuration: sql`NOW() - m_date` 
+                }) 
+                .where(eq(schema.match.mPk, payload.matchId));
+            
+            console.log(`💾 ¡Guardado! Ganador ID: ${winnerPlayer.pPk} (${winnerPlayer.pNick})`);
+        } else {
+            console.warn(`⚠️ No se pudo guardar: El usuario '${payload.winnerId}' no existe en la DB.`);
+        }
+
+    } catch (error) {
+        console.error('❌ Error al actualizar DB:', error);
+    }
+
+    // 3. Notificar Fin de Juego
+    this.server.to(payload.roomId).emit('game_over', { winner: payload.winnerId });
+
+    // 4. Limpieza de sala
+    const sockets = await this.server.in(payload.roomId).fetchSockets();
+    for (const s of sockets) {
+        s.leave(payload.roomId);
+    }
+    
+    console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
   }
-  // MÉTODO AUXILIAR: Para el marcador de puntos
+
+  // --- AUXILIAR (Futuro uso) ---
   emitScore(roomId: string, scorerId: string, newScore: [number, number]) {
     const payload: ScoreUpdateResponse = {
       score: newScore,

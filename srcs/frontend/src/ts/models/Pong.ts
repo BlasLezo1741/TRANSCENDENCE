@@ -28,8 +28,8 @@ export class Pong
         this.c = c;
         this.ctx = ctx;
         this.mode = mode;
-        this.player1 = new Player("Jose Luis", 20, c.height);
-        this.player2 = new Player("Miguel", c.width - 30, c.height);
+        this.player1 = new Player("user_1", 20, c.height);
+        this.player2 = new Player("user_2", c.width - 30, c.height);
         this.ball = new Ball(c);
         this.playerNumber = n;
         this.pause = this.end = false;

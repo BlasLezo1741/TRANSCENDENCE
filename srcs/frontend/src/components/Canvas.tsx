@@ -1,6 +1,6 @@
 import React, {useRef, useEffect} from "react";
 import { Pong } from "../ts/models/Pong.ts"
-import { sendMove, onGameUpdate, onMatchFound, socket } from '../services/socketService'; //IMPORTAMOS EL SERVICIO DE SOCKETS
+import { sendMove, onGameUpdate, onMatchFound, finishGame, socket } from '../services/socketService'; //IMPORTAMOS EL SERVICIO DE SOCKETS
 import type { GameMode } from "../ts/types.ts";
 
 type CanvasProps = {
@@ -77,6 +77,11 @@ function Canvas({ mode, dispatch, playerNumber = 1 }: CanvasProps)
 
             if (game.hasWinner())
             {
+                const winnerName = game.getWinner(); // Esto devolverá el ganador
+                console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
+                //IMPORTANTE: Enviamos el aviso al servidor
+                finishGame(winnerName);
+
                 alert("The player " + game.getWinner() + " has won!");
                 dispatch({ type: "MENU"});
                 return ;

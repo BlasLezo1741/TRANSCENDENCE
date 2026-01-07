@@ -1,32 +1,28 @@
 import { io, Socket } from 'socket.io-client';
 
-// Usamos la variable de entorno que definimos en Docker
-// VITE_ permite que React acceda a ella en tiempo de ejecución
-//const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 // 1. Obtenemos la URL del .env
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL
-// 2. Verificación de seguridad para ti como desarrolladora
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL;
+
+// 2. Verificación de seguridad
 if (!SOCKET_URL) {
   console.error("⚠️ ERROR: VITE_BACKEND_URL no está definida en el archivo .env");
 }
 
-// Variable interna para recordar en qué sala está jugando el usuario
+// Variables de estado
 let currentRoomId: string | null = null;
+let currentMatchDbId: number | null = null;
 
-// Configuramos la conexión única
-export const socket: Socket = io(SOCKET_URL, {
+// Configuración de la conexión
+export const socket: Socket = io(SOCKET_URL || 'http://localhost:3000', { // Fallback por seguridad
   autoConnect: true,
-  transports: ['polling', 'websocket'], // Forzamos WebSocket para la V.19
-  //secure: true,
-  reconnection: true,        // Habilitamos reconexiones automáticas
+  transports: ['polling', 'websocket'], 
+  reconnection: true,
   reconnectionAttempts: 5,
   withCredentials: true,
-  // Esta opción ayuda a que el handshake no falle en proxies estrictos
   rememberUpgrade: true
-  // Forzamos a que socket.io no intente otros caminos si falla el primero
-  //forceNew: true,
 });
-// --- COMIENZA EL TESTIGO DE CONEXIÓN ---
+
+// --- TESTIGOS DE CONEXIÓN ---
 socket.on('connect', () => {
   console.log("✅ Conectado al Backend con ID:", socket.id);
 });
@@ -34,62 +30,80 @@ socket.on('connect', () => {
 socket.on('connect_error', (error) => {
   console.error("❌ Error de conexión al Socket:", error);
 });
-// --- TERMINA EL TESTIGO DE CONEXIÓN ---
 
 // --- EMISORES (Enviar datos al servidor) ---
+
 export const joinQueue = (userId: string, mode: string) => {
+  // Limpiamos datos anteriores para evitar mezclar partidas
+  currentRoomId = null;
+  currentMatchDbId = null;
+  
   console.log(`📡 Socket emitiendo join_queue: User=${userId}, Mode=${mode}`);
   socket.emit('join_queue', { userId, mode }); 
 };
 
-// Enviar movimiento
 export const sendMove = (direction: 'up' | 'down' | 'stop') => {
   if (socket.connected && currentRoomId) {
     socket.emit('paddle_move', { 
-        roomId: currentRoomId, // <--- INYECTAMOS EL ID DE LA SALA
+        roomId: currentRoomId, 
         direction 
     });
   } else {
-    // Solo mostramos warning si intenta mover sin estar en partida (opcional)
-    if (!currentRoomId) console.warn("⚠️ Intento de movimiento sin sala asignada.");
+    // Evitamos spam de logs si no hay sala
+    if (!currentRoomId) { /* console.warn("⚠️ Intento de movimiento sin sala."); */ }
   }
 };
 
-export const finishGame = (winnerId: string) => {
-    if (currentRoomId) {
+export const finishGame = (winnerName: string) => {
+    // Verificamos que tengamos sala y ID de base de datos
+    if (currentRoomId && currentMatchDbId) {
+        console.log(`🏁 Enviando fin de juego. Ganador: ${winnerName} | MatchID: ${currentMatchDbId}`);
         socket.emit('finish_game', {
             roomId: currentRoomId,
-            winnerId: winnerId
+            winnerId: winnerName,
+            matchId: currentMatchDbId // <--- ENVIAMOS EL ID AL BACKEND
         });
+    } else {
+        console.warn("⚠️ No se puede finalizar: Faltan datos (Room o DB ID)");
+        console.log("Datos actuales -> Room:", currentRoomId, "DB ID:", currentMatchDbId);
     }
 };
 
 // --- RECEPTORES (Escuchar datos del servidor) ---
-// MODIFICADO: Interceptamos el evento para guardar el roomId
-// Usamos callbacks para que los componentes de React reaccionen
+
 export const onMatchFound = (callback: (data: any) => void) => {
+  socket.off('match_found'); // <--- MEJORA: Evita duplicados si React renderiza dos veces
   socket.on('match_found', (data) => {
-    console.log("🎯 Match encontrado. Sala guardada:", data.roomId);
-    currentRoomId = data.roomId; // <--- GUARDAMOS LA REFERENCIA AQUÍ
-    callback(data); // Pasamos los datos al componente React
+    console.log("🎯 Match encontrado. Sala:", data.roomId, "| DB ID:", data.matchId);
+    
+    currentRoomId = data.roomId;      // Guardamos la sala
+    currentMatchDbId = data.matchId;  // Guardamos el ID de la BD
+    
+    callback(data);
   });
 };
 
 export const onGameUpdate = (callback: (data: any) => void) => {
+  socket.off('game_update'); // <--- MEJORA DE LIMPIEZA
   socket.on('game_update', callback);
 };
 
 export const onGameOver = (callback: (data: any) => void) => {
+  socket.off('game_over'); // <--- MEJORA DE LIMPIEZA
   socket.on('game_over', (data) => {
-    currentRoomId = null; // Limpiamos la sala al terminar
+    console.log("🏆 Game Over recibido. Ganador:", data.winner);
+    currentRoomId = null;     // Limpiamos memoria
+    currentMatchDbId = null;  // Limpiamos memoria
     callback(data);
   });
 };
 
 export const onPlayerOffline = (callback: (data: { userId: string, reconnectWindow: number }) => void) => {
+  socket.off('player_offline');
   socket.on('player_offline', callback);
 };
 
 export const onScoreUpdate = (callback: (data: any) => void) => {
+    socket.off('score_update');
     socket.on('score_update', callback);
 };
