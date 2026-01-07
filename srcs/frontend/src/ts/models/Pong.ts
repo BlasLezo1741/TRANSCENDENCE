@@ -21,6 +21,8 @@ export class Pong
     winner: string;
     end: boolean;
 
+    private opponentMove: 'up' | 'down' | 'stop' = 'stop'; // <--- NUEVO: Control remoto
+
     constructor(c: HTMLCanvasElement, ctx: CanvasRenderingContext2D, mode: GameMode, n: number, max: number)
     {
         this.c = c;
@@ -33,6 +35,11 @@ export class Pong
         this.pause = this.end = false;
         this.winner = "none";
         this.maxScore = max;
+    }
+
+    // --- NUEVO MÉTODO PARA EL SOCKET ---
+    moveOpponent(dir: 'up' | 'down' | 'stop') {
+        this.opponentMove = dir;
     }
 
     setPause()
@@ -71,12 +78,25 @@ export class Pong
             this.updatePlayer(this.player1, "w", "s");
             this.updatePlayer(this.player2, "ArrowUp", "ArrowDown");
         }
-        else
-        {
-            if (this.playerNumber == 1)
+else { // MODOS REMOTOS (remote / tournament)
+            if (this.playerNumber == 1) {
+                // Yo soy el 1: Me muevo con mis teclas
                 this.updatePlayer(this.player1, "w", "s");
-            else
+                this.updatePlayer(this.player1, "ArrowUp", "ArrowDown"); // Soporte para ambas
+                
+                // El oponente es el 2: Se mueve según lo que diga el socket
+                if (this.opponentMove === 'up') this.player2.moveUp();
+                if (this.opponentMove === 'down') this.player2.moveDown();
+            } 
+            else {
+                // Yo soy el 2: Me muevo con mis teclas
+                this.updatePlayer(this.player2, "w", "s");
                 this.updatePlayer(this.player2, "ArrowUp", "ArrowDown");
+                
+                // El oponente es el 1: Se mueve según el socket
+                if (this.opponentMove === 'up') this.player1.moveUp();
+                if (this.opponentMove === 'down') this.player1.moveDown();
+            }
         }
 
         // Update ball

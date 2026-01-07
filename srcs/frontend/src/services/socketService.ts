@@ -9,6 +9,10 @@ const SOCKET_URL = import.meta.env.VITE_BACKEND_URL
 if (!SOCKET_URL) {
   console.error("⚠️ ERROR: VITE_BACKEND_URL no está definida en el archivo .env");
 }
+
+// Variable interna para recordar en qué sala está jugando el usuario
+let currentRoomId: string | null = null;
+
 // Configuramos la conexión única
 export const socket: Socket = io(SOCKET_URL, {
   autoConnect: true,
@@ -38,18 +42,37 @@ export const joinQueue = (userId: string, mode: string) => {
   socket.emit('join_queue', { userId, mode }); 
 };
 
-// Enviar movimiento (Ya lo tenías, lo mantenemos)
+// Enviar movimiento
 export const sendMove = (direction: 'up' | 'down' | 'stop') => {
-  if (socket.connected) {
-    socket.emit('paddle_move', { direction });
+  if (socket.connected && currentRoomId) {
+    socket.emit('paddle_move', { 
+        roomId: currentRoomId, // <--- INYECTAMOS EL ID DE LA SALA
+        direction 
+    });
+  } else {
+    // Solo mostramos warning si intenta mover sin estar en partida (opcional)
+    if (!currentRoomId) console.warn("⚠️ Intento de movimiento sin sala asignada.");
   }
 };
 
-// --- RECEPTORES (Escuchar datos del servidor) ---
+export const finishGame = (winnerId: string) => {
+    if (currentRoomId) {
+        socket.emit('finish_game', {
+            roomId: currentRoomId,
+            winnerId: winnerId
+        });
+    }
+};
 
+// --- RECEPTORES (Escuchar datos del servidor) ---
+// MODIFICADO: Interceptamos el evento para guardar el roomId
 // Usamos callbacks para que los componentes de React reaccionen
 export const onMatchFound = (callback: (data: any) => void) => {
-  socket.on('match_found', callback);
+  socket.on('match_found', (data) => {
+    console.log("🎯 Match encontrado. Sala guardada:", data.roomId);
+    currentRoomId = data.roomId; // <--- GUARDAMOS LA REFERENCIA AQUÍ
+    callback(data); // Pasamos los datos al componente React
+  });
 };
 
 export const onGameUpdate = (callback: (data: any) => void) => {
@@ -57,10 +80,16 @@ export const onGameUpdate = (callback: (data: any) => void) => {
 };
 
 export const onGameOver = (callback: (data: any) => void) => {
-  socket.on('game_over', callback);
+  socket.on('game_over', (data) => {
+    currentRoomId = null; // Limpiamos la sala al terminar
+    callback(data);
+  });
 };
 
-// Notificación de que alguien se ha desconectado (Módulo Web / Robustez)
 export const onPlayerOffline = (callback: (data: { userId: string, reconnectWindow: number }) => void) => {
   socket.on('player_offline', callback);
+};
+
+export const onScoreUpdate = (callback: (data: any) => void) => {
+    socket.on('score_update', callback);
 };

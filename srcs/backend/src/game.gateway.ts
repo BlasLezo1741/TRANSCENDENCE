@@ -103,31 +103,50 @@ handleConnection(client: Socket) {
 
     // --- LÓGICA DE SOCKETS (se mantiene igual) ---
     const roomId = `room_${payload.mode}_${client.id}`;
-    client.join(roomId);
+    await client.join(roomId); 
+    console.log(`🚪 Cliente ${client.id} unido a sala: ${roomId}`);
 
     const response: MatchFoundResponse = {
       roomId,
       side: 'left',
       opponent: { name: 'DrizzleBot', avatar: 'default.png' }
     };
-
-    this.server.to(roomId).emit('match_found', response);
+    // CAMBIO ESTRATÉGICO: Emitir directamente al cliente que acaba de entrar
+    // Esto garantiza que el frontend reciba el match_found y guarde el currentRoomId
+    client.emit('match_found', response);
+    //this.server.to(roomId).emit('match_found', response);//codigo antiguo
+    // Opcional: Avisar a otros en la sala (si los hubiera)
+    // client.to(roomId).emit('opponent_joined', { ... });
   }
 
 // EVENTO: Movimiento (Validado con DTO - para el modulo de gaming)
-  @SubscribeMessage('paddle_move')
+@SubscribeMessage('paddle_move')
   handlePaddleMove(
     @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: PaddleMoveDto // Ahora usa el DTO
+    @MessageBody() payload: PaddleMoveDto // <--- Usa el nuevo DTO
   ) {
-    const roomId = Array.from(client.rooms)[1];
-
-    if (roomId) {
-      this.server.to(roomId).emit('game_update', {
-        playerId: client.id,
-        move: payload.direction // Solo llegará si es up/down/stop
-      });
+    // --- LOG TEMPORAL PARA DEPURAR ---
+    console.log(`🏓 [MOVE] Cliente: ${client.id} | Sala: ${payload.roomId} | Dir: ${payload.direction}`);
+    
+    // 1. Verificación de Seguridad (Anti-Trampas básico)
+    // El cliente dice que está en la sala X, verificamos si el socket realmente está unido a esa sala.
+    const isClientInRoom = client.rooms.has(payload.roomId);
+    
+    if (!isClientInRoom) {
+        console.warn(`⚠️ Alerta: El usuario ${client.id} intentó mover en una sala ajena: ${payload.roomId}`);
+        return;
     }
+
+    // 2. Lógica de Juego (Solo en memoria, NO DB)
+    // Reenviamos el movimiento a todos en la sala EXCEPTO al que lo envió (broadcast)
+    // Así el oponente ve que te mueves.
+    client.to(payload.roomId).emit('game_update', {
+      playerId: client.id,
+      move: payload.direction
+    });
+    
+    // Si quisieras logs depurados (cuidado, esto spamea mucho la consola):
+    // console.log(`🏓 ${payload.roomId} | ${client.id} -> ${payload.direction}`);
   }
 
 // EVENTO: Finalización (Validado con DTO para el módulo User Management)
