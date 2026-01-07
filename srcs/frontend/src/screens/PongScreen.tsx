@@ -5,16 +5,17 @@ import type { GameMode } from '../ts/types.ts';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
+  userName: string; //nueva propiedad
 };
 
-const PongScreen = ({ dispatch, mode }: PongScreenProps) =>
+const PongScreen = ({ dispatch, mode, userName }: PongScreenProps) =>
 {
   const { t } = useTranslation();
   return (
     <div>
-      <h1>{t('juego_mode')}{mode}</h1>
+      <h1>{t('juego_mode')}{mode} | {userName}</h1>
       
-      <Canvas mode={mode} dispatch={dispatch}/>
+      <Canvas mode={mode} dispatch={dispatch} userName={userName}/>
 
       <button onClick={() => dispatch({ type: "MENU" })}>
       {t('menu')}

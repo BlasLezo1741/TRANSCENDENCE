@@ -17,6 +17,7 @@ function App()
 {
   const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
   const [mode, setMode] = useState<GameMode>("ia");
+  const currentUser = "user_1";
 
   function renderScreen()
   {
@@ -31,7 +32,7 @@ function App()
       // case "settings":
       //   return <SettingsScreen dispatch={dispatch} />;
       case "pong":
-         return <PongScreen dispatch={dispatch} mode={mode} />;
+         return <PongScreen dispatch={dispatch} mode={mode} userName={currentUser} />;
       default:
           return null;
     }

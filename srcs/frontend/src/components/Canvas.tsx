@@ -7,9 +7,10 @@ type CanvasProps = {
     mode: GameMode;
     dispatch: React.Dispatch<any>;
     playerNumber?: 1 | 2; // Only for remote
+    userName: string;
 };
 
-function Canvas({ mode, dispatch, playerNumber = 1 }: CanvasProps)
+function Canvas({ mode, dispatch, playerNumber = 1, userName }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -23,7 +24,8 @@ function Canvas({ mode, dispatch, playerNumber = 1 }: CanvasProps)
         canvas.width = 800;
         canvas.height = 600;
         //Inicializar juego
-        const game = new Pong(canvas, ctx, mode, playerNumber, 5);
+        //const game = new Pong(canvas, ctx, mode, playerNumber, 5);
+        const game = new Pong(canvas, ctx, mode, playerNumber, 5, userName);
         //Escuchar cuando el servidor confirma la sala
         onMatchFound((data) => {
             console.log("✅ Sala confirmada desde el servidor:", data.roomId);
@@ -79,8 +81,12 @@ function Canvas({ mode, dispatch, playerNumber = 1 }: CanvasProps)
             {
                 const winnerName = game.getWinner(); // Esto devolverá el ganador
                 console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
-                //IMPORTANTE: Enviamos el aviso al servidor
-                finishGame(winnerName);
+                // Solo enviamos el resultado a la DB si es una partida ONLINE
+                if (mode === 'remote' || mode === 'tournament') {
+                    finishGame(winnerName); 
+                } else {
+                    console.log("ℹ️ Partida local/IA finalizada. No se guarda en DB.");
+                }
 
                 alert("The player " + game.getWinner() + " has won!");
                 dispatch({ type: "MENU"});
