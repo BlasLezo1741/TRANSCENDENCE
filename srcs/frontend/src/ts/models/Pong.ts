@@ -23,7 +23,7 @@ export class Pong
 
     private opponentMove: 'up' | 'down' | 'stop' = 'stop'; // <--- NUEVO: Control remoto
 
-    constructor(c: HTMLCanvasElement, ctx: CanvasRenderingContext2D, mode: GameMode, n: number, max: number, localPlayerName: string)
+    constructor(c: HTMLCanvasElement, ctx: CanvasRenderingContext2D, mode: GameMode, n: number, max: number, localPlayerName: string, opponentName: string = "IA-Bot")
     {
         this.c = c;
         this.ctx = ctx;
@@ -37,10 +37,10 @@ export class Pong
             if (this.playerNumber === 1) {
                 // Yo soy el Player 1 (Izquierda)
                 this.player1 = new Player(localPlayerName, 20, c.height);
-                this.player2 = new Player("Oponente", c.width - 30, c.height);
+                this.player2 = new Player(opponentName, c.width - 30, c.height);
             } else {
                 // Yo soy el Player 2 (Derecha)
-                this.player1 = new Player("Oponente", 20, c.height);
+                this.player1 = new Player(opponentName, 20, c.height);
                 this.player2 = new Player(localPlayerName, c.width - 30, c.height);
             }
         } 
@@ -54,6 +54,7 @@ export class Pong
             this.player2 = new Player("Invitado", c.width - 30, c.height);
         }
         this.ball = new Ball(c);
+        this.ball.reset();
         this.pause = this.end = false;
         this.winner = "none";
         this.maxScore = max;

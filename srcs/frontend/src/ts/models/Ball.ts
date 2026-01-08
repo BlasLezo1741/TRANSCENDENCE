@@ -76,7 +76,7 @@ export class Ball
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    private async reset(): Promise<void>
+    public async reset(): Promise<void>
     {
         this.waiting = this.firstHit = true;
 

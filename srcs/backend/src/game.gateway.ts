@@ -18,7 +18,7 @@ import { FinishGameDto } from './dto/finish-game.dto';
 // Interfaces (Salida)
 import { MatchFoundResponse } from './dto/match-found.response';
 import { ScoreUpdateResponse } from './dto/score-update.response';
-// import { GameUpdateResponse } from './dto/game-update.response'; // Descomentar si la usas
+import { GameUpdateResponse } from './dto/game-update.response'; // Descomentar si la usas
 
 // --- DRIZZLE & DB ---
 import { DRIZZLE } from './database.module';
@@ -40,6 +40,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+//Mapa para gestionar colas por modo de juego (ej: '1v1_remote' -> [Socket])
+  private queues: Map<string, Socket[]> = new Map();
+
   constructor(
     @Inject(DRIZZLE) 
     private readonly db: PostgresJsDatabase<typeof schema>,
@@ -53,6 +56,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     console.log(`❌ Cliente desconectado: ${client.id}`);
+
+    this.queues.forEach((queue, mode) => {
+      const index = queue.findIndex(s => s.id === client.id);
+      if (index !== -1) {
+        queue.splice(index, 1);
+        console.log(`🗑️ Jugador ${client.id} eliminado de la cola de espera de ${mode}`);
+      }
+    });
+
     this.server.emit('player_offline', {
       userId: client.id,
       reconnectWindow: 30
@@ -60,54 +72,224 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // --- JOIN QUEUE (Inicio de partida + DB Insert) ---
-
-  @SubscribeMessage('join_queue')
+@SubscribeMessage('join_queue')
   async handleJoinQueue(
     @ConnectedSocket() client: Socket, 
     @MessageBody() payload: JoinQueueDto 
   ) {
-    console.log(`📢 [DRIZZLE] Buscando modo: ${payload.mode}`);
+    const { mode, nickname } = payload;
+    console.log(`🔍 [STEP 1] Inicio join_queue. Nick: ${nickname}, Mode: ${mode}`);
 
-    try {
-      // 1. Buscar ID del modo
-      const modeResult = await this.db.query.matchMode.findFirst({
-        where: eq(schema.matchMode.mmodName, payload.mode)
-      });
+    // --- PROTECCIÓN CONTRA CRASH (client.data) ---
+    if (!client.data) {
+        console.log("⚠️ [DEBUG] client.data era undefined. Inicializando...");
+        client.data = {};
+    }
+    
+    // Simulación de usuario
+    if (!client.data.user) {
+        console.log(`👤 [STEP 2] Asignando usuario temporal: ${nickname}`);
+        client.data.user = { pNick: nickname || 'Anon' };
+    }
 
-      if (!modeResult) {
-        console.error(`❌ Error: El modo '${payload.mode}' no existe en la tabla match_mode.`);
+    // 1. Obtener la cola
+    console.log(`📂 [STEP 3] Buscando cola para modo: ${mode}`);
+    let queue = this.queues.get(mode);
+    
+    if (!queue) {
+      console.log(`✨ [STEP 3.1] Cola nueva creada.`);
+      queue = [];
+      this.queues.set(mode, queue);
+    }
+    
+    console.log(`📊 [STEP 4] Estado de la cola actual: ${queue.length} jugadores esperando.`);
+
+    // --- ESCENARIO 1: Hay alguien esperando (MATCH ENCONTRADO) ---
+    if (queue.length > 0) {
+      console.log(`🤝 [STEP 5] Intentando emparejar...`);
+      
+      const opponent = queue.shift(); 
+
+      // Validación estricta
+      if (!opponent) {
+          console.error("❌ [ERROR] opponent era undefined tras shift().");
+          return;
+      }
+
+      console.log(`🆚 [STEP 6] Oponente encontrado: ${opponent.id}`);
+
+      // Evitar jugar contra uno mismo
+      if (opponent.id === client.id) {
+        console.log("⚠️ [WARN] El jugador intentó jugar contra sí mismo. Devolviendo a cola.");
+        queue.push(client);
         return;
       }
 
-      // 2. Insertar partida en DB
-      const newMatch = await this.db.insert(schema.match).values({
-        mModeFk: modeResult.mmodPk,
-        mDate: sql`NOW()`,
-      }).returning({ insertedId: schema.match.mPk });
+      console.log(`⚔️ MATCH ENCONTRADO: ${client.id} vs ${opponent.id}`);
 
-      console.log(`✅ Partida insertada. ID Partida: ${newMatch[0].insertedId} | Modo ID: ${modeResult.mmodPk}`);
+      try {
+        console.log(`💽 [STEP 7] Consultando DB para modo: ${mode}`);
+        const modeResult = await this.db.query.matchMode.findFirst({
+          where: eq(schema.matchMode.mmodName, mode)
+        });
 
-      // 3. Gestión de Sala y Respuesta
-      const roomId = `room_${payload.mode}_${client.id}`;
+        if (!modeResult) {
+          console.error(`❌ Error: El modo '${mode}' no existe en DB.`);
+          queue.unshift(opponent);
+          return;
+        }
+
+        console.log(`📝 [STEP 8] Insertando partida en DB...`);
+        const newMatch = await this.db.insert(schema.match).values({
+          mModeFk: modeResult.mmodPk,
+          mDate: sql`NOW()`,
+        }).returning({ insertedId: schema.match.mPk });
+
+        const matchId = newMatch[0].insertedId;
+        const roomId = `match_${matchId}`;
+
+        // Unir a sala
+        console.log(`🚪 [STEP 9] Uniendo sockets a sala ${roomId}`);
+        await client.join(roomId);    
+        await opponent.join(roomId);   
+
+        // Respuestas
+        const responseP1: MatchFoundResponse = {
+          roomId, matchId, side: 'left',
+          opponent: { name: client.data.user.pNick, avatar: 'default.png' } 
+        };
+
+        const responseP2: MatchFoundResponse = {
+          roomId, matchId, side: 'right',
+          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }
+        };
+
+        console.log(`🚀 [STEP 10] Enviando evento match_found a ambos.`);
+        opponent.emit('match_found', responseP1);
+        client.emit('match_found', responseP2);
+
+      } catch (error) {
+        console.error('❌ [CRITICAL ERROR] Fallo en la lógica de DB/Sala:', error);
+        if (opponent) queue.unshift(opponent);
+      }
+
+    } 
+    // --- ESCENARIO 2: No hay nadie, toca esperar ---
+    else {
+      console.log(`📥 [STEP 5b] Cola vacía. Añadiendo a ${nickname} a la espera.`);
+      queue.push(client);
+      console.log(`⏳ Jugador ${client.id} añadido a la cola.`);
       
-      // IMPORTANTE: Esperar a que el join se complete antes de emitir
-      await client.join(roomId); 
-      console.log(`🚪 Cliente ${client.id} unido a sala: ${roomId}`);
-
-      const response: MatchFoundResponse = { 
-        roomId,
-        matchId: newMatch[0].insertedId, // Enviamos el ID de DB al frontend
-        side: 'left',
-        opponent: { name: 'DrizzleBot', avatar: 'default.png' }
-      };
-
-      // Emitir DIRECTAMENTE al cliente para asegurar que recibe el ID
-      client.emit('match_found', response);
-
-    } catch (error) {
-      console.error('❌ Error crítico en handleJoinQueue:', error);
+      client.emit('waiting_for_match', { 
+        message: 'Buscando oponente...',
+        mode: mode 
+      });
     }
   }
+//   @SubscribeMessage('join_queue')
+//   async handleJoinQueue(
+//     @ConnectedSocket() client: Socket, 
+//     @MessageBody() payload: JoinQueueDto 
+//   ) {
+//     // const mode = payload.mode;
+//     // console.log(`📢 [QUEUE] Jugador ${client.id} busca modo: ${mode}`);
+//     const { mode, nickname } = payload;
+//     console.log(`📢 [QUEUE] Jugador ${nickname} (${client.id}) busca modo: ${mode}`);
+//     // ... lógica de client.data.user ...
+//     if (!client.data.user) {
+//         client.data.user = { pNick: nickname || 'Anon' };
+//     }
+//     let queue = this.queues.get(mode);
+//     if (!queue) {
+//       queue = [];
+//       this.queues.set(mode, queue);
+//     // // Inicializar la cola si no existe
+//     // if (!this.queues.has(mode)) {
+//     //   this.queues.set(mode, []);
+//     // }
+
+//     // const queue = this.queues.get(mode);
+
+//     // --- ESCENARIO 1: Hay alguien esperando (MATCH ENCONTRADO) ---
+//     if (queue.length > 0) {
+      
+//       const opponent = queue.shift(); 
+
+//       // --- CORRECCIÓN 2: Validación estricta de undefined ---
+//       if (!opponent) return;
+
+//       // Evitar jugar contra uno mismo
+//       if (opponent.id === client.id) {
+//         queue.push(client);
+//         return;
+//       }
+
+//       console.log(`⚔️ MATCH ENCONTRADO: ${client.id} (P2) vs ${opponent.id} (P1)`);
+
+//       try {
+//         const modeResult = await this.db.query.matchMode.findFirst({
+//           where: eq(schema.matchMode.mmodName, mode)
+//         });
+
+//         if (!modeResult) {
+//           console.error(`❌ Error: El modo '${mode}' no existe en la tabla match_mode.`);
+//           queue.unshift(opponent);
+//           return;
+//         }
+
+//         // Insertar partida en DB
+//         const newMatch = await this.db.insert(schema.match).values({
+//           mModeFk: modeResult.mmodPk,
+//           mDate: sql`NOW()`,
+//         }).returning({ insertedId: schema.match.mPk });
+
+//         const matchId = newMatch[0].insertedId;
+//         const roomId = `match_${matchId}`;
+
+//         // Unir a sala
+//         await client.join(roomId);    
+//         await opponent.join(roomId);   
+
+//         console.log(`🚪 Sala creada: ${roomId} | Match ID: ${matchId}`);
+
+//         // Datos para el oponente (Player 1 - Left)
+//         const responseP1: MatchFoundResponse = {
+//           roomId,
+//           matchId,
+//           side: 'left',
+//           opponent: { name: client.data.user.pNick, avatar: 'default.png' } 
+//         };
+
+//         // Datos para el cliente actual (Player 2 - Right)
+//         const responseP2: MatchFoundResponse = {
+//           roomId,
+//           matchId,
+//           side: 'right',
+//           opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }
+//         };
+
+//         opponent.emit('match_found', responseP1);
+//         client.emit('match_found', responseP2);
+
+//       } catch (error) {
+//         console.error('❌ Error crítico creando partida en DB:', error);
+//         if (opponent) queue.unshift(opponent);
+//       }
+
+//     }
+//     // --- ESCENARIO 2: No hay nadie, toca esperar ---
+//     else {
+//       queue.push(client);
+//       console.log(`⏳ Jugador ${client.id} añadido a la cola. Esperando oponente...`);
+      
+//       // Opcional: Avisar al cliente que está esperando
+//       client.emit('waiting_for_match', { 
+//         message: 'Buscando oponente...',
+//         mode: mode 
+//       });
+//     }
+//   }
+// }
 
   // --- PADDLE MOVE (Juego en tiempo real) ---
 
@@ -124,11 +306,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
     }
 
-    // Reenviar movimiento al oponente (Broadcast a la sala, excluyendo al emisor)
-    client.to(payload.roomId).emit('game_update', {
+    const updateData: GameUpdateResponse = {
       playerId: client.id,
-      move: payload.direction
-    });
+      move: payload.direction // Esto ahora coincide con la interfaz
+    };
+
+    // Reenviar movimiento al oponente (Broadcast a la sala, excluyendo al emisor)
+    // client.to(payload.roomId).emit('game_update', {
+    //   playerId: client.id,
+    //   move: payload.direction
+    // });
+    client.to(payload.roomId).emit('game_update', updateData);
   }
 
   // --- FINISH GAME (Cierre de partida + DB Update) ---
@@ -181,12 +369,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
   }
 
-  // --- AUXILIAR (Futuro uso) ---
-  emitScore(roomId: string, scorerId: string, newScore: [number, number]) {
-    const payload: ScoreUpdateResponse = {
-      score: newScore,
-      scorerId: scorerId
-    };
-    this.server.to(roomId).emit('score_update', payload);
-  }
+//   // --- AUXILIAR (Futuro uso si la fisica la hace el servidor) ---
+//   emitScore(roomId: string, scorerId: string, newScore: [number, number]) {
+//     const payload: ScoreUpdateResponse = {
+//       score: newScore,
+//       scorerId: scorerId
+//     };
+//     this.server.to(roomId).emit('score_update', payload);
+//   }
 }

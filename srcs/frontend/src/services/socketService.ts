@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import type { GameUpdatePayload, ScoreUpdatePayload } from '../ts/types';
 
 // 1. Obtenemos la URL del .env
 const SOCKET_URL = import.meta.env.VITE_BACKEND_URL;
@@ -8,12 +9,15 @@ if (!SOCKET_URL) {
   console.error("⚠️ ERROR: VITE_BACKEND_URL no está definida en el archivo .env");
 }
 
+console.log("🔌 Intentando conectar al socket en:", SOCKET_URL);
+
 // Variables de estado
 let currentRoomId: string | null = null;
 let currentMatchDbId: number | null = null;
 
 // Configuración de la conexión
-export const socket: Socket = io(SOCKET_URL || 'http://localhost:3000', { // Fallback por seguridad
+//export const socket: Socket = io(SOCKET_URL || 'http://localhost:3000', { // Fallback por seguridad
+export const socket: Socket = io(SOCKET_URL, {
   autoConnect: true,
   transports: ['polling', 'websocket'], 
   reconnection: true,
@@ -31,15 +35,36 @@ socket.on('connect_error', (error) => {
   console.error("❌ Error de conexión al Socket:", error);
 });
 
+socket.on('disconnect', (reason) => {
+    console.warn("⚠️ Desconectado del Backend:", reason);
+});
+
 // --- EMISORES (Enviar datos al servidor) ---
 
-export const joinQueue = (userId: string, mode: string) => {
+// Guarda los datos cuando llega el evento 'match_found'
+export const setMatchData = (roomId: string, matchId: number) => {
+    currentRoomId = roomId;
+    currentMatchDbId = matchId;
+    console.log(`🔒 Datos de partida guardados en servicio: Room=${roomId}, MatchDB=${matchId}`);
+};
+
+export const joinQueue = (nickname: string, mode: string) => {
   // Limpiamos datos anteriores para evitar mezclar partidas
   currentRoomId = null;
   currentMatchDbId = null;
+  if (!socket.connected) {
+      console.error("⚠️ No se puede enviar join_queue: Socket desconectado.");
+      return;
+  }
+
+  console.log(`📡 [Socket] Emitiendo join_queue: Nick=${nickname}, Mode=${mode}`);
   
-  console.log(`📡 Socket emitiendo join_queue: User=${userId}, Mode=${mode}`);
-  socket.emit('join_queue', { userId, mode }); 
+  // Enviamos el evento con la estructura que espera el Backend
+  // Nota: El backend espera { nickname: string, mode: string }
+  socket.emit('join_queue', { 
+      nickname: nickname, // Mapeamos el argumento a la propiedad 'nickname'
+      mode: mode 
+  }); 
 };
 
 export const sendMove = (direction: 'up' | 'down' | 'stop') => {
@@ -83,7 +108,7 @@ export const onMatchFound = (callback: (data: any) => void) => {
   });
 };
 
-export const onGameUpdate = (callback: (data: any) => void) => {
+export const onGameUpdate = (callback: (data: GameUpdatePayload) => void) => {
   socket.off('game_update'); // <--- MEJORA DE LIMPIEZA
   socket.on('game_update', callback);
 };
@@ -103,7 +128,7 @@ export const onPlayerOffline = (callback: (data: { userId: string, reconnectWind
   socket.on('player_offline', callback);
 };
 
-export const onScoreUpdate = (callback: (data: any) => void) => {
+export const onScoreUpdate = (callback: (data: ScoreUpdatePayload) => void) => {
     socket.off('score_update');
     socket.on('score_update', callback);
 };

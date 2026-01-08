@@ -15,4 +15,17 @@ export type Action =
 export type GameMode =
     | "ia"
     | "local"
-    | "remote";
+    | "remote"
+    | "tournament";
+
+// Lo que recibimos cuando el rival se mueve
+export type GameUpdatePayload = {
+    playerId: string;
+    move: 'up' | 'down' | 'stop';
+};
+
+// Lo que recibimos cuando alguien marca
+export type ScoreUpdatePayload = {
+    score: [number, number];
+    scorerId: string;
+};

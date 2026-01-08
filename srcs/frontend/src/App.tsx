@@ -17,6 +17,12 @@ function App()
 {
   const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
   const [mode, setMode] = useState<GameMode>("ia");
+  //ESTADO NUEVO: Guardamos el nombre del rival aquí
+  const [opponentName, setOpponentName] = useState<string>("IA-Bot");
+  
+  // TRUCO TEMPORAL: 
+  // Cuando abras la ventana incógnito, CAMBIA ESTO MANUALMENTE a "user_2" en el código.
+  // En el futuro esto vendrá del LoginScreen.
   const currentUser = "user_1";
 
   function renderScreen()
@@ -24,7 +30,7 @@ function App()
     switch (screen)
     {
       case "menu":
-        return <MenuScreen dispatch={dispatch} setMode={setMode} />;
+        return <MenuScreen dispatch={dispatch} setMode={setMode} setOpponentName={setOpponentName} />;
       case "sign":
         return <SignScreen dispatch={dispatch} />;
       case "login":
@@ -32,7 +38,7 @@ function App()
       // case "settings":
       //   return <SettingsScreen dispatch={dispatch} />;
       case "pong":
-         return <PongScreen dispatch={dispatch} mode={mode} userName={currentUser} />;
+         return <PongScreen dispatch={dispatch} mode={mode} userName={currentUser} opponentName={opponentName} />;
       default:
           return null;
     }

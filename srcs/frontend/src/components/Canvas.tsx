@@ -1,6 +1,6 @@
 import React, {useRef, useEffect} from "react";
 import { Pong } from "../ts/models/Pong.ts"
-import { sendMove, onGameUpdate, onMatchFound, finishGame, socket } from '../services/socketService'; //IMPORTAMOS EL SERVICIO DE SOCKETS
+import { sendMove, onGameUpdate, onMatchFound, finishGame, socket, onGameOver, onPlayerOffline } from '../services/socketService'; //IMPORTAMOS EL SERVICIO DE SOCKETS
 import type { GameMode } from "../ts/types.ts";
 
 type CanvasProps = {
@@ -8,9 +8,10 @@ type CanvasProps = {
     dispatch: React.Dispatch<any>;
     playerNumber?: 1 | 2; // Only for remote
     userName: string;
+    opponentName?: string;
 };
 
-function Canvas({ mode, dispatch, playerNumber = 1, userName }: CanvasProps)
+function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente" }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -25,7 +26,7 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName }: CanvasProps)
         canvas.height = 600;
         //Inicializar juego
         //const game = new Pong(canvas, ctx, mode, playerNumber, 5);
-        const game = new Pong(canvas, ctx, mode, playerNumber, 5, userName);
+        const game = new Pong(canvas, ctx, mode, playerNumber, 5, userName, opponentName);
         //Escuchar cuando el servidor confirma la sala
         onMatchFound((data) => {
             console.log("✅ Sala confirmada desde el servidor:", data.roomId);
@@ -38,6 +39,22 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName }: CanvasProps)
                 // para la paleta que no controlas tú.
                 game.moveOpponent(data.move); 
             }
+        });
+
+        // Cuando TU RIVAL GANA. El servidor te avisa a ti.
+        onGameOver((data) => {
+            console.log("🏁 Game Over recibido del servidor. Ganador:", data.winner);
+            // Evitamos que salte la alerta dos veces si fuimos nosotros los que ganamos
+            if (!game.hasWinner()) {
+                alert("Game Over! The winner is: " + data.winner);
+                dispatch({ type: "MENU" });
+            }
+        });
+
+        // --- Escuchar Desconexión ---
+        onPlayerOffline((data) => {
+            console.warn("⚠️ El oponente se ha desconectado");
+            // Aquí podrías pausar el juego o dar la victoria automática
         });
 
         // Keys
@@ -103,8 +120,11 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName }: CanvasProps)
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
             socket.off('game_update');//Limpieza del socket
+            socket.off('match_found');
+            socket.off('game_over');
+            socket.off('player_offline');
         };
-    }, [mode, playerNumber]);
+    }, [mode, playerNumber, userName]);
 
     return <canvas ref={canvasRef} style={{background: "black"}}/>;
 }
