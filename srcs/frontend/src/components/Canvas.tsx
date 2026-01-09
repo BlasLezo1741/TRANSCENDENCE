@@ -12,7 +12,7 @@ type CanvasProps = {
     ballInit: { x: number, y: number } | null;
 };
 
-function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente" }: CanvasProps)
+function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente", ballInit }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
