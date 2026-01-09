@@ -7,6 +7,8 @@ include: # Please keep alphabetic order
   - dbserver/docker-compose-dbserver.yml
   - frontend/docker-compose-frontend.yml
   - grafana/docker-compose-grafana.yml
+  - auth-frontend/docker-compose-auth-frontend.yml
+  - auth-service/docker-compose-auth-service.yml
 
 networks:
   transcendence_net:
