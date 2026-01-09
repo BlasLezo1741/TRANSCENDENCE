@@ -1,0 +1,12 @@
+services:
+  2faserver:
+    build: .
+    container_name: 2faserver
+    image: 2faserver
+    networks:
+      - auth_net
+      - db_net
+    env_file:
+      - ../.env
+    restart: always
+

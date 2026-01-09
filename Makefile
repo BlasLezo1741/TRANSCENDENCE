@@ -7,7 +7,7 @@ export TRANSCENDENCE_HOME
 
 
 # Definir los nombres de los servicios
-SERVICE1 = webserver
+SERVICE1 = 2faserver
 SERVICE2 = dbserver
 SERVICE3 = backend
 SERVICE4 = frontend
@@ -15,7 +15,7 @@ SERVICE8 = grafana
 SERVICE9 = adminer
 
 #SERVICES = $(SERVICE2) $(SERVICE9) $(SERVICE8)
-SERVICES = $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8)
+SERVICES = $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) $(SERVICE1)
 
 
 # data directories
@@ -46,7 +46,7 @@ $(DB_DATA_DIR):
 	@echo "Asegurando que $(SERVICE2) no está usando  $(DB_DATA_DIR)"
 	@docker compose -f srcs/docker-compose.yml down $(SERVICE2) 2>/dev/null || true
 	@if [ -d "$(DB_DATA_DIR)" ]; then \
-		rm -rf $(DB_DATA_DIR)/*; \
+		sudo rm -rf $(DB_DATA_DIR)/*; \
 		echo "Contenido de $(DB_DATA_DIR) eliminado"; \
 	else \
 		mkdir -p $(DB_DATA_DIR); \
@@ -61,7 +61,7 @@ $(GRAFANA_DATA_DIR):
 	@docker compose -f srcs/docker-compose.yml down $(SERVICE8) 2>/dev/null || true
 	
 	@if [ -d "$(GRAFANA_DATA_DIR)" ]; then \
-		rm -rf $(GRAFANA_DATA_DIR)/*; \
+		sudo rm -rf $(GRAFANA_DATA_DIR)/*; \
 		echo "Contenido de $(GRAFANA_DATA_DIR) eliminado"; \
 	else \
 		mkdir -p $(GRAFANA_DATA_DIR); \
@@ -72,6 +72,11 @@ $(GRAFANA_DATA_DIR):
 
 # Individual rules
 
+
+$(SERVICE1):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE1)
+$(SERVICE1)clean:
+	docker image rm $(SERVICE1)
 
 $(SERVICE8):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE8)
@@ -153,7 +158,7 @@ re: fclean all
 
 .PHONY: all update-env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR)
 .PHONY: test-db
-.PHONY: $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) 
-.PHONY: $(SERVICE2)clean $(SERVICE3)clean $(SERVICE4)clean $(SERVICE9)clean $(SERVICE8)clean
+.PHONY: $(SERVICE1) $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) 
+.PHONY: $(SERVICE1)clean $(SERVICE2)clean $(SERVICE3)clean $(SERVICE4)clean $(SERVICE9)clean $(SERVICE8)clean
 # global rules
 .PHONY: up down stop logs clean fclean

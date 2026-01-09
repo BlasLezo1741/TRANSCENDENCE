@@ -2,7 +2,7 @@ name: ${PROJECT_NAME}
 
 include: # Please keep alphabetic order
   - adminer/docker-compose-adminer.yml
-  #- path ./2faserver/docker-compose-2faserver.yml
+  - 2faserver/docker-compose-2faserver.yml
   - backend/docker-compose-backend.yml  
   - dbserver/docker-compose-dbserver.yml
   - frontend/docker-compose-frontend.yml
@@ -15,7 +15,10 @@ networks:
     ipam:
       config:
         - subnet: 192.168.1.0/28  # Define the IP range
-
+  auth_net:
+    internal: true # Aislada del mundo exterior
+  db_net:
+    internal: true # Solo compartida con la base de datos
 
 volumes:
   volumes:
