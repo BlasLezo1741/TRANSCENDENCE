@@ -71,10 +71,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-Aquí tienes la función handleJoinQueue actualizada. He incorporado el cálculo del vector de la pelota justo antes de enviar las respuestas, para que ambos jugadores reciban exactamente la misma dirección inicial.
-
-1. Código Backend Actualizado (game.gateway.ts)
-Sustituye tu función actual por esta:
 
 TypeScript
 
