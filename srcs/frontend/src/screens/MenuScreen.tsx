@@ -83,7 +83,7 @@ type OptionsProps = ScreenProps & {
             console.log("🚀 Enviando al Socket (Online):", socketMode);
             
             // TRUCO: Cambia 'user_1' por 'user_2' cuando pruebes en la otra ventana
-            joinQueue("user_2", socketMode); 
+            joinQueue("user_1", socketMode); 
 
             console.log("⏳ Esperando a que el servidor encuentre rival...");
             // 🛑 STOP: No hacemos setMode ni dispatch aquí. Esperamos al useEffect.

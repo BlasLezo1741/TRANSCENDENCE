@@ -23,7 +23,9 @@ function App()
   // TRUCO TEMPORAL: 
   // Cuando abras la ventana incógnito, CAMBIA ESTO MANUALMENTE a "user_2" en el código.
   // En el futuro esto vendrá del LoginScreen.
-  const currentUser = "user_1";
+  //const currentUser = "user_1";
+  const queryParams = new URLSearchParams(window.location.search);
+  const currentUser = queryParams.get("user") || "user_1";
 
   function renderScreen()
   {
@@ -48,6 +50,10 @@ function App()
     <div>
       {/* 1. Ponemos el indicador arriba de todo */}
       <StatusBadge /> 
+      {/* Opcional: Mostrar quién soy para no liarnos */}
+      <div style={{position: 'absolute', top: 0, right: 0, color: 'lime', padding: '5px'}}>
+          Soy: {currentUser}
+      </div>
       <Header dispatch={dispatch}/>
       {/* 2. El resto de la aplicación */}
       <main>{renderScreen()}</main>
