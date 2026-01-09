@@ -1,7 +1,7 @@
 -- SQL script generated from Mermaid JS ERD to PostgreSQL
 -- Schema: mySchema
 
-
+CREATE EXTENSION IF NOT EXISTS citext;
 
 CREATE TABLE COUNTRY (
     coun_name CHAR(52),
@@ -37,9 +37,12 @@ CREATE TABLE STATUS (
 
 CREATE TABLE PLAYER ( 
     p_pk integer generated always as identity PRIMARY KEY,
-    p_nick VARCHAR(255),
-    p_mail VARCHAR(255),
-    p_pass VARCHAR(255),
+    p_nick VARCHAR(255) NOT NULL,
+    p_mail CITEXT UNIQUE NOT NULL, --Case insensitive
+    p_pass TEXT NOT NULL,
+    p_totp_secret BYTEA, --encrypted 2fa secret
+    p_totp_enable BOOLEAN DEFAULT FALSE,
+    p_totp_enabled_at TIMESTAMP,
     p_reg TIMESTAMP,
     p_bir DATE,
     p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),
