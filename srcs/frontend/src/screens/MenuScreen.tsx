@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { joinQueue, socket, setMatchData } from '../services/socketService';
 
@@ -8,6 +8,8 @@ import type { GameMode } from '../ts/types.ts';
 type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
   setOpponentName: (name: string) => void;
+  userName: string;
+  setBallInit: (vector: {x: number, y: number}) => void;
 };
 
 
@@ -24,7 +26,7 @@ type OptionsProps = ScreenProps & {
 //             else if (mode === "remote") socketMode = "1v1_remote";
 //             else if (mode === "tournament") socketMode = "tournament";
 //             console.log("🚀 Enviando al Socket:", socketMode);
-//             joinQueue("user_1", socketMode);
+//             joinQueue(userName, socketMode);
 //         }
 //         // Lógica actual de navegación
 //         setMode(mode);
@@ -42,7 +44,7 @@ type OptionsProps = ScreenProps & {
 //         </div>
 //     );
 // }
-    const MenuScreen = ({ dispatch, setMode, setOpponentName }: OptionsProps) => {
+    const MenuScreen = ({ dispatch, setMode, setOpponentName, userName, setBallInit }: OptionsProps) => {
     const { t } = useTranslation();
     //const [opponentName, setOpponentName] = useState<string>("Oponente");
     
@@ -56,6 +58,10 @@ type OptionsProps = ScreenProps & {
                 // GUARDAMOS EL NOMBRE DEL RIVAL (Viene del backend)
                 if (payload.opponent && payload.opponent.name) {
                     setOpponentName(payload.opponent.name);
+                }
+                if (payload.ballInit) {
+                    console.log("🎱 Física recibida del servidor:", payload.ballInit);
+                    setBallInit(payload.ballInit);
                 }
             } else {
                 console.error("⚠️ Error: El payload de match_found viene incompleto", payload);
@@ -71,7 +77,7 @@ type OptionsProps = ScreenProps & {
         return () => {
             socket.off('match_found', handleMatchFound);
         };
-    }, [dispatch, setMode, setOpponentName]);
+    }, [dispatch, setMode, setOpponentName, setBallInit]);
 
 
     // 2. LÓGICA DE BOTONES
@@ -82,8 +88,7 @@ type OptionsProps = ScreenProps & {
             const socketMode = mode === "remote" ? "1v1_remote" : "tournament";
             console.log("🚀 Enviando al Socket (Online):", socketMode);
             
-            // TRUCO: Cambia 'user_1' por 'user_2' cuando pruebes en la otra ventana
-            joinQueue("user_1", socketMode); 
+            joinQueue(userName, socketMode); 
 
             console.log("⏳ Esperando a que el servidor encuentre rival...");
             // 🛑 STOP: No hacemos setMode ni dispatch aquí. Esperamos al useEffect.

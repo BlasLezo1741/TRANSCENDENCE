@@ -9,6 +9,7 @@ type CanvasProps = {
     playerNumber?: 1 | 2; // Only for remote
     userName: string;
     opponentName?: string;
+    ballInit: { x: number, y: number } | null;
 };
 
 function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente" }: CanvasProps)
@@ -26,7 +27,16 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
         canvas.height = 600;
         //Inicializar juego
         //const game = new Pong(canvas, ctx, mode, playerNumber, 5);
-        const game = new Pong(canvas, ctx, mode, playerNumber, 5, userName, opponentName);
+        const game = new Pong(
+            canvas,
+            ctx,
+            mode,
+            playerNumber,
+            5,
+            userName,
+            opponentName,
+            ballInit
+        );
         //Escuchar cuando el servidor confirma la sala
         onMatchFound((data) => {
             console.log("✅ Sala confirmada desde el servidor:", data.roomId);
@@ -87,32 +97,35 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
         window.addEventListener("keyup", handleKeyUp);
         window.addEventListener("keydown", handleKeyDown);
 
+        // Retrasamos un poco el inicio para asegurar carga
         let animationId: number;
 
-        const gameLoop = () =>
-        {
-            game.update();
-            game.draw();
-
-            if (game.hasWinner())
+        setTimeout(() => {
+             const gameLoop = () =>
             {
-                const winnerName = game.getWinner(); // Esto devolverá el ganador
-                console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
-                // Solo enviamos el resultado a la DB si es una partida ONLINE
-                if (mode === 'remote' || mode === 'tournament') {
-                    finishGame(winnerName); 
-                } else {
-                    console.log("ℹ️ Partida local/IA finalizada. No se guarda en DB.");
+                game.update();
+                game.draw();
+
+                if (game.hasWinner())
+                {
+                    const winnerName = game.getWinner(); 
+                    console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
+                    
+                    if (mode === 'remote' || mode === 'tournament') {
+                        finishGame(winnerName); 
+                    } else {
+                        console.log("ℹ️ Partida local/IA finalizada. No se guarda en DB.");
+                    }
+
+                    alert("The player " + game.getWinner() + " has won!");
+                    dispatch({ type: "MENU"});
+                    return ;
                 }
 
-                alert("The player " + game.getWinner() + " has won!");
-                dispatch({ type: "MENU"});
-                return ;
-            }
-
-            animationId = requestAnimationFrame(gameLoop);
-        };
-        gameLoop();
+                animationId = requestAnimationFrame(gameLoop);
+            };
+            gameLoop();
+        }, 100);
         
         return () =>
         {
@@ -124,7 +137,7 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
             socket.off('game_over');
             socket.off('player_offline');
         };
-    }, [mode, playerNumber, userName]);
+    }, [mode, playerNumber, userName, opponentName, ballInit]);
 
     return <canvas ref={canvasRef} style={{background: "black"}}/>;
 }

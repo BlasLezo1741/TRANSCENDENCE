@@ -6,4 +6,8 @@ export interface MatchFoundResponse {
     name: string;
     avatar: string;
   };
+  ballInit?: {
+      x: number;
+      y: number;
+  };
 }

@@ -23,7 +23,16 @@ export class Pong
 
     private opponentMove: 'up' | 'down' | 'stop' = 'stop'; // <--- NUEVO: Control remoto
 
-    constructor(c: HTMLCanvasElement, ctx: CanvasRenderingContext2D, mode: GameMode, n: number, max: number, localPlayerName: string, opponentName: string = "IA-Bot")
+    constructor(
+        c: HTMLCanvasElement,
+        ctx: CanvasRenderingContext2D,
+        mode: GameMode,
+        n: number,
+        max: number,
+        localPlayerName: string,
+        opponentName: string = "IA-Bot",
+        ballInit: { x: number, y: number } | null = null
+    )
     {
         this.c = c;
         this.ctx = ctx;
@@ -54,7 +63,16 @@ export class Pong
             this.player2 = new Player("Invitado", c.width - 30, c.height);
         }
         this.ball = new Ball(c);
-        this.ball.reset();
+        // LÓGICA DE SINCRONIZACIÓN
+        if (ballInit) {
+            console.log("📡 Aplicando física del servidor:", ballInit);
+            // Si el servidor nos dio un vector, lo usamos.
+            // (Asegúrate de haber añadido setServerDirection en Ball.ts en el paso anterior)
+            this.ball.setServerDirection(ballInit.x, ballInit.y);
+        } else {
+            // Si es local o IA, reinicio normal aleatorio
+            this.ball.reset();
+        }
         this.pause = this.end = false;
         this.winner = "none";
         this.maxScore = max;

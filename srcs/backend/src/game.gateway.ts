@@ -71,8 +71,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  // --- JOIN QUEUE (Inicio de partida + DB Insert) ---
-@SubscribeMessage('join_queue')
+Aquí tienes la función handleJoinQueue actualizada. He incorporado el cálculo del vector de la pelota justo antes de enviar las respuestas, para que ambos jugadores reciban exactamente la misma dirección inicial.
+
+1. Código Backend Actualizado (game.gateway.ts)
+Sustituye tu función actual por esta:
+
+TypeScript
+
+  @SubscribeMessage('join_queue')
   async handleJoinQueue(
     @ConnectedSocket() client: Socket, 
     @MessageBody() payload: JoinQueueDto 
@@ -153,15 +159,25 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await client.join(roomId);    
         await opponent.join(roomId);   
 
-        // Respuestas
+        // --- CÁLCULO DE FÍSICA SINCRONIZADA ---
+        // Generamos el vector AQUÍ para que sea idéntico para los dos
+        const dirX = Math.random() < 0.5 ? -1 : 1;
+        const dirY = Math.random() * 2 - 1;
+        const leng = Math.sqrt(dirX * dirX + dirY * dirY);
+        const ballInit = { x: dirX / leng, y: dirY / leng };
+        // ---------------------------------------
+
+        // Respuestas (Ahora incluyen ballInit)
         const responseP1: MatchFoundResponse = {
           roomId, matchId, side: 'left',
-          opponent: { name: client.data.user.pNick, avatar: 'default.png' } 
+          opponent: { name: client.data.user.pNick, avatar: 'default.png' },
+          ballInit: ballInit // <--- NUEVO
         };
 
         const responseP2: MatchFoundResponse = {
           roomId, matchId, side: 'right',
-          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }
+          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' },
+          ballInit: ballInit // <--- NUEVO
         };
 
         console.log(`🚀 [STEP 10] Enviando evento match_found a ambos.`);

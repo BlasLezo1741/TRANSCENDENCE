@@ -19,7 +19,8 @@ function App()
   const [mode, setMode] = useState<GameMode>("ia");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
-  
+  const [ballInit, setBallInit] = useState<{x: number, y: number} | null>(null);
+
   // TRUCO TEMPORAL: 
   // Cuando abras la ventana incógnito, CAMBIA ESTO MANUALMENTE a "user_2" en el código.
   // En el futuro esto vendrá del LoginScreen.
@@ -32,7 +33,7 @@ function App()
     switch (screen)
     {
       case "menu":
-        return <MenuScreen dispatch={dispatch} setMode={setMode} setOpponentName={setOpponentName} />;
+        return <MenuScreen dispatch={dispatch} setMode={setMode} setOpponentName={setOpponentName} userName={currentUser} setBallInit={setBallInit} />;
       case "sign":
         return <SignScreen dispatch={dispatch} />;
       case "login":
@@ -40,7 +41,7 @@ function App()
       // case "settings":
       //   return <SettingsScreen dispatch={dispatch} />;
       case "pong":
-         return <PongScreen dispatch={dispatch} mode={mode} userName={currentUser} opponentName={opponentName} />;
+         return <PongScreen dispatch={dispatch} mode={mode} userName={currentUser} opponentName={opponentName} ballInit={ballInit} />;
       default:
           return null;
     }

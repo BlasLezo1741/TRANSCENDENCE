@@ -7,16 +7,23 @@ type PongScreenProps = ScreenProps & {
   mode: GameMode;
   userName: string;
   opponentName: string;
+  ballInit: { x: number, y: number } | null;
 };
 
-const PongScreen = ({ dispatch, mode, userName, opponentName }: PongScreenProps) =>
+const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit }: PongScreenProps) =>
 {
   const { t } = useTranslation();
   return (
     <div>
       <h1>{t('juego_mode')}{mode} | {userName} vs {opponentName}</h1>
       
-      <Canvas mode={mode} dispatch={dispatch} userName={userName} opponentName={opponentName}/>
+      <Canvas
+        mode={mode}
+        dispatch={dispatch}
+        userName={userName}
+        opponentName={opponentName}
+        ballInit={ballInit}
+        />
 
       <button onClick={() => dispatch({ type: "MENU" })}>
       {t('menu')}
