@@ -1,4 +1,10 @@
 -- Generate 100 Players
+WITH user_data AS (
+    SELECT 
+        i,
+        (random() < 0.3) as has_totp
+    FROM generate_series(1, 100) s(i)
+)
 INSERT INTO PLAYER (
     p_nick, 
     p_mail, 
@@ -15,21 +21,20 @@ INSERT INTO PLAYER (
     p_status
 )
 SELECT 
-    'user_' || i,
-    'user_' || i || '@example.com',
+    'user_' || ud.i,
+    'user_' || ud.i || '@example.com',
     md5(random()::text),
-    -- Todos los campos 2FA dependen de has_totp
     CASE 
-        WHEN has_totp THEN decode(md5(random()::text), 'hex')
+        WHEN ud.has_totp THEN decode(md5(random()::text), 'hex')
         ELSE NULL 
     END,
-    has_totp,
+    ud.has_totp,
     CASE 
-        WHEN has_totp THEN NOW() - (random() * INTERVAL '365 days')
+        WHEN ud.has_totp THEN NOW() - (random() * INTERVAL '365 days')
         ELSE NULL 
     END,
     CASE 
-        WHEN has_totp THEN 
+        WHEN ud.has_totp THEN 
             ARRAY[
                 substr(md5(random()::text), 1, 8),
                 substr(md5(random()::text), 1, 8),
@@ -48,39 +53,36 @@ SELECT
     rand_coun.coun2_pk,
     rand_role.role_pk,
     rand_stat.status_pk
-FROM generate_series(1, 100) s(i)
--- Determinar si el usuario tiene 2FA (30% de probabilidad)
-CROSS JOIN LATERAL (
-    SELECT (random() < 0.3) as has_totp
-) totp_flag
+FROM user_data ud
 CROSS JOIN LATERAL (
     SELECT lang_pk 
     FROM P_LANGUAGE 
-    WHERE i > 0
+    WHERE ud.i > 0
     ORDER BY random() 
     LIMIT 1
 ) rand_lang
 CROSS JOIN LATERAL (
     SELECT coun2_pk 
     FROM COUNTRY 
-    WHERE i > 0
+    WHERE ud.i > 0
     ORDER BY random() 
     LIMIT 1
 ) rand_coun
 CROSS JOIN LATERAL (
     SELECT role_pk 
     FROM P_ROLE 
-    WHERE i > 0
+    WHERE ud.i > 0
     ORDER BY random() 
     LIMIT 1
 ) rand_role
 CROSS JOIN LATERAL (
     SELECT status_pk 
     FROM STATUS
-    WHERE i > 0
+    WHERE ud.i > 0
     ORDER BY random() 
     LIMIT 1
 ) rand_stat;
+
 
 -- Generate 50 Matches
 INSERT INTO MATCH (m_date, m_duration, m_mode_fk, m_winner_fk)
