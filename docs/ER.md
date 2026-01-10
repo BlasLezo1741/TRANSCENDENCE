@@ -5,11 +5,16 @@ erDiagram
         string p_nick
         string p_mail UK
         string p_pass
+        string p_totp_secret
+        bool p_totp_enable
+        timestamp p_totp_enabled_at
+        array p_totp_backup_codes
         timestamp p_reg "User creation Day"
         date p_bir 
         utinyint p_lang FK
         utinyint p_country FK
         utinyint p_role FK
+        utinyint p_status
         
     }
     COUNTRY {
@@ -39,13 +44,17 @@ erDiagram
         string cat_name
     }
 
-
+    MATCH_MODE {
+        integer mmod_pk PK
+        string mmod_name
+    }
        
     MATCH {
         integer m_pk PK
         timestamp m_date "match starts"
         time    m_duration
-        int     m_winner "user PK"
+        integer m_mode_fk FK
+        int     m_winner_fk "user PK"
 
     }
     MATCHMETRIC {
@@ -68,15 +77,23 @@ erDiagram
         int f_2 FK,PK
         date f_date "inicio  o fin de amistad"
         boolean f_tipo "TRUE = Creada, FALSE= Rota"
-    }   
+    }
+
+
+
+    PLAYER_ORGANIZATION {
+        smallint org_pk_fk FK
+        smallint p_pk_fk FK
+    }
+
     ORGANIZATION {
-        smallint org_pk OK
+        smallint org_pk PK
         string org_name
     }
-    PLAYER_ORGANIZATION {
-        smallint org_pk FK, PK
-        int p_pk FK, PF
-    }
+
+
+
+
     PLAYER }o--o{ FRIEND : has
     PLAYER ||--o{ COMPETITOR : is    
     PLAYER }o--o{ ORGANIZATION : "is member of"
@@ -86,6 +103,7 @@ erDiagram
     PLAYER ||--|| STATUS : has
     MATCH }o--o{ MATCHMETRIC : has
     MATCH ||--o{ COMPETITOR : has
+    MATCH ||--|| MATCH_MODE : has
     METRIC ||--o{ MATCHMETRIC : "has values"
     METRIC ||--o{ COMPETITORMETRIC : "has values"    
     PLAYER ||--o{ COMPETITORMETRIC : has

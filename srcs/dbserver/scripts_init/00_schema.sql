@@ -43,6 +43,7 @@ CREATE TABLE PLAYER (
     p_totp_secret BYTEA, --encrypted 2fa secret
     p_totp_enable BOOLEAN DEFAULT FALSE,
     p_totp_enabled_at TIMESTAMP,
+    p_totp_backup_codes TEXT[],  -- códigos de respaldo
     p_reg TIMESTAMP,
     p_bir DATE,
     p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),

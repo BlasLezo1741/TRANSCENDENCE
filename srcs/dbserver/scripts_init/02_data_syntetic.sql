@@ -1,9 +1,47 @@
 -- Generate 100 Players
-INSERT INTO PLAYER (p_nick, p_mail, p_pass, p_reg, p_bir, p_lang, p_country, p_role, p_status)
+INSERT INTO PLAYER (
+    p_nick, 
+    p_mail, 
+    p_pass, 
+    p_totp_secret,
+    p_totp_enable,
+    p_totp_enabled_at,
+    p_totp_backup_codes,
+    p_reg, 
+    p_bir, 
+    p_lang, 
+    p_country, 
+    p_role, 
+    p_status
+)
 SELECT 
     'user_' || i,
     'user_' || i || '@example.com',
     md5(random()::text),
+    -- Todos los campos 2FA dependen de has_totp
+    CASE 
+        WHEN has_totp THEN decode(md5(random()::text), 'hex')
+        ELSE NULL 
+    END,
+    has_totp,
+    CASE 
+        WHEN has_totp THEN NOW() - (random() * INTERVAL '365 days')
+        ELSE NULL 
+    END,
+    CASE 
+        WHEN has_totp THEN 
+            ARRAY[
+                substr(md5(random()::text), 1, 8),
+                substr(md5(random()::text), 1, 8),
+                substr(md5(random()::text), 1, 8),
+                substr(md5(random()::text), 1, 8),
+                substr(md5(random()::text), 1, 8),
+                substr(md5(random()::text), 1, 8),
+                substr(md5(random()::text), 1, 8),
+                substr(md5(random()::text), 1, 8)
+            ]
+        ELSE NULL 
+    END,
     NOW() - (random() * INTERVAL '365 days'),
     '1990-01-01'::date + (random() * 7000)::integer,
     rand_lang.lang_pk,
@@ -11,32 +49,35 @@ SELECT
     rand_role.role_pk,
     rand_stat.status_pk
 FROM generate_series(1, 100) s(i)
--- The LATERAL keyword forces the subquery to run for every 'i'
+-- Determinar si el usuario tiene 2FA (30% de probabilidad)
+CROSS JOIN LATERAL (
+    SELECT (random() < 0.3) as has_totp
+) totp_flag
 CROSS JOIN LATERAL (
     SELECT lang_pk 
     FROM P_LANGUAGE 
-    WHERE i > 0 -- This "fake" dependency forces re-execution per row
+    WHERE i > 0
     ORDER BY random() 
     LIMIT 1
 ) rand_lang
 CROSS JOIN LATERAL (
     SELECT coun2_pk 
     FROM COUNTRY 
-    WHERE i > 0 -- This "fake" dependency forces re-execution per row
+    WHERE i > 0
     ORDER BY random() 
     LIMIT 1
 ) rand_coun
 CROSS JOIN LATERAL (
     SELECT role_pk 
     FROM P_ROLE 
-    WHERE i > 0 -- This "fake" dependency forces re-execution per row
+    WHERE i > 0
     ORDER BY random() 
     LIMIT 1
 ) rand_role
 CROSS JOIN LATERAL (
     SELECT status_pk 
     FROM STATUS
-    WHERE i > 0 -- This "fake" dependency forces re-execution per row 
+    WHERE i > 0
     ORDER BY random() 
     LIMIT 1
 ) rand_stat;

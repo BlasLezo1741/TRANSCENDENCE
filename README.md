@@ -132,15 +132,19 @@ The central entity containing user account information with the following attrib
 
 |field_name|description|
 |----------|-----------|
-|u_pk (Primary Key)|: Unique user identifier|
-|u_nick|: User's nickname or username|
-|u_mail (Unique Key)|: Email address, must be unique across the system|
-|u_pass|: Password credential|
-|u_reg|: Registration timestamp marking when the account was created|
-|u_bir|: Date of birth|
-|u_lang (Foreign Key)|: Reference to the user's preferred language|
-|u_country (Foreign Key)|: Reference to the user's country|
-|u_role (Foreign Key)|: Reference to the user's role within the system|
+|p_pk (Primary Key)|: Unique user identifier|
+|p_nick|: User's nickname or username|
+|p_mail (Unique Key)|: Email address, must be unique across the system|
+|p_pass|: Password credential|
+|p_totp_secret|:encrypted 2fa secret|
+|p_totp_enable|: Default false|
+|p_totp_enabled_at|: TIMESTAMP|
+|p_totp_backup_codes|: códigos de respaldo|
+|p_reg|: Registration timestamp marking when the account was created|
+|p_bir|: Date of birth|
+|p_lang (Foreign Key)|: Reference to the user's preferred language|
+|p_country (Foreign Key)|: Reference to the user's country|
+|p_role (Foreign Key)|: Reference to the user's role within the system|
 
 #### MATCH Table
 Represents individual competitive matches or games:
