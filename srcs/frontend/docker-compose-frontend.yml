@@ -15,7 +15,7 @@ services:
       - ../.env
     networks:
       transcendence_net:
-        ipv4_address: 192.168.1.4  # Fixed IP
+        ipv4_address: ${FE_IP}  # Fixed IP
         aliases:
           - in_net
     depends_on:

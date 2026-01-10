@@ -2,13 +2,13 @@ name: ${PROJECT_NAME}
 
 include: # Please keep alphabetic order
   - adminer/docker-compose-adminer.yml
-  - 2faserver/docker-compose-2faserver.yml
+  - auth-frontend/docker-compose-auth-frontend.yml
+  - auth-service/docker-compose-auth-service.yml
   - backend/docker-compose-backend.yml  
   - dbserver/docker-compose-dbserver.yml
   - frontend/docker-compose-frontend.yml
   - grafana/docker-compose-grafana.yml
-  - auth-frontend/docker-compose-auth-frontend.yml
-  - auth-service/docker-compose-auth-service.yml
+  - totp/docker-compose-totp.yml
 
 networks:
   transcendence_net:
@@ -18,9 +18,19 @@ networks:
       config:
         - subnet: 192.168.1.0/28  # Define the IP range
   auth_net:
+    name: auth_net
+    driver: bridge    
     internal: true # Aislada del mundo exterior
+    ipam:
+      config:
+        - subnet: 192.168.2.0/28  # Define the IP range
   db_net:
+    name: db_net
+    driver: bridge    
     internal: true # Solo compartida con la base de datos
+    ipam:
+      config:
+        - subnet: 192.168.3.0/28  # Define the IP range
 
 volumes:
   volumes:

@@ -16,7 +16,7 @@ services:
       - ./scripts_init:/docker-entrypoint-initdb.d/
     networks:
       transcendence_net:
-        ipv4_address: 192.168.1.2  # Fixed IP
+        ipv4_address: ${DB_IP}  # Fixed IP
         aliases:
           - in_net
 

@@ -30,11 +30,17 @@ const MenuScreen = ({ dispatch, setMode }: OptionsProps) =>
     return (
         <div>
             <h1>{t('modo')}</h1>
-
+            <iframe
+  src="http://grafana:3000/public-dashboards/0932f23f73264f4ba45072dac6230a87"
+  width="100%"
+  height="500"
+  frameborder="0">
+</iframe>
             <button onClick={() => handleMode("ia")}>player vs ia</button>
             <button onClick={() => handleMode("local")}>player vs player</button>
             <button onClick={() => handleMode("remote")}>player vs remote</button>
             <button onClick={() => handleMode("remote")}>tournament</button>
+
         </div>
     );
 }
