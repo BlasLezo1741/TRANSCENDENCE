@@ -21,18 +21,66 @@ export class Pong
     winner: string;
     end: boolean;
 
-    constructor(c: HTMLCanvasElement, ctx: CanvasRenderingContext2D, mode: GameMode, n: number, max: number)
+    private opponentMove: 'up' | 'down' | 'stop' = 'stop'; // <--- NUEVO: Control remoto
+
+    constructor(
+        c: HTMLCanvasElement,
+        ctx: CanvasRenderingContext2D,
+        mode: GameMode,
+        n: number,
+        max: number,
+        leftPlayerName: string,
+        rightPlayerName: string,
+        ballInit: { x: number, y: number } | null = null
+    )
     {
         this.c = c;
         this.ctx = ctx;
         this.mode = mode;
-        this.player1 = new Player("Jose Luis", 20, c.height);
-        this.player2 = new Player("Miguel", c.width - 30, c.height);
+        this.playerNumber = n; // Asignamos esto ANTES de crear los jugadores
+        this.player1 = new Player(leftPlayerName, 20, c.height);
+        this.player2 = new Player(rightPlayerName, c.width - 30, c.height);
+        // // LÓGICA DE NOMBRES DINÁMICA
+        // if (mode.includes('remote') || mode.includes('tournament')) {
+        //     // En remoto, depende de si soy el 1 o el 2
+        //     if (this.playerNumber === 1) {
+        //         // Yo soy el Player 1 (Izquierda)
+        //         this.player1 = new Player(localPlayerName, 20, c.height);
+        //         this.player2 = new Player(opponentName, c.width - 30, c.height);
+        //     } else {
+        //         // Yo soy el Player 2 (Derecha)
+        //         this.player1 = new Player(opponentName, 20, c.height);
+        //         this.player2 = new Player(localPlayerName, c.width - 30, c.height);
+        //     }
+        // } 
+        // else if (mode === 'ia') {
+        //     this.player1 = new Player(localPlayerName, 20, c.height);
+        //     this.player2 = new Player("IA-Bot", c.width - 30, c.height);
+        // } 
+        // else {
+        //     // Modo Local
+        //     this.player1 = new Player(localPlayerName, 20, c.height);
+        //     this.player2 = new Player("Invitado", c.width - 30, c.height);
+        // }
         this.ball = new Ball(c);
-        this.playerNumber = n;
+        // LÓGICA DE SINCRONIZACIÓN
+        if (ballInit) {
+            console.log("📡 Aplicando física del servidor:", ballInit);
+            // Si el servidor nos dio un vector, lo usamos.
+            // (Asegúrate de haber añadido setServerDirection en Ball.ts en el paso anterior)
+            this.ball.setServerDirection(ballInit.x, ballInit.y);
+        } else {
+            // Si es local o IA, reinicio normal aleatorio
+            this.ball.reset();
+        }
         this.pause = this.end = false;
         this.winner = "none";
         this.maxScore = max;
+    }
+
+    // --- NUEVO MÉTODO PARA EL SOCKET ---
+    moveOpponent(dir: 'up' | 'down' | 'stop') {
+        this.opponentMove = dir;
     }
 
     setPause()
@@ -71,12 +119,25 @@ export class Pong
             this.updatePlayer(this.player1, "w", "s");
             this.updatePlayer(this.player2, "ArrowUp", "ArrowDown");
         }
-        else
-        {
-            if (this.playerNumber == 1)
+        else { // MODOS REMOTOS (remote / tournament)
+            if (this.playerNumber == 1) {
+                // Yo soy el 1: Me muevo con mis teclas
                 this.updatePlayer(this.player1, "w", "s");
-            else
+                this.updatePlayer(this.player1, "ArrowUp", "ArrowDown"); // Soporte para ambas
+                
+                // El oponente es el 2: Se mueve según lo que diga el socket
+                if (this.opponentMove === 'up') this.player2.moveUp();
+                if (this.opponentMove === 'down') this.player2.moveDown();
+            } 
+            else {
+                // Yo soy el 2: Me muevo con mis teclas
+                this.updatePlayer(this.player2, "w", "s");
                 this.updatePlayer(this.player2, "ArrowUp", "ArrowDown");
+                
+                // El oponente es el 1: Se mueve según el socket
+                if (this.opponentMove === 'up') this.player1.moveUp();
+                if (this.opponentMove === 'down') this.player1.moveDown();
+            }
         }
 
         // Update ball

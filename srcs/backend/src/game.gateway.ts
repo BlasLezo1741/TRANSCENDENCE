@@ -17,129 +17,376 @@ import { FinishGameDto } from './dto/finish-game.dto';
 
 // Interfaces (Salida)
 import { MatchFoundResponse } from './dto/match-found.response';
-import { GameUpdateResponse } from './dto/game-update.response';
 import { ScoreUpdateResponse } from './dto/score-update.response';
+import { GameUpdateResponse } from './dto/game-update.response'; // Descomentar si la usas
 
-// --- CAMBIO PARA DRIZZLE ---
+// --- DRIZZLE & DB ---
 import { DRIZZLE } from './database.module';
-import { match } from './schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import * as schema from './schema';
-// ---------------------------
+import * as schema from './schema'; 
+import { eq, sql } from 'drizzle-orm'; 
+// --------------------
 
-//@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Protección global del Gateway
 @UsePipes(new ValidationPipe({ whitelist: true }))
-
 @WebSocketGateway({
   cors: {
-    // Permitimos explícitamente tu URL de frontend y también 'true' para mayor compatibilidad
     origin: true,
     methods: ["GET", "POST"],
     credentials: true
   },
   transports: ['polling', 'websocket']
 })
-
-
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-//AÑADIMOS EL CONSTRUCTOR PARA DRIZZLE PARA INYECTAR LA DB
-constructor(
+//Mapa para gestionar colas por modo de juego (ej: '1v1_remote' -> [Socket])
+  private queues: Map<string, Socket[]> = new Map();
+
+  constructor(
     @Inject(DRIZZLE) 
     private readonly db: PostgresJsDatabase<typeof schema>,
   ) {}
 
+  // --- CONEXIÓN / DESCONEXIÓN ---
 
-// Manejo de conexiones (V.19)
-handleConnection(client: Socket) {
+  handleConnection(client: Socket) {
     console.log(`✅ Cliente conectado: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
     console.log(`❌ Cliente desconectado: ${client.id}`);
-    // Notificamos la desconexión al resto (Módulo Web)
+
+    this.queues.forEach((queue, mode) => {
+      const index = queue.findIndex(s => s.id === client.id);
+      if (index !== -1) {
+        queue.splice(index, 1);
+        console.log(`🗑️ Jugador ${client.id} eliminado de la cola de espera de ${mode}`);
+      }
+    });
+
     this.server.emit('player_offline', {
       userId: client.id,
       reconnectWindow: 30
     });
   }
 
-  // EVENTO: Búsqueda de partida (Validado con DTO)
+
+TypeScript
+
   @SubscribeMessage('join_queue')
   async handleJoinQueue(
     @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: JoinQueueDto // Ahora usa el DTO
+    @MessageBody() payload: JoinQueueDto 
   ) {
-    console.log(`📢 [NUEVA PARTIDA - DRIZZLE] Usuario: ${payload.userId} | Modo: ${payload.mode}`);
-  
-    try {
-      // --- INSERT ACTUALIZADO CON LOS NOMBRES DEL SQL ---
-      const result = await this.db.insert(match).values({
-        mMode: payload.mode,   // Antes 'mode', ahora 'mMode'
-        mDate: new Date().toISOString(),     // Antes 'date', ahora 'mDate'
-      }).returning({ insertedId: match.mPk }); // Antes 'id', ahora 'mPk'
+    const { mode, nickname } = payload;
+    console.log(`🔍 [STEP 1] Inicio join_queue. Nick: ${nickname}, Mode: ${mode}`);
 
-      console.log(`💾 Guardado en DB con ID: ${result[0].insertedId}`);
-    } catch (error) {
-      console.error('❌ Error Drizzle al guardar:', error);
+    // --- PROTECCIÓN CONTRA CRASH (client.data) ---
+    if (!client.data) {
+        console.log("⚠️ [DEBUG] client.data era undefined. Inicializando...");
+        client.data = {};
+    }
+    
+    // Simulación de usuario
+    if (!client.data.user) {
+        console.log(`👤 [STEP 2] Asignando usuario temporal: ${nickname}`);
+        client.data.user = { pNick: nickname || 'Anon' };
     }
 
-    const roomId = `room_${payload.mode}_${client.id}`;
-    client.join(roomId);
+    // 1. Obtener la cola
+    console.log(`📂 [STEP 3] Buscando cola para modo: ${mode}`);
+    let queue = this.queues.get(mode);
+    
+    if (!queue) {
+      console.log(`✨ [STEP 3.1] Cola nueva creada.`);
+      queue = [];
+      this.queues.set(mode, queue);
+    }
+    
+    console.log(`📊 [STEP 4] Estado de la cola actual: ${queue.length} jugadores esperando.`);
 
-// Usamos la interfaz de respuesta para cumplir el protocolo
-    const response: MatchFoundResponse = {
-      roomId,
-      side: 'left',
-      opponent: { name: 'Oponente Beta', avatar: 'default.png' }
-    };
+    // --- ESCENARIO 1: Hay alguien esperando (MATCH ENCONTRADO) ---
+    if (queue.length > 0) {
+      console.log(`🤝 [STEP 5] Intentando emparejar...`);
+      
+      const opponent = queue.shift(); 
 
-    this.server.to(roomId).emit('match_found', response);
+      // Validación estricta
+      if (!opponent) {
+          console.error("❌ [ERROR] opponent era undefined tras shift().");
+          return;
+      }
+
+      console.log(`🆚 [STEP 6] Oponente encontrado: ${opponent.id}`);
+
+      // Evitar jugar contra uno mismo
+      if (opponent.id === client.id) {
+        console.log("⚠️ [WARN] El jugador intentó jugar contra sí mismo. Devolviendo a cola.");
+        queue.push(client);
+        return;
+      }
+
+      console.log(`⚔️ MATCH ENCONTRADO: ${client.id} vs ${opponent.id}`);
+
+      try {
+        console.log(`💽 [STEP 7] Consultando DB para modo: ${mode}`);
+        const modeResult = await this.db.query.matchMode.findFirst({
+          where: eq(schema.matchMode.mmodName, mode)
+        });
+
+        if (!modeResult) {
+          console.error(`❌ Error: El modo '${mode}' no existe en DB.`);
+          queue.unshift(opponent);
+          return;
+        }
+
+        console.log(`📝 [STEP 8] Insertando partida en DB...`);
+        const newMatch = await this.db.insert(schema.match).values({
+          mModeFk: modeResult.mmodPk,
+          mDate: sql`NOW()`,
+        }).returning({ insertedId: schema.match.mPk });
+
+        const matchId = newMatch[0].insertedId;
+        const roomId = `match_${matchId}`;
+
+        // Unir a sala
+        console.log(`🚪 [STEP 9] Uniendo sockets a sala ${roomId}`);
+        await client.join(roomId);    
+        await opponent.join(roomId);   
+
+        // --- CÁLCULO DE FÍSICA SINCRONIZADA ---
+        // Generamos el vector AQUÍ para que sea idéntico para los dos
+        const dirX = Math.random() < 0.5 ? -1 : 1;
+        const dirY = Math.random() * 2 - 1;
+        const leng = Math.sqrt(dirX * dirX + dirY * dirY);
+        const ballInit = { x: dirX / leng, y: dirY / leng };
+        // ---------------------------------------
+
+        // Respuestas (Ahora incluyen ballInit)
+        const responseP1: MatchFoundResponse = {
+          roomId, matchId, side: 'left',
+          opponent: { name: client.data.user.pNick, avatar: 'default.png' },
+          ballInit: ballInit // <--- NUEVO
+        };
+
+        const responseP2: MatchFoundResponse = {
+          roomId, matchId, side: 'right',
+          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' },
+          ballInit: ballInit // <--- NUEVO
+        };
+
+        console.log(`🚀 [STEP 10] Enviando evento match_found a ambos.`);
+        opponent.emit('match_found', responseP1);
+        client.emit('match_found', responseP2);
+
+      } catch (error) {
+        console.error('❌ [CRITICAL ERROR] Fallo en la lógica de DB/Sala:', error);
+        if (opponent) queue.unshift(opponent);
+      }
+
+    } 
+    // --- ESCENARIO 2: No hay nadie, toca esperar ---
+    else {
+      console.log(`📥 [STEP 5b] Cola vacía. Añadiendo a ${nickname} a la espera.`);
+      queue.push(client);
+      console.log(`⏳ Jugador ${client.id} añadido a la cola.`);
+      
+      client.emit('waiting_for_match', { 
+        message: 'Buscando oponente...',
+        mode: mode 
+      });
+    }
   }
+//   @SubscribeMessage('join_queue')
+//   async handleJoinQueue(
+//     @ConnectedSocket() client: Socket, 
+//     @MessageBody() payload: JoinQueueDto 
+//   ) {
+//     // const mode = payload.mode;
+//     // console.log(`📢 [QUEUE] Jugador ${client.id} busca modo: ${mode}`);
+//     const { mode, nickname } = payload;
+//     console.log(`📢 [QUEUE] Jugador ${nickname} (${client.id}) busca modo: ${mode}`);
+//     // ... lógica de client.data.user ...
+//     if (!client.data.user) {
+//         client.data.user = { pNick: nickname || 'Anon' };
+//     }
+//     let queue = this.queues.get(mode);
+//     if (!queue) {
+//       queue = [];
+//       this.queues.set(mode, queue);
+//     // // Inicializar la cola si no existe
+//     // if (!this.queues.has(mode)) {
+//     //   this.queues.set(mode, []);
+//     // }
 
-// EVENTO: Movimiento (Validado con DTO - para el modulo de gaming)
+//     // const queue = this.queues.get(mode);
+
+//     // --- ESCENARIO 1: Hay alguien esperando (MATCH ENCONTRADO) ---
+//     if (queue.length > 0) {
+      
+//       const opponent = queue.shift(); 
+
+//       // --- CORRECCIÓN 2: Validación estricta de undefined ---
+//       if (!opponent) return;
+
+//       // Evitar jugar contra uno mismo
+//       if (opponent.id === client.id) {
+//         queue.push(client);
+//         return;
+//       }
+
+//       console.log(`⚔️ MATCH ENCONTRADO: ${client.id} (P2) vs ${opponent.id} (P1)`);
+
+//       try {
+//         const modeResult = await this.db.query.matchMode.findFirst({
+//           where: eq(schema.matchMode.mmodName, mode)
+//         });
+
+//         if (!modeResult) {
+//           console.error(`❌ Error: El modo '${mode}' no existe en la tabla match_mode.`);
+//           queue.unshift(opponent);
+//           return;
+//         }
+
+//         // Insertar partida en DB
+//         const newMatch = await this.db.insert(schema.match).values({
+//           mModeFk: modeResult.mmodPk,
+//           mDate: sql`NOW()`,
+//         }).returning({ insertedId: schema.match.mPk });
+
+//         const matchId = newMatch[0].insertedId;
+//         const roomId = `match_${matchId}`;
+
+//         // Unir a sala
+//         await client.join(roomId);    
+//         await opponent.join(roomId);   
+
+//         console.log(`🚪 Sala creada: ${roomId} | Match ID: ${matchId}`);
+
+//         // Datos para el oponente (Player 1 - Left)
+//         const responseP1: MatchFoundResponse = {
+//           roomId,
+//           matchId,
+//           side: 'left',
+//           opponent: { name: client.data.user.pNick, avatar: 'default.png' } 
+//         };
+
+//         // Datos para el cliente actual (Player 2 - Right)
+//         const responseP2: MatchFoundResponse = {
+//           roomId,
+//           matchId,
+//           side: 'right',
+//           opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }
+//         };
+
+//         opponent.emit('match_found', responseP1);
+//         client.emit('match_found', responseP2);
+
+//       } catch (error) {
+//         console.error('❌ Error crítico creando partida en DB:', error);
+//         if (opponent) queue.unshift(opponent);
+//       }
+
+//     }
+//     // --- ESCENARIO 2: No hay nadie, toca esperar ---
+//     else {
+//       queue.push(client);
+//       console.log(`⏳ Jugador ${client.id} añadido a la cola. Esperando oponente...`);
+      
+//       // Opcional: Avisar al cliente que está esperando
+//       client.emit('waiting_for_match', { 
+//         message: 'Buscando oponente...',
+//         mode: mode 
+//       });
+//     }
+//   }
+// }
+
+  // --- PADDLE MOVE (Juego en tiempo real) ---
+
   @SubscribeMessage('paddle_move')
   handlePaddleMove(
     @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: PaddleMoveDto // Ahora usa el DTO
+    @MessageBody() payload: PaddleMoveDto 
   ) {
-    const roomId = Array.from(client.rooms)[1];
-
-    if (roomId) {
-      this.server.to(roomId).emit('game_update', {
-        playerId: client.id,
-        move: payload.direction // Solo llegará si es up/down/stop
-      });
+    // console.log(`🏓 [MOVE] Cliente: ${client.id} | Dir: ${payload.direction}`);
+    
+    // Seguridad: Verificar que el socket pertenece a la sala que dice
+    if (!client.rooms.has(payload.roomId)) {
+        console.warn(`⚠️ Alerta: El usuario ${client.id} intentó mover en una sala ajena.`);
+        return;
     }
-  }
 
-// EVENTO: Finalización (Validado con DTO para el módulo User Management)
-@SubscribeMessage('finish_game')
-  handleFinishGame(
-    @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: FinishGameDto // Aplicamos el contrato de datos
-  ) {
-    // Buscamos la sala para notificar a ambos jugadores
-    const roomId = payload.roomId || Array.from(client.rooms)[1];
-
-    console.log(`🏆 Partida finalizada. Ganador: ${payload.winnerId} en sala: ${roomId}`);
-
-    if (roomId) {
-      this.server.to(roomId).emit('game_over', {
-        winner: payload.winnerId,
-        timestamp: new Date().toISOString(),
-        status: 'validated' // Indicamos que los datos pasaron el protocolo
-      });
-    }
-  }
-  // MÉTODO AUXILIAR: Para el marcador de puntos
-  emitScore(roomId: string, scorerId: string, newScore: [number, number]) {
-    const payload: ScoreUpdateResponse = {
-      score: newScore,
-      scorerId: scorerId
+    const updateData: GameUpdateResponse = {
+      playerId: client.id,
+      move: payload.direction // Esto ahora coincide con la interfaz
     };
-    this.server.to(roomId).emit('score_update', payload);
+
+    // Reenviar movimiento al oponente (Broadcast a la sala, excluyendo al emisor)
+    // client.to(payload.roomId).emit('game_update', {
+    //   playerId: client.id,
+    //   move: payload.direction
+    // });
+    client.to(payload.roomId).emit('game_update', updateData);
   }
+
+  // --- FINISH GAME (Cierre de partida + DB Update) ---
+
+  @SubscribeMessage('finish_game')
+  async handleFinishGame(
+    @ConnectedSocket() client: Socket, 
+    @MessageBody() payload: FinishGameDto 
+  ) {
+    console.log(`🏁 [FIN] Sala: ${payload.roomId} | Ganador: ${payload.winnerId} | Match PK: ${payload.matchId}`);
+
+    // Seguridad básica
+    if (!client.rooms.has(payload.roomId)) {
+        console.warn(`⚠️ Intento de cerrar juego ajeno. User: ${client.id}`);
+    }
+
+    try {
+        // 1. Buscar ID del Jugador Ganador por su Nick
+        const winnerPlayer = await this.db.query.player.findFirst({
+            where: eq(schema.player.pNick, payload.winnerId)
+        });
+
+        if (winnerPlayer) {
+            // 2. Actualizar la partida con el Ganador y Duración
+            await this.db.update(schema.match)
+                .set({ 
+                    mWinnerFk: winnerPlayer.pPk, 
+                    mDuration: sql`NOW() - m_date` 
+                }) 
+                .where(eq(schema.match.mPk, payload.matchId));
+            
+            console.log(`💾 ¡Guardado! Ganador ID: ${winnerPlayer.pPk} (${winnerPlayer.pNick})`);
+        } else {
+            console.warn(`⚠️ No se pudo guardar: El usuario '${payload.winnerId}' no existe en la DB.`);
+        }
+
+    } catch (error) {
+        console.error('❌ Error al actualizar DB:', error);
+    }
+
+    // 3. Notificar Fin de Juego
+    this.server.to(payload.roomId).emit('game_over', { winner: payload.winnerId });
+
+    // 4. Limpieza de sala
+    const sockets = await this.server.in(payload.roomId).fetchSockets();
+    for (const s of sockets) {
+        s.leave(payload.roomId);
+    }
+    
+    console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
+  }
+
+//   // --- AUXILIAR (Futuro uso si la fisica la hace el servidor) ---
+//   emitScore(roomId: string, scorerId: string, newScore: [number, number]) {
+//     const payload: ScoreUpdateResponse = {
+//       score: newScore,
+//       scorerId: scorerId
+//     };
+//     this.server.to(roomId).emit('score_update', payload);
+//   }
 }

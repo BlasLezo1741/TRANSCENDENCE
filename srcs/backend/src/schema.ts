@@ -103,18 +103,30 @@ export const matchmetric = pgTable("matchmetric", {
 		}),
 ]);
 
+export const matchMode = pgTable("match_mode", {
+    mmodPk: smallint("mmod_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_mode_mmod_pk_seq", startWith: 1, increment: 1 }),
+    mmodName: varchar("mmod_name", { length: 20 }),
+});
+
 export const match = pgTable("match", {
-	mPk: integer("m_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_m_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-	mDate: timestamp("m_date", { mode: 'string' }),
-	mDuration: interval("m_duration"),
-	mMode: varchar("m_mode", { length: 20 }),
-	mWinnerFk: integer("m_winner_fk"),
+    mPk: integer("m_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_m_pk_seq", startWith: 1, increment: 1 }),
+    mDate: timestamp("m_date", { mode: 'string' }),
+    mDuration: interval("m_duration"),
+    // CAMBIO IMPORTANTE: Ahora es un Foreign Key (Entero), no un Varchar
+    mModeFk: smallint("m_mode_fk"), 
+    mWinnerFk: integer("m_winner_fk"),
 }, (table) => [
-	foreignKey({
-			columns: [table.mWinnerFk],
-			foreignColumns: [player.pPk],
-			name: "match_m_winner_fk_fkey"
-		}),
+    foreignKey({
+            columns: [table.mWinnerFk],
+            foreignColumns: [player.pPk],
+            name: "match_m_winner_fk_fkey"
+        }),
+    // AÑADIMOS LA RELACIÓN CON EL MODO
+    foreignKey({
+            columns: [table.mModeFk],
+            foreignColumns: [matchMode.mmodPk],
+            name: "match_m_mode_fk_fkey"
+        }),
 ]);
 
 export const playerOrganization = pgTable("player_organization", {

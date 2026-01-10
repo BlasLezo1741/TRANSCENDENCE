@@ -76,7 +76,7 @@ export class Ball
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    private async reset(): Promise<void>
+    public async reset(): Promise<void>
     {
         this.waiting = this.firstHit = true;
 
@@ -87,6 +87,25 @@ export class Ball
 
         this.setDirection();
 
+        await this.delay(1000);
+        this.waiting = false;
+    }
+
+    public async setServerDirection(dirX: number, dirY: number): Promise<void>
+    {
+        // 1. Reseteamos estado igual que en reset()
+        this.waiting = true;
+        this.firstHit = true;
+        this.x = this.spawnX;
+        this.y = this.spawnY;
+        this.speed = this.initialSpeed;
+
+        // 2. APLICAMOS LA DIRECCIÓN DEL SERVIDOR (Aquí está la clave)
+        // En lugar de calcular ángulos aleatorios, usamos lo que nos llega
+        this.vx = dirX * this.speed;
+        this.vy = dirY * this.speed;
+
+        // 3. Esperamos 1 segundo para que ambos jugadores estén listos
         await this.delay(1000);
         this.waiting = false;
     }
