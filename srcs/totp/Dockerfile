@@ -53,4 +53,5 @@ USER myuser
 EXPOSE 8000
 
 # Al estar el venv en el PATH, 'uvicorn' se encontrará directamente
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+#CMD ["uvicorn", "totp:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
