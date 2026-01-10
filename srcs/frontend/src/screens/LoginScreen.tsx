@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { checkSyntax, checkLogin } from "../ts/utils/check"
+import { checkLogin } from "../ts/utils/auth"
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 
 const LoginScreen = ({ dispatch }: ScreenProps) =>
@@ -12,14 +12,6 @@ const LoginScreen = ({ dispatch }: ScreenProps) =>
     {
         e.preventDefault();
         setError("");
-
-        // Check syntaxis
-        //if (!checkSyntax(password))
-        //{
-        //    setError("La password debe de tener una majuscula, una minuscula y un numero");
-        //    setPassword("");
-        //    return;
-        //}
 
         // Check login
         const result = checkLogin(user, password);
