@@ -9,10 +9,12 @@ import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
 // import SettingsScreen from './screens/SettingsScreen.tsx'
 
-import Header from './components/Header.tsx'
-// import Footer from './components/Footer.tsx'
+import Header from './components/Header/Header.tsx'
+import Footer from './components/Footer/Footer.tsx'
 import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
 import { socket, setMatchData } from './services/socketService';
+
+import "./App.css";
 
 function App()
 {
@@ -103,16 +105,13 @@ function App()
   }
 
   return (
-    <div>
+    <div className="app">
       {/* 1. Ponemos el indicador arriba de todo */}
       <StatusBadge /> 
-      {/* Opcional: Mostrar quién soy para no liarnos */}
-      <div style={{position: 'absolute', top: 0, right: 0, color: 'lime', padding: '5px'}}>
-          Soy: {currentUser}
-      </div>
-      <Header dispatch={dispatch}/>
+      <Header dispatch={dispatch} userName={currentUser}/>
       {/* 2. El resto de la aplicación */}
       <main>{renderScreen()}</main>
+      <Footer />
     </div>
   );
 }

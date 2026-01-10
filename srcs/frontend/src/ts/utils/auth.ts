@@ -11,6 +11,7 @@ const bbdd: bbdd[] = [
     { user: "p2", password: "AbcAbc123" },
 ];
 
+// Check if the user exists and match
 export function checkLogin(user: string, password: string)
 {
     const userdb = bbdd.find(u => u.user === user);
@@ -23,6 +24,7 @@ export function checkLogin(user: string, password: string)
     return { ok: true, msg: "Correct login" };
 }
 
+// Regist user in the database - The password is already checked
 export function registUser(user: string, password: string, email:string, birth: string, lang: string): boolean
 {
     return true;
