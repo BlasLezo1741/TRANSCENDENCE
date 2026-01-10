@@ -29,8 +29,8 @@ export class Pong
         mode: GameMode,
         n: number,
         max: number,
-        localPlayerName: string,
-        opponentName: string = "IA-Bot",
+        leftPlayerName: string,
+        rightPlayerName: string,
         ballInit: { x: number, y: number } | null = null
     )
     {
@@ -38,30 +38,30 @@ export class Pong
         this.ctx = ctx;
         this.mode = mode;
         this.playerNumber = n; // Asignamos esto ANTES de crear los jugadores
-        // this.player1 = new Player("user_1", 20, c.height);
-        // this.player2 = new Player("user_2", c.width - 30, c.height);
-        // LÓGICA DE NOMBRES DINÁMICA
-        if (mode.includes('remote') || mode.includes('tournament')) {
-            // En remoto, depende de si soy el 1 o el 2
-            if (this.playerNumber === 1) {
-                // Yo soy el Player 1 (Izquierda)
-                this.player1 = new Player(localPlayerName, 20, c.height);
-                this.player2 = new Player(opponentName, c.width - 30, c.height);
-            } else {
-                // Yo soy el Player 2 (Derecha)
-                this.player1 = new Player(opponentName, 20, c.height);
-                this.player2 = new Player(localPlayerName, c.width - 30, c.height);
-            }
-        } 
-        else if (mode === 'ia') {
-            this.player1 = new Player(localPlayerName, 20, c.height);
-            this.player2 = new Player("IA-Bot", c.width - 30, c.height);
-        } 
-        else {
-            // Modo Local
-            this.player1 = new Player(localPlayerName, 20, c.height);
-            this.player2 = new Player("Invitado", c.width - 30, c.height);
-        }
+        this.player1 = new Player(leftPlayerName, 20, c.height);
+        this.player2 = new Player(rightPlayerName, c.width - 30, c.height);
+        // // LÓGICA DE NOMBRES DINÁMICA
+        // if (mode.includes('remote') || mode.includes('tournament')) {
+        //     // En remoto, depende de si soy el 1 o el 2
+        //     if (this.playerNumber === 1) {
+        //         // Yo soy el Player 1 (Izquierda)
+        //         this.player1 = new Player(localPlayerName, 20, c.height);
+        //         this.player2 = new Player(opponentName, c.width - 30, c.height);
+        //     } else {
+        //         // Yo soy el Player 2 (Derecha)
+        //         this.player1 = new Player(opponentName, 20, c.height);
+        //         this.player2 = new Player(localPlayerName, c.width - 30, c.height);
+        //     }
+        // } 
+        // else if (mode === 'ia') {
+        //     this.player1 = new Player(localPlayerName, 20, c.height);
+        //     this.player2 = new Player("IA-Bot", c.width - 30, c.height);
+        // } 
+        // else {
+        //     // Modo Local
+        //     this.player1 = new Player(localPlayerName, 20, c.height);
+        //     this.player2 = new Player("Invitado", c.width - 30, c.height);
+        // }
         this.ball = new Ball(c);
         // LÓGICA DE SINCRONIZACIÓN
         if (ballInit) {

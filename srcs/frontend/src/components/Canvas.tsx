@@ -10,9 +10,10 @@ type CanvasProps = {
     userName: string;
     opponentName?: string;
     ballInit: { x: number, y: number } | null;
+    playerSide?: 'left' | 'right';
 };
 
-function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente", ballInit }: CanvasProps)
+function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente", ballInit, playerSide = 'left' }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -25,16 +26,58 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
 
         canvas.width = 800;
         canvas.height = 600;
+        // POSICIONAMIENTO EN PANTALLA
+        let finalPlayerNumber = 1; // Por defecto somos el 1 (Izquierda)
+
+        //logica de nombres
+        let leftName = "P1";
+        let rightName = "P2";
+
+        if (mode === 'remote' || mode === 'tournament') {
+            // MODO ONLINE: Obedecemos ciegamente a 'playerSide'
+            if (playerSide === 'left') {
+                // Soy el de la IZQUIERDA
+                finalPlayerNumber = 1;
+                leftName = userName;          // Yo estoy a la izquierda
+                rightName = opponentName;     // Rival a la derecha
+            } else {
+                // Soy el de la DERECHA
+                finalPlayerNumber = 2;
+                leftName = opponentName;      // Rival a la izquierda
+                rightName = userName;         // Yo estoy a la derecha
+            }
+        } 
+        else if (mode === 'ia') {
+            // MODO IA
+            finalPlayerNumber = 1;
+            leftName = userName;
+            rightName = "IA-Bot";
+        } 
+        else {
+            // MODO LOCAL
+            finalPlayerNumber = 1;
+            leftName = userName;
+            rightName = "Invitado";
+        }
+
+        // 🔍 LOG PARA DEPURAR (Míralo en la consola del navegador)
+        console.log(`🎮 INICIANDO JUEGO [${mode}]`);
+        console.log(`📍 Mi Lado: ${playerSide}`);
+        console.log(`🔢 Mi Número: ${finalPlayerNumber}`);
+        console.log(`⬅️ Izquierda: ${leftName}`);
+        console.log(`➡️ Derecha: ${rightName}`);
+
         //Inicializar juego
         //const game = new Pong(canvas, ctx, mode, playerNumber, 5);
         const game = new Pong(
             canvas,
             ctx,
             mode,
-            playerNumber,
+            //playerNumber,
+            finalPlayerNumber,
             5,
-            userName,
-            opponentName,
+            leftName,
+            rightName,
             ballInit
         );
         //Escuchar cuando el servidor confirma la sala
@@ -137,7 +180,7 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
             socket.off('game_over');
             socket.off('player_offline');
         };
-    }, [mode, playerNumber, userName, opponentName, ballInit]);
+    }, [mode, playerNumber, userName, opponentName, ballInit, playerSide]);
 
     return <canvas ref={canvasRef} style={{background: "black"}}/>;
 }
