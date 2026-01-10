@@ -1,22 +1,25 @@
 import React, {useRef, useEffect} from "react";
 import { Pong } from "../ts/models/Pong.ts"
-import { sendMove, onGameUpdate, onMatchFound, finishGame, socket, onGameOver, onPlayerOffline } from '../services/socketService'; //IMPORTAMOS EL SERVICIO DE SOCKETS
+import { sendMove, onGameUpdate, onMatchFound, finishGame, socket, onGameOver, onPlayerOffline } from '../services/socketService'; 
 import type { GameMode } from "../ts/types.ts";
 
 type CanvasProps = {
     mode: GameMode;
     dispatch: React.Dispatch<any>;
-    playerNumber?: 1 | 2; // Only for remote
+    playerNumber?: 1 | 2; 
     userName: string;
     opponentName?: string;
     ballInit: { x: number, y: number } | null;
     playerSide?: 'left' | 'right';
 };
 
-function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente", ballInit, playerSide = 'left' }: CanvasProps)
+function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left' }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    // -----------------------------------------------------------
+    // INICIO DEL USE EFFECT (Todo ocurre aquí dentro)
+    // -----------------------------------------------------------
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -26,161 +29,169 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
 
         canvas.width = 800;
         canvas.height = 600;
-        // POSICIONAMIENTO EN PANTALLA
-        let finalPlayerNumber = 1; // Por defecto somos el 1 (Izquierda)
 
-        //logica de nombres
+        // --- 1. LÓGICA DE POSICIONAMIENTO ---
+        let finalPlayerNumber = 1; 
         let leftName = "P1";
         let rightName = "P2";
 
         if (mode === 'remote' || mode === 'tournament') {
-            // MODO ONLINE: Obedecemos ciegamente a 'playerSide'
             if (playerSide === 'left') {
-                // Soy el de la IZQUIERDA
                 finalPlayerNumber = 1;
-                leftName = userName;          // Yo estoy a la izquierda
-                rightName = opponentName;     // Rival a la derecha
+                leftName = userName;
+                rightName = opponentName;
             } else {
-                // Soy el de la DERECHA
                 finalPlayerNumber = 2;
-                leftName = opponentName;      // Rival a la izquierda
-                rightName = userName;         // Yo estoy a la derecha
+                leftName = opponentName;
+                rightName = userName;
             }
         } 
         else if (mode === 'ia') {
-            // MODO IA
-            finalPlayerNumber = 1;
             leftName = userName;
             rightName = "IA-Bot";
         } 
         else {
-            // MODO LOCAL
-            finalPlayerNumber = 1;
             leftName = userName;
             rightName = "Invitado";
         }
 
-        // 🔍 LOG PARA DEPURAR (Míralo en la consola del navegador)
-        console.log(`🎮 INICIANDO JUEGO [${mode}]`);
-        console.log(`📍 Mi Lado: ${playerSide}`);
-        console.log(`🔢 Mi Número: ${finalPlayerNumber}`);
-        console.log(`⬅️ Izquierda: ${leftName}`);
-        console.log(`➡️ Derecha: ${rightName}`);
+        console.log(`🎮 INICIANDO JUEGO [${mode}] | Soy: ${finalPlayerNumber} (${playerSide})`);
 
-        //Inicializar juego
-        //const game = new Pong(canvas, ctx, mode, playerNumber, 5);
+        // --- 2. INSTANCIAR JUEGO ---
         const game = new Pong(
             canvas,
             ctx,
             mode,
-            //playerNumber,
             finalPlayerNumber,
             5,
             leftName,
             rightName,
-            ballInit
+            ballInit,
+            // Callback: Esto se ejecuta cuando TU detectas un gol (solo si eres P1)
+            (score, dir) => {
+                // console.log("📤 Enviando Score al servidor:", score); // Descomentar para debug
+                socket.emit('update_score', { score, ballDir: dir }); 
+            }
         );
-        //Escuchar cuando el servidor confirma la sala
-        onMatchFound((data) => {
-            console.log("✅ Sala confirmada desde el servidor:", data.roomId);
-        });
-        // Receptor de movimientos del oponente
-        onGameUpdate((data) => {
-            // Solo movemos si el ID no es el nuestro (es el oponente)
+
+        // --- 3. EVENTOS DEL SOCKET ---
+
+        const handleMatchFound = (data: any) => {
+            console.log("✅ Sala confirmada:", data.roomId);
+        };
+
+        const handleScoreUpdate = (data: { score: number[], ballDir: number }) => {
+            console.log("⚽ Score recibido del servidor:", data.score);
+            game.syncScore(data.score, data.ballDir);
+        };
+
+        const handleGameUpdate = (data: any) => {
             if (data.playerId !== socket.id) {
-                // Importante: Tu clase Pong debe tener un método que acepte 'up', 'down' o 'stop'
-                // para la paleta que no controlas tú.
                 game.moveOpponent(data.move); 
             }
-        });
+        };
 
-        // Cuando TU RIVAL GANA. El servidor te avisa a ti.
-        onGameOver((data) => {
-            console.log("🏁 Game Over recibido del servidor. Ganador:", data.winner);
-            // Evitamos que salte la alerta dos veces si fuimos nosotros los que ganamos
+        const handleGameOver = (data: any) => {
+            console.log("🏁 Game Over recibido. Ganador:", data.winner);
             if (!game.hasWinner()) {
                 alert("Game Over! The winner is: " + data.winner);
                 dispatch({ type: "MENU" });
             }
-        });
+        };
 
-        // --- Escuchar Desconexión ---
-        onPlayerOffline((data) => {
-            console.warn("⚠️ El oponente se ha desconectado");
-            // Aquí podrías pausar el juego o dar la victoria automática
-        });
+        const handlePlayerOffline = () => {
+            console.warn("⚠️ Rival desconectado");
+        };
 
-        // Keys
+        // Activamos listeners
+        onMatchFound(handleMatchFound);
+        socket.on('score_updated', handleScoreUpdate);
+        onGameUpdate(handleGameUpdate);
+        onGameOver(handleGameOver);
+        onPlayerOffline(handlePlayerOffline);
+
+        // --- 4. CONTROLES DE TECLADO ---
 
         const handleKeyUp = (e: KeyboardEvent) => {
             game.keysPressed[e.key] = false;
-            //ENVIAR "STOP" AL SERVIDOR
-            // Solo si estamos en modos online y son las teclas de movimiento
+            
             if (mode !== 'ia' && ['ArrowUp', 'ArrowDown', 'w', 's'].includes(e.key)) {
-                sendMove('stop'); // <--- NUEVO  
+                sendMove('stop'); 
             }          
         };
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (game.keysPressed[e.key]) return;//Para que al mantener la tecla pulsado solo se envie un movimiento
+            if (game.keysPressed[e.key]) return;
             game.keysPressed[e.key] = true;
-            // ENVIAR MOVIMIENTO AL SERVIDOR
+            
             if (mode !== 'ia') {
                 if (e.key === 'ArrowUp' || e.key === 'w') {
-                    sendMove('up');   // <--- NUEVO
+                    sendMove('up');   
                 }
                 else if (e.key === 'ArrowDown' || e.key === 's') {
-                    sendMove('down'); // <--- NUEVO
+                    sendMove('down'); 
                 }
             }
-            if (e.code === "Space" && mode != "remote")
+            if (e.code === "Space" && mode !== "remote")
                 game.setPause();  
         };
 
         window.addEventListener("keyup", handleKeyUp);
         window.addEventListener("keydown", handleKeyDown);
 
-        // Retrasamos un poco el inicio para asegurar carga
+        // --- 5. BUCLE DEL JUEGO (GAME LOOP) ---
         let animationId: number;
+        let timeoutId: any;
 
-        setTimeout(() => {
-             const gameLoop = () =>
+        // Definimos la función del bucle
+        const gameLoop = () =>
+        {
+            game.update();
+            game.draw();
+
+            if (game.hasWinner())
             {
-                game.update();
-                game.draw();
-
-                if (game.hasWinner())
-                {
-                    const winnerName = game.getWinner(); 
-                    console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
-                    
-                    if (mode === 'remote' || mode === 'tournament') {
-                        finishGame(winnerName); 
-                    } else {
-                        console.log("ℹ️ Partida local/IA finalizada. No se guarda en DB.");
-                    }
-
+                const winnerName = game.getWinner(); 
+                console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
+                
+                if (mode === 'remote' || mode === 'tournament') {
+                    finishGame(winnerName); 
+                } else {
+                    console.log("ℹ️ Partida local/IA finalizada.");
                     alert("The player " + game.getWinner() + " has won!");
                     dispatch({ type: "MENU"});
-                    return ;
                 }
+                return;
+            }
 
-                animationId = requestAnimationFrame(gameLoop);
-            };
+            animationId = requestAnimationFrame(gameLoop);
+        };
+
+        // Arrancamos el bucle con retraso (Aquí estaba el error de sintaxis antes)
+        timeoutId = setTimeout(() => {
             gameLoop();
-        }, 100);
+        }, 500);
         
+        // --- 6. CLEANUP (AL DESMONTAR) ---
         return () =>
         {
+            // Limpieza vital para evitar doble velocidad
+            clearTimeout(timeoutId);
             cancelAnimationFrame(animationId);
+
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
-            socket.off('game_update');//Limpieza del socket
+            
+            // Limpiamos sockets
+            socket.off('game_update');
             socket.off('match_found');
             socket.off('game_over');
             socket.off('player_offline');
+            socket.off('score_updated');
         };
-    }, [mode, playerNumber, userName, opponentName, ballInit, playerSide]);
+    
+    // --- CIERRE DEL USE EFFECT ---
+    }, [mode, userName, opponentName, ballInit, playerSide, dispatch]); 
 
     return <canvas ref={canvasRef} style={{background: "black"}}/>;
 }

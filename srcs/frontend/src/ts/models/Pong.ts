@@ -23,6 +23,9 @@ export class Pong
 
     private opponentMove: 'up' | 'down' | 'stop' = 'stop'; // <--- NUEVO: Control remoto
 
+    // Callback para avisar al socket
+    onScoreUpdate: (score: number[], ballDir: number) => void;
+
     constructor(
         c: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
@@ -31,13 +34,15 @@ export class Pong
         max: number,
         leftPlayerName: string,
         rightPlayerName: string,
-        ballInit: { x: number, y: number } | null = null
+        ballInit: { x: number, y: number } | null = null,
+        onScoreUpdate: (score: number[], ballDir: number) => void
     )
     {
         this.c = c;
         this.ctx = ctx;
         this.mode = mode;
         this.playerNumber = n; // Asignamos esto ANTES de crear los jugadores
+        this.onScoreUpdate = onScoreUpdate;
         this.player1 = new Player(leftPlayerName, 20, c.height);
         this.player2 = new Player(rightPlayerName, c.width - 30, c.height);
         // // LÓGICA DE NOMBRES DINÁMICA
@@ -70,8 +75,13 @@ export class Pong
             // (Asegúrate de haber añadido setServerDirection en Ball.ts en el paso anterior)
             this.ball.setServerDirection(ballInit.x, ballInit.y);
         } else {
-            // Si es local o IA, reinicio normal aleatorio
-            this.ball.reset();
+            // Solo iniciamos movimiento localmente si NO es online
+            // O si somos el host (esto lo gestionará update)
+             if (!mode.includes('remote')) {
+                 this.ball.reset(1);
+             }
+            // // Si es local o IA, reinicio normal aleatorio
+            // this.ball.reset();
         }
         this.pause = this.end = false;
         this.winner = "none";
@@ -81,6 +91,12 @@ export class Pong
     // --- NUEVO MÉTODO PARA EL SOCKET ---
     moveOpponent(dir: 'up' | 'down' | 'stop') {
         this.opponentMove = dir;
+    }
+
+    // --- MÉTODO PARA RECIBIR GOL DEL SERVIDOR (Player 2 lo usa) ---
+    public syncScore(newScore: number[], nextBallDir: number) {
+        this.ball.setScore(newScore[0], newScore[1]);
+        this.ball.reset(nextBallDir);
     }
 
     setPause()
@@ -144,12 +160,48 @@ export class Pong
 
         this.ball.update([this.player1, this.player2]);
 
-        const score: number[] = this.ball.getScore();
+        // --- LÓGICA DE GOL CENTRALIZADA ---
+        const goalStatus = this.ball.checkBounds(); // 0: Nada, 1: Gol P1, 2: Gol P2
 
-        if (score[0] == this.maxScore)
-            this.winMatch(this.player1);
-        else if (score[1] == this.maxScore)
-            this.winMatch(this.player2);
+        if (goalStatus !== 0) {
+            
+            // ¿QUIÉN TIENE DERECHO A ACTUALIZAR EL MARCADOR?
+            // 1. Modos Offline: Siempre.
+            // 2. Modos Online: SOLO el Player 1 (Izquierda).
+            
+            const isAuthorized = !this.mode.includes('remote') || this.playerNumber === 1;
+
+            if (isAuthorized) {
+                const currentScore = this.ball.getScore();
+                
+                let nextDir = 1; // Por defecto a la derecha
+                if (goalStatus === 2) {
+                    // Marcó P2 (Derecha) -> Gol en la izquierda
+                    currentScore[1]++;
+                    nextDir = -1; // Saca hacia la izquierda
+                } else {
+                    // Marcó P1 (Izquierda) -> Gol en la derecha
+                    currentScore[0]++;
+                    nextDir = 1; // Saca hacia la derecha
+                }
+
+                // Aplicar cambios localmente
+                this.ball.setScore(currentScore[0], currentScore[1]);
+                this.ball.reset(nextDir);
+
+                // AVISAR AL RIVAL SI ES ONLINE
+                if (this.mode.includes('remote')) {
+                    this.onScoreUpdate(currentScore, nextDir);
+                }
+            }
+            // Si soy Player 2 en Online, NO HAGO NADA. Espero a que syncScore sea llamado.
+        }
+
+
+        // Comprobar ganador
+        const finalScore = this.ball.getScore();
+        if (finalScore[0] >= this.maxScore) this.winMatch(this.player1);
+        else if (finalScore[1] >= this.maxScore) this.winMatch(this.player2);
     }
 
     private drawPause()

@@ -198,110 +198,6 @@ TypeScript
       });
     }
   }
-//   @SubscribeMessage('join_queue')
-//   async handleJoinQueue(
-//     @ConnectedSocket() client: Socket, 
-//     @MessageBody() payload: JoinQueueDto 
-//   ) {
-//     // const mode = payload.mode;
-//     // console.log(`📢 [QUEUE] Jugador ${client.id} busca modo: ${mode}`);
-//     const { mode, nickname } = payload;
-//     console.log(`📢 [QUEUE] Jugador ${nickname} (${client.id}) busca modo: ${mode}`);
-//     // ... lógica de client.data.user ...
-//     if (!client.data.user) {
-//         client.data.user = { pNick: nickname || 'Anon' };
-//     }
-//     let queue = this.queues.get(mode);
-//     if (!queue) {
-//       queue = [];
-//       this.queues.set(mode, queue);
-//     // // Inicializar la cola si no existe
-//     // if (!this.queues.has(mode)) {
-//     //   this.queues.set(mode, []);
-//     // }
-
-//     // const queue = this.queues.get(mode);
-
-//     // --- ESCENARIO 1: Hay alguien esperando (MATCH ENCONTRADO) ---
-//     if (queue.length > 0) {
-      
-//       const opponent = queue.shift(); 
-
-//       // --- CORRECCIÓN 2: Validación estricta de undefined ---
-//       if (!opponent) return;
-
-//       // Evitar jugar contra uno mismo
-//       if (opponent.id === client.id) {
-//         queue.push(client);
-//         return;
-//       }
-
-//       console.log(`⚔️ MATCH ENCONTRADO: ${client.id} (P2) vs ${opponent.id} (P1)`);
-
-//       try {
-//         const modeResult = await this.db.query.matchMode.findFirst({
-//           where: eq(schema.matchMode.mmodName, mode)
-//         });
-
-//         if (!modeResult) {
-//           console.error(`❌ Error: El modo '${mode}' no existe en la tabla match_mode.`);
-//           queue.unshift(opponent);
-//           return;
-//         }
-
-//         // Insertar partida en DB
-//         const newMatch = await this.db.insert(schema.match).values({
-//           mModeFk: modeResult.mmodPk,
-//           mDate: sql`NOW()`,
-//         }).returning({ insertedId: schema.match.mPk });
-
-//         const matchId = newMatch[0].insertedId;
-//         const roomId = `match_${matchId}`;
-
-//         // Unir a sala
-//         await client.join(roomId);    
-//         await opponent.join(roomId);   
-
-//         console.log(`🚪 Sala creada: ${roomId} | Match ID: ${matchId}`);
-
-//         // Datos para el oponente (Player 1 - Left)
-//         const responseP1: MatchFoundResponse = {
-//           roomId,
-//           matchId,
-//           side: 'left',
-//           opponent: { name: client.data.user.pNick, avatar: 'default.png' } 
-//         };
-
-//         // Datos para el cliente actual (Player 2 - Right)
-//         const responseP2: MatchFoundResponse = {
-//           roomId,
-//           matchId,
-//           side: 'right',
-//           opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }
-//         };
-
-//         opponent.emit('match_found', responseP1);
-//         client.emit('match_found', responseP2);
-
-//       } catch (error) {
-//         console.error('❌ Error crítico creando partida en DB:', error);
-//         if (opponent) queue.unshift(opponent);
-//       }
-
-//     }
-//     // --- ESCENARIO 2: No hay nadie, toca esperar ---
-//     else {
-//       queue.push(client);
-//       console.log(`⏳ Jugador ${client.id} añadido a la cola. Esperando oponente...`);
-      
-//       // Opcional: Avisar al cliente que está esperando
-//       client.emit('waiting_for_match', { 
-//         message: 'Buscando oponente...',
-//         mode: mode 
-//       });
-//     }
-//   }
-// }
 
   // --- PADDLE MOVE (Juego en tiempo real) ---
 
@@ -381,7 +277,25 @@ TypeScript
     console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
   }
 
-//   // --- AUXILIAR (Futuro uso si la fisica la hace el servidor) ---
+  @SubscribeMessage('update_score')
+  handleScoreUpdate(@ConnectedSocket() client: Socket, @MessageBody() payload: { score: number[], ballDir: number }) {
+      // Buscamos la sala del cliente
+      // client.rooms es un Set. Contiene el socketId y el nombre de la sala (match_XX).
+      const rooms = Array.from(client.rooms);
+      const matchRoom = rooms.find(r => r.startsWith('match_'));
+
+      if (matchRoom) {
+          // Enviamos a la sala (excepto al que envía, o a todos, depende de la lógica)
+          // Usamos .to(matchRoom) para que llegue a todos.
+          // Player 2 recibirá esto y actualizará.
+          // Player 1 también, pero como ya actualizó localmente, no pasa nada (o podemos filtrar).
+          
+          // Mejor: client.to(matchRoom).emit(...) para que SOLO le llegue al rival.
+          client.to(matchRoom).emit('score_updated', payload);
+      }
+  }
+
+    //   // --- AUXILIAR (Futuro uso si la fisica la hace el servidor) ---
 //   emitScore(roomId: string, scorerId: string, newScore: [number, number]) {
 //     const payload: ScoreUpdateResponse = {
 //       score: newScore,

@@ -50,14 +50,24 @@ export class Ball
         this.firstHit = true;
         
         this.maxAngle = Math.PI / 4;
-
-        this.setDirection();
+        
+        // NO iniciamos movimiento automáticamente aquí para evitar desincronización
+        // Lo hará el Pong o el Servidor
+        // Inicio aleatorio solo la primera vez (si no hay servidor)
+        //this.setDirection(1);
     }
 
-    private setDirection()
+    private setDirection(direction: number = 0)
     {
-        const dirX = Math.random() < 0.5 ? -1 : 1;
-        const dirY = Math.random() * 2 - 1;
+        //const dirX = Math.random() < 0.5 ? -1 : 1;
+        //const dirY = Math.random() * 2 - 1;
+        // Si nos pasan dirección (1 o -1), la usamos. Si es 0, aleatorio.
+        const dirX = direction !== 0 ? direction : (Math.random() < 0.5 ? -1 : 1);
+        
+        // En los saques tras gol, usamos Y=0 para evitar problemas de sincro, 
+        // o un valor fijo pequeño.
+        const dirY = 0;
+        
         const leng = Math.sqrt(dirX * dirX + dirY * dirY);
 
         this.vx = (dirX / leng) * this.speed;
@@ -76,7 +86,9 @@ export class Ball
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    public async reset(): Promise<void>
+    //MODIFICADO: Acepta dirección opcional
+    //public async reset(): Promise<void>
+    public async reset(direction: number = 0): Promise<void>
     {
         this.waiting = this.firstHit = true;
 
@@ -85,7 +97,9 @@ export class Ball
 
         this.speed = this.initialSpeed;
 
-        this.setDirection();
+        //this.setDirection();
+        // Llamamos a setDirection con la dirección específica
+        this.setDirection(direction);
 
         await this.delay(1000);
         this.waiting = false;
@@ -110,21 +124,35 @@ export class Ball
         this.waiting = false;
     }
 
-    private goal()
+    // --- CAMBIO IMPORTANTE: YA NO CAMBIA EL SCORE NI HACE RESET ---
+    // Solo devuelve quién ha marcado: 0 (nadie), 1 (Izq marcó), 2 (Der marcó)
+    public checkBounds(): number
     {
-        if (this.x <= 5)
-        {
-            // Score player2
-            this.score[1]++;
-            this.reset();
-        }
-        else if (this.x >= this.canvasWidth - 5)
-        {
-            // Score player 1
-            this.score[0]++;
-            this.reset();
-        }
+        if (this.x <= 5) return 2; // Gol en la izquierda -> Punto para Jugador 2 (Derecha)
+        if (this.x >= this.canvasWidth - 5) return 1; // Gol en la derecha -> Punto para Jugador 1 (Izquierda)
+        return 0;
     }
+
+    // --- NUEVO: MÉTODO PARA FORZAR EL SCORE ---
+    public setScore(p1: number, p2: number) {
+        this.score = [p1, p2];
+    }
+
+    // private goal()
+    // {
+    //     if (this.x <= 5)
+    //     {
+    //         // Score player2
+    //         this.score[1]++;
+    //         this.reset(-1);
+    //     }
+    //     else if (this.x >= this.canvasWidth - 5)
+    //     {
+    //         // Score player 1
+    //         this.score[0]++;
+    //         this.reset(1);
+    //     }
+    // }
 
     private checkPaddle(player: Player)
     {
@@ -215,7 +243,7 @@ export class Ball
         this.paddleCollision(p);
         this.x += this.vx;
         this.y += this.vy;
-        this.goal();
+        //this.goal();
     }
 
     getScore(): number[]
