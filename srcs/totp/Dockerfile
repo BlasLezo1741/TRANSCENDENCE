@@ -19,7 +19,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
+# Seguridad: Usuario no-root
+RUN useradd -m totp && chown -R totp:totp /app
+USER totp
+COPY generate_encrypt_key.py .
+RUN python3 generate_encrypt_key.py
 
 # --- ETAPA 2: Final ---
 FROM python:3-slim
@@ -41,15 +45,18 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copiamos el código
 COPY . .
 
+
+
+# Seguridad: Usuario no-root
+RUN useradd -m totp && chown -R totp:totp /app
+USER totp
+
 # Create the specific directory structure your code expects for the master key.
 # The code looks for: os.environ["HOME"] + "/.ssh/.encrypt.key"
 # In Docker, HOME is usually /root
-RUN mkdir -p /root/.ssh
-
-# Seguridad: Usuario no-root
-RUN useradd -m myuser && chown -R myuser:myuser /app
-USER myuser
-
+RUN mkdir -p /home/totp/.ssh
+COPY --from=builder /home/totp/.ssh/.encrypt.key /home/totp/.ssh/.encrypt.key
+RUN chmod 400 /home/totp/.ssh/.encrypt.key
 # El valor por defecto (8000) solo se usa si NO se pasa el ARG desde docker-compose
 ARG TOTP_CONTAINER_PORT=8000
 # Convierte a ENV para runtime

@@ -48,6 +48,32 @@ def generate_random_key(length=40):
         f.write(random_key_b32)
     return pathfile
 
+def create_random_key(length=40):
+    """
+    Generates a cryptographically strong random key.
+    It ensures characters are within the printable ASCII range (32-126).
+    """
+    random_key_b = b''
+    count = 0
+    # Loop until we have the desired length of valid bytes
+    while count <= length:
+        # ssl.RAND_bytes uses the OS's cryptographically secure random generator
+        v = ssl.RAND_bytes(1)
+        # Check if the byte is a printable ASCII character
+        if 32 <= v[0] <= 126:
+            random_key_b = random_key_b + v
+            count = count + 1
+
+    # Encode the random bytes to Base32 for standard storage compatibility
+    random_key_b32 = base64.b32encode(random_key_b)
+    #cwd = os.getcwd()
+    #pathfile = os.path.join(cwd, 'ft_rand.key')
+
+    # Save the generated key to a file
+    #with open(pathfile, 'wb') as f:
+    #    f.write(random_key_b32)
+    #return pathfile
+    return random_key_b32
 
 def user_correct_length(argument):
     """
