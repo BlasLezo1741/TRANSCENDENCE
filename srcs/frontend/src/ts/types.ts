@@ -2,6 +2,7 @@ export type Screen =
     | "menu"
     | "sign"
     | "login"
+    | "profile"
     | "settings"
     | "pong";
 
@@ -9,14 +10,14 @@ export type Action =
     | { type: "MENU" }
     | { type: "SIGN" }
     | { type: "LOGIN" }
+    | { type: "PROFILE" }
     | { type: "SETTINGS" }
     | { type: "PONG" };
 
 export type GameMode =
     | "ia"
     | "local"
-    | "remote"
-    | "tournament";
+    | "remote";
 
 // Lo que recibimos cuando el rival se mueve
 export type GameUpdatePayload = {
