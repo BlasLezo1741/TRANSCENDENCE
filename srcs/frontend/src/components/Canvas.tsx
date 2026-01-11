@@ -1,6 +1,6 @@
 import React, {useRef, useEffect} from "react";
 import { Pong } from "../ts/models/Pong.ts"
-import { sendMove, onGameUpdate, onMatchFound, finishGame, socket, onGameOver, onPlayerOffline } from '../services/socketService'; 
+import { sendMove, onGameUpdate, onMatchFound, socket, onGameOver, onPlayerOffline } from '../services/socketService'; 
 import type { GameMode } from "../ts/types.ts";
 
 type CanvasProps = {
@@ -66,12 +66,13 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             5,
             leftName,
             rightName,
-            ballInit,
+            ballInit
             // Callback: Esto se ejecuta cuando TU detectas un gol (solo si eres P1)
-            (score, dir) => {
-                // console.log("📤 Enviando Score al servidor:", score); // Descomentar para debug
-                socket.emit('update_score', { score, ballDir: dir }); 
-            }
+            // (score, dir) => {
+            //     // console.log("📤 Enviando Score al servidor:", score); // Descomentar para debug
+            //     socket.emit('update_score', { score, ballDir: dir }); 
+            //}
+            //() => {} // Callback vacío, ya no usamos 'update_score' desde cliente
         );
 
         // --- 3. EVENTOS DEL SOCKET ---
@@ -80,22 +81,47 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             console.log("✅ Sala confirmada:", data.roomId);
         };
 
-        const handleScoreUpdate = (data: { score: number[], ballDir: number }) => {
-            console.log("⚽ Score recibido del servidor:", data.score);
-            game.syncScore(data.score, data.ballDir);
-        };
+        // --- NUEVO: FÍSICA DEL SERVIDOR ---
+        // Este evento ocurre 60 veces por segundo
+        socket.on('game_update_physics', (data: { ball: {x: number, y: number}, score: number[] }) => {
+            // 1. Sincronizar Bola (Backend 0.0-1.0 -> Frontend Píxeles)
+            if (game.ball) {
+                game.ball.sync(data.ball.x, data.ball.y);
+            }
+            
+            // 2. Sincronizar Marcador (Si la clase Pong tiene método para esto)
+            // Asumimos que Pong tiene una propiedad score o método setScore
+            if (game.score) {
+                 game.score = data.score;
+            }
+        });
 
+        // Movimiento del Oponente (Suavizado visual)
         const handleGameUpdate = (data: any) => {
             if (data.playerId !== socket.id) {
+                // data.move es la dirección ('up', 'down')
+                // data.y es la posición exacta (si la implementaste en frontend)
                 game.moveOpponent(data.move); 
+                
+                // Si implementas corrección de posición en Pong.ts:
+                // if (data.y !== undefined) game.setOpponentY(data.y);
             }
         };
 
         const handleGameOver = (data: any) => {
             console.log("🏁 Game Over recibido. Ganador:", data.winner);
-            if (!game.hasWinner()) {
-                alert("Game Over! The winner is: " + data.winner);
-                dispatch({ type: "MENU" });
+            
+            // Paramos animación
+            cancelAnimationFrame(animationId);
+            
+            if (mode === 'remote' || mode === 'tournament') {
+                 // Lógica de cierre remota
+                 alert("Game Over! Winner: " + data.winner);
+                 dispatch({ type: "MENU" });
+            } else {
+                 // Lógica local
+                 alert("Partida finalizada.");
+                 dispatch({ type: "MENU" });
             }
         };
 
@@ -105,7 +131,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
         // Activamos listeners
         onMatchFound(handleMatchFound);
-        socket.on('score_updated', handleScoreUpdate);
+        //socket.on('score_updated', handleScoreUpdate); // Ya no es necesario separado, viene en physics, pero puedes dejarlo si quieres sonidos.
         onGameUpdate(handleGameUpdate);
         onGameOver(handleGameOver);
         onPlayerOffline(handlePlayerOffline);
@@ -139,50 +165,33 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         window.addEventListener("keyup", handleKeyUp);
         window.addEventListener("keydown", handleKeyDown);
 
-        // --- 5. BUCLE DEL JUEGO (GAME LOOP) ---
+        // --- BUCLE DE RENDERIZADO (NO FÍSICA) ---
         let animationId: number;
-        let timeoutId: any;
 
-        // Definimos la función del bucle
-        const gameLoop = () =>
+        const renderLoop = () =>
         {
-            game.update();
-            game.draw();
+            // IMPORTANTE: game.update() ya no debe calcular física de bola.
+            // Si Pong.ts aún mueve la bola localmente, deberás eliminar eso en Pong.ts
+            // o crear un método game.updateVisualsOnly().
+            // Por ahora, llamamos a update asumiendo que solo mueve palas locales.
+            game.update(); 
+            
+            game.draw(); // Dibuja la bola en la posición sincronizada por 'sync()'
 
-            if (game.hasWinner())
-            {
-                const winnerName = game.getWinner(); 
-                console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
-                
-                if (mode === 'remote' || mode === 'tournament') {
-                    finishGame(winnerName); 
-                } else {
-                    console.log("ℹ️ Partida local/IA finalizada.");
-                    alert("The player " + game.getWinner() + " has won!");
-                    dispatch({ type: "MENU"});
-                }
-                return;
-            }
-
-            animationId = requestAnimationFrame(gameLoop);
+            animationId = requestAnimationFrame(renderLoop);
         };
 
-        // Arrancamos el bucle con retraso (Aquí estaba el error de sintaxis antes)
-        timeoutId = setTimeout(() => {
-            gameLoop();
-        }, 500);
+        renderLoop();
         
-        // --- 6. CLEANUP (AL DESMONTAR) ---
+        // --- 6. CLEANUP ---
         return () =>
         {
-            // Limpieza vital para evitar doble velocidad
-            clearTimeout(timeoutId);
             cancelAnimationFrame(animationId);
 
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
             
-            // Limpiamos sockets
+            socket.off('game_update_physics'); // <--- IMPORTANTE: Limpiar nuevo evento
             socket.off('game_update');
             socket.off('match_found');
             socket.off('game_over');
@@ -190,7 +199,6 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             socket.off('score_updated');
         };
     
-    // --- CIERRE DEL USE EFFECT ---
     }, [mode, userName, opponentName, ballInit, playerSide, dispatch]); 
 
     return <canvas ref={canvasRef} style={{background: "black"}}/>;

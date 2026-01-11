@@ -115,6 +115,10 @@ export const match = pgTable("match", {
     // CAMBIO IMPORTANTE: Ahora es un Foreign Key (Entero), no un Varchar
     mModeFk: smallint("m_mode_fk"), 
     mWinnerFk: integer("m_winner_fk"),
+	// --- NUEVAS COLUMNAS ---
+    mScoreP1: integer("m_score_p1").default(0),
+    mScoreP2: integer("m_score_p2").default(0),
+    mTotalHits: integer("m_total_hits").default(0),
 }, (table) => [
     foreignKey({
             columns: [table.mWinnerFk],
