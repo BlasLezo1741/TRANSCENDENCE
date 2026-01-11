@@ -31,7 +31,7 @@ const MenuScreen = ({ dispatch, setMode }: OptionsProps) =>
         <div>
             <h1>{t('modo')}</h1>
             <iframe
-  src="http://grafana:3000/public-dashboards/0932f23f73264f4ba45072dac6230a87"
+  src="http://localhost:4000/public-dashboards/c884460c9e5c426891797c029e78a282"
   width="100%"
   height="500"
   frameborder="0">

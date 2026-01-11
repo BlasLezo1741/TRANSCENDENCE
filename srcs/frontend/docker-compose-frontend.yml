@@ -4,6 +4,7 @@ services:
   frontend:
     build: .
     container_name: ${FE_CONTAINER_NAME}
+    image: ${FE_CONTAINER_NAME}        
     restart: on-failure
     ports:
       - ${FE_CONTAINER_PORT}:${FE_CONTAINER_PORT} # Puerto para el frontend

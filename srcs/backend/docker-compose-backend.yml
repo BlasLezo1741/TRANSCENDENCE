@@ -3,6 +3,7 @@ services:
   backend:
     build: .
     container_name: ${BE_CONTAINER_NAME}
+    image: ${BE_CONTAINER_NAME}    
     restart: on-failure
     depends_on:
       - ${DB_CONTAINER_NAME}

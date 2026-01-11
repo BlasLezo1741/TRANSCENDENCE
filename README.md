@@ -119,6 +119,44 @@ The 'Half-Man's' Tenacity: The Spanish commander gains an increasing bonus to th
 
 # Technical Stack
 ## Frontend
+
+### A keystone flag `-b´ in TypeScript
+
+The -b flag stands for Build Mode.
+
+This feature was introduced in TypeScript 3.0 to support Project References. 
+
+#### 1. What does it do exactly?
+
+When you run tsc -b:
+
++ **Dependency Awareness**: TypeScript doesn’t simply compile the current project; it also locates all the projects it depends on (as defined in tsconfig.json) and compiles them in the correct order.
+
++ **Incremental Compilation**: It only *recompiles what has changed*. If part of the code has already been compiled and its source files remain unchanged, tsc skips it to save time.
+
++ **Creation of .tsbuildinfo**: It generates a cache file that records what was compiled and when, allowing *future builds to run significantly faster*.
+
+#### 2. Why is it in your “build” script?
+
+The line "build": "tsc -b && vite build" is both a safety measure and an optimisation:
+
++ tsc -b (The Gatekeeper)  
+    First, TypeScript checks that there are no type errors anywhere in your project (or its dependencies). If it finds an error—for example, passing a string where a number is expected—the process stops immediately and never reaches Vite. This prevents you from producing a production bundle containing logical mistakes.
+
++    &&  
+    This operator means: “If the first command succeeds, run the second.”
+
++   vite build (The Packager)  
+    Once the code is confirmed to be type‑safe, Vite takes the files, minifies and optimises them, and produces the dist folder ready for your production container.
+
+In summary
+
+In your microservice, the -b flag ensures that all related modules are compiled efficiently and incrementally, guaranteeing that your code is solid before Vite transforms it into final production assets. 
+
+It is particularly useful sharing share code (such as DTOs) across multiple microservices, as -b will automatically manage those dependencies.
+
+For tsc -b to work correctly, the tsconfig.json file must have the option "composite": true
+
 ## Backend
 ## Database system
 

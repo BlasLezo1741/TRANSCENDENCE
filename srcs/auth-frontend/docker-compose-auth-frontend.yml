@@ -1,0 +1,15 @@
+services:
+  auth-test-frontend:
+    build: .
+    container_name: auth-test-frontend
+    image: auth-test-frontend
+    restart: on-failure      
+    ports:
+      - "5174:5173" # Accedemos por el 5174 para evitar conflictos
+    env_file:
+      - ../.env
+    networks:
+      transcendence_net:
+        ipv4_address: ${AUF_IP}  # Fixed IP
+        aliases:
+          - in_net
