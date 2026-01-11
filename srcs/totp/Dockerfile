@@ -50,8 +50,19 @@ RUN mkdir -p /root/.ssh
 RUN useradd -m myuser && chown -R myuser:myuser /app
 USER myuser
 
-EXPOSE 8000
+# El valor por defecto (8000) solo se usa si NO se pasa el ARG desde docker-compose
+ARG TOTP_CONTAINER_PORT=8000
+# Convierte a ENV para runtime
+ENV PORT=${TOTP_CONTAINER_PORT}
+
+EXPOSE ${TOTP_CONTAINER_PORT}
 
 # Al estar el venv en el PATH, 'uvicorn' se encontrará directamente
 #CMD ["uvicorn", "totp:app", "--host", "0.0.0.0", "--port", "8000"]
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD uvicorn app:app --host 0.0.0.0 --port ${PORT}
+
+# ✅ FUNCIONA - pero sin variables
+#CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# ✅ FUNCIONA - usa /bin/sh -c para expandir variables
+#CMD uvicorn app:app --host 0.0.0.0 --port ${TOTP_CONTAINER_PORT}

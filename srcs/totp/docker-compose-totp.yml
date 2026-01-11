@@ -1,6 +1,9 @@
 services:
   totp:
-    build: .
+    build:
+      context: .
+      args:
+        TOTP_CONTAINER_PORT: ${TOTP_CONTAINER_PORT}
     container_name: ${TOTP_CONTAINER_NAME}
     image: ${TOTP_CONTAINER_NAME}
     ports:
