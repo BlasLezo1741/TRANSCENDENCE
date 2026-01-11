@@ -37,7 +37,7 @@ CREATE TABLE STATUS (
 
 CREATE TABLE PLAYER ( 
     p_pk integer generated always as identity PRIMARY KEY,
-    p_nick VARCHAR(255) NOT NULL,
+    p_nick VARCHAR(20) UNIQUE NOT NULL,
     p_mail CITEXT UNIQUE NOT NULL, --Case insensitive
     p_pass TEXT NOT NULL,
     p_totp_secret BYTEA, --encrypted 2fa secret
