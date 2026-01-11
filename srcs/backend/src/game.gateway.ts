@@ -81,11 +81,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Constantes de física del servidor (Ajustables)
   private readonly SERVER_WIDTH = 1.0; // Normalizado
   private readonly SERVER_HEIGHT = 1.0; // Normalizado
-  private readonly PADDLE_HEIGHT = 0.2; // 20% de la pantalla (ajusta a tu gusto)
+  private readonly PADDLE_HEIGHT = 0.17; // 20% de la pantalla (ajusta a tu gusto)
   private readonly BALL_SIZE = 0.02;    // Tamaño bola normalizado
-  private readonly INITIAL_SPEED = 0.015; // Velocidad inicial por frame
-  private readonly SPEED_INCREMENT = 1.05; // 5% más rápido cada golpe
-  
+  private readonly INITIAL_SPEED = 0.01; // Velocidad inicial por frame
+  private readonly SPEED_INCREMENT = 1.02; // 5% más rápido cada golpe
+  private readonly MAX_SCORE = 5;
+
   constructor(
     @Inject(DRIZZLE) 
     private readonly db: PostgresJsDatabase<typeof schema>,
@@ -108,10 +109,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     });
 
-    this.server.emit('player_offline', {
-      userId: client.id,
-      reconnectWindow: 30
-    });
+    // Limpiar partida activa
+    for (const [roomId, game] of this.games.entries()) {
+        if (game.playerLeftId === client.id || game.playerRightId === client.id) {
+             console.log(`⚠️ Jugador desconectado en partida ${roomId}. Terminando...`);
+             this.stopGameLoop(roomId); 
+             this.server.to(roomId).emit('opponent_disconnected');
+        }
+    }
   }
 
   @SubscribeMessage('join_queue')
@@ -206,21 +211,21 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // --- INICIAR EL BUCLE DE SERVIDOR ---
         this.startGameLoop(roomId, client.id, opponent.id, p1Db.pPk, p2Db.pPk);
 
-        // Respuestas (Ahora incluyen ballInit)
-        const responseP1: MatchFoundResponse = {
+const responseP1: MatchFoundResponse = {
           roomId,
           matchId: tempMatchId,
           side: 'left',
-          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' },
-          //ballInit: ballInit
-          ballInit: { x: 0.5, y: 0.5 } // Dato dummy, el loop enviará la real
+          // CORRECCIÓN: El rival de P1 es P2 (client)
+          opponent: { name: client.data.user.pNick, avatar: 'default.png' },
+          ballInit: { x: 0.5, y: 0.5 } 
         };
 
         const responseP2: MatchFoundResponse = {
           roomId,
           matchId: tempMatchId,
           side: 'right',
-          opponent: { name: client.data.user.pNick, avatar: 'default.png' },
+          // CORRECCIÓN: El rival de P2 es P1 (opponent)
+          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }, 
           ballInit: { x: 0.5, y: 0.5 }
         };
 
@@ -274,7 +279,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       
       this.server.to(roomId).emit('game_update_physics', {
         ball: { x: state.ball.x, y: state.ball.y },
-        score: state.score
+        score: state.score,
+        paddles: { left: state.paddles.left, right: state.paddles.right }
       });
 
     }, 16); 
@@ -283,6 +289,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   private updateGamePhysics(state: GameState) {
+
     state.ball.x += state.ball.vx;
     state.ball.y += state.ball.vy;
 
@@ -294,29 +301,41 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const paddleHalf = this.PADDLE_HEIGHT / 2;
     
-    // Colisión Pala Izquierda
-    if (state.ball.x <= this.BALL_SIZE) { 
+    // --- COLISIÓN PALA IZQUIERDA (P1) ---
+    // Usamos <= BallSize + un margen pequeño para detectar colisión
+    if (state.ball.x <= this.BALL_SIZE + 0.01) { 
         if (state.ball.y >= state.paddles.left - paddleHalf && 
             state.ball.y <= state.paddles.left + paddleHalf) {
             
+            // 1. Invertir dirección X
             state.ball.vx *= -1; 
-            state.stats.totalHits++; // Contamos toque
+            
+            // 2. Aumentar velocidad y stats
+            state.stats.totalHits++; 
             state.ball.speed *= this.SPEED_INCREMENT; 
+            
+            // 3. Calcular ángulo (¡MANTENER ESTO!)
             this.adjustAngle(state, state.paddles.left);
-            state.ball.x = this.BALL_SIZE + 0.005; // Desatascar
+            
+            // 4. CRÍTICO: "SNAP" / DESATASCAR
+            // Forzamos a la bola a estar FUERA de la pala y un poco más allá
+            // Esto evita que en el siguiente frame se vuelva a detectar colisión
+            state.ball.x = this.BALL_SIZE + 0.02; 
         }
     }
     
-    // Colisión Pala Derecha
-    if (state.ball.x >= (this.SERVER_WIDTH - this.BALL_SIZE)) {
+    // --- COLISIÓN PALA DERECHA (P2) ---
+    else if (state.ball.x >= (this.SERVER_WIDTH - this.BALL_SIZE - 0.01)) {
         if (state.ball.y >= state.paddles.right - paddleHalf && 
             state.ball.y <= state.paddles.right + paddleHalf) {
             
             state.ball.vx *= -1;
-            state.stats.totalHits++; // Contamos toque
+            state.stats.totalHits++;
             state.ball.speed *= this.SPEED_INCREMENT;
             this.adjustAngle(state, state.paddles.right);
-            state.ball.x = (this.SERVER_WIDTH - this.BALL_SIZE) - 0.005; 
+            
+            // 4. CRÍTICO: "SNAP" / DESATASCAR DERECHA
+            state.ball.x = (this.SERVER_WIDTH - this.BALL_SIZE) - 0.02; 
         }
     }
 
@@ -325,21 +344,41 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         state.score[1]++;
         this.server.to(state.roomId).emit('score_updated', { score: state.score });
         this.resetBall(state);
+        this.checkWinner(state);
     } else if (state.ball.x > 1.05) { 
         state.score[0]++;
         this.server.to(state.roomId).emit('score_updated', { score: state.score });
         this.resetBall(state);
+        this.checkWinner(state);
     }
+  }
+
+  private checkWinner(state: GameState) {
+      if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
+          // Determinar ganador
+          const winnerId = state.score[0] >= this.MAX_SCORE ? state.playerLeftId : state.playerRightId;
+          const winnerNick = state.score[0] >= this.MAX_SCORE ? "Player 1" : "Player 2"; // O busca el nick real si lo tienes a mano
+
+          // Llamamos a finish game logic
+          // Simulamos un DTO para reutilizar la lógica o llamamos directo a saveMatch
+          this.stopGameLoop(state.roomId);
+          this.saveMatchToDb(state, winnerNick).then(() => {
+             this.server.to(state.roomId).emit('game_over', { winner: winnerNick });
+          });
+      }
   }
 
   private resetBall(state: GameState) {
       state.ball.x = 0.5;
       state.ball.y = 0.5;
       state.ball.speed = this.INITIAL_SPEED;
-      const dirX = Math.random() < 0.5 ? -1 : 1;
-      const angle = (Math.random() * 2 - 1) * (Math.PI / 5); 
-      state.ball.vx = dirX * Math.cos(angle) * state.ball.speed;
-      state.ball.vy = Math.sin(angle) * state.ball.speed;
+      // const dirX = Math.random() < 0.5 ? -1 : 1;
+      // const angle = (Math.random() * 2 - 1) * (Math.PI / 5); 
+      // state.ball.vx = dirX * Math.cos(angle) * state.ball.speed;
+      // state.ball.vy = Math.sin(angle) * state.ball.speed;
+      // Simplifiquemos el saque para probar
+      state.ball.vx = (Math.random() < 0.5 ? -1 : 1) * state.ball.speed;
+      state.ball.vy = 0;
   }
 
   private adjustAngle(state: GameState, paddleY: number) {
@@ -358,9 +397,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const game = this.games.get(payload.roomId);
     if (!game) return;
 
-    // Asumimos que payload trae 'y' (0 a 1)
-    // Si no, lo adaptamos temporalmente
-    const newY = (payload as any).y !== undefined ? (payload as any).y : (payload.direction === 1 ? 0.8 : 0.2); 
+    // Lógica Híbrida: Si viene 'y' úsalo, si viene 'direction' aproxímalo
+    let newY = 0.5;
+    if (payload.y !== undefined) {
+        newY = payload.y;
+    } else if (payload.direction) {
+        if (payload.direction === 'up') newY = Math.max(0, (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right) - 0.05);
+        else if (payload.direction === 'down') newY = Math.min(1, (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right) + 0.05);
+        else newY = (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right);
+    }
 
     if (client.id === game.playerLeftId) game.paddles.left = newY;
     else if (client.id === game.playerRightId) game.paddles.right = newY;
@@ -397,39 +442,35 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
   }
     
-    
     // MÉTODO EXTRAÍDO CORRECTAMENTE
-  private async saveMatchToDb(state: GameState, winnerNick: string) {
+private async saveMatchToDb(state: GameState, winnerNick: string) {
+    // 1. Usamos winnerNick en el log para callar la advertencia de "unused variable"
+    console.log(`💾 Guardando partida. Ganador nominal: ${winnerNick}`);
+
     const durationMs = Date.now() - state.stats.startTime.getTime();
     
-    // Determinar ID del ganador
-    // Nota: winnerNick viene del frontend, state tiene los IDs
-    // Asumimos que winnerNick coincide con el nick del playerLeft o Right
-    // Si no, podríamos necesitar pasar el nick en el state también.
-    // Por seguridad, usamos los IDs de la sesión
-    // Simplificación: si winnerNick == nickLeft => gana LeftDbId
-    
-    // NOTA: Para hacerlo robusto, mejor pasar quién ganó (izquierda o derecha) desde lógica interna
-    // o confiar en el frontend si es match amistoso.
-    // Aquí asumimos que el ganador es uno de los dos IDs guardados.
-    
-    // Lógica rápida para saber PK del ganador (necesitaríamos saber los nicks en state para comparar string)
-    // Vamos a asumir que winnerId es el PK o lo buscamos de nuevo, 
-    // O MEJOR: Comparamos puntuación del server que es la fiable.
-    
-    let winnerPk = null;
-    if (state.score[0] > state.score[1]) winnerPk = state.playerLeftDbId;
-    else if (state.score[1] > state.score[0]) winnerPk = state.playerRightDbId;
-    else winnerPk = state.playerLeftDbId; // Empate o default
+    // 2. CORRECCIÓN CLAVE: Tipado explícito para permitir null
+    let winnerPk: number | null = null; 
+
+    // Lógica para determinar ID del ganador basado en puntuación real
+    if (state.score[0] > state.score[1]) {
+        winnerPk = state.playerLeftDbId;
+    } else if (state.score[1] > state.score[0]) {
+        winnerPk = state.playerRightDbId;
+    } else {
+        // En caso de empate técnico o fallo, asignamos al Player 1 por defecto 
+        // o lo dejamos null si tu DB lo permite. Por seguridad ponemos P1.
+        winnerPk = state.playerLeftDbId; 
+    }
 
     try {
         await this.db.insert(schema.match).values({
-            mModeFk: 1, // OJO: Deberías guardar el modeId en GameState también para ponerlo aquí
+            mModeFk: 1, 
             mDate: state.stats.startTime.toISOString(), 
-            mDuration: durationMs + ' milliseconds', // Postgres interval format simple
+            mDuration: durationMs.toString() + ' milliseconds', // Cast a string para evitar líos de tipos
             mWinnerFk: winnerPk,
             
-            // NUEVOS CAMPOS
+            // Datos nuevos
             mScoreP1: state.score[0],
             mScoreP2: state.score[1],
             mTotalHits: state.stats.totalHits

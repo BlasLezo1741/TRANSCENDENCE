@@ -31,12 +31,10 @@ export class Pong
         ctx: CanvasRenderingContext2D,
         mode: GameMode,
         n: number,
-        //max: number,
         leftPlayerName: string,
         rightPlayerName: string,
         ballInit: { x: number, y: number } | null = null,
         // Callback vacío para mantener compatibilidad si no quieres borrarlo en Canvas.tsx
-        //onScoreUpdate: (score: number[], ballDir: number) => void
     )
     {
         this.c = c;

@@ -17,6 +17,9 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    const roomIdRef = useRef<string>(""); // Aquí guardaremos el ID de la sala
+    const lastSentY = useRef<number>(0.5); // Aquí la última posición enviada
+
     // -----------------------------------------------------------
     // INICIO DEL USE EFFECT (Todo ocurre aquí dentro)
     // -----------------------------------------------------------
@@ -35,7 +38,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         let leftName = "P1";
         let rightName = "P2";
 
-        if (mode === 'remote' || mode === 'tournament') {
+        if (mode.includes('remote') || mode === 'tournament') {
             if (playerSide === 'left') {
                 finalPlayerNumber = 1;
                 leftName = userName;
@@ -56,6 +59,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         }
 
         console.log(`🎮 INICIANDO JUEGO [${mode}] | Soy: ${finalPlayerNumber} (${playerSide})`);
+        console.log(`⚔️ MATCH: ${leftName} (Izda) vs ${rightName} (Dcha)`);
 
         // --- 2. INSTANCIAR JUEGO ---
         const game = new Pong(
@@ -63,35 +67,55 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             ctx,
             mode,
             finalPlayerNumber,
-            5,
             leftName,
             rightName,
             ballInit
-            // Callback: Esto se ejecuta cuando TU detectas un gol (solo si eres P1)
-            // (score, dir) => {
-            //     // console.log("📤 Enviando Score al servidor:", score); // Descomentar para debug
-            //     socket.emit('update_score', { score, ballDir: dir }); 
-            //}
-            //() => {} // Callback vacío, ya no usamos 'update_score' desde cliente
         );
 
         // --- 3. EVENTOS DEL SOCKET ---
 
         const handleMatchFound = (data: any) => {
             console.log("✅ Sala confirmada:", data.roomId);
+            roomIdRef.current = data.roomId;
         };
 
         // --- NUEVO: FÍSICA DEL SERVIDOR ---
         // Este evento ocurre 60 veces por segundo
-        socket.on('game_update_physics', (data: { ball: {x: number, y: number}, score: number[] }) => {
-            // 1. Sincronizar Bola (Backend 0.0-1.0 -> Frontend Píxeles)
-            if (game.ball) {
-                game.ball.sync(data.ball.x, data.ball.y);
+        socket.on('game_update_physics', (data: any) => {
+            if (!game) return;
+
+            // 1. SINCRONIZAR BOLA
+            if (game.ball && data.ball) {
+                // Multiplicamos AQUÍ por width/height
+                const pixelX = data.ball.x * canvas.width;
+                const pixelY = data.ball.y * canvas.height;
+                
+                // Pasamos píxeles ya calculados
+                game.ball.sync(pixelX, pixelY);
             }
             
-            // 2. Sincronizar Marcador (Si la clase Pong tiene método para esto)
-            // Asumimos que Pong tiene una propiedad score o método setScore
-            if (game.score) {
+            // 2. SINCRONIZAR PALA DEL OPONENTE (Corregido: Centro -> Top-Left)
+            if (data.paddles) {
+                // 1. Obtenemos la posición Y del servidor (0.0 a 1.0) -> Es el CENTRO
+                const serverY = (game.playerNumber === 1 ? data.paddles.right : data.paddles.left);
+                
+                // 2. Convertimos a Píxeles (Sigue siendo el centro en píxeles)
+                const centerInPixels = serverY * canvas.height;
+
+                // 3. ¡CRÍTICO! Restamos la mitad de la altura para obtener la esquina superior
+                // Usamos la altura real definida en tu clase Player (100)
+                const topLeftY = centerInPixels - (game.player2.getHeight() / 2);
+
+                // 4. Asignamos
+                if (game.playerNumber === 1) {
+                    game.player2.y = topLeftY; 
+                } else {
+                    game.player1.y = topLeftY; 
+                }
+            }
+            
+            // 3. Sincronizar MARCADOR
+            if (game.score && data.score) {
                  game.score = data.score;
             }
         });
@@ -147,7 +171,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         };
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (game.keysPressed[e.key]) return;
+            //if (game.keysPressed[e.key]) return;
             game.keysPressed[e.key] = true;
             
             if (mode !== 'ia') {
@@ -170,13 +194,27 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
         const renderLoop = () =>
         {
-            // IMPORTANTE: game.update() ya no debe calcular física de bola.
-            // Si Pong.ts aún mueve la bola localmente, deberás eliminar eso en Pong.ts
-            // o crear un método game.updateVisualsOnly().
-            // Por ahora, llamamos a update asumiendo que solo mueve palas locales.
             game.update(); 
-            
-            game.draw(); // Dibuja la bola en la posición sincronizada por 'sync()'
+            game.draw(); 
+
+            // --- ENVIAR POSICIÓN AL SERVIDOR ---
+            if (mode.includes('remote') || mode === 'tournament') {
+                const myPlayer = game.playerNumber === 1 ? game.player1 : game.player2;
+                
+                // Calculamos centro normalizado
+                const myCenterY = (myPlayer.y + (myPlayer.height / 2)) / canvas.height;
+
+                // Usamos roomIdRef.current en lugar de data.roomId
+                if (roomIdRef.current && Math.abs(myCenterY - lastSentY.current) > 0.001) {
+                    
+                    socket.emit('paddle_move', { 
+                        roomId: roomIdRef.current, // <--- AQUI ESTABA EL ERROR
+                        y: myCenterY 
+                    });
+                    
+                    lastSentY.current = myCenterY;
+                }
+            }
 
             animationId = requestAnimationFrame(renderLoop);
         };
@@ -192,11 +230,11 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             window.removeEventListener("keyup", handleKeyUp);
             
             socket.off('game_update_physics'); // <--- IMPORTANTE: Limpiar nuevo evento
-            socket.off('game_update');
-            socket.off('match_found');
+            //socket.off('game_update');
+            //socket.off('match_found');
             socket.off('game_over');
             socket.off('player_offline');
-            socket.off('score_updated');
+            //socket.off('score_updated');
         };
     
     }, [mode, userName, opponentName, ballInit, playerSide, dispatch]); 

@@ -20,7 +20,7 @@ export class Ball
         // Radio relativo al ancho (ej. 1% del ancho) o fijo
         // Si en backend es 0.02 (2%), aquí debería ser similar visualmente.
         // 0.02 * width / 2 (porque es radio) = 0.01 * width
-        this.radious = c.width * 0.015;
+        this.radious = c.width * 0.008;
     }
         // Método para dibujar (Lo único que hace ahora)
     draw(ctx: CanvasRenderingContext2D) {
@@ -33,11 +33,18 @@ export class Ball
 
     /**
      * SINCRONIZACIÓN (La clave del nuevo sistema)
-     * Recibe coordenadas normalizadas del servidor (0.0 a 1.0)
-     * y las convierte a píxeles de la pantalla del usuario.
-     */
-    sync(serverX: number, serverY: number) {
-        this.x = serverX * this.canvasWidth;
-        this.y = serverY * this.canvasHeight;
+    //  * Recibe coordenadas normalizadas del servidor (0.0 a 1.0)
+    //  * y las convierte a píxeles de la pantalla del usuario.
+    //  */
+    // sync(serverX: number, serverY: number) {
+    //     this.x = serverX * this.canvasWidth;
+    //     this.y = serverY * this.canvasHeight;
+    //}
+    // * SINCRONIZACIÓN
+    //  * Ahora recibe PIXELES directos desde Canvas.tsx
+    //  */
+    sync(x: number, y: number) {
+        this.x = x;
+        this.y = y;
     }
 }

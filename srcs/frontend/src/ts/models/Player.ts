@@ -13,12 +13,13 @@ export class Player
     {
         this.nickname = name;
         this.x = x;
-        this.y = 250;
         this.width = 10;
         this.height = 100;
         this.speed = 10;
         this.speedIA = 5;
         this.canvasHeight = h;
+        // MEJORA: Centrar verticalmente según la altura real del canvas
+        this.y = (h / 2) - (this.height / 2);
     }
 
     moveIA(ballPosition: number)
@@ -49,7 +50,17 @@ export class Player
 
     draw(ctx: CanvasRenderingContext2D)
     {
+        ctx.fillStyle = "white"; // Aseguramos color blanco
         ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    // --- NUEVO: Útil para enviar posición absoluta al server (0.0 a 1.0) ---
+    getNormalizedY(): number {
+        // Posición visual (Top) + Mitad de altura = Centro
+        const centerY = this.y + (this.height / 2);
+        
+        // Normalizamos (0.0 a 1.0)
+        return centerY / this.canvasHeight;
     }
 
     getX(): number
