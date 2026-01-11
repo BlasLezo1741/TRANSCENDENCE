@@ -7,7 +7,7 @@ export TRANSCENDENCE_HOME
 
 
 # Definir los nombres de los servicios
-SERVICE1 = 2faserver
+SERVICE1 = totp
 SERVICE2 = dbserver
 SERVICE3 = backend
 SERVICE4 = frontend
