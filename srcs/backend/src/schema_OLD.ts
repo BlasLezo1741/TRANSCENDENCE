@@ -1,18 +1,65 @@
 import { pgTable, smallint, jsonb, foreignKey, char, varchar, boolean, integer, timestamp, date, doublePrecision, interval, primaryKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
-// --- 1. LOOKUP TABLES (Define these first so others can reference them) ---
+
 
 export const metricCategory = pgTable("metric_category", {
 	metricCatePk: smallint("metric_cate_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_category_metric_cate_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
 	metricCateI18NName: jsonb("metric_cate_i18n_name").notNull(),
 });
 
+export const metric = pgTable("metric", {
+	metricPk: smallint("metric_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_metric_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	metricCatFk: smallint("metric_cat_fk"),
+	metricI18NName: jsonb("metric_i18n_name").notNull(),
+	metricI18NDescription: jsonb("metric_i18n_description").notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.metricCatFk],
+			foreignColumns: [metricCategory.metricCatePk],
+			name: "metric_metric_cat_fk_fkey"
+		}),
+]);
+
 export const pLanguage = pgTable("p_language", {
 	langPk: char("lang_pk", { length: 2 }).primaryKey().notNull(),
 	langName: varchar("lang_name", { length: 255 }),
 	langStatus: boolean("lang_status"),
 });
+
+export const player = pgTable("player", {
+	pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
+	pNick: varchar("p_nick", { length: 255 }),
+	pMail: varchar("p_mail", { length: 255 }),
+	pPass: varchar("p_pass", { length: 255 }),
+	pReg: timestamp("p_reg", { mode: 'string' }),
+	pBir: date("p_bir"),
+	pLang: char("p_lang", { length: 2 }),
+	pCountry: char("p_country", { length: 2 }),
+	pRole: smallint("p_role"),
+	pStatus: smallint("p_status"),
+}, (table) => [
+	foreignKey({
+			columns: [table.pLang],
+			foreignColumns: [pLanguage.langPk],
+			name: "player_p_lang_fkey"
+		}),
+	foreignKey({
+			columns: [table.pCountry],
+			foreignColumns: [country.coun2Pk],
+			name: "player_p_country_fkey"
+		}),
+	foreignKey({
+			columns: [table.pRole],
+			foreignColumns: [pRole.rolePk],
+			name: "player_p_role_fkey"
+		}),
+	foreignKey({
+			columns: [table.pStatus],
+			foreignColumns: [status.statusPk],
+			name: "player_p_status_fkey"
+		}),
+]);
 
 export const country = pgTable("country", {
 	counName: char("coun_name", { length: 52 }),
@@ -38,128 +85,6 @@ export const status = pgTable("status", {
 	statusI18NName: jsonb("status_i18n_name").notNull(),
 });
 
-export const matchMode = pgTable("match_mode", {
-    mmodPk: smallint("mmod_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_mode_mmod_pk_seq", startWith: 1, increment: 1 }),
-    mmodName: varchar("mmod_name", { length: 20 }),
-});
-
-export const organization = pgTable("organization", {
-	orgPk: smallint("org_pk").primaryKey().generatedAlwaysAsIdentity({ name: "organization_org_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	orgName: varchar("org_name", { length: 255 }),
-});
-
-// --- 2. DEPENDENT TABLES (These reference the tables above) ---
-
-export const metric = pgTable("metric", {
-	metricPk: smallint("metric_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_metric_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	metricCatFk: smallint("metric_cat_fk"),
-	metricI18NName: jsonb("metric_i18n_name").notNull(),
-	metricI18NDescription: jsonb("metric_i18n_description").notNull(),
-}, (table) => [
-	foreignKey({
-			columns: [table.metricCatFk],
-			foreignColumns: [metricCategory.metricCatePk],
-			name: "metric_metric_cat_fk_fkey"
-		}),
-]);
-/*
-export const player = pgTable("player", {
-    pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-    pNick: varchar("p_nick", { length: 255 }).unique().notNull(),
-    pMail: varchar("p_mail", { length: 255 }).unique().notNull(),
-    pPass: varchar("p_pass", { length: 255 }).notNull(),
-    pReg: timestamp("p_reg", { mode: 'string' }).defaultNow(),
-    pBir: date("p_bir"),
-    pLang: char("p_lang", { length: 2 }),
-    pCountry: char("p_country", { length: 2 }),
-    pRole: smallint("p_role").default(1), 
-    pStatus: smallint("p_status").default(1),
-}, (table) => [
-    foreignKey({
-            columns: [table.pLang],
-            foreignColumns: [pLanguage.langPk],
-            name: "player_p_lang_fkey"
-        }),
-    foreignKey({
-            columns: [table.pCountry],
-            foreignColumns: [country.coun2Pk], // Now 'country' is defined above, this is safe
-            name: "player_p_country_fkey"
-        }),
-    foreignKey({
-            columns: [table.pRole],
-            foreignColumns: [pRole.rolePk],    // Now 'pRole' is defined above, this is safe
-            name: "player_p_role_fkey"
-        }),
-    foreignKey({
-            columns: [table.pStatus],
-            foreignColumns: [status.statusPk], // Now 'status' is defined above, this is safe
-            name: "player_p_status_fkey"
-        }),
-]);
-*/
-
-export const player = pgTable("player", {
-    pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-    
-    // CHANGE: Length set to 20 to match SQL
-    pNick: varchar("p_nick", { length: 20 }).unique().notNull(),
-    
-    pMail: varchar("p_mail", { length: 255 }).unique().notNull(),
-    pPass: varchar("p_pass", { length: 255 }).notNull(),
-    pReg: timestamp("p_reg", { mode: 'string' }).defaultNow(),
-    pBir: date("p_bir"),
-    pLang: char("p_lang", { length: 2 }),
-    pCountry: char("p_country", { length: 2 }),
-    pRole: smallint("p_role").default(1), 
-    pStatus: smallint("p_status").default(1),
-}, (table) => [
-    // ... keep your existing foreign keys ...
-    foreignKey({
-            columns: [table.pLang],
-            foreignColumns: [pLanguage.langPk],
-            name: "player_p_lang_fkey"
-        }),
-    foreignKey({
-            columns: [table.pCountry],
-            foreignColumns: [country.coun2Pk],
-            name: "player_p_country_fkey"
-        }),
-    foreignKey({
-            columns: [table.pRole],
-            foreignColumns: [pRole.rolePk],
-            name: "player_p_role_fkey"
-        }),
-    foreignKey({
-            columns: [table.pStatus],
-            foreignColumns: [status.statusPk],
-            name: "player_p_status_fkey"
-        }),
-]);
-
-// Alias for compatibility
-export const users = player;
-
-export const match = pgTable("match", {
-    mPk: integer("m_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_m_pk_seq", startWith: 1, increment: 1 }),
-    mDate: timestamp("m_date", { mode: 'string' }),
-    mDuration: interval("m_duration"),
-    mModeFk: smallint("m_mode_fk"), 
-    mWinnerFk: integer("m_winner_fk"),
-}, (table) => [
-    foreignKey({
-            columns: [table.mWinnerFk],
-            foreignColumns: [player.pPk],
-            name: "match_m_winner_fk_fkey"
-        }),
-    foreignKey({
-            columns: [table.mModeFk],
-            foreignColumns: [matchMode.mmodPk],
-            name: "match_m_mode_fk_fkey"
-        }),
-]);
-
-// --- 3. DEEPLY NESTED TABLES (These reference tables from group 2) ---
-
 export const matchmetric = pgTable("matchmetric", {
 	mmPk: integer("mm_pk").primaryKey().generatedAlwaysAsIdentity({ name: "matchmetric_mm_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
 	mmMatchFk: integer("mm_match_fk"),
@@ -168,7 +93,7 @@ export const matchmetric = pgTable("matchmetric", {
 }, (table) => [
 	foreignKey({
 			columns: [table.mmMatchFk],
-			foreignColumns: [match.mPk], // match is defined above
+			foreignColumns: [match.mPk],
 			name: "matchmetric_mm_match_fk_fkey"
 		}),
 	foreignKey({
@@ -176,6 +101,32 @@ export const matchmetric = pgTable("matchmetric", {
 			foreignColumns: [metric.metricPk],
 			name: "matchmetric_mm_code_fk_fkey"
 		}),
+]);
+
+export const matchMode = pgTable("match_mode", {
+    mmodPk: smallint("mmod_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_mode_mmod_pk_seq", startWith: 1, increment: 1 }),
+    mmodName: varchar("mmod_name", { length: 20 }),
+});
+
+export const match = pgTable("match", {
+    mPk: integer("m_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_m_pk_seq", startWith: 1, increment: 1 }),
+    mDate: timestamp("m_date", { mode: 'string' }),
+    mDuration: interval("m_duration"),
+    // CAMBIO IMPORTANTE: Ahora es un Foreign Key (Entero), no un Varchar
+    mModeFk: smallint("m_mode_fk"), 
+    mWinnerFk: integer("m_winner_fk"),
+}, (table) => [
+    foreignKey({
+            columns: [table.mWinnerFk],
+            foreignColumns: [player.pPk],
+            name: "match_m_winner_fk_fkey"
+        }),
+    // AÑADIMOS LA RELACIÓN CON EL MODO
+    foreignKey({
+            columns: [table.mModeFk],
+            foreignColumns: [matchMode.mmodPk],
+            name: "match_m_mode_fk_fkey"
+        }),
 ]);
 
 export const playerOrganization = pgTable("player_organization", {
@@ -193,6 +144,11 @@ export const playerOrganization = pgTable("player_organization", {
 			name: "player_organization_po_org_fk_fkey"
 		}),
 ]);
+
+export const organization = pgTable("organization", {
+	orgPk: smallint("org_pk").primaryKey().generatedAlwaysAsIdentity({ name: "organization_org_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	orgName: varchar("org_name", { length: 255 }),
+});
 
 export const playerFriend = pgTable("player_friend", {
 	friendPk: integer("friend_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_friend_friend_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
@@ -248,4 +204,3 @@ export const competitormetric = pgTable("competitormetric", {
 		}),
 	primaryKey({ columns: [table.mcmPlayerFk, table.mcmMetricFk, table.mcmMatchFk], name: "competitormetric_pkey"}),
 ]);
-

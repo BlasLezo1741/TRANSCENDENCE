@@ -35,9 +35,10 @@ CREATE TABLE STATUS (
     status_i18n_name JSONB NOT NULL -- Estructura: {"en": "Busy", "es": "Ocupado"}
 );
 
+/* OLD SCHEMA
 CREATE TABLE PLAYER ( 
     p_pk integer generated always as identity PRIMARY KEY,
-    p_nick VARCHAR(255),
+    p_nick VARCHAR(20),
     p_mail VARCHAR(255),
     p_pass VARCHAR(255),
     p_reg TIMESTAMP,
@@ -46,6 +47,20 @@ CREATE TABLE PLAYER (
     p_country char(2) REFERENCES COUNTRY(coun2_pk),
     p_role smallint REFERENCES P_ROLE(role_pk),
     p_status smallint REFERENCES STATUS(status_pk)
+);
+*/
+
+CREATE TABLE PLAYER ( 
+    p_pk integer generated always as identity PRIMARY KEY,
+    p_nick VARCHAR(20) NOT NULL UNIQUE,      -- Change: Added NOT NULL and UNIQUE
+    p_mail VARCHAR(255) NOT NULL UNIQUE,     -- Change: Added NOT NULL and UNIQUE
+    p_pass VARCHAR(255) NOT NULL,            -- Change: Added NOT NULL
+    p_reg TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Change: Added Default
+    p_bir DATE,
+    p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),
+    p_country char(2) REFERENCES COUNTRY(coun2_pk),
+    p_role smallint DEFAULT 1 REFERENCES P_ROLE(role_pk),     -- Change: Added Default
+    p_status smallint DEFAULT 1 REFERENCES STATUS(status_pk)  -- Change: Added Default
 );
 
 CREATE TABLE METRIC_CATEGORY ( 
