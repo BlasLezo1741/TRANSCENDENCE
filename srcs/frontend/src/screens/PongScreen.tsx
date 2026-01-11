@@ -49,10 +49,6 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
             playerSide={playerSide} // <--- Esto es lo más importante
         />
       </div>
-
-      <button onClick={() => dispatch({ type: "MENU" })} style={{ marginTop: '20px' }}>
-      {t('menu')}
-      </button>
     </div>
   );
 }

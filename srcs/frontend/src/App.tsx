@@ -3,11 +3,12 @@ import { screenReducer } from './ts/screenConf/screenReducer.ts';
 
 import type { Screen, GameMode } from "./ts/types.ts"
 
-import MenuScreen from './screens/MenuScreen.tsx'
+import MenuScreen from './screens/Menu/MenuScreen.tsx'
 import SignScreen from './screens/SignScreen.tsx'
 import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
-// import SettingsScreen from './screens/SettingsScreen.tsx'
+import ProfileScreen from './screens/ProfileScreen.tsx'
+import SettingsScreen from './screens/SettingsScreen.tsx'
 
 import Header from './components/Header/Header.tsx'
 import Footer from './components/Footer/Footer.tsx'
@@ -99,6 +100,10 @@ function App()
           ballInit={ballInit}
           playerSide={playerSide}
         />;
+      case "profile":
+        return <ProfileScreen />;
+      case "settings":
+        return <SettingsScreen />;
       default:
           return null;
     }
@@ -107,9 +112,9 @@ function App()
   return (
     <div className="app">
       {/* 1. Ponemos el indicador arriba de todo */}
-      <StatusBadge /> 
-      <Header dispatch={dispatch} userName={currentUser}/>
+      <StatusBadge />
       {/* 2. El resto de la aplicación */}
+      <Header dispatch={dispatch} userName={currentUser}/>
       <main>{renderScreen()}</main>
       <Footer />
     </div>

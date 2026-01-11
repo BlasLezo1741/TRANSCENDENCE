@@ -16,6 +16,8 @@ type CanvasProps = {
 function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente", ballInit, playerSide = 'left' }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const animationIdRef = useRef<number | null>(null);
+    const gameRunningRef = useRef(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -33,7 +35,7 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
         let leftName = "P1";
         let rightName = "P2";
 
-        if (mode === 'remote' || mode === 'tournament') {
+        if (mode === 'remote') {
             // MODO ONLINE: Obedecemos ciegamente a 'playerSide'
             if (playerSide === 'left') {
                 // Soy el de la IZQUIERDA
@@ -121,15 +123,19 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
             }          
         };
 
-        const handleKeyDown = (e: KeyboardEvent) => {
+        const handleKeyDown = (e: KeyboardEvent) =>
+        {
+            e.preventDefault();
             if (game.keysPressed[e.key]) return;//Para que al mantener la tecla pulsado solo se envie un movimiento
             game.keysPressed[e.key] = true;
             // ENVIAR MOVIMIENTO AL SERVIDOR
             if (mode !== 'ia') {
-                if (e.key === 'ArrowUp' || e.key === 'w') {
+                if (e.key === 'ArrowUp' || e.key === 'w')
+                {
                     sendMove('up');   // <--- NUEVO
                 }
-                else if (e.key === 'ArrowDown' || e.key === 's') {
+                else if (e.key === 'ArrowDown' || e.key === 's')
+                {
                     sendMove('down'); // <--- NUEVO
                 }
             }
@@ -140,39 +146,45 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
         window.addEventListener("keyup", handleKeyUp);
         window.addEventListener("keydown", handleKeyDown);
 
-        // Retrasamos un poco el inicio para asegurar carga
-        let animationId: number;
+        const gameLoop = () =>
+        {
+            if (!gameRunningRef.current) return;
 
-        setTimeout(() => {
-             const gameLoop = () =>
+            game.update();
+            game.draw();
+
+            if (game.hasWinner())
             {
-                game.update();
-                game.draw();
-
-                if (game.hasWinner())
+                const winnerName = game.getWinner(); 
+                console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
+                
+                if (mode === 'remote')
                 {
-                    const winnerName = game.getWinner(); 
-                    console.log("🏆 JUEGO TERMINADO. Ganador:", winnerName);
-                    
-                    if (mode === 'remote' || mode === 'tournament') {
-                        finishGame(winnerName); 
-                    } else {
-                        console.log("ℹ️ Partida local/IA finalizada. No se guarda en DB.");
-                    }
-
-                    alert("The player " + game.getWinner() + " has won!");
-                    dispatch({ type: "MENU"});
-                    return ;
+                    finishGame(winnerName); 
+                } else
+                {
+                    console.log("ℹ️ Partida local/IA finalizada. No se guarda en DB.");
                 }
 
-                animationId = requestAnimationFrame(gameLoop);
-            };
-            gameLoop();
+                alert("The player " + game.getWinner() + " has won!");
+                dispatch({ type: "MENU"});
+                return ;
+            }
+
+            animationIdRef.current = requestAnimationFrame(gameLoop);
+        };
+
+        setTimeout(() =>
+        {
+            gameRunningRef.current = true;
+            animationIdRef.current = requestAnimationFrame(gameLoop);
         }, 100);
         
         return () =>
         {
-            cancelAnimationFrame(animationId);
+            gameRunningRef.current = false;
+            if (animationIdRef.current !== null)
+                cancelAnimationFrame(animationIdRef);
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
             socket.off('game_update');//Limpieza del socket
