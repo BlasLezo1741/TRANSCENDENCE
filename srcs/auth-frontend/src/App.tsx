@@ -1,38 +1,104 @@
+// Importa el hook useState de React. 
+// Los hooks son funciones especiales que permiten usar características de React
+// en componentes funcionales.
+// Los hooks son funciones especiales de React que te permiten "engancharte" 
+// (hook = gancho en inglés) a características de React desde componentes funcionales.
+// MUY IMPORTANTE - Siempre debes seguir estas reglas:
+// Solo llamar hooks en el nivel superior - NO dentro de loops, condiciones o funciones anidadas
+// Solo llamar hooks en componentes React - O en custom hooks
 import { useState } from 'react';
 
+// Creas un componente funcional llamado App. 
+// Es una función normal que retorna JSX (HTML + JavaScript).
 function App() {
+  //Esto es CLAVE en React:
+
+  // useState crea una variable de estado que React observa
+  // formData    - Variable con los datos del formulario (un objeto con 
+  //               3 propiedades vacías)
+  // setFormData - Función para actualizar formData
+
+  // Cuando llamas setFormData, React re-renderiza el componente automáticamente
+
+  //  Piénsalo así: cuando cambia esta variabel especial, 
+  // React actualiza la página automáticamente.
+
   const [formData, setFormData] = useState({
     user: '',
     email: '',
     password: ''
   });
+  // Se ejecuta cada vez que escribes en un input:
+
+  // e - El evento del input
+  // e.target.name - El nombre del input ("user", "email" o "password")
+  // e.target.value - Lo que escribiste
+  // { ...formData, [e.target.name]: e.target.value } - Spread operator que:
+
+  // Copia todo lo que había en formData (...formData)
+  // Actualiza solo el campo que cambió ([e.target.name]: e.target.value)
+
+
+
+  // Ejemplo: Si escribes "Juan" en el input user:
+  // Antes: { user: '', email: '', password: '' }
+  // Después: { user: 'Juan', email: '', password: '' }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Simplemente resetea todos los campos a vacío. 
+  // Se ejecuta cuando haces clic en "Borrar".
   const handleBorrar = () => {
     setFormData({ user: '', email: '', password: '' });
   };
 
+  // async - Indica que esta función hace operaciones asíncronas 
+  // (espera respuestas)
+  // e.preventDefault() - Importante: Evita que el formulario recargue la página 
+  // (comportamiento por defecto del HTML)
   const handleEnviar = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Enviando datos a NestJS:", formData);
-  const backendUrl = import.meta.env.VITE_API_URL;    
+    // Lee una variable de entorno llamada VITE_API_URL 
+    // (probablemente la URL de tu backend, ej: "http://localhost:3000")
+    const backendUrl = import.meta.env.VITE_API_URL;    
     // Aquí haremos el fetch a NestJS más adelante
     try {
-      const response = await fetch('${backendUrl}/auth/register', {
+      // fetch() - Hace una petición HTTP al servidor
+      // await - Espera a que el servidor responda antes de continuar
+      // Template literal con ${} para insertar la URL
+      // POST - Tipo de petición (enviar datos)
+      // headers - Le dice al servidor que envías JSON
+      // JSON.stringify(formData) - Convierte tu objeto JavaScript a texto JSON
+      const response = await fetch(`${backendUrl}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
+      // Si todo va bien: convierte la respuesta a JSON y la muestra en consola
+      // Si hay error: lo captura y muestra en consola
       const data = await response.json();
       console.log("Respuesta del servidor:", data);
     } catch (error) {
       console.error("Error al conectar con el backend:", error);
     }
   };
+  // El return devuelve lo que se va a mostrar en pantalla. 
+  // Los estilos inline usan doble llave: {{ }} 
+  // (una para JSX, otra para el objeto JavaScript).
 
+  // Cuando envías el formulario (Enter o clic en "Enviar"), ejecuta handleEnviar.
+
+  // Input controlado por React:
+
+  // value={formData.user} - El valor viene del estado
+  // onChange={handleChange} - Cada cambio actualiza el estado
+  // Esto hace que React sea la "fuente de verdad" de los datos
+
+  // type="submit" - Activa el onSubmit del form
+  // type="button" - No envía el form, solo ejecuta onClick
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>Registro de Usuario (Prueba 2FA)</h1>
@@ -48,6 +114,7 @@ function App() {
       </form>
     </div>
   );
-}
+} // del componente funcional App
 
+// Exporta el componente para que main.tsx pueda importarlo.
 export default App;
