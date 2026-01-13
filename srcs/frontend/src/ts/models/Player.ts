@@ -14,7 +14,8 @@ export class Player
         this.nickname = name;
         this.x = x;
         this.width = 10;
-        this.height = 100;
+        //this.height = 100;
+        this.height = h * 0.20;
         this.speed = 10;
         this.speedIA = 5;
         this.canvasHeight = h;

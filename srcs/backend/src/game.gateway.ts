@@ -81,7 +81,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Constantes de física del servidor (Ajustables)
   private readonly SERVER_WIDTH = 1.0; // Normalizado
   private readonly SERVER_HEIGHT = 1.0; // Normalizado
-  private readonly PADDLE_HEIGHT = 0.17; // 20% de la pantalla (ajusta a tu gusto)
+  private readonly PADDLE_HEIGHT = 0.2; // 20% de la pantalla (ajusta a tu gusto)
   private readonly BALL_SIZE = 0.02;    // Tamaño bola normalizado
   private readonly INITIAL_SPEED = 0.01; // Velocidad inicial por frame
   private readonly SPEED_INCREMENT = 1.02; // 5% más rápido cada golpe
@@ -209,9 +209,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await opponent.join(roomId);   
 
         // --- INICIAR EL BUCLE DE SERVIDOR ---
-        this.startGameLoop(roomId, client.id, opponent.id, p1Db.pPk, p2Db.pPk);
-
-const responseP1: MatchFoundResponse = {
+        //this.startGameLoop(roomId, client.id, opponent.id, p1Db.pPk, p2Db.pPk);
+        this.startGameLoop(
+            roomId, 
+            opponent.id,  // El que esperaba va a la IZQUIERDA (Player 1)
+            client.id,    // El que llega va a la DERECHA (Player 2)
+            p2Db.pPk,     // Asegúrate que este DB ID corresponda al opponent (ajusta si es necesario)
+            p1Db.pPk      // Asegúrate que este DB ID corresponda al client
+        );
+        const responseP1: MatchFoundResponse = {
           roomId,
           matchId: tempMatchId,
           side: 'left',
@@ -289,63 +295,77 @@ const responseP1: MatchFoundResponse = {
   }
 
   private updateGamePhysics(state: GameState) {
+    // 1. Guardar posición ANTERIOR (Clave para evitar efecto túnel)
+    const prevX = state.ball.x;
+    const prevY = state.ball.y;
 
+    // 2. Mover la bola
     state.ball.x += state.ball.vx;
     state.ball.y += state.ball.vy;
 
-    // Rebote Y
+    // 3. Rebotes en paredes superior/inferior
     if (state.ball.y <= 0 || state.ball.y >= 1) {
-      state.ball.vy *= -1;
-      state.ball.y = state.ball.y <= 0 ? 0.01 : 0.99;
+        state.ball.vy *= -1;
+        // Corrección de posición para que no se quede pegada
+        state.ball.y = state.ball.y <= 0 ? 0.001 : 0.999;
     }
 
     const paddleHalf = this.PADDLE_HEIGHT / 2;
-    
+    // Definimos dónde está la "cara" de la pala (zona de impacto)
+    const PADDLE_MARGIN = 0.035; // El mismo valor que usabas en tus pruebas
+
     // --- COLISIÓN PALA IZQUIERDA (P1) ---
-    // Usamos <= BallSize + un margen pequeño para detectar colisión
-    if (state.ball.x <= this.BALL_SIZE + 0.01) { 
-        if (state.ball.y >= state.paddles.left - paddleHalf && 
-            state.ball.y <= state.paddles.left + paddleHalf) {
+    // Detectamos si la bola CRUZÓ la línea de la pala (estaba a la derecha y ahora está a la izquierda)
+    if (prevX >= PADDLE_MARGIN && state.ball.x <= PADDLE_MARGIN) {
+        
+        // Calcular en qué punto exacto de Y cruzó la línea X = PADDLE_MARGIN
+        // Fórmula de interpolación lineal
+        const t = (PADDLE_MARGIN - prevX) / (state.ball.x - prevX);
+        const intersectY = prevY + t * (state.ball.y - prevY);
+
+        // Comprobar si ese punto Y está dentro de la pala (con un pequeño margen de error '0.01' para bordes)
+        if (intersectY >= state.paddles.left - paddleHalf - 0.01 && 
+            intersectY <= state.paddles.left + paddleHalf + 0.01) {
             
-            // 1. Invertir dirección X
-            state.ball.vx *= -1; 
+            // ¡COLISIÓN CONFIRMADA!
+            state.ball.x = PADDLE_MARGIN + 0.01; // Sacar la bola
+            state.ball.vx = Math.abs(state.ball.vx); // Forzar dirección derecha
             
-            // 2. Aumentar velocidad y stats
-            state.stats.totalHits++; 
-            state.ball.speed *= this.SPEED_INCREMENT; 
-            
-            // 3. Calcular ángulo (¡MANTENER ESTO!)
-            this.adjustAngle(state, state.paddles.left);
-            
-            // 4. CRÍTICO: "SNAP" / DESATASCAR
-            // Forzamos a la bola a estar FUERA de la pala y un poco más allá
-            // Esto evita que en el siguiente frame se vuelva a detectar colisión
-            state.ball.x = this.BALL_SIZE + 0.02; 
-        }
-    }
-    
-    // --- COLISIÓN PALA DERECHA (P2) ---
-    else if (state.ball.x >= (this.SERVER_WIDTH - this.BALL_SIZE - 0.01)) {
-        if (state.ball.y >= state.paddles.right - paddleHalf && 
-            state.ball.y <= state.paddles.right + paddleHalf) {
-            
-            state.ball.vx *= -1;
+            // Lógica de juego
             state.stats.totalHits++;
             state.ball.speed *= this.SPEED_INCREMENT;
-            this.adjustAngle(state, state.paddles.right);
-            
-            // 4. CRÍTICO: "SNAP" / DESATASCAR DERECHA
-            state.ball.x = (this.SERVER_WIDTH - this.BALL_SIZE) - 0.02; 
+            this.adjustAngle(state, state.paddles.left);
         }
     }
 
-    // Goles
-    if (state.ball.x < -0.05) { 
+    // --- COLISIÓN PALA DERECHA (P2) ---
+    // Detectamos si la bola CRUZÓ la línea (estaba a la izquierda y ahora está a la derecha)
+    const RIGHT_PADDLE_X = 1 - PADDLE_MARGIN;
+    
+    if (prevX <= RIGHT_PADDLE_X && state.ball.x >= RIGHT_PADDLE_X) {
+        
+        const t = (RIGHT_PADDLE_X - prevX) / (state.ball.x - prevX);
+        const intersectY = prevY + t * (state.ball.y - prevY);
+
+        if (intersectY >= state.paddles.right - paddleHalf - 0.01 && 
+            intersectY <= state.paddles.right + paddleHalf + 0.01) {
+            
+            state.ball.x = RIGHT_PADDLE_X - 0.01; // Sacar la bola
+            state.ball.vx = -Math.abs(state.ball.vx); // Forzar dirección izquierda
+            
+            state.stats.totalHits++;
+            state.ball.speed *= this.SPEED_INCREMENT;
+            this.adjustAngle(state, state.paddles.right);
+        }
+    }
+
+    // --- GOLES ---
+    if (state.ball.x < -0.05) {
         state.score[1]++;
         this.server.to(state.roomId).emit('score_updated', { score: state.score });
         this.resetBall(state);
         this.checkWinner(state);
-    } else if (state.ball.x > 1.05) { 
+    } else if (state.ball.x > 1.05) {
         state.score[0]++;
         this.server.to(state.roomId).emit('score_updated', { score: state.score });
         this.resetBall(state);
@@ -355,16 +375,36 @@ const responseP1: MatchFoundResponse = {
 
   private checkWinner(state: GameState) {
       if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
-          // Determinar ganador
-          const winnerId = state.score[0] >= this.MAX_SCORE ? state.playerLeftId : state.playerRightId;
-          const winnerNick = state.score[0] >= this.MAX_SCORE ? "Player 1" : "Player 2"; // O busca el nick real si lo tienes a mano
+          this.server.to(state.roomId).emit('score_updated', { score: state.score });
+        // // Determinar ganador
+        //   const winnerId = state.score[0] >= this.MAX_SCORE ? state.playerLeftId : state.playerRightId;
+        //   const winnerNick = state.score[0] >= this.MAX_SCORE ? "left" : "right"; // el Frontend pone el nombre
+        // 1. Obtener el NICKNAME real del ganador usando los IDs guardados
+          const winnerNick = state.score[0] >= this.MAX_SCORE 
+              ? (state.playerLeftId === state.playerLeftId ? "User_Left" : "Unknown") // Simplificación temporal, mejor usar DB
+              : (state.playerRightId === state.playerRightId ? "User_Right" : "Unknown");
 
+          // TRUCO: Como no tenemos los nicks a mano en 'state' fácil (solo en DB), 
+          // vamos a enviar "Left" o "Right" y que el Frontend ponga el nombre.
+          const winnerSide = state.score[0] >= this.MAX_SCORE ? "left" : "right";
           // Llamamos a finish game logic
-          // Simulamos un DTO para reutilizar la lógica o llamamos directo a saveMatch
           this.stopGameLoop(state.roomId);
-          this.saveMatchToDb(state, winnerNick).then(() => {
-             this.server.to(state.roomId).emit('game_over', { winner: winnerNick });
-          });
+          // 2. DESACTIVAMOS DB TEMPORALMENTE (Para evitar el crash)
+          // this.saveMatchToDb(state, winnerSide); 
+          console.log("⚠️ DB Save desactivado temporalmente para arreglar gameplay.");
+
+          // 3. Enviamos quién ganó (left o right)
+          // TRUCO DEL DELAY: Esperamos 500ms antes de mandar el Game Over
+            // Esto permite que el Frontend reciba el score, React renderice el 5, 
+            // el usuario lo vea, y LUEGO salte el final.
+            setTimeout(() => {
+                this.server.to(state.roomId).emit('game_over', { winner: winnerSide });
+                console.log("🏁 Evento game_over enviado.");
+            }, 500); // 500 milisegundos (medio segundo)
+
+          // this.saveMatchToDb(state, winnerNick).then(() => {
+          //    this.server.to(state.roomId).emit('game_over', { winner: winnerNick });
+          // });
       }
   }
 
@@ -392,27 +432,90 @@ const responseP1: MatchFoundResponse = {
 
   // --- PADDLE MOVE (Juego en tiempo real) ---
 
+// @SubscribeMessage('paddle_move')
+//   handlePaddleMove(@ConnectedSocket() client: Socket, @MessageBody() payload: PaddleMoveDto) {
+//     const game = this.games.get(payload.roomId);
+//     if (!game) return;
+
+//     // Lógica Híbrida: Si viene 'y' úsalo, si viene 'direction' aproxímalo
+//     let newY = 0.5;
+//     if (payload.y !== undefined) {
+//         newY = payload.y;
+//     } else if (payload.direction) {
+//         if (payload.direction === 'up') newY = Math.max(0, (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right) - 0.05);
+//         else if (payload.direction === 'down') newY = Math.min(1, (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right) + 0.05);
+//         else newY = (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right);
+//     }
+
+//     if (client.id === game.playerLeftId) game.paddles.left = newY;
+//     else if (client.id === game.playerRightId) game.paddles.right = newY;
+
+//     // Reenviar para visualización suave
+//     client.to(payload.roomId).emit('game_update', { playerId: client.id, move: payload.direction, y: newY });
+//   }
+
+// @SubscribeMessage('paddle_move')
+// handlePaddleMove(@ConnectedSocket() client: Socket, @MessageBody() payload: PaddleMoveDto) {
+//     const game = this.games.get(payload.roomId);
+//     if (!game) return;
+
+//     let newY = 0.5; // Valor por defecto
+
+//     // 1. Calcular la nueva posición deseada
+//     if (payload.y !== undefined) {
+//         // Modo Ratón / Absoluto
+//         newY = payload.y;
+//     } else if (payload.direction) {
+//         // Modo Teclado / Relativo
+//         const currentY = (client.id === game.playerLeftId) ? game.paddles.left : game.paddles.right;
+        
+//         if (payload.direction === 'up') newY = currentY - 0.05;
+//         else if (payload.direction === 'down') newY = currentY + 0.05;
+//         else newY = currentY;
+//     }
+
+//     // 2. IMPORTANTE: Limitar (Clamp) entre 0 y 1 para que no se salga
+//     // Asumiendo que 0 es arriba y 1 es abajo, y que Y es el centro de la pala.
+//     // Dejamos un pequeño margen para que el centro no toque el borde absoluto si no quieres
+//     newY = Math.max(0, Math.min(1, newY));
+
+//     // 3. Actualizar el Estado del Servidor
+//     if (client.id === game.playerLeftId) {
+//         game.paddles.left = newY;
+//     } else if (client.id === game.playerRightId) {
+//         game.paddles.right = newY;
+//     }
+
+//     // 4. NO EMITIMOS NADA AQUÍ.
+//     // El 'startGameLoop' recogerá este cambio en el siguiente frame (16ms después)
+//     // y se lo enviará a TODOS los clientes sincronizado con la bola.
+//}
+
 @SubscribeMessage('paddle_move')
-  handlePaddleMove(@ConnectedSocket() client: Socket, @MessageBody() payload: PaddleMoveDto) {
+handlePaddleMove(@ConnectedSocket() client: Socket, @MessageBody() payload: PaddleMoveDto) {
     const game = this.games.get(payload.roomId);
     if (!game) return;
 
-    // Lógica Híbrida: Si viene 'y' úsalo, si viene 'direction' aproxímalo
-    let newY = 0.5;
-    if (payload.y !== undefined) {
-        newY = payload.y;
-    } else if (payload.direction) {
-        if (payload.direction === 'up') newY = Math.max(0, (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right) - 0.05);
-        else if (payload.direction === 'down') newY = Math.min(1, (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right) + 0.05);
-        else newY = (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right);
+    // 1. Validamos que llegue un número
+    if (payload.y === undefined || payload.y === null) return;
+
+    // 2. "Clamp": Aseguramos que el valor esté entre 0 y 1 (por seguridad)
+    let newY = Number(payload.y); 
+    newY = Math.max(0, Math.min(1, newY));
+
+    // Debug: Descomenta esto para verificar que llegan datos si sigue fallando
+    console.log(`🏸 Move ${client.id} -> ${newY.toFixed(2)}`);
+
+    // 3. Asignación DIRECTA (Sin lógica de up/down)
+    // El servidor confía en que el cliente sabe dónde está.
+    if (client.id === game.playerLeftId) {
+        game.paddles.left = newY;
+    } else if (client.id === game.playerRightId) {
+        game.paddles.right = newY;
     }
 
-    if (client.id === game.playerLeftId) game.paddles.left = newY;
-    else if (client.id === game.playerRightId) game.paddles.right = newY;
-
-    // Reenviar para visualización suave
-    client.to(payload.roomId).emit('game_update', { playerId: client.id, move: payload.direction, y: newY });
-  }
+    // NO hacemos emit aquí. El bucle de física (startGameLoop) enviará el estado oficial.
+}
 
   // --- FINISH GAME (CON INSERT DB FINAL) ---
 

@@ -47,13 +47,12 @@ export class Pong
         this.ball = new Ball(c);
         // LÓGICA DE SINCRONIZACIÓN
         if (ballInit) {
-            console.log("📡 Aplicando física del servidor:", ballInit);
             this.ball.sync(ballInit.x, ballInit.y);
         }
     }
 
     // --- INPUT REMOTO (Socket) ---
-    // Mueve la pala del rival visualmente
+    // Mueve la pala del rival visualmente en remoto
     moveOpponent(dir: 'up' | 'down' | 'stop') {
         const opponent = this.playerNumber === 1 ? this.player2 : this.player1;
         //const speed = 10; // Velocidad visual aproximada
@@ -77,9 +76,10 @@ export class Pong
              // Local: Mueve ambos con teclas distintas
              this.handleLocalInput(this.player1, 'w', 's');
              this.handleLocalInput(this.player2, 'ArrowUp', 'ArrowDown');
+            // En local, el frontend calcula la física. En remoto, NO.
+             this.ball.update(this.player1, this.player2);
         }
-        // Nota: IA no implementada aquí porque requeriría lógica local.
-        // Si quieres IA, debería correr en el Backend también.
+
     }
 
     private handleLocalInput(p: Player, upKey: string = 'ArrowUp', downKey: string = 'ArrowDown') {
