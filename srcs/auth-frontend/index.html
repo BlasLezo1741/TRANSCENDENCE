@@ -3,9 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Le dice al navegador que ajuste el ancho de la página al ancho 
+     del dispositivo (móvil, tablet, desktop) y que no haga zoom inicial.
+     Sin esto, tu web se vería mal en móviles.-->
     <title>Auth Test</title>
   </head>
   <body>
     <div id="root"></div> <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Esta es la clave en React. Es un contenedor vacío donde React 
+     "inyectará" toda tu aplicación. 
+     React toma este div y lo llena con todos tus componentes.
+     Carga tu archivo JavaScript/TypeScript principal. 
+     
+     El type="module" permite usar imports/exports modernos de ES6. 
+     Este archivo es donde React se inicializa y conecta con el div #root.
+
+     ES6 significa ECMAScript 6 (también llamado ES2015).
+
+     ECMAScript es el estándar/especificación oficial del lenguaje JavaScript.
+      -->
   </body>
 </html>
