@@ -1,0 +1,1002 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.metric_category": {
+      "name": "metric_category",
+      "schema": "",
+      "columns": {
+        "metric_cate_pk": {
+          "name": "metric_cate_pk",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "metric_category_metric_cate_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "32767",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "metric_cate_i18n_name": {
+          "name": "metric_cate_i18n_name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.p_language": {
+      "name": "p_language",
+      "schema": "",
+      "columns": {
+        "lang_pk": {
+          "name": "lang_pk",
+          "type": "char(2)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "lang_name": {
+          "name": "lang_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lang_status": {
+          "name": "lang_status",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.player": {
+      "name": "player",
+      "schema": "",
+      "columns": {
+        "p_pk": {
+          "name": "p_pk",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "player_p_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "p_nick": {
+          "name": "p_nick",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "p_mail": {
+          "name": "p_mail",
+          "type": "citext",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "p_pass": {
+          "name": "p_pass",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "p_totp_secret": {
+          "name": "p_totp_secret",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_totp_enable": {
+          "name": "p_totp_enable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "p_totp_enabled_at": {
+          "name": "p_totp_enabled_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_totp_backup_codes": {
+          "name": "p_totp_backup_codes",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_reg": {
+          "name": "p_reg",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_bir": {
+          "name": "p_bir",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_lang": {
+          "name": "p_lang",
+          "type": "char(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_country": {
+          "name": "p_country",
+          "type": "char(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_role": {
+          "name": "p_role",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "p_status": {
+          "name": "p_status",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "player_p_lang_fkey": {
+          "name": "player_p_lang_fkey",
+          "tableFrom": "player",
+          "tableTo": "p_language",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "p_lang"
+          ],
+          "columnsTo": [
+            "lang_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "player_p_country_fkey": {
+          "name": "player_p_country_fkey",
+          "tableFrom": "player",
+          "tableTo": "country",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "p_country"
+          ],
+          "columnsTo": [
+            "coun2_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "player_p_role_fkey": {
+          "name": "player_p_role_fkey",
+          "tableFrom": "player",
+          "tableTo": "p_role",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "p_role"
+          ],
+          "columnsTo": [
+            "role_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "player_p_status_fkey": {
+          "name": "player_p_status_fkey",
+          "tableFrom": "player",
+          "tableTo": "status",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "p_status"
+          ],
+          "columnsTo": [
+            "status_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "player_p_nick_key": {
+          "columns": [
+            "p_nick"
+          ],
+          "nullsNotDistinct": false,
+          "name": "player_p_nick_key"
+        },
+        "player_p_mail_key": {
+          "columns": [
+            "p_mail"
+          ],
+          "nullsNotDistinct": false,
+          "name": "player_p_mail_key"
+        }
+      },
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.country": {
+      "name": "country",
+      "schema": "",
+      "columns": {
+        "coun_name": {
+          "name": "coun_name",
+          "type": "char(52)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun2_pk": {
+          "name": "coun2_pk",
+          "type": "char(2)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "coun3": {
+          "name": "coun3",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun_code": {
+          "name": "coun_code",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun_iso_code": {
+          "name": "coun_iso_code",
+          "type": "char(13)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun_region": {
+          "name": "coun_region",
+          "type": "char(8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun_region_sub": {
+          "name": "coun_region_sub",
+          "type": "char(31)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun_region_int": {
+          "name": "coun_region_int",
+          "type": "char(15)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun_region_code": {
+          "name": "coun_region_code",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun_region_sub_code": {
+          "name": "coun_region_sub_code",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coun_region_int_code": {
+          "name": "coun_region_int_code",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.p_role": {
+      "name": "p_role",
+      "schema": "",
+      "columns": {
+        "role_pk": {
+          "name": "role_pk",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "p_role_role_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "32767",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "role_i18n_name": {
+          "name": "role_i18n_name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.status": {
+      "name": "status",
+      "schema": "",
+      "columns": {
+        "status_pk": {
+          "name": "status_pk",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "status_status_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "32767",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "status_i18n_name": {
+          "name": "status_i18n_name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.match_mode": {
+      "name": "match_mode",
+      "schema": "",
+      "columns": {
+        "mmod_pk": {
+          "name": "mmod_pk",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "match_mode_mmod_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "32767",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "mmod_name": {
+          "name": "mmod_name",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.metric": {
+      "name": "metric",
+      "schema": "",
+      "columns": {
+        "metric_pk": {
+          "name": "metric_pk",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "metric_metric_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "32767",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "metric_cat_fk": {
+          "name": "metric_cat_fk",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metric_i18n_name": {
+          "name": "metric_i18n_name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metric_i18n_description": {
+          "name": "metric_i18n_description",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "metric_metric_cat_fk_fkey": {
+          "name": "metric_metric_cat_fk_fkey",
+          "tableFrom": "metric",
+          "tableTo": "metric_category",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "metric_cat_fk"
+          ],
+          "columnsTo": [
+            "metric_cate_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.match": {
+      "name": "match",
+      "schema": "",
+      "columns": {
+        "m_pk": {
+          "name": "m_pk",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "match_m_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "m_date": {
+          "name": "m_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "m_duration": {
+          "name": "m_duration",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "m_mode_fk": {
+          "name": "m_mode_fk",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "m_winner_fk": {
+          "name": "m_winner_fk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "match_m_mode_fk_fkey": {
+          "name": "match_m_mode_fk_fkey",
+          "tableFrom": "match",
+          "tableTo": "match_mode",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "m_mode_fk"
+          ],
+          "columnsTo": [
+            "mmod_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "match_m_winner_fk_fkey": {
+          "name": "match_m_winner_fk_fkey",
+          "tableFrom": "match",
+          "tableTo": "player",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "m_winner_fk"
+          ],
+          "columnsTo": [
+            "p_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.matchmetric": {
+      "name": "matchmetric",
+      "schema": "",
+      "columns": {
+        "mm_pk": {
+          "name": "mm_pk",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "matchmetric_mm_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "mm_match_fk": {
+          "name": "mm_match_fk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mm_code_fk": {
+          "name": "mm_code_fk",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mm_value": {
+          "name": "mm_value",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "matchmetric_mm_match_fk_fkey": {
+          "name": "matchmetric_mm_match_fk_fkey",
+          "tableFrom": "matchmetric",
+          "tableTo": "match",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "mm_match_fk"
+          ],
+          "columnsTo": [
+            "m_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "matchmetric_mm_code_fk_fkey": {
+          "name": "matchmetric_mm_code_fk_fkey",
+          "tableFrom": "matchmetric",
+          "tableTo": "metric",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "mm_code_fk"
+          ],
+          "columnsTo": [
+            "metric_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.player_organization": {
+      "name": "player_organization",
+      "schema": "",
+      "columns": {
+        "po_p_fk": {
+          "name": "po_p_fk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "po_org_fk": {
+          "name": "po_org_fk",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "player_organization_po_p_fk_fkey": {
+          "name": "player_organization_po_p_fk_fkey",
+          "tableFrom": "player_organization",
+          "tableTo": "player",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "po_p_fk"
+          ],
+          "columnsTo": [
+            "p_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "player_organization_po_org_fk_fkey": {
+          "name": "player_organization_po_org_fk_fkey",
+          "tableFrom": "player_organization",
+          "tableTo": "organization",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "po_org_fk"
+          ],
+          "columnsTo": [
+            "org_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.organization": {
+      "name": "organization",
+      "schema": "",
+      "columns": {
+        "org_pk": {
+          "name": "org_pk",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "organization_org_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "32767",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "org_name": {
+          "name": "org_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.player_friend": {
+      "name": "player_friend",
+      "schema": "",
+      "columns": {
+        "friend_pk": {
+          "name": "friend_pk",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "player_friend_friend_pk_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public"
+          }
+        },
+        "f_1": {
+          "name": "f_1",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "f_2": {
+          "name": "f_2",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "f_date": {
+          "name": "f_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "f_type": {
+          "name": "f_type",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "player_friend_f_1_fkey": {
+          "name": "player_friend_f_1_fkey",
+          "tableFrom": "player_friend",
+          "tableTo": "player",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "f_1"
+          ],
+          "columnsTo": [
+            "p_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "player_friend_f_2_fkey": {
+          "name": "player_friend_f_2_fkey",
+          "tableFrom": "player_friend",
+          "tableTo": "player",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "f_2"
+          ],
+          "columnsTo": [
+            "p_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.competitor": {
+      "name": "competitor",
+      "schema": "",
+      "columns": {
+        "mc_match_fk": {
+          "name": "mc_match_fk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mc_player_fk": {
+          "name": "mc_player_fk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "competitor_mc_match_fk_fkey": {
+          "name": "competitor_mc_match_fk_fkey",
+          "tableFrom": "competitor",
+          "tableTo": "match",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "mc_match_fk"
+          ],
+          "columnsTo": [
+            "m_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "competitor_mc_player_fk_fkey": {
+          "name": "competitor_mc_player_fk_fkey",
+          "tableFrom": "competitor",
+          "tableTo": "player",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "mc_player_fk"
+          ],
+          "columnsTo": [
+            "p_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "competitor_pkey": {
+          "name": "competitor_pkey",
+          "columns": [
+            "mc_player_fk",
+            "mc_match_fk"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.competitormetric": {
+      "name": "competitormetric",
+      "schema": "",
+      "columns": {
+        "mcm_match_fk": {
+          "name": "mcm_match_fk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mcm_player_fk": {
+          "name": "mcm_player_fk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mcm_metric_fk": {
+          "name": "mcm_metric_fk",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mcm_value": {
+          "name": "mcm_value",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "competitormetric_mcm_metric_fk_fkey": {
+          "name": "competitormetric_mcm_metric_fk_fkey",
+          "tableFrom": "competitormetric",
+          "tableTo": "metric",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "mcm_metric_fk"
+          ],
+          "columnsTo": [
+            "metric_pk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_mcm_match_player": {
+          "name": "fk_mcm_match_player",
+          "tableFrom": "competitormetric",
+          "tableTo": "competitor",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "mcm_match_fk",
+            "mcm_player_fk"
+          ],
+          "columnsTo": [
+            "mc_match_fk",
+            "mc_player_fk"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "competitormetric_pkey": {
+          "name": "competitormetric_pkey",
+          "columns": [
+            "mcm_player_fk",
+            "mcm_metric_fk",
+            "mcm_match_fk"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {
+      "player": {
+        "columns": {
+          "p_totp_backup_codes": {
+            "isArray": true,
+            "dimensions": 1,
+            "rawType": "text"
+          }
+        }
+      }
+    }
+  }
+}

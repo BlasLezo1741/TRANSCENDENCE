@@ -1,0 +1,21 @@
+srcs/auth-service/
+├── Dockerfile                  # Imagen Node 20-alpine para el backend 
+├── drizzle.config.ts           # Configuración para Drizzle Kit (push/generate) 
+├── nest-cli.json
+├── package.json                # Scripts y dependencias (NestJS, Drizzle, Axios) 
+├── tsconfig.json               # Configuración TS con modo incremental [cite: 7]
+├── drizzle/                    # Historial de migraciones SQL [cite: 4, 5]
+│   └── 0000_snapshot.json      # Estado actual de la DB capturado por Drizzle [cite: 4]
+└── src/
+    ├── main.ts                 # Punto de entrada de la aplicación NestJS [cite: 6]
+    ├── app.module.ts           # Módulo raíz que orquesta los submódulos 
+    ├── database.module.ts      # Configuración de conexión a Postgres (dbserver) 
+    ├── schema.ts               # Definición de la tabla PLAYER (Drizzle schema) [cite: 6]
+    ├── relations.ts            # Definición de relaciones (FKs con P_LANGUAGE, etc.) [cite: 6]
+    ├── auth/                   # Módulo específico de Autenticación
+    │   ├── auth.controller.ts  # Endpoints: POST /register, POST /login 
+    │   ├── auth.service.ts     # Lógica: Hash de pass, llamadas a Python, Guardar DB 
+    │   └── auth.module.ts      # Registro de controladores y servicios
+    └── dto/                    # Objetos de transferencia de datos
+        ├── register-user.dto.ts # Estructura esperada (user, email, pass) [cite: 6]
+        └── response-totp.dto.ts  # Estructura del QR recibido de Python [cite: 3]
