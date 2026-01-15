@@ -1,6 +1,6 @@
 import React, {useRef, useEffect} from "react";
 import { Pong } from "../ts/models/Pong.ts"
-import { sendMove, onGameUpdate, onMatchFound, socket, onGameOver, onPlayerOffline } from '../services/socketService'; 
+import { socket } from '../services/socketService'; 
 import type { GameMode } from "../ts/types.ts";
 
 type CanvasProps = {
@@ -11,14 +11,15 @@ type CanvasProps = {
     opponentName?: string;
     ballInit: { x: number, y: number } | null;
     playerSide?: 'left' | 'right';
+    roomId: string;
 };
 
-function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left' }: CanvasProps)
+function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-
+    const roomIdRef = useRef<string>(roomId); //nuevo
     
-    const roomIdRef = useRef<string | null>(null);//guardamos IDde la sala
+    //const roomIdRef = useRef<string | null>(null);//guardamos IDde la sala
     const lastSentY = useRef<number>(0.5); // Aquí la última posición enviada
 
     // -----------------------------------------------------------
@@ -75,11 +76,6 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
         // --- 3. EVENTOS DEL SOCKET ---
 
-        const handleMatchFound = (data: any) => {
-            console.log("✅ Sala confirmada:", data.roomId);
-            roomIdRef.current = data.roomId;
-        };
-
         // --- FÍSICA DEL SERVIDOR ---
         // Este evento ocurre 60 veces por segundo
         socket.on('game_update_physics', (data: any) => {
@@ -95,82 +91,6 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                 game.ball.sync(pixelX, pixelY);
             }
             
-            // 2. SINCRONIZAR PALAS 
-            // if (data.paddles) {
-            //     // --- JUGADOR 1 (Izquierda) ---
-            //     // El servidor manda el CENTRO (0.0 a 1.0). Convertimos a Top-Left en Píxeles.
-            //     const p1Height = game.player1.getHeight();
-            //     const p1CenterY = data.paddles.left * canvas.height;
-            //     game.player1.y = p1CenterY - (p1Height / 2);
-
-            //     // --- JUGADOR 2 (Derecha) ---
-            //     const p2Height = game.player2.getHeight();
-            //     const p2CenterY = data.paddles.right * canvas.height;
-            //     game.player2.y = p2CenterY - (p2Height / 2);
-
-            //     // Debug temporal: Si sigues sin ver movimiento, descomenta esto para ver qué llega
-            //     // console.log("P1 Y:", data.paddles.left, "P2 Y:", data.paddles.right);
-            // }
-            // if (data.paddles) {
-            //     const p1Height = game.player1.getHeight();
-            //     const p2Height = game.player2.getHeight();
-
-            //     // Calculamos dónde dice el SERVIDOR que deben estar las palas
-            //     const targetY_P1 = (data.paddles.left * canvas.height) - (p1Height / 2);
-            //     const targetY_P2 = (data.paddles.right * canvas.height) - (p2Height / 2);
-
-            //     // // --- OPCIÓN 1: SINCRONIZACIÓN DIRECTA (La que tenías antes) ---
-            //     // // Elimina el efecto túnel, pero puede dar saltos si hay lag.
-            //     // game.player1.y = targetY_P1;
-            //     // game.player2.y = targetY_P2;
-
-            //     // --- OPCIÓN 2: INTERPOLACIÓN (Prueba esta si quieres suavizar los tirones) ---
-            //     // El 0.5 significa "muévete el 50% de la distancia hacia el objetivo en cada frame".
-                
-            //     const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
-            //     game.player1.y = lerp(game.player1.y, targetY_P1, 0.5);
-            //     game.player2.y = lerp(game.player2.y, targetY_P2, 0.5);
-                
-            // }
-                // if (data.paddles) {
-                //     const p1Height = game.player1.getHeight();
-                //     const p2Height = game.player2.getHeight();
-
-                //     // Calculamos dónde dice el SERVIDOR que deben estar
-                //     const targetY_P1 = (data.paddles.left * canvas.height) - (p1Height / 2);
-                //     const targetY_P2 = (data.paddles.right * canvas.height) - (p2Height / 2);
-
-                //     // Definimos un umbral de tolerancia (ej: 10% de la altura de la pala o unos 10-15 píxeles)
-                //     // Si la diferencia es menor a esto, ignoramos al servidor para evitar vibración.
-                //     const SYNC_THRESHOLD = p1Height * 0.2; // 20% de margen de error permitido
-                //     const LERP_FACTOR = 0.3; // Suavizado para el rival (0.1 muy suave, 0.5 rápido)
-
-                //     // --- LÓGICA DIFERENCIADA ---
-                    
-                //     if (game.playerNumber === 1) {
-                //         // SOY EL JUGADOR 1 (Izquierda)
-                        
-                //         // A. MI PALA (P1): Solo corregimos si el servidor dice que estamos MUY lejos
-                //         if (Math.abs(game.player1.y - targetY_P1) > SYNC_THRESHOLD) {
-                //             game.player1.y = targetY_P1; // Corrección forzosa (lagazo o trampa)
-                //         }
-                //         // Si la diferencia es pequeña, NO HACEMOS NADA. Confiamos en tu movimiento local.
-
-                //         // B. RIVAL (P2): Interpolamos siempre para que se vea suave
-                //         game.player2.y = game.player2.y + (targetY_P2 - game.player2.y) * LERP_FACTOR;
-                //     } 
-                //     else if (game.playerNumber === 2) {
-                //         // SOY EL JUGADOR 2 (Derecha)
-
-                //         // A. MI PALA (P2): Solo corregimos si hay desincronización grave
-                //         if (Math.abs(game.player2.y - targetY_P2) > SYNC_THRESHOLD) {
-                //             game.player2.y = targetY_P2;
-                //         }
-
-                //         // B. RIVAL (P1): Interpolamos
-                //         game.player1.y = game.player1.y + (targetY_P1 - game.player1.y) * LERP_FACTOR;
-                //     }
-                // }
             //(Estrategia: Trust Local + Interpolación Rival)
             if (data.paddles) {
                 const p1Height = game.player1.getHeight();
@@ -207,23 +127,11 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             }
         });
 
-        //// Movimiento del Oponente (Suavizado visual)
-        // const handleGameUpdate = (data: any) => {
-        //     if (data.playerId !== socket.id) {
-        //         // data.move es la dirección ('up', 'down')
-        //         // data.y es la posición exacta (si la implementaste en frontend)
-        //         game.moveOpponent(data.move); 
-                
-        //         // Si implementas corrección de posición en Pong.ts:
-        //         // if (data.y !== undefined) game.setOpponentY(data.y);
-        //     }
-        // };
-
         const handleGameOver = (data: any) => {
             
             let winnerName = "Desconocido";
-            if (data.winner === 'left') winnerName = leftName;   // Variable definida al inicio del Canvas
-            else if (data.winner === 'right') winnerName = rightName; // Variable definida al inicio del Canvas
+            if (data.winner === 'left') winnerName = leftName;
+            else if (data.winner === 'right') winnerName = rightName;
             
             console.log("🏁 Game Over. Ganador:", winnerName);
             // Paramos animación
@@ -243,16 +151,16 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             // }
         };
 
-        const handlePlayerOffline = () => {
+        // Definimos qué hacer cuando el rival se desconecta
+        const handleOpponentDisconnected = () => {
             console.warn("⚠️ Rival desconectado");
+            alert("El rival se ha desconectado. Ganaste por abandono.");
+            dispatch({ type: "MENU" });
         };
 
-        // Activamos listeners
-        onMatchFound(handleMatchFound);
-        //socket.on('score_updated', handleScoreUpdate); // Ya no es necesario separado, viene en physics, pero puedes dejarlo si quieres sonidos.
-        //onGameUpdate(handleGameUpdate);
-        onGameOver(handleGameOver);
-        onPlayerOffline(handlePlayerOffline);
+        // Activamos listeners de eventos de juego
+        socket.on('game_over', handleGameOver);
+        socket.on('opponent_disconnected', handleOpponentDisconnected);
 
         // --- 4. CONTROLES DE TECLADO ---
 
@@ -267,15 +175,6 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         const handleKeyDown = (e: KeyboardEvent) => {
             if (game.keysPressed[e.key]) return;
             game.keysPressed[e.key] = true;
-            
-            // if (mode !== 'ia') {
-            //     if (e.key === 'ArrowUp' || e.key === 'w') {
-            //         sendMove('up');   
-            //     }
-            //     else if (e.key === 'ArrowDown' || e.key === 's') {
-            //         sendMove('down'); 
-            //     }
-            // }
             if (e.code === "Space" && mode !== "remote")
                 game.setPause();  
         };
@@ -285,33 +184,6 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
         // --- BUCLE DE RENDERIZADO (NO FÍSICA) ---
         let animationId: number;
-
-        // const renderLoop = () =>
-        // {
-        //     game.update(); 
-        //     game.draw(); 
-
-        //     // --- ENVIAR POSICIÓN AL SERVIDOR ---
-        //     if (mode.includes('remote') || mode === 'tournament') {
-        //         const myPlayer = game.playerNumber === 1 ? game.player1 : game.player2;
-                
-        //         // Calculamos centro normalizado
-        //         const myCenterY = (myPlayer.y + (myPlayer.height / 2)) / canvas.height;
-
-        //         // Usamos roomIdRef.current en lugar de data.roomId
-        //         if (roomIdRef.current && Math.abs(myCenterY - lastSentY.current) > 0.001) {
-                    
-        //             socket.emit('paddle_move', { 
-        //                 roomId: roomIdRef.current, // <--- AQUI ESTABA EL ERROR
-        //                 y: myCenterY 
-        //             });
-                    
-        //             lastSentY.current = myCenterY;
-        //         }
-        //     }
-
-        //     animationId = requestAnimationFrame(renderLoop);
-        // };
 
         const renderLoop = () => {
             // 1. Mover pala localmente (Tu teclado actualiza game.player1.y aquí)
@@ -337,9 +209,12 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                         roomId: roomIdRef.current, 
                         y: myNormalizedY // <--- Enviamos el dato exacto, NO 'up' o 'down'
                     });
-                    
                     lastSentY.current = myNormalizedY;
                 }
+                // // DEBUG: SI NO ENTRA ARRIBA, MIRA POR QUÉ
+                // else if (!roomIdRef.current) {
+                //     console.warn("⛔ No hay RoomID, no puedo enviar movimiento");
+                // }
             }
 
             animationId = requestAnimationFrame(renderLoop);
@@ -355,15 +230,12 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
             
-            socket.off('game_update_physics'); // <--- IMPORTANTE: Limpiar nuevo evento
-            //socket.off('game_update');
-            //socket.off('match_found');
-            socket.off('game_over');
-            socket.off('player_offline');
-            //socket.off('score_updated');
+            socket.off('game_update_physics');
+            socket.off('game_over', handleGameOver);
+            socket.off('opponent_disconnected', handleOpponentDisconnected);
         };
     
-    }, [mode, userName, opponentName, ballInit, playerSide, dispatch]); 
+    }, [mode, userName, opponentName, ballInit, playerSide, dispatch, roomId]); 
 
     return <canvas ref={canvasRef} style={{background: "black"}}/>;
 }

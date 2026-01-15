@@ -30,12 +30,17 @@ function App()
   const queryParams = new URLSearchParams(window.location.search);
   const currentUser = queryParams.get("user") || "user_1";
 
-  // 🔥 NUEVO: ESCUCHA GLOBAL DE SOCKET EN APP  
+  const [roomId, setRoomId] = useState<string>("");
+
+  // ESCUCHA GLOBAL DE SOCKET EN APP  
   useEffect(() => {
       const handleMatchFound = (payload: any) => {
           console.log("🔔 [App.tsx] Evento match_found recibido:", payload);
 
           if (payload.roomId && payload.matchId !== undefined) {
+              
+              // 🔥 NUEVO: GUARDAR ROOM ID EN ESTADO
+              setRoomId(payload.roomId)
               // 1. Guardar IDs
               setMatchData(payload.roomId, payload.matchId);
               
@@ -99,6 +104,7 @@ function renderScreen()
           opponentName={opponentName}
           ballInit={ballInit}
           playerSide={playerSide}
+          roomId={roomId} //
         />;
       default:
           return null;

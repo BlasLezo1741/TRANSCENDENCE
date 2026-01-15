@@ -9,9 +9,10 @@ type PongScreenProps = ScreenProps & {
   opponentName: string;
   ballInit: { x: number, y: number } | null;
   playerSide: 'left' | 'right';
+  roomId: string; // 🔥 NUEVO PROP
 };
 
-const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSide }: PongScreenProps) =>
+const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSide, roomId }: PongScreenProps) =>
 {
   const { t } = useTranslation();
   // Si yo estoy a la izquierda: [Yo] vs [Rival]
@@ -52,6 +53,7 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
             opponentName={opponentName}
             ballInit={ballInit}
             playerSide={playerSide} 
+            roomId={roomId} // 🔥 NUEVO: SE LO PASAMOS AL CANVAS
         />
       </div>
 

@@ -17,8 +17,6 @@ import { FinishGameDto } from './dto/finish-game.dto';
 
 // Interfaces (Salida)
 import { MatchFoundResponse } from './dto/match-found.response';
-import { ScoreUpdateResponse } from './dto/score-update.response';
-import { GameUpdateResponse } from './dto/game-update.response'; // Descomentar si la usas
 
 // --- DRIZZLE & DB ---
 import { DRIZZLE } from './database.module';
@@ -82,7 +80,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly SERVER_WIDTH = 1.0; // Normalizado
   private readonly SERVER_HEIGHT = 1.0; // Normalizado
   private readonly PADDLE_HEIGHT = 0.2; // 20% de la pantalla (ajusta a tu gusto)
-  private readonly BALL_SIZE = 0.02;    // Tamaño bola normalizado
   private readonly INITIAL_SPEED = 0.01; // Velocidad inicial por frame
   private readonly SPEED_INCREMENT = 1.02; // 5% más rápido cada golpe
   private readonly MAX_SCORE = 5;
@@ -118,6 +115,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
   }
+
+  // --- JOIN QUEUE (MATCHMAKING) ---
 
   @SubscribeMessage('join_queue')
   async handleJoinQueue(
@@ -268,7 +267,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ball: { x: 0.5, y: 0.5, vx: 0, vy: 0, speed: this.INITIAL_SPEED },
       paddles: { left: 0.5, right: 0.5 },
       score: [0, 0],
-      // INICIALIZACIÓN DE ESTADÍSTICAS (Esto faltaba)
+      // INICIALIZACIÓN DE ESTADÍSTICAS
       stats: {
           totalHits: 0,
           maxRally: 0,
@@ -279,8 +278,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.resetBall(state);
     this.games.set(roomId, state);
 
-    // BUCLE 60 FPS
+  // Bucle a 60 FPS (aprox 16ms)
     const interval = setInterval(() => {
+      // Protección Zombie: Si la sala se borró, parar.
+      if (!this.games.has(roomId)) {
+          clearInterval(interval);
+          return;
+      }
+
       this.updateGamePhysics(state);
       
       this.server.to(roomId).emit('game_update_physics', {
@@ -289,8 +294,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         paddles: { left: state.paddles.left, right: state.paddles.right }
       });
 
-    }, 16); 
-
+    }, 16);
     state.intervalId = interval;
   }
 
@@ -359,26 +363,26 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
-    // --- GOLES ---
+  // DETECCIÓN DE GOLES
     if (state.ball.x < -0.05) {
-        state.score[1]++;
-        this.server.to(state.roomId).emit('score_updated', { score: state.score });
-        this.resetBall(state);
-        this.checkWinner(state);
+        state.score[1]++; // Punto P2
+        this.handleGoal(state);
     } else if (state.ball.x > 1.05) {
-        state.score[0]++;
-        this.server.to(state.roomId).emit('score_updated', { score: state.score });
-        this.resetBall(state);
-        this.checkWinner(state);
+        state.score[0]++; // Punto P1
+        this.handleGoal(state);
     }
+  }
+
+  // Refactorización para no repetir código en goles
+  private handleGoal(state: GameState) {
+      this.server.to(state.roomId).emit('score_updated', { score: state.score });
+      this.resetBall(state);
+      this.checkWinner(state);
   }
 
   private checkWinner(state: GameState) {
       if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
           this.server.to(state.roomId).emit('score_updated', { score: state.score });
-        // // Determinar ganador
-        //   const winnerId = state.score[0] >= this.MAX_SCORE ? state.playerLeftId : state.playerRightId;
-        //   const winnerNick = state.score[0] >= this.MAX_SCORE ? "left" : "right"; // el Frontend pone el nombre
         // 1. Obtener el NICKNAME real del ganador usando los IDs guardados
           const winnerNick = state.score[0] >= this.MAX_SCORE 
               ? (state.playerLeftId === state.playerLeftId ? "User_Left" : "Unknown") // Simplificación temporal, mejor usar DB
@@ -401,10 +405,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 this.server.to(state.roomId).emit('game_over', { winner: winnerSide });
                 console.log("🏁 Evento game_over enviado.");
             }, 500); // 500 milisegundos (medio segundo)
-
-          // this.saveMatchToDb(state, winnerNick).then(() => {
-          //    this.server.to(state.roomId).emit('game_over', { winner: winnerNick });
-          // });
       }
   }
 
@@ -412,13 +412,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       state.ball.x = 0.5;
       state.ball.y = 0.5;
       state.ball.speed = this.INITIAL_SPEED;
-      // const dirX = Math.random() < 0.5 ? -1 : 1;
-      // const angle = (Math.random() * 2 - 1) * (Math.PI / 5); 
-      // state.ball.vx = dirX * Math.cos(angle) * state.ball.speed;
-      // state.ball.vy = Math.sin(angle) * state.ball.speed;
-      // Simplifiquemos el saque para probar
-      state.ball.vx = (Math.random() < 0.5 ? -1 : 1) * state.ball.speed;
-      state.ball.vy = 0;
+      const dirX = Math.random() < 0.5 ? -1 : 1;
+      const angle = (Math.random() * 2 - 1) * (Math.PI / 5); 
+      state.ball.vx = dirX * Math.cos(angle) * state.ball.speed;
+      state.ball.vy = Math.sin(angle) * state.ball.speed;
+      // // Simplifiquemos el saque para probar
+      // state.ball.vx = (Math.random() < 0.5 ? -1 : 1) * state.ball.speed;
+      // state.ball.vy = 0;
   }
 
   private adjustAngle(state: GameState, paddleY: number) {
@@ -432,91 +432,31 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // --- PADDLE MOVE (Juego en tiempo real) ---
 
-// @SubscribeMessage('paddle_move')
-//   handlePaddleMove(@ConnectedSocket() client: Socket, @MessageBody() payload: PaddleMoveDto) {
-//     const game = this.games.get(payload.roomId);
-//     if (!game) return;
-
-//     // Lógica Híbrida: Si viene 'y' úsalo, si viene 'direction' aproxímalo
-//     let newY = 0.5;
-//     if (payload.y !== undefined) {
-//         newY = payload.y;
-//     } else if (payload.direction) {
-//         if (payload.direction === 'up') newY = Math.max(0, (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right) - 0.05);
-//         else if (payload.direction === 'down') newY = Math.min(1, (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right) + 0.05);
-//         else newY = (client.id === game.playerLeftId ? game.paddles.left : game.paddles.right);
-//     }
-
-//     if (client.id === game.playerLeftId) game.paddles.left = newY;
-//     else if (client.id === game.playerRightId) game.paddles.right = newY;
-
-//     // Reenviar para visualización suave
-//     client.to(payload.roomId).emit('game_update', { playerId: client.id, move: payload.direction, y: newY });
-//   }
-
-// @SubscribeMessage('paddle_move')
-// handlePaddleMove(@ConnectedSocket() client: Socket, @MessageBody() payload: PaddleMoveDto) {
-//     const game = this.games.get(payload.roomId);
-//     if (!game) return;
-
-//     let newY = 0.5; // Valor por defecto
-
-//     // 1. Calcular la nueva posición deseada
-//     if (payload.y !== undefined) {
-//         // Modo Ratón / Absoluto
-//         newY = payload.y;
-//     } else if (payload.direction) {
-//         // Modo Teclado / Relativo
-//         const currentY = (client.id === game.playerLeftId) ? game.paddles.left : game.paddles.right;
-        
-//         if (payload.direction === 'up') newY = currentY - 0.05;
-//         else if (payload.direction === 'down') newY = currentY + 0.05;
-//         else newY = currentY;
-//     }
-
-//     // 2. IMPORTANTE: Limitar (Clamp) entre 0 y 1 para que no se salga
-//     // Asumiendo que 0 es arriba y 1 es abajo, y que Y es el centro de la pala.
-//     // Dejamos un pequeño margen para que el centro no toque el borde absoluto si no quieres
-//     newY = Math.max(0, Math.min(1, newY));
-
-//     // 3. Actualizar el Estado del Servidor
-//     if (client.id === game.playerLeftId) {
-//         game.paddles.left = newY;
-//     } else if (client.id === game.playerRightId) {
-//         game.paddles.right = newY;
-//     }
-
-//     // 4. NO EMITIMOS NADA AQUÍ.
-//     // El 'startGameLoop' recogerá este cambio en el siguiente frame (16ms después)
-//     // y se lo enviará a TODOS los clientes sincronizado con la bola.
-//}
-
 @SubscribeMessage('paddle_move')
-handlePaddleMove(@ConnectedSocket() client: Socket, @MessageBody() payload: PaddleMoveDto) {
+  handlePaddleMove(
+      @ConnectedSocket() client: Socket, 
+      @MessageBody() payload: PaddleMoveDto 
+  ) {
     const game = this.games.get(payload.roomId);
+    
+    // 1. Si la partida no existe, no hacemos nada.
     if (!game) return;
 
-    // 1. Validamos que llegue un número
+    // 2. Validación defensiva: Si 'y' no viene, salimos.
+    // (Aunque el DTO ayuda, esto evita errores lógicos si el frontend falla)
     if (payload.y === undefined || payload.y === null) return;
 
-    // 2. "Clamp": Aseguramos que el valor esté entre 0 y 1 (por seguridad)
+    // 3. Sanitización (Clamp): Convertir a número y forzar rango 0.0 - 1.0
     let newY = Number(payload.y); 
-    newY = Math.max(0, Math.min(1, newY));
+    newY = Math.max(0, Math.min(1, newY)); 
 
-    // Debug: Descomenta esto para verificar que llegan datos si sigue fallando
-    console.log(`🏸 Move ${client.id} -> ${newY.toFixed(2)}`);
-
-    // 3. Asignación DIRECTA (Sin lógica de up/down)
-    // El servidor confía en que el cliente sabe dónde está.
+    // 4. Asignación directa según quién sea el cliente
     if (client.id === game.playerLeftId) {
         game.paddles.left = newY;
     } else if (client.id === game.playerRightId) {
         game.paddles.right = newY;
     }
-
-    // NO hacemos emit aquí. El bucle de física (startGameLoop) enviará el estado oficial.
-}
-
+  }
   // --- FINISH GAME (CON INSERT DB FINAL) ---
 
   @SubscribeMessage('finish_game')
@@ -546,7 +486,7 @@ handlePaddleMove(@ConnectedSocket() client: Socket, @MessageBody() payload: Padd
   }
     
     // MÉTODO EXTRAÍDO CORRECTAMENTE
-private async saveMatchToDb(state: GameState, winnerNick: string) {
+    private async saveMatchToDb(state: GameState, winnerNick: string) {
     // 1. Usamos winnerNick en el log para callar la advertencia de "unused variable"
     console.log(`💾 Guardando partida. Ganador nominal: ${winnerNick}`);
 
@@ -599,12 +539,3 @@ private async saveMatchToDb(state: GameState, winnerNick: string) {
       });
   }
 }
-
-    //   // --- AUXILIAR (Futuro uso si la fisica la hace el servidor) ---
-//   emitScore(roomId: string, scorerId: string, newScore: [number, number]) {
-//     const payload: ScoreUpdateResponse = {
-//       score: newScore,
-//       scorerId: scorerId
-//     };
-//     this.server.to(roomId).emit('score_update', payload);
-//   }

@@ -13,18 +13,8 @@ export class Pong
 
     keysPressed: { [key: string]: boolean } = {};
     playerNumber: number; // 1 (Left) o 2 (Right)
-
-    //maxScore: number;
     score: number[] = [0, 0];
-    //pause: boolean;
-
     winner: string = "none";
-    //end: boolean;
-
-    //private opponentMove: 'up' | 'down' | 'stop' = 'stop'; // <--- NUEVO: Control remoto
-
-    //// Callback para avisar al socket
-    //onScoreUpdate: (score: number[], ballDir: number) => void;
 
     constructor(
         c: HTMLCanvasElement,
@@ -34,14 +24,12 @@ export class Pong
         leftPlayerName: string,
         rightPlayerName: string,
         ballInit: { x: number, y: number } | null = null,
-        // Callback vacío para mantener compatibilidad si no quieres borrarlo en Canvas.tsx
     )
     {
         this.c = c;
         this.ctx = ctx;
         this.mode = mode;
-        this.playerNumber = n; // Asignamos esto ANTES de crear los jugadores
-        //this.onScoreUpdate = onScoreUpdate;
+        this.playerNumber = n; 
         this.player1 = new Player(leftPlayerName, 20, c.height);
         this.player2 = new Player(rightPlayerName, c.width - 30, c.height);
         this.ball = new Ball(c);
@@ -55,7 +43,6 @@ export class Pong
     // Mueve la pala del rival visualmente en remoto
     moveOpponent(dir: 'up' | 'down' | 'stop') {
         const opponent = this.playerNumber === 1 ? this.player2 : this.player1;
-        //const speed = 10; // Velocidad visual aproximada
 
         if (dir === 'up') opponent.moveUp(); // Asume que Player tiene moveUp()
         else if (dir === 'down') opponent.moveDown();
@@ -112,7 +99,7 @@ export class Pong
         // 4. Dibujar Marcador (El que viene del server)
         this.drawScore();
     }
-
+ down
     private drawScore() {
         this.ctx.font = "48px Arial";
         this.ctx.fillStyle = "white";
