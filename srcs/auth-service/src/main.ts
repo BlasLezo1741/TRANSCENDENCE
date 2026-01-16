@@ -25,13 +25,41 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // Esto activa la validación automática usando el DTO que creamos
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,     // Elimina campos que no estén en el DTO
-    forbidNonWhitelisted: true, // Lanza error si envían campos extra
-    transform: true,     // Convierte los tipos automáticamente
-  }));
 
+  // Habilitar CORS para que el frontend pueda conectar
+  // Como tu frontend corre en el puerto 5174 y el backend en el 3000, 
+  // el navegador bloqueará la petición por seguridad (CORS error). 
+  // Debes habilitarlo en el backend.
+
+  app.enableCors({
+    origin: 'http://localhost:5174', // URL de tu frontend de prueba
+    methods: 'GET,POST',
+    credentials: true,
+  });
+
+  // Esto activa la validación automática usando el DTO que creamos
+  // Configurar ValidationPipe (Validación automática)
+
+  // Esta es una configuración MUY IMPORTANTE para seguridad y validación.
+  // whitelist: true
+  // ¿Qué hace? NestJS elimina los campos que NO estén definidos en tu DTO.
+  // 
+  // forbidNonWhitelisted: true
+  // ¿Qué hace? NestJS lanza un error si detecta campos que no deberían estar.
+  //
+  // `transform: true`
+  // ¿Qué hace? Convierte automáticamente los tipos de datos al tipo correcto.
+
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
+  
+  // Inicia el servidor en el puerto 3000
+  // await espera a que el servidor esté listo
+  // Después de esto, tu API está funcionando en http://localhost:3000
   await app.listen(3000);
+  console.log(`🚀 Servidor corriendo en http://localhost:3000`);
 }
 bootstrap();

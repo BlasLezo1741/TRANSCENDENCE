@@ -28,6 +28,60 @@ function App() {
     email: '',
     password: ''
   });
+
+
+  const [message, setMessage] = useState('');
+  const [qrCode, setQrCode] = useState(''); // Para guardar el QR de Python
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage('Enviando...');
+
+    try {
+      const response = await fetch('http://localhost:3000/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage('¡Usuario registrado con éxito!');
+        setQrCode(data.qrCode); // El backend devuelve { qrCode: "base64..." }
+      } else {
+        // Manejo de errores del ValidationPipe de NestJS
+        setMessage(`Error: ${data.message || 'No se pudo registrar'}`);
+      }
+    } catch (error) {
+      setMessage('Error de conexión con el servidor');
+    }
+  };
+
+  return (
+    <div style={{ padding: '40px', color: 'white', backgroundColor: '#1a1a1a', minHeight: '100vh', fontFamily: 'sans-serif' }}>
+      <h1>Registro de Prueba (Microservicios)</h1>
+      
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
+        <input type="text" placeholder="Usuario" onChange={e => setFormData({...formData, user: e.target.value})} required />
+        <input type="email" placeholder="Email" onChange={e => setFormData({...formData, email: e.target.value})} required />
+        <input type="password" placeholder="Contraseña" onChange={e => setFormData({...formData, password: e.target.value})} required />
+        <button type="submit" style={{ padding: '10px', cursor: 'pointer' }}>Registrar</button>
+      </form>
+
+      {message && <p style={{ marginTop: '20px', color: '#00ff00' }}>{message}</p>}
+
+      {qrCode && (
+        <div style={{ marginTop: '20px' }}>
+          <h3>Escanea tu 2FA:</h3>
+          <img src={qrCode} alt="QR Code 2FA" style={{ border: '10px solid white' }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+
   // Se ejecuta cada vez que escribes en un input:
 
   // e - El evento del input
