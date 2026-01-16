@@ -8,35 +8,46 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     const [repeat, setRepeat] = useState("");
     const [email, setEmail] = useState("");
     const [birth, setBirth] = useState("");
-    const [country, setCountry] = useState("");
+    
+    // SEPARATE STATES
+    const [country, setCountry] = useState(""); 
+    const [language, setLanguage] = useState("");
+    
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleForm = (e: React.FormEvent) => {
+    const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
-        // Check syntaxis of the password
-        const result = checkPassword(password, repeat);
-        if (!result.ok) {
-            setError(result.msg);
+        // 1. Check local password syntax
+        const passResult = checkPassword(password, repeat);
+        if (!passResult.ok) {
+            setError(passResult.msg);
             setPassword("");
             setRepeat("");
             return;
         }
 
-        // Check registration
-        if (registUser(user, password, email, birth, country)) {
-            // Note: Your logic in auth.ts returns TRUE for registration, 
-            // but the original code treated true as "Failed registration".
-            // Assuming registUser returns true on SUCCESS, this logic might need inversion later.
-            // For now, I kept your original logic flow.
-            setError("Failed registration");
-            setPassword("");
-            setRepeat("");
-            return;
-        }
+        setIsLoading(true);
 
-        dispatch({ type: "MENU" });
+        try {
+            // 2. Check backend registration
+            // We now pass BOTH country and language separately
+            const result = await registUser(user, password, email, birth, country, language);
+            
+            if (!result.ok) {
+                setError(result.msg || "Error en el registro");
+                setPassword("");
+                setRepeat("");
+            } else {
+                dispatch({ type: "MENU" });
+            }
+        } catch (err) {
+            setError("Error de conexión");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleReset = () => {
@@ -46,6 +57,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setEmail("");
         setBirth("");
         setCountry("");
+        setLanguage("");
         setError("");
     };
 
@@ -143,23 +155,42 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         />
                     </div>
 
-                    {/* Country */}
-                    <div>
-                        <label htmlFor="lang" className="block text-sm font-medium text-gray-700 mb-1">Idioma</label>
-                        <select
-                            name="lang"
-                            id="lang"
-                            value={country}
-                            onChange={(e) => setCountry(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                        >
-                            <option value="">Elige un idioma</option>
-                            <option value="es">Español</option>
-                            <option value="ca">Català</option>
-                            <option value="en">English</option>
-                            <option value="fr">Français</option>
-                        </select>
+                    {/* Country & Language Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Country */}
+                        <div>
+                            <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">País (Código)</label>
+                            <input
+                                type="text"
+                                id="country"
+                                name="country"
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                                placeholder="ES, FR..."
+                                maxLength={2}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+
+                        {/* Language */}
+                        <div>
+                            <label htmlFor="lang" className="block text-sm font-medium text-gray-700 mb-1">Idioma</label>
+                            <select
+                                name="lang"
+                                id="lang"
+                                value={language}
+                                onChange={(e) => setLanguage(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            >
+                                <option value="">Elige...</option>
+                                <option value="es">Español</option>
+                                <option value="ca">Català</option>
+                                <option value="en">English</option>
+                                <option value="fr">Français</option>
+                            </select>
+                        </div>
                     </div>
 
                     {/* Action Buttons */}
@@ -173,9 +204,12 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            disabled={isLoading}
+                            className={`flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
+                            ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
+                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
                         >
-                            Enviar
+                            {isLoading ? "Enviando..." : "Enviar"}
                         </button>
                     </div>
                 </form>

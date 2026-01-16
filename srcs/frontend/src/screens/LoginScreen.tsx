@@ -6,20 +6,28 @@ const LoginScreen = ({ dispatch }: ScreenProps) => {
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleForm = (e: React.FormEvent) => {
+    const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setIsLoading(true);
 
-        // Check login
-        const result = checkLogin(user, password);
-        if (!result.ok) {
-            setError(result.msg);
-            setPassword("");
-            return;
+        try {
+            // AWAIT the backend response
+            const result = await checkLogin(user, password);
+            
+            if (!result.ok) {
+                setError(result.msg || "Error desconocido");
+                setPassword("");
+            } else {
+                dispatch({ type: "MENU" });
+            }
+        } catch (err) {
+            setError("Error de conexión");
+        } finally {
+            setIsLoading(false);
         }
-
-        dispatch({ type: "MENU" });
     };
 
     return (
@@ -74,9 +82,12 @@ const LoginScreen = ({ dispatch }: ScreenProps) => {
 
                     <button
                         type="submit"
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        disabled={isLoading}
+                        className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
+                        ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
                     >
-                        Entrar
+                        {isLoading ? "Cargando..." : "Entrar"}
                     </button>
                 </form>
 
