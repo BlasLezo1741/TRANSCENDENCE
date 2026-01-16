@@ -37,12 +37,6 @@ export class Player
             this.y += this.speedIA * Math.sign(diff);
         else
             this.y += diff;
-
-        // if (this.y < 0)
-        //     this.y = 0;
-        // else if (this.y + this.height > this.canvasHeight)
-        //     this.y = this.canvasHeight - this.height;
-        // Límites de pantalla. Cambio propuesto
         this.clampY();
     }
     // --- MOVIMIENTO MANUAL ---
@@ -65,15 +59,6 @@ export class Player
         if (this.y + this.height > this.canvasHeight) 
             this.y = this.canvasHeight - this.height;
     }
-    // moveUp()
-    // {
-    //     this.y = Math.max(0, this.y - this.speed);
-    // }
-
-    // moveDown()
-    // {
-    //     this.y = Math.min(this.canvasHeight - this.height, this.y + this.speed);
-    // }
 
     draw(ctx: CanvasRenderingContext2D)
     {
@@ -82,7 +67,7 @@ export class Player
     }
 
     // --- GETTERS & SETTERS ---
-    // --- NUEVO: Útil para enviar posición absoluta al server (0.0 a 1.0) ---
+    // ---  Envia posición absoluta al server (0.0 a 1.0) ---
     getNormalizedY(): number {
         // Posición visual (Top) + Mitad de altura = Centro
         const centerY = this.y + (this.height / 2);

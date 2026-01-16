@@ -54,25 +54,6 @@ export class Pong
     }
 
     // --- UPDATE (Bucle Visual) ---
-    // Solo gestiona inputs locales para suavidad. NO FÍSICA.
-    // update()
-    // {
-    //     // Mover MI pala (Jugador Local)
-    //     const myPlayer = this.playerNumber === 1 ? this.player1 : this.player2;
-        
-    //     // Si es partida IA o Local, movemos diferente, pero para REMOTE:
-    //     if (this.mode.includes('remote') || this.mode.includes('tournament')) {
-    //         this.handleLocalInput(myPlayer);
-    //     }
-    //     else if (this.mode === 'local') {
-    //          // Local: Mueve ambos con teclas distintas
-    //          this.handleLocalInput(this.player1, 'w', 's');
-    //          this.handleLocalInput(this.player2, 'ArrowUp', 'ArrowDown');
-    //         // En local, el frontend calcula la física. En remoto, NO.
-    //          this.ball.update(this.player1, this.player2);
-    //     }
-
-    // }
     update()
     {
         if (this.pause) return;
@@ -130,19 +111,6 @@ export class Pong
              if (this.keysPressed[dKey] || this.keysPressed[sKey]) p.moveDown();
         }
     }
-
-    // private handleLocalInput(p: Player, upKey: string = 'ArrowUp', downKey: string = 'ArrowDown') {
-    //     // También aceptamos W/S genérico si es mi jugador
-    //     const wKey = 'w';
-    //     const sKey = 's';
-
-    //     if (this.keysPressed[upKey] || this.keysPressed[wKey]) {
-    //         p.moveUp();
-    //     }
-    //     if (this.keysPressed[downKey] || this.keysPressed[sKey]) {
-    //         p.moveDown();
-    //     }
-    // }
 
     private checkLocalWin() {
         // Actualizamos score local desde la bola
@@ -217,11 +185,7 @@ export class Pong
         this.ctx.closePath();
     }
 
-
-    // Helpers vacíos para compatibilidad
     setPause() {} 
-    //hasWinner() { return false; } // El socket decide 'game_over', no esta clase local
     hasWinner(): boolean { return this.end; }
-    
     getWinner() { return this.winner; }
 }

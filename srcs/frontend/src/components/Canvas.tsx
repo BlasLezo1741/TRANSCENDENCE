@@ -139,16 +139,6 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             
             alert("Game Over! Winner: " + winnerName);
             dispatch({ type: "MENU" });
-
-            // if (mode === 'remote' || mode === 'tournament') {
-            //      // Lógica de cierre remota
-            //      alert("Game Over! Winner: " + winnerName);
-            //      dispatch({ type: "MENU" });
-            // } else {
-            //      // Lógica local
-            //      alert("Partida finalizada.");
-            //      dispatch({ type: "MENU" });
-            // }
         };
 
         // Definimos qué hacer cuando el rival se desconecta
@@ -165,11 +155,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         // --- 4. CONTROLES DE TECLADO ---
 
         const handleKeyUp = (e: KeyboardEvent) => {
-            game.keysPressed[e.key] = false;
-            
-            // if (mode !== 'ia' && ['ArrowUp', 'ArrowDown', 'w', 's'].includes(e.key)) {
-            //     sendMove('stop'); 
-            // }          
+            game.keysPressed[e.key] = false;       
         };
 
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -199,14 +185,14 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                     // Paramos el bucle inmediatamente
                     cancelAnimationFrame(animationId);
                     
-                    // Avisamos y salimos
-                    alert(`¡Juego Terminado! Ganador: ${winnerName}`);
-                    dispatch({ type: "MENU" });
+                    // Avisamos y salimos con delay para dar tiempo a meter el ultimo tanto en el marcador
+                    setTimeout(() => {
+                        alert(`¡Juego Terminado! Ganador: ${winnerName}`);
+                        dispatch({ type: "MENU" });
+                    }, 50);
                     return; 
                 }
             }
-            // ----------------------------------------------------
-            
             
             // 2. ENVIAR POSICIÓN AL SERVIDOR
             if (mode.includes('remote') || mode === 'tournament') {
@@ -229,10 +215,6 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                     });
                     lastSentY.current = myNormalizedY;
                 }
-                // // DEBUG: SI NO ENTRA ARRIBA, MIRA POR QUÉ
-                // else if (!roomIdRef.current) {
-                //     console.warn("⛔ No hay RoomID, no puedo enviar movimiento");
-                // }
             }
 
             animationId = requestAnimationFrame(renderLoop);
