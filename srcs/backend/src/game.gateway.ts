@@ -394,8 +394,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           // Llamamos a finish game logic
           this.stopGameLoop(state.roomId);
           // 2. DESACTIVAMOS DB TEMPORALMENTE (Para evitar el crash)
-          // this.saveMatchToDb(state, winnerSide); 
-          console.log("⚠️ DB Save desactivado temporalmente para arreglar gameplay.");
+           this.saveMatchToDb(state, winnerSide); 
 
           // 3. Enviamos quién ganó (left o right)
           // TRUCO DEL DELAY: Esperamos 500ms antes de mandar el Game Over
