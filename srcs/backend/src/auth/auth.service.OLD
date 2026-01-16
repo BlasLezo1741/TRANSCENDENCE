@@ -3,15 +3,11 @@ import { eq, or } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
 import { users } from '../schema'; 
 import * as schema from '../schema';
-// CAMBIO 1: Importamos el tipo correcto para la librería 'postgres' (postgres-js)
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-// CAMBIO 2: Importamos la constante DRIZZLE para no equivocarnos con el nombre
-import { DRIZZLE } from '../database.module';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 @Injectable()
 export class AuthService {
-  // CAMBIO 3: Usamos @Inject(DRIZZLE) y el tipo PostgresJsDatabase
-  constructor(@Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>) {}
+  constructor(@Inject('DATABASE_CONNECTION') private db: NodePgDatabase<typeof schema>) {}
 
   async loginUser(username: string, plainPassword: string) {
     const result = await this.db.select().from(users).where(eq(users.pNick, username)).limit(1);
@@ -34,13 +30,14 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Ensure strict type mapping or optional handling for pCountry/pRole if not provided
     await this.db.insert(users).values({
       pNick: username,
       pMail: email,
       pPass: hashedPassword,
       pBir: birth,
       pLang: lang,
-      pReg: new Date().toISOString(),
+      pReg: new Date().toISOString(), // Drizzle timestamp mode='string'
       pRole: 1,
       pStatus: 1,
     });
