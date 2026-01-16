@@ -3,14 +3,11 @@ import { eq, or } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
 import { users } from '../schema'; 
 import * as schema from '../schema';
-// CAMBIO 1: Importamos el tipo correcto para la librería 'postgres' (postgres-js)
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-// CAMBIO 2: Importamos la constante DRIZZLE para no equivocarnos con el nombre
 import { DRIZZLE } from '../database.module';
 
 @Injectable()
 export class AuthService {
-  // CAMBIO 3: Usamos @Inject(DRIZZLE) y el tipo PostgresJsDatabase
   constructor(@Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>) {}
 
   async loginUser(username: string, plainPassword: string) {
@@ -26,19 +23,25 @@ export class AuthService {
     return { ok: true, msg: "Login correcto", user: { id: user.pPk, name: user.pNick } };
   }
 
-  async registerUser(username: string, password: string, email: string, birth: string, lang: string) {
+  // AQUI ESTABA EL ERROR: Faltaba añadir 'country' en los argumentos
+  async registerUser(username: string, password: string, email: string, birth: string, country: string, lang: string) {
+    
+    // 1. Verificamos si existe
     const existing = await this.db.select().from(users)
       .where(or(eq(users.pNick, username), eq(users.pMail, email))).limit(1);
 
     if (existing.length > 0) return { ok: false, msg: "Usuario o correo ya existe" };
 
+    // 2. Encriptamos contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 3. Insertamos en la base de datos (incluyendo pCountry)
     await this.db.insert(users).values({
       pNick: username,
       pMail: email,
       pPass: hashedPassword,
       pBir: birth,
+      pCountry: country, // <--- Importante: Guardamos el país
       pLang: lang,
       pReg: new Date().toISOString(),
       pRole: 1,
