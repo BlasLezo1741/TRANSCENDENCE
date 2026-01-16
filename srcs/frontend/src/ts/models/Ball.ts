@@ -84,8 +84,20 @@ export class Ball
      * Este update SOLO se llama si el modo es 'local'.
      * Contiene la lógica Anti-Túnel (Raycasting) adaptada a Pixeles.
      */
-    update(p1: Player, p2: Player) {
+    //update(p1: Player, p2: Player) {
+    update(players: Player[] | Player, p2?: Player) {
         if (this.waiting) return;
+        //Adicion codigo par integrar ia y local
+        let player1: Player;
+        let player2: Player;
+
+        if (Array.isArray(players)) {
+            player1 = players[0];
+            player2 = players[1];
+        } else {
+            player1 = players;
+            player2 = p2!;
+        }
 
         // 1. Guardar posición previa (CRUCIAL para evitar túnel)
         const prevX = this.x;
@@ -99,48 +111,83 @@ export class Ball
         this.wallCollision();
 
         // 4. Chequear colisión con Palas usando TRAYECTORIA (No solo posición)
-        this.checkPaddleCollision(p1, p2, prevX, prevY);
-
+        //this.checkPaddleCollision(p1, p2, prevX, prevY);
+        this.checkPaddleCollision(player1, player2, prevX, prevY);
         // 5. Goles
         this.goal();
     }
 
-    private checkPaddleCollision(p1: Player, p2: Player, prevX: number, prevY: number) {
-        // --- PALA IZQUIERDA (P1) ---
-        // La cara de la pala es: x + width
-        const p1RightEdge = p1.getX() + p1.getWidth();
+    // private checkPaddleCollision(p1: Player, p2: Player, prevX: number, prevY: number) {
+    //     // --- PALA IZQUIERDA (P1) ---
+    //     // La cara de la pala es: x + width
+    //     const p1RightEdge = p1.getX() + p1.getWidth();
         
-        // Si nos movemos a la izquierda (vx < 0) Y cruzamos la línea de la pala
-        if (this.vx < 0 && prevX >= p1RightEdge && this.x <= p1RightEdge + this.radius) {
+    //     // Si nos movemos a la izquierda (vx < 0) Y cruzamos la línea de la pala
+    //     if (this.vx < 0 && prevX >= p1RightEdge && this.x <= p1RightEdge + this.radius) {
             
-            // Calculamos la Y exacta del cruce
-            const t = (p1RightEdge - prevX) / (this.x - prevX);
-            const intersectY = prevY + t * (this.y - prevY);
+    //         // Calculamos la Y exacta del cruce
+    //         const t = (p1RightEdge - prevX) / (this.x - prevX);
+    //         const intersectY = prevY + t * (this.y - prevY);
 
-            // Verificamos si tocamos la pala en altura
-            if (intersectY >= p1.getY() - this.radious && 
-                intersectY <= p1.getY() + p1.getHeight() + this.radious) {
+    //         // Verificamos si tocamos la pala en altura
+    //         if (intersectY >= p1.getY() - this.radious && 
+    //             intersectY <= p1.getY() + p1.getHeight() + this.radious) {
                 
-                this.handlePaddleHit(p1, intersectY, 1); // 1 = dirección derecha
-                this.x = p1RightEdge + this.radious + 1; // Sacar bola
+    //             this.handlePaddleHit(p1, intersectY, 1); // 1 = dirección derecha
+    //             this.x = p1RightEdge + this.radious + 1; // Sacar bola
+    //         }
+    //     }
+
+    //     // --- PALA DERECHA (P2) ---
+    //     // La cara de la pala es: x
+    //     const p2LeftEdge = p2.getX();
+
+    //     // Si nos movemos a la derecha (vx > 0) Y cruzamos la línea
+    //     if (this.vx > 0 && prevX <= p2LeftEdge && this.x >= p2LeftEdge - this.radius) {
+            
+    //         const t = (p2LeftEdge - prevX) / (this.x - prevX);
+    //         const intersectY = prevY + t * (this.y - prevY);
+
+    //         if (intersectY >= p2.getY() - this.radious && 
+    //             intersectY <= p2.getY() + p2.getHeight() + this.radious) {
+                
+    //             this.handlePaddleHit(p2, intersectY, -1); // -1 = dirección izquierda
+    //             this.x = p2LeftEdge - this.radious - 1; // Sacar bola
+    //         }
+    //     }
+    // }
+    private checkPaddleCollision(p1: Player, p2: Player, prevX: number, prevY: number) {
+        // Determinamos qué pala comprobar según en qué lado del campo esté la bola
+        let player = (this.x < this.canvasWidth / 2) ? p1 : p2;
+        
+        // Coordenadas de la PALA
+        const pTop = player.getY();
+        const pBottom = player.getY() + player.getHeight();
+        const pLeft = player.getX();
+        const pRight = player.getX() + player.getWidth();
+
+        // Coordenadas de la BOLA (Caja cuadrada alrededor del radio)
+        const bTop = this.y - this.radious;
+        const bBottom = this.y + this.radious;
+        const bLeft = this.x - this.radious;
+        const bRight = this.x + this.radious;
+        
+        // ¿HAY COLISIÓN? (Se superponen las cajas)
+        if (bRight > pLeft && bLeft < pRight && bBottom > pTop && bTop < pBottom) {
+            
+            // --- CORRECCIÓN DE POSICIÓN Y REBOTE ---
+            
+            // Caso: Pala Izquierda (P1)
+            if (player === p1) {
+                // Empujamos la bola a la derecha para que no se quede enganchada
+                this.x = pRight + this.radious + 1;
+                this.handlePaddleHit(player, this.y, 1); // 1 = rebote a la derecha
             }
-        }
-
-        // --- PALA DERECHA (P2) ---
-        // La cara de la pala es: x
-        const p2LeftEdge = p2.getX();
-
-        // Si nos movemos a la derecha (vx > 0) Y cruzamos la línea
-        if (this.vx > 0 && prevX <= p2LeftEdge && this.x >= p2LeftEdge - this.radius) {
-            
-            const t = (p2LeftEdge - prevX) / (this.x - prevX);
-            const intersectY = prevY + t * (this.y - prevY);
-
-            if (intersectY >= p2.getY() - this.radious && 
-                intersectY <= p2.getY() + p2.getHeight() + this.radious) {
-                
-                this.handlePaddleHit(p2, intersectY, -1); // -1 = dirección izquierda
-                this.x = p2LeftEdge - this.radious - 1; // Sacar bola
+            // Caso: Pala Derecha (P2)
+            else {
+                // Empujamos la bola a la izquierda
+                this.x = pLeft - this.radious - 1;
+                this.handlePaddleHit(player, this.y, -1); // -1 = rebote a la izquierda
             }
         }
     }
@@ -179,12 +226,24 @@ export class Ball
         }
     }
 
+    // private goal() {
+    //     if (this.x < 0) {
+    //         this.score[1]++; // Punto P2
+    //         this.resetLocal();
+    //     } else if (this.x > this.canvasWidth) {
+    //         this.score[0]++; // Punto P1
+    //         this.resetLocal();
+    //     }
+    // }
     private goal() {
-        if (this.x < 0) {
-            this.score[1]++; // Punto P2
+        // Gol P2 (Bola sale por la izquierda)
+        if (this.x < -this.radious) { 
+            this.score[1]++; 
             this.resetLocal();
-        } else if (this.x > this.canvasWidth) {
-            this.score[0]++; // Punto P1
+        } 
+        // Gol P1 (Bola sale por la derecha)
+        else if (this.x > this.canvasWidth + this.radious) { 
+            this.score[0]++; 
             this.resetLocal();
         }
     }
@@ -198,6 +257,10 @@ export class Ball
         this.vy = Math.sin(angle) * this.speed;
     }
 
+    // Método público para resetear en modo local (llamado desde el constructor de Pong)
+    reset() {
+        this.resetLocal();
+    }
     // Reseteo para juego local
     public async resetLocal(): Promise<void> {
         this.waiting = true;
@@ -207,7 +270,7 @@ export class Ball
         this.speed = this.initialSpeed;
         
         // Pausa breve antes de sacar
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 1000));
         
         this.setLocalDirection();
         this.waiting = false;

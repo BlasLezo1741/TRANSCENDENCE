@@ -16,6 +16,11 @@ export class Pong
     score: number[] = [0, 0];
     winner: string = "none";
 
+    // Solo para local/IA
+    maxScore: number = 5;
+    end: boolean = false;
+    pause: boolean = false;
+
     constructor(
         c: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
@@ -50,35 +55,105 @@ export class Pong
 
     // --- UPDATE (Bucle Visual) ---
     // Solo gestiona inputs locales para suavidad. NO FÍSICA.
+    // update()
+    // {
+    //     // Mover MI pala (Jugador Local)
+    //     const myPlayer = this.playerNumber === 1 ? this.player1 : this.player2;
+        
+    //     // Si es partida IA o Local, movemos diferente, pero para REMOTE:
+    //     if (this.mode.includes('remote') || this.mode.includes('tournament')) {
+    //         this.handleLocalInput(myPlayer);
+    //     }
+    //     else if (this.mode === 'local') {
+    //          // Local: Mueve ambos con teclas distintas
+    //          this.handleLocalInput(this.player1, 'w', 's');
+    //          this.handleLocalInput(this.player2, 'ArrowUp', 'ArrowDown');
+    //         // En local, el frontend calcula la física. En remoto, NO.
+    //          this.ball.update(this.player1, this.player2);
+    //     }
+
+    // }
     update()
     {
-        // Mover MI pala (Jugador Local)
-        const myPlayer = this.playerNumber === 1 ? this.player1 : this.player2;
-        
-        // Si es partida IA o Local, movemos diferente, pero para REMOTE:
-        if (this.mode.includes('remote') || this.mode.includes('tournament')) {
-            this.handleLocalInput(myPlayer);
+        if (this.pause) return;
+
+        // 1. MODO IA (Jugar contra Bot)
+        if (this.mode === 'ia') {
+            this.handleLocalInput(this.player1, 'w', 's'); // Humano (Izq)
+            this.handleLocalInput(this.player1, 'ArrowUp', 'ArrowDown'); // Alternativa
+            
+            // IA del Bot (Derecha) - Asumiendo que Player tiene método moveIA
+            // Si no lo tiene, avísame para dártelo.
+            this.player2.moveIA(this.ball.y); 
+
+            // Física Local
+            this.ball.update([this.player1, this.player2]); 
+            this.checkLocalWin();
         }
+        
+        // 2. MODO LOCAL (1 PC, 2 Humanos)
         else if (this.mode === 'local') {
-             // Local: Mueve ambos con teclas distintas
-             this.handleLocalInput(this.player1, 'w', 's');
-             this.handleLocalInput(this.player2, 'ArrowUp', 'ArrowDown');
-            // En local, el frontend calcula la física. En remoto, NO.
-             this.ball.update(this.player1, this.player2);
+            this.handleLocalInput(this.player1, 'w', 's'); // P1: WASD
+            this.handleLocalInput(this.player2, 'ArrowUp', 'ArrowDown'); // P2: Flechas
+            
+            // Física Local
+            this.ball.update([this.player1, this.player2]);
+            this.checkLocalWin();
         }
 
+        // 3. MODO REMOTO / TORNEO (Online)
+        else {
+            // Solo gestionamos NUESTRO input para predicción del cliente.
+            // La física de la bola y del rival viene del servidor (Canvas.tsx).
+            const myPlayer = this.playerNumber === 1 ? this.player1 : this.player2;
+            this.handleLocalInput(myPlayer); 
+        }
     }
 
+    // --- UTILS ---
+
     private handleLocalInput(p: Player, upKey: string = 'ArrowUp', downKey: string = 'ArrowDown') {
-        // También aceptamos W/S genérico si es mi jugador
+        // En modo online (sin args), aceptamos ambas teclas para el jugador activo
         const wKey = 'w';
         const sKey = 's';
+        const uKey = 'ArrowUp';
+        const dKey = 'ArrowDown';
 
-        if (this.keysPressed[upKey] || this.keysPressed[wKey]) {
-            p.moveUp();
+        // Si se especifican teclas (modo local 1v1), somos estrictos
+        if (arguments.length > 1) {
+             if (this.keysPressed[upKey]) p.moveUp();
+             if (this.keysPressed[downKey]) p.moveDown();
+        } 
+        // Si no (modo online o IA P1), aceptamos todo
+        else {
+             if (this.keysPressed[uKey] || this.keysPressed[wKey]) p.moveUp();
+             if (this.keysPressed[dKey] || this.keysPressed[sKey]) p.moveDown();
         }
-        if (this.keysPressed[downKey] || this.keysPressed[sKey]) {
-            p.moveDown();
+    }
+
+    // private handleLocalInput(p: Player, upKey: string = 'ArrowUp', downKey: string = 'ArrowDown') {
+    //     // También aceptamos W/S genérico si es mi jugador
+    //     const wKey = 'w';
+    //     const sKey = 's';
+
+    //     if (this.keysPressed[upKey] || this.keysPressed[wKey]) {
+    //         p.moveUp();
+    //     }
+    //     if (this.keysPressed[downKey] || this.keysPressed[sKey]) {
+    //         p.moveDown();
+    //     }
+    // }
+
+    private checkLocalWin() {
+        // Actualizamos score local desde la bola
+        this.score = this.ball.getScore();
+
+        if (this.score[0] >= this.maxScore) {
+            this.winner = this.player1.getName();
+            this.end = true;
+        } else if (this.score[1] >= this.maxScore) {
+            this.winner = this.player2.getName();
+            this.end = true;
         }
     }
 
@@ -96,10 +171,16 @@ export class Pong
         this.player2.draw(this.ctx);
         this.ball.draw(this.ctx);
 
-        // 4. Dibujar Marcador (El que viene del server)
-        this.drawScore();
+        // // 4. Dibujar Marcador (El que viene del server)
+        // this.drawScore();
+        // 4. Dibujar UI
+        if (this.pause) {
+            this.drawPause();
+        } else {
+            this.drawScore();
+        }
     }
- down
+
     private drawScore() {
         this.ctx.font = "48px Arial";
         this.ctx.fillStyle = "white";
@@ -117,6 +198,14 @@ export class Pong
         this.ctx.fillText(this.player2.getName(), this.c.width * 0.75, 70);
     }
 
+    private drawPause() {
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "48px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.fillText("PAUSE", this.c.width / 2, this.c.height / 2);
+    }
+
     private drawNet() {
         this.ctx.beginPath();
         this.ctx.setLineDash([10, 15]);
@@ -128,8 +217,11 @@ export class Pong
         this.ctx.closePath();
     }
 
+
     // Helpers vacíos para compatibilidad
     setPause() {} 
-    hasWinner() { return false; } // El socket decide 'game_over', no esta clase local
+    //hasWinner() { return false; } // El socket decide 'game_over', no esta clase local
+    hasWinner(): boolean { return this.end; }
+    
     getWinner() { return this.winner; }
 }

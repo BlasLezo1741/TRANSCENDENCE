@@ -190,6 +190,24 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             game.update(); 
             game.draw(); 
 
+            // --- NUEVO BLOQUE: CONTROL DE VICTORIA LOCAL / IA ---
+            // Solo entra aquí si NO estamos en modo online
+            if (!mode.includes('remote') && mode !== 'tournament') {
+                if (game.hasWinner()) {
+                    const winnerName = game.getWinner();
+                    
+                    // Paramos el bucle inmediatamente
+                    cancelAnimationFrame(animationId);
+                    
+                    // Avisamos y salimos
+                    alert(`¡Juego Terminado! Ganador: ${winnerName}`);
+                    dispatch({ type: "MENU" });
+                    return; 
+                }
+            }
+            // ----------------------------------------------------
+            
+            
             // 2. ENVIAR POSICIÓN AL SERVIDOR
             if (mode.includes('remote') || mode === 'tournament') {
                 const myPlayer = game.playerNumber === 1 ? game.player1 : game.player2;
