@@ -6,5 +6,16 @@
     "modo": "Tria el teu mode de joc",
     "juego_mode": "Joc en mode: ",
     "Jugar": "Jugar",
+    "user": "Usuari",
+    "crear_cuenta": "Crear un compte",
+    "password": "contrasenya",
+    "rep_pass": "Confirmar la contrasenya",
+    "cumple": "Data de naixement",
+    "cod_pais": "País (Codi)",
+    "lang": "Idioma",
+    "borrar_t": "Esborrar",
+    "enviar": "Enviar",
+    "enviando": "Enviant...",
+    "pass_req": "La contrasenya ha de tenir: minúscula, majúscula, un número i un mínim de 8 caràcters.",
     "juegos": "Jocs"
 }

@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { checkPassword, registUser } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
+import { useTranslation } from 'react-i18next';
 
 const SignScreen = ({ dispatch }: ScreenProps) => {
+    // USE TRANSLATOR
+    const { t } = useTranslation();
+
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [repeat, setRepeat] = useState("");
@@ -65,7 +69,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
             <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900">Crear Cuenta</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">{t('crear_cuenta')}</h1>
                 </div>
 
                 <form onSubmit={handleForm} className="space-y-4">
@@ -78,7 +82,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                     {/* User */}
                     <div>
-                        <label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                        <label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">{t('user')}</label>
                         <input
                             type="text"
                             id="user"
@@ -94,7 +98,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                     {/* Email */}
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">email</label>
                         <input
                             type="email"
                             id="email"
@@ -108,13 +112,13 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                     {/* Password Info Box */}
                     <div className="bg-blue-50 p-3 rounded text-xs text-blue-800">
-                        La contraseña debe tener: minúscula, mayúscula, número y mínimo 8 caracteres.
+                        {t('pass_req')}
                     </div>
 
                     {/* Password */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                            <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">{t('password').charAt(0).toUpperCase() + t('password').slice(1)}</label>
                             <input
                                 type="password"
                                 id="pass"
@@ -128,7 +132,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                         {/* Repeat Password */}
                         <div>
-                            <label htmlFor="passR" className="block text-sm font-medium text-gray-700 mb-1">Repetir</label>
+                            <label htmlFor="passR" className="block text-sm font-medium text-gray-700 mb-1">{t('rep_pass')}</label>
                             <input
                                 type="password"
                                 id="passR"
@@ -143,7 +147,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                     {/* Birth date */}
                     <div>
-                        <label htmlFor="birth" className="block text-sm font-medium text-gray-700 mb-1">Fecha de nacimiento</label>
+                        <label htmlFor="birth" className="block text-sm font-medium text-gray-700 mb-1">{t('cumple')}</label>
                         <input
                             type="date"
                             name="birth"
@@ -159,7 +163,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Country */}
                         <div>
-                            <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">País (Código)</label>
+                            <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">{t('cod_pais')}</label>
                             <input
                                 type="text"
                                 id="country"
@@ -175,7 +179,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                         {/* Language */}
                         <div>
-                            <label htmlFor="lang" className="block text-sm font-medium text-gray-700 mb-1">Idioma</label>
+                            <label htmlFor="lang" className="block text-sm font-medium text-gray-700 mb-1">{t('lang')}</label>
                             <select
                                 name="lang"
                                 id="lang"
@@ -184,7 +188,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             >
-                                <option value="">Elige...</option>
+                                <option value="">{t('sel_lang')}</option>
                                 <option value="es">Español</option>
                                 <option value="ca">Català</option>
                                 <option value="en">English</option>
@@ -200,7 +204,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             onClick={handleReset}
                             className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
-                            Borrar
+                            {t('borrar_t')}
                         </button>
                         <button
                             type="submit"
@@ -209,7 +213,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
                         >
-                            {isLoading ? "Enviando..." : "Enviar"}
+                            {isLoading ? t('enviando') : t('enviar')}
                         </button>
                     </div>
                 </form>

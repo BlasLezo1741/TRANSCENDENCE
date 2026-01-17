@@ -1,10 +1,21 @@
 {
     "menu": "Menu principal",
     "temp": "Blas est parti à la retraite.\nBienvenues au PONG.",
-    "sel_lang": "Choisissez votre langue",
+    "sel_lang": "Sélectionnez votre langue",
     "count": "On est ",
     "modo": "Choisissez le mode de jeu",
     "juego_mode": "Jeu mode: ",
     "Jugar": "Jouer",
+    "user": "Utilisateur",
+    "crear_cuenta": "Créer un compte",
+    "password": "mot de passe",
+    "rep_pass": "Confirmer le mot de passe",
+    "cumple": "Date de naissance",
+    "cod_pais": "Pays (Code)",
+    "lang": "Langue",
+    "borrar_t": "Effacer",
+    "enviar": "Valider",
+    "enviando": "Envoi en cours...",
+    "pass_req": "Le mot de passe doit contenir : une minuscule, une majuscule, un chiffre et un minimum de 8 caractères.",
     "juegos": "Jeux"
 }
