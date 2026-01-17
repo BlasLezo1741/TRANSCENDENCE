@@ -484,42 +484,85 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
   }
     
-    // MÉTODO EXTRAÍDO CORRECTAMENTE
-    private async saveMatchToDb(state: GameState, winnerNick: string) {
-    // 1. Usamos winnerNick en el log para callar la advertencia de "unused variable"
-    console.log(`💾 Guardando partida. Ganador nominal: ${winnerNick}`);
+  //   // MÉTODO EXTRAÍDO CORRECTAMENTE
+  //   private async saveMatchToDb(state: GameState, winnerNick: string) {
+  //   // 1. Usamos winnerNick en el log para callar la advertencia de "unused variable"
+  //   console.log(`💾 Guardando partida. Ganador nominal: ${winnerNick}`);
+
+  //   const durationMs = Date.now() - state.stats.startTime.getTime();
+    
+  //   // 2. CORRECCIÓN CLAVE: Tipado explícito para permitir null
+  //   let winnerPk: number | null = null; 
+
+  //   // Lógica para determinar ID del ganador basado en puntuación real
+  //   if (state.score[0] > state.score[1]) {
+  //       winnerPk = state.playerLeftDbId;
+  //   } else if (state.score[1] > state.score[0]) {
+  //       winnerPk = state.playerRightDbId;
+  //   } else {
+  //       // En caso de empate técnico o fallo, asignamos al Player 1 por defecto 
+  //       // o lo dejamos null si tu DB lo permite. Por seguridad ponemos P1.
+  //       winnerPk = state.playerLeftDbId; 
+  //   }
+
+  //   try {
+  //       await this.db.insert(schema.match).values({
+  //           mModeFk: 1, 
+  //           mDate: state.stats.startTime.toISOString(), 
+  //           mDuration: durationMs.toString() + ' milliseconds', // Cast a string para evitar líos de tipos
+  //           mWinnerFk: winnerPk,
+            
+  //           // Datos nuevos
+  //           mScoreP1: state.score[0],
+  //           mScoreP2: state.score[1],
+  //           mTotalHits: state.stats.totalHits
+  //       });
+  //       console.log("💾 Partida guardada en DB correctamente.");
+  //   } catch (error) {
+  //       console.error("❌ Error guardando partida:", error);
+  //   }
+  // }
+
+  private async saveMatchToDb(state: GameState, winnerSide: string) {
+    console.log(`💾 Guardando partida en DB (Estructura Relacional)...`);
 
     const durationMs = Date.now() - state.stats.startTime.getTime();
     
-    // 2. CORRECCIÓN CLAVE: Tipado explícito para permitir null
-    let winnerPk: number | null = null; 
-
-    // Lógica para determinar ID del ganador basado en puntuación real
+    // 1. Determinar ID del ganador
+    let winnerPk: number; 
     if (state.score[0] > state.score[1]) {
         winnerPk = state.playerLeftDbId;
     } else if (state.score[1] > state.score[0]) {
         winnerPk = state.playerRightDbId;
     } else {
-        // En caso de empate técnico o fallo, asignamos al Player 1 por defecto 
-        // o lo dejamos null si tu DB lo permite. Por seguridad ponemos P1.
-        winnerPk = state.playerLeftDbId; 
+        winnerPk = state.playerLeftDbId; // Fallback empate
     }
 
+    // 2. Determinar el Modo de Juego (ID)
+    // Según tu 01_data.sql: 1='1v1_local', 2='1v1_remote', 3='1v1_ia'
+    // Como este Gateway es el websocket remoto, asumiremos que es REMOTE (ID 2)
+    // Si tienes lógica de torneo, ajusta esto.
+    const MODE_REMOTE_ID = 2; 
+
     try {
-        await this.db.insert(schema.match).values({
-            mModeFk: 1, 
-            mDate: state.stats.startTime.toISOString(), 
-            mDuration: durationMs.toString() + ' milliseconds', // Cast a string para evitar líos de tipos
-            mWinnerFk: winnerPk,
-            
-            // Datos nuevos
-            mScoreP1: state.score[0],
-            mScoreP2: state.score[1],
-            mTotalHits: state.stats.totalHits
-        });
-        console.log("💾 Partida guardada en DB correctamente.");
+        // 3. Llamada a la función SQL 'insert_full_match_result'
+        await this.db.execute(sql`
+            SELECT insert_full_match_result(
+                ${MODE_REMOTE_ID}::smallint,        -- p_mode_id
+                ${state.stats.startTime}::timestamp,-- p_date
+                ${durationMs}::integer,             -- p_duration_ms
+                ${winnerPk}::integer,               -- p_winner_id
+                ${state.playerLeftDbId}::integer,   -- p_p1_id
+                ${state.score[0]}::float,           -- p_score_p1
+                ${state.playerRightDbId}::integer,  -- p_p2_id
+                ${state.score[1]}::float,           -- p_score_p2
+                ${state.stats.totalHits}::float     -- p_total_hits
+            )
+        `);
+        
+        console.log("✅ Partida guardada correctamente en MATCH, COMPETITOR y METRICS.");
     } catch (error) {
-        console.error("❌ Error guardando partida:", error);
+        console.error("❌ Error guardando partida en DB:", error);
     }
   }
 
