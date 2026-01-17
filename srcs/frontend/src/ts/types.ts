@@ -9,6 +9,7 @@ export type Action =
     | { type: "MENU" }
     | { type: "SIGN" }
     | { type: "LOGIN" }
+    | { type: "LOGOUT" } //ADDED
     | { type: "SETTINGS" }
     | { type: "PONG" };
 

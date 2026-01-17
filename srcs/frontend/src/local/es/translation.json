@@ -5,5 +5,16 @@
     "count": "Somos ",
     "modo": "Elige el modo de juego",
     "Jugar": "Jugar",
+    "user": "Usuario",
+    "crear_cuenta": "Create una cuenta",
+    "password": "contraseña",
+    "rep_pass": "Confirmar la contraseña",
+    "cumple": "Fecha de nacimiento",
+    "cod_pais": "País (Código)",
+    "lang": "Idioma",
+    "borrar_t": "Borrar",
+    "enviar": "Enviar",
+    "enviando": "Enviando...",
+    "pass_req": "La contraseña debe tener: minúscula, mayúscula, número y mínimo 8 caracteres.",
     "juegos": "Juegos"
 }

@@ -9,10 +9,12 @@ import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
 // import SettingsScreen from './screens/SettingsScreen.tsx'
 
-import Header from './components/Header.tsx'
-// import Footer from './components/Footer.tsx'
+import Header from './components/Header/Header.tsx'
+import Footer from './components/Footer/Footer.tsx'
 import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
 import { socket, setMatchData } from './services/socketService';
+
+import "./App.css";
 
 function App()
 {
@@ -119,6 +121,7 @@ function renderScreen()
       </div>
       <Header dispatch={dispatch}/>
       <main>{renderScreen()}</main>
+      <Footer />
     </div>
   );
 }
