@@ -117,7 +117,7 @@ function App() {
     console.log("Enviando datos a NestJS:", formData);
     // Lee una variable de entorno llamada VITE_API_URL 
     // (probablemente la URL de tu backend, ej: "http://localhost:3000")
-    const backendUrl = import.meta.env.VITE_API_URL;    
+    const backendUrl = import.meta.env.AUS_API_URL;    
     // Aquí haremos el fetch a NestJS más adelante
     try {
       // fetch() - Hace una petición HTTP al servidor

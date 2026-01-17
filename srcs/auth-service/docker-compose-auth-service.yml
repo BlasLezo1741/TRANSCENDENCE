@@ -1,0 +1,36 @@
+services:
+  auth-service:
+    build: 
+      context: .
+      args:
+        # Aquí inyectamos la variable del .env al Dockerfile
+        - PORT_ARG=${AUS_PORT}
+    container_name: ${AUS_CONTAINER_NAME}
+    image: ${AUS_CONTAINER_NAME}
+    restart: on-failure
+    ports:
+      - ${AUS_PORT}:${AUS_PORT}
+    env_file:
+      - ../.env
+    volumes:
+      - ./srcs/auth-service:/app
+      - /app/node_modules # Protege los módulos instalados en el contenedor
+    environment:
+      # Aquí inyectamos la variable del .env al proceso de NestJS
+      - AUS_PORT=${AUS_PORT}    
+      # Usamos el nombre del servicio 'dbserver' definido en el compose
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@dbserver:5432/${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      # URL para conectar con el servicio de Python
+      - TOTP_SERVICE_URL=${TOTP_SERVICE_URL}
+    depends_on:
+      dbserver:
+        condition: service_healthy
+    networks:
+      transcendence_net:
+        ipv4_address: ${AUS_IP}  # Fixed IP
+        aliases:
+          - in_net
+

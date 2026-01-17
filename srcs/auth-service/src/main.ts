@@ -24,7 +24,8 @@ async function bootstrap() {
   // constructor (NestFactory), y te devuelve la casa construida (app).
 
   const app = await NestFactory.create(AppModule);
-
+  // Prioridad: 1. Variable de entorno, 2. Valor fijo 3010
+  const port = process.env.PORT || 3010;
 
   // Habilitar CORS para que el frontend pueda conectar
   // Como tu frontend corre en el puerto 5174 y el backend en el 3000, 

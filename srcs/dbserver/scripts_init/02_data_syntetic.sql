@@ -23,7 +23,7 @@ INSERT INTO PLAYER (
 SELECT 
     'user_' || ud.i,
     'user_' || ud.i || '@example.com',
-    md5(random()::text),
+    md5('user_' || ud.i),
     CASE 
         WHEN ud.has_totp THEN decode(md5(random()::text), 'hex')
         ELSE NULL 

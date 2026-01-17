@@ -1,11 +1,11 @@
 services:
-  auth-test-frontend:
+  auth-frontend:
     build: .
-    container_name: auth-test-frontend
-    image: auth-test-frontend
+    container_name: ${AUF_CONTAINER_NAME}
+    image: ${AUF_CONTAINER_NAME}
     restart: on-failure      
     ports:
-      - "5174:5173" # Accedemos por el 5174 para evitar conflictos
+      - ${AUF_PORT}:${AUF_PORT} # Accedemos por el 5174 para evitar conflictos
     env_file:
       - ../.env
     networks:
