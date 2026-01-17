@@ -1,9 +1,10 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- Generate 100 Players
 INSERT INTO PLAYER (p_nick, p_mail, p_pass, p_reg, p_bir, p_lang, p_country, p_role, p_status)
 SELECT 
     'user_' || i,
     'user_' || i || '@example.com',
-    md5(random()::text),
+    crypt('user_' || i, gen_salt('bf')),  -- bcrypt hash
     NOW() - (random() * INTERVAL '365 days'),
     '1990-01-01'::date + (random() * 7000)::integer,
     rand_lang.lang_pk,

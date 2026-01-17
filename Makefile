@@ -119,7 +119,7 @@ test-db: srcs/.env $(DB_DATA_DIR)
 
 # Ejecutar docker compose up
 up:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml up
+	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d
 
 # Detener los contenedores
 down:
