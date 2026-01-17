@@ -9,7 +9,7 @@ type PongScreenProps = ScreenProps & {
   opponentName: string;
   ballInit: { x: number, y: number } | null;
   playerSide: 'left' | 'right';
-  roomId: string; // 🔥 NUEVO PROP
+  roomId: string;
 };
 
 const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSide, roomId }: PongScreenProps) =>
@@ -28,22 +28,6 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
         {t('juego_mode')} {mode} | {leftPlayer} vs {rightPlayer}
       </h1>
 
-      {/* ================================================================= */}
-      {/* 🚧 TODO: ELIMINAR ESTE BLOQUE AL TERMINAR LAS PRUEBAS (DEBUG) 🚧 */}
-      <div className="mb-4 p-3 bg-gray-800 rounded border-2 border-red-500 text-sm text-gray-300 w-full max-w-2xl text-center">
-          <p className="font-bold text-red-400 uppercase">🧪 Debug Info (Borrar luego)</p>
-          <div className="flex justify-around mt-2">
-            <p>Usuario Local: <span className="text-white font-mono">{userName}</span></p>
-            <p>
-                Lado Asignado: 
-                <span className={`font-mono font-bold ml-2 ${playerSide === 'left' ? 'text-cyan-400' : 'text-orange-400'}`}>
-                    {playerSide.toUpperCase()}
-                </span>
-            </p>
-          </div>
-      </div>
-      {/* ================================================================= */}
-
       {/* CANVAS CON BORDE */}
       <div className="border-4 border-white shadow-2xl rounded-lg overflow-hidden">
         <Canvas
@@ -53,7 +37,7 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
             opponentName={opponentName}
             ballInit={ballInit}
             playerSide={playerSide} 
-            roomId={roomId} // 🔥 NUEVO: SE LO PASAMOS AL CANVAS
+            roomId={roomId}
         />
       </div>
 

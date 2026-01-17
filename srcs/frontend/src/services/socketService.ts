@@ -60,9 +60,8 @@ export const joinQueue = (nickname: string, mode: string) => {
   console.log(`📡 [Socket] Emitiendo join_queue: Nick=${nickname}, Mode=${mode}`);
   
   // Enviamos el evento con la estructura que espera el Backend
-  // Nota: El backend espera { nickname: string, mode: string }
   socket.emit('join_queue', { 
-      nickname: nickname, // Mapeamos el argumento a la propiedad 'nickname'
+      nickname: nickname,
       mode: mode 
   }); 
 };
@@ -74,7 +73,6 @@ export const sendMove = (direction: 'up' | 'down' | 'stop') => {
         direction 
     });
   } else {
-    // Evitamos spam de logs si no hay sala
     if (!currentRoomId) { /* console.warn("⚠️ Intento de movimiento sin sala."); */ }
   }
 };
@@ -86,7 +84,7 @@ export const finishGame = (winnerName: string) => {
         socket.emit('finish_game', {
             roomId: currentRoomId,
             winnerId: winnerName,
-            matchId: currentMatchDbId // <--- ENVIAMOS EL ID AL BACKEND
+            matchId: currentMatchDbId
         });
     } else {
         console.warn("⚠️ No se puede finalizar: Faltan datos (Room o DB ID)");
@@ -97,28 +95,28 @@ export const finishGame = (winnerName: string) => {
 // --- RECEPTORES (Escuchar datos del servidor) ---
 
 export const onMatchFound = (callback: (data: any) => void) => {
-  socket.off('match_found'); // <--- MEJORA: Evita duplicados si React renderiza dos veces
+  socket.off('match_found');
   socket.on('match_found', (data) => {
     console.log("🎯 Match encontrado. Sala:", data.roomId, "| DB ID:", data.matchId);
     
-    currentRoomId = data.roomId;      // Guardamos la sala
-    currentMatchDbId = data.matchId;  // Guardamos el ID de la BD
+    currentRoomId = data.roomId;
+    currentMatchDbId = data.matchId;
     
     callback(data);
   });
 };
 
 export const onGameUpdate = (callback: (data: GameUpdatePayload) => void) => {
-  socket.off('game_update'); // <--- MEJORA DE LIMPIEZA
+  socket.off('game_update');
   socket.on('game_update', callback);
 };
 
 export const onGameOver = (callback: (data: any) => void) => {
-  socket.off('game_over'); // <--- MEJORA DE LIMPIEZA
+  socket.off('game_over');
   socket.on('game_over', (data) => {
     console.log("🏆 Game Over recibido. Ganador:", data.winner);
-    currentRoomId = null;     // Limpiamos memoria
-    currentMatchDbId = null;  // Limpiamos memoria
+    currentRoomId = null;
+    currentMatchDbId = null;
     callback(data);
   });
 };
