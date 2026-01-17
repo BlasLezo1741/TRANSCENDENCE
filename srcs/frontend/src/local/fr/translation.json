@@ -16,6 +16,9 @@
     "borrar_t": "Effacer",
     "enviar": "Valider",
     "enviando": "Envoi en cours...",
+    "bienvenido": "Bienvenue",
+    "init_ses": "Se connecter",
+    "cuenta?" :"Pas de compte ?",
     "pass_req": "Le mot de passe doit contenir : une minuscule, une majuscule, un chiffre et un minimum de 8 caractères.",
     "juegos": "Jeux"
 }

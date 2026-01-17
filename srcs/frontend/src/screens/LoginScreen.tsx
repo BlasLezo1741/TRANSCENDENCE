@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { checkLogin } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
+import { useTranslation } from 'react-i18next';
 
 // Añadimos una nueva prop para actualizar el estado padre
 type LoginScreenProps = ScreenProps & {
@@ -8,6 +9,7 @@ type LoginScreenProps = ScreenProps & {
 };
 
 const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
+    const { t } = useTranslation();
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -50,8 +52,8 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
             <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Bienvenido</h1>
-                    <p className="text-gray-500 mt-2">Inicia sesión en tu cuenta</p>
+                    <h1 className="text-3xl font-bold text-gray-900">{t('bienvenido')}</h1>
+                    {/*<p className="text-gray-500 mt-2">{t('init_ses')}</p> */}
                 </div>
 
                 <form onSubmit={handleForm} className="space-y-6">
@@ -65,7 +67,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     {/* User */}
                     <div>
                         <label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">
-                            Usuario
+                            {t('user')}
                         </label>
                         <input
                             type="text"
@@ -83,7 +85,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     {/* Password */}
                     <div>
                         <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">
-                            Contraseña
+                            {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
                         </label>
                         <input
                             type="password"
@@ -103,13 +105,13 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                         ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
                     >
-                        {isLoading ? "Cargando..." : "Entrar"}
+                        {isLoading ? t('enviando') : t('enviar')}
                     </button>
                 </form>
 
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
-                        ¿No tienes cuenta?{" "}
+                        {t('cuenta?')}{" "}
                         <button
                             onClick={(e) => {
                                 e.preventDefault();
@@ -117,7 +119,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                             }}
                             className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none underline"
                         >
-                            Regístrate aquí
+                            {t('crear_cuenta')}
                         </button>
                     </p>
                 </div>

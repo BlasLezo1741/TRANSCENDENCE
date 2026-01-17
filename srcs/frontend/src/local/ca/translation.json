@@ -16,6 +16,9 @@
     "borrar_t": "Esborrar",
     "enviar": "Enviar",
     "enviando": "Enviant...",
+    "bienvenido": "Benvingut",
+    "init_ses": "Iniciar sessió",
+    "cuenta?" :"No tens un compte?",
     "pass_req": "La contrasenya ha de tenir: minúscula, majúscula, un número i un mínim de 8 caràcters.",
     "juegos": "Jocs"
 }
