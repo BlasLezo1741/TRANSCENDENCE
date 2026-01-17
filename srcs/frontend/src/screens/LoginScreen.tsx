@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { checkLogin } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 
-const LoginScreen = ({ dispatch }: ScreenProps) => {
+// Añadimos una nueva prop para actualizar el estado padre
+type LoginScreenProps = ScreenProps & {
+    setGlobalUser: (user: string) => void;
+};
+
+const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -21,6 +26,17 @@ const LoginScreen = ({ dispatch }: ScreenProps) => {
                 setError(result.msg || "Error desconocido");
                 setPassword("");
             } else {
+                // 1. Guardamos en LocalStorage para que persista al refrescar
+                localStorage.setItem("pong_user_nick", result.user.name);
+
+                //localStorage.setItem("pong_user_id", result.user.id);
+                localStorage.setItem("pong_user_id", result.user.id.toString());
+
+                // 2. Actualizamos el estado global en App.tsx
+                setGlobalUser(result.user.name);
+                console.log("🔓 Login exitoso. Usuario global actualizado:", result.user.name);
+                
+                // 3. Ir al menú
                 dispatch({ type: "MENU" });
             }
         } catch (err) {

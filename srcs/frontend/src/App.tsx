@@ -18,21 +18,29 @@ import "./App.css";
 
 function App()
 {
-  const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
+  //const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
+  const [screen, dispatch] = useReducer(screenReducer, "login" as Screen); // Iniciamos en LOGIN por defecto
+  
+  // --- GESTIÓN DE USUARIO REAL ---
+  // Intentamos leer del almacenamiento local al inicio, si no hay, es cadena vacía
+  const [currentUser, setCurrentUser] = useState<string>(() => {
+      return localStorage.getItem("pong_user_nick") || "";
+  }); 
   const [mode, setMode] = useState<GameMode>("ia");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
   const [ballInit, setBallInit] = useState<{x: number, y: number} | null>(null);
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
   
-  // TRUCO TEMPORAL: Usuario desde URL
-  // Cuando abras la ventana incógnito, CAMBIA ESTO MANUALMENTE a "user_2" en el código.
-  // En el futuro esto vendrá del LoginScreen.
-  //const currentUser = "user_1";
-  const queryParams = new URLSearchParams(window.location.search);
-  const currentUser = queryParams.get("user") || "user_1";
-
+  // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
+  // Si ya tenemos usuario guardado al cargar la página, vamos directos al menú
+  useEffect(() => {
+      if (currentUser && screen === 'login') {
+          // Opcional: Si quieres saltar el login si ya hay usuario
+          dispatch({ type: "MENU" });
+      }
+  }, []); 
 
   // ESCUCHA GLOBAL DE SOCKET EN APP  
   useEffect(() => {
@@ -97,7 +105,9 @@ function renderScreen()
       case "sign":
         return <SignScreen dispatch={dispatch} />;
       case "login":
-        return <LoginScreen dispatch={dispatch} />;
+        //return <LoginScreen dispatch={dispatch} />;
+        // Pasamos 'setCurrentUser' para que el Login pueda actualizar el estado de App
+        return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} />;
       case "pong":
         return <PongScreen
           dispatch={dispatch}
@@ -106,7 +116,7 @@ function renderScreen()
           opponentName={opponentName}
           ballInit={ballInit}
           playerSide={playerSide}
-          roomId={roomId} //
+          roomId={roomId} 
         />;
       default:
           return null;
