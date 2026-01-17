@@ -32,12 +32,17 @@ function App()
   const queryParams = new URLSearchParams(window.location.search);
   const currentUser = queryParams.get("user") || "user_1";
 
-  // 🔥 NUEVO: ESCUCHA GLOBAL DE SOCKET EN APP  
+  const [roomId, setRoomId] = useState<string>("");
+
+  // ESCUCHA GLOBAL DE SOCKET EN APP  
   useEffect(() => {
       const handleMatchFound = (payload: any) => {
           console.log("🔔 [App.tsx] Evento match_found recibido:", payload);
 
-          if (payload.roomId && payload.matchId) {
+          if (payload.roomId && payload.matchId !== undefined) {
+              
+              // 🔥 NUEVO: GUARDAR ROOM ID EN ESTADO
+              setRoomId(payload.roomId)
               // 1. Guardar IDs
               setMatchData(payload.roomId, payload.matchId);
               
@@ -58,11 +63,20 @@ function App()
                   console.log("📍 Lado asignado a este cliente:", payload.side);
                   setPlayerSide(payload.side);
               }
-          }
 
-          // 5. Configurar modo y cambiar pantalla
-          setMode("remote");
-          dispatch({ type: "PONG" });
+              // 5. Configurar modo y cambiar pantalla
+              setMode("remote");
+
+              // 6. CAMBIO DE PANTALLA CON RETRASO (SOLUCIÓN)
+              // Esperamos 50ms para asegurar que React actualice playerSide y opponentName
+              // antes de montar el componente PongScreen.
+              setTimeout(() => {
+                  console.log("🚀 Ejecutando cambio de pantalla a PONG...");
+                  dispatch({ type: "PONG" });
+              }, 50);
+          } else {
+             console.error("❌ Error: roomId o matchId no válidos", payload);
+          }
       };
 
       // Activar listener
@@ -74,22 +88,16 @@ function App()
       };
     }, []); // Array vacío = se ejecuta al montar App una vez
 
-  function renderScreen()
+function renderScreen()
   {
     switch (screen)
     {
       case "menu":
-        return <MenuScreen
-          dispatch={dispatch}
-          setMode={setMode}
-          userName={currentUser}
-        />;
+        return <MenuScreen dispatch={dispatch} setMode={setMode} userName={currentUser} />;
       case "sign":
         return <SignScreen dispatch={dispatch} />;
       case "login":
         return <LoginScreen dispatch={dispatch} />;
-      // case "settings":
-      //   return <SettingsScreen dispatch={dispatch} />;
       case "pong":
         return <PongScreen
           dispatch={dispatch}
@@ -98,6 +106,7 @@ function App()
           opponentName={opponentName}
           ballInit={ballInit}
           playerSide={playerSide}
+          roomId={roomId} //
         />;
       default:
           return null;
@@ -105,11 +114,12 @@ function App()
   }
 
   return (
-    <div className="app">
-      {/* 1. Ponemos el indicador arriba de todo */}
+    <div>
       <StatusBadge /> 
-      <Header dispatch={dispatch} userName={currentUser}/>
-      {/* 2. El resto de la aplicación */}
+      <div style={{position: 'absolute', top: 0, right: 0, color: 'lime', padding: '5px'}}>
+          Soy: {currentUser}
+      </div>
+      <Header dispatch={dispatch}/>
       <main>{renderScreen()}</main>
       <Footer />
     </div>

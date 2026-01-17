@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { UsePipes, ValidationPipe, Inject } from '@nestjs/common';
-
+import { v4 as uuidv4 } from 'uuid'; //(o usar crypto.randomUUID en Node moderno)
 // DTOs (Entrada)
 import { JoinQueueDto } from './dto/join-queue.dto';
 import { PaddleMoveDto } from './dto/paddle-move.dto';
@@ -17,8 +17,6 @@ import { FinishGameDto } from './dto/finish-game.dto';
 
 // Interfaces (Salida)
 import { MatchFoundResponse } from './dto/match-found.response';
-import { ScoreUpdateResponse } from './dto/score-update.response';
-import { GameUpdateResponse } from './dto/game-update.response'; // Descomentar si la usas
 
 // --- DRIZZLE & DB ---
 import { DRIZZLE } from './database.module';
@@ -26,6 +24,38 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as schema from './schema'; 
 import { eq, sql } from 'drizzle-orm'; 
 // --------------------
+
+
+
+// INTERFAZ DE ESTADO DEL JUEGO (Memoria del Servidor)
+interface GameState {
+  roomId: string;
+  // Guardamos las PKs de usuarios para el INSERT final
+  playerLeftDbId: number; 
+  playerRightDbId: number;
+  // IDs de socket (para desconexión)
+  playerLeftId: string;
+  playerRightId: string;
+  ball: {
+    x: number;      // Posición X (0.0 a 1.0)
+    y: number;      // Posición Y (0.0 a 1.0)
+    vx: number;     // Velocidad X
+    vy: number;     // Velocidad Y
+    speed: number;  // Velocidad escalar
+  };
+  paddles: {
+    left: number;   // Y del jugador izq (0.0 a 1.0)
+    right: number;  // Y del jugador der (0.0 a 1.0)
+  };
+  score: [number, number]; // [Izquierda, Derecha]
+// NUEVAS ESTADÍSTICAS
+  stats: {
+      totalHits: number;      // Toques totales
+      maxRally: number;       // Peloteo más largo
+      startTime: Date;        // Para calcular duración exacta
+  };
+  intervalId?: NodeJS.Timeout; // El ID del bucle para poder pararlo
+}
 
 @UsePipes(new ValidationPipe({ whitelist: true }))
 @WebSocketGateway({
@@ -40,8 +70,19 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-//Mapa para gestionar colas por modo de juego (ej: '1v1_remote' -> [Socket])
+  //Mapa para gestionar colas por modo de juego (ej: '1v1_remote' -> [Socket])
   private queues: Map<string, Socket[]> = new Map();
+
+  // ALMACÉN DE PARTIDAS ACTIVAS
+  private games: Map<string, GameState> = new Map();
+
+  // Constantes de física del servidor (Ajustables)
+  private readonly SERVER_WIDTH = 1.0; // Normalizado
+  private readonly SERVER_HEIGHT = 1.0; // Normalizado
+  private readonly PADDLE_HEIGHT = 0.2; // 20% de la pantalla (ajusta a tu gusto)
+  private readonly INITIAL_SPEED = 0.01; // Velocidad inicial por frame
+  private readonly SPEED_INCREMENT = 1.02; // 5% más rápido cada golpe
+  private readonly MAX_SCORE = 5;
 
   constructor(
     @Inject(DRIZZLE) 
@@ -65,14 +106,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     });
 
-    this.server.emit('player_offline', {
-      userId: client.id,
-      reconnectWindow: 30
-    });
+    // Limpiar partida activa
+    for (const [roomId, game] of this.games.entries()) {
+        if (game.playerLeftId === client.id || game.playerRightId === client.id) {
+             console.log(`⚠️ Jugador desconectado en partida ${roomId}. Terminando...`);
+             this.stopGameLoop(roomId); 
+             this.server.to(roomId).emit('opponent_disconnected');
+        }
+    }
   }
 
-
-TypeScript
+  // --- JOIN QUEUE (MATCHMAKING) ---
 
   @SubscribeMessage('join_queue')
   async handleJoinQueue(
@@ -130,6 +174,8 @@ TypeScript
       console.log(`⚔️ MATCH ENCONTRADO: ${client.id} vs ${opponent.id}`);
 
       try {
+        
+        // Validar modo
         console.log(`💽 [STEP 7] Consultando DB para modo: ${mode}`);
         const modeResult = await this.db.query.matchMode.findFirst({
           where: eq(schema.matchMode.mmodName, mode)
@@ -141,39 +187,51 @@ TypeScript
           return;
         }
 
-        console.log(`📝 [STEP 8] Insertando partida en DB...`);
-        const newMatch = await this.db.insert(schema.match).values({
-          mModeFk: modeResult.mmodPk,
-          mDate: sql`NOW()`,
-        }).returning({ insertedId: schema.match.mPk });
+        // Obtener IDs de DB (necesarios para el Guardado Final)
+        console.log(`📝 [STEP 8] Guardando datos para DB...`);
+        const p1Db = await this.findPlayerByNick(client.data.user.pNick);
+        const p2Db = await this.findPlayerByNick(opponent.data.user.pNick);
 
-        const matchId = newMatch[0].insertedId;
-        const roomId = `match_${matchId}`;
+        if (!p1Db || !p2Db) {
+            console.error("❌ No se encontraron los usuarios en DB");
+            return;
+        }
+        // Generar Room ID temporal (NO insertamos en DB todavía)
+        const roomId = `room_${uuidv4()}`; 
+        
+        // MatchId temporal (0) porque aún no existe en DB
+        const tempMatchId = 0;
 
         // Unir a sala
         console.log(`🚪 [STEP 9] Uniendo sockets a sala ${roomId}`);
         await client.join(roomId);    
         await opponent.join(roomId);   
 
-        // --- CÁLCULO DE FÍSICA SINCRONIZADA ---
-        // Generamos el vector AQUÍ para que sea idéntico para los dos
-        const dirX = Math.random() < 0.5 ? -1 : 1;
-        const dirY = Math.random() * 2 - 1;
-        const leng = Math.sqrt(dirX * dirX + dirY * dirY);
-        const ballInit = { x: dirX / leng, y: dirY / leng };
-        // ---------------------------------------
-
-        // Respuestas (Ahora incluyen ballInit)
+        // --- INICIAR EL BUCLE DE SERVIDOR ---
+        //this.startGameLoop(roomId, client.id, opponent.id, p1Db.pPk, p2Db.pPk);
+        this.startGameLoop(
+            roomId, 
+            opponent.id,  // El que esperaba va a la IZQUIERDA (Player 1)
+            client.id,    // El que llega va a la DERECHA (Player 2)
+            p2Db.pPk,     // Asegúrate que este DB ID corresponda al opponent (ajusta si es necesario)
+            p1Db.pPk      // Asegúrate que este DB ID corresponda al client
+        );
         const responseP1: MatchFoundResponse = {
-          roomId, matchId, side: 'left',
+          roomId,
+          matchId: tempMatchId,
+          side: 'left',
+          // CORRECCIÓN: El rival de P1 es P2 (client)
           opponent: { name: client.data.user.pNick, avatar: 'default.png' },
-          ballInit: ballInit // <--- NUEVO
+          ballInit: { x: 0.5, y: 0.5 } 
         };
 
         const responseP2: MatchFoundResponse = {
-          roomId, matchId, side: 'right',
-          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' },
-          ballInit: ballInit // <--- NUEVO
+          roomId,
+          matchId: tempMatchId,
+          side: 'right',
+          // CORRECCIÓN: El rival de P2 es P1 (opponent)
+          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }, 
+          ballInit: { x: 0.5, y: 0.5 }
         };
 
         console.log(`🚀 [STEP 10] Enviando evento match_found a ambos.`);
@@ -184,10 +242,8 @@ TypeScript
         console.error('❌ [CRITICAL ERROR] Fallo en la lógica de DB/Sala:', error);
         if (opponent) queue.unshift(opponent);
       }
-
-    } 
     // --- ESCENARIO 2: No hay nadie, toca esperar ---
-    else {
+    } else {
       console.log(`📥 [STEP 5b] Cola vacía. Añadiendo a ${nickname} a la espera.`);
       queue.push(client);
       console.log(`⏳ Jugador ${client.id} añadido a la cola.`);
@@ -198,195 +254,287 @@ TypeScript
       });
     }
   }
-//   @SubscribeMessage('join_queue')
-//   async handleJoinQueue(
-//     @ConnectedSocket() client: Socket, 
-//     @MessageBody() payload: JoinQueueDto 
-//   ) {
-//     // const mode = payload.mode;
-//     // console.log(`📢 [QUEUE] Jugador ${client.id} busca modo: ${mode}`);
-//     const { mode, nickname } = payload;
-//     console.log(`📢 [QUEUE] Jugador ${nickname} (${client.id}) busca modo: ${mode}`);
-//     // ... lógica de client.data.user ...
-//     if (!client.data.user) {
-//         client.data.user = { pNick: nickname || 'Anon' };
-//     }
-//     let queue = this.queues.get(mode);
-//     if (!queue) {
-//       queue = [];
-//       this.queues.set(mode, queue);
-//     // // Inicializar la cola si no existe
-//     // if (!this.queues.has(mode)) {
-//     //   this.queues.set(mode, []);
-//     // }
 
-//     // const queue = this.queues.get(mode);
+// --- GAME LOOP & PHYSICS ---
 
-//     // --- ESCENARIO 1: Hay alguien esperando (MATCH ENCONTRADO) ---
-//     if (queue.length > 0) {
+  private startGameLoop(roomId: string, pLeftId: string, pRightId: string, pLeftDb: number, pRightDb: number) {
+    const state: GameState = {
+      roomId,
+      playerLeftId: pLeftId,
+      playerRightId: pRightId,
+      playerLeftDbId: pLeftDb,
+      playerRightDbId: pRightDb,
+      ball: { x: 0.5, y: 0.5, vx: 0, vy: 0, speed: this.INITIAL_SPEED },
+      paddles: { left: 0.5, right: 0.5 },
+      score: [0, 0],
+      // INICIALIZACIÓN DE ESTADÍSTICAS
+      stats: {
+          totalHits: 0,
+          maxRally: 0,
+          startTime: new Date()
+      }
+    };
+
+    this.resetBall(state);
+    this.games.set(roomId, state);
+
+  // Bucle a 60 FPS (aprox 16ms)
+    const interval = setInterval(() => {
+      // Protección Zombie: Si la sala se borró, parar.
+      if (!this.games.has(roomId)) {
+          clearInterval(interval);
+          return;
+      }
+
+      this.updateGamePhysics(state);
       
-//       const opponent = queue.shift(); 
+      this.server.to(roomId).emit('game_update_physics', {
+        ball: { x: state.ball.x, y: state.ball.y },
+        score: state.score,
+        paddles: { left: state.paddles.left, right: state.paddles.right }
+      });
 
-//       // --- CORRECCIÓN 2: Validación estricta de undefined ---
-//       if (!opponent) return;
+    }, 16);
+    state.intervalId = interval;
+  }
 
-//       // Evitar jugar contra uno mismo
-//       if (opponent.id === client.id) {
-//         queue.push(client);
-//         return;
-//       }
+  private updateGamePhysics(state: GameState) {
+    // 1. Guardar posición ANTERIOR (Clave para evitar efecto túnel)
+    const prevX = state.ball.x;
+    const prevY = state.ball.y;
 
-//       console.log(`⚔️ MATCH ENCONTRADO: ${client.id} (P2) vs ${opponent.id} (P1)`);
+    // 2. Mover la bola
+    state.ball.x += state.ball.vx;
+    state.ball.y += state.ball.vy;
 
-//       try {
-//         const modeResult = await this.db.query.matchMode.findFirst({
-//           where: eq(schema.matchMode.mmodName, mode)
-//         });
+    // 3. Rebotes en paredes superior/inferior
+    if (state.ball.y <= 0 || state.ball.y >= 1) {
+        state.ball.vy *= -1;
+        // Corrección de posición para que no se quede pegada
+        state.ball.y = state.ball.y <= 0 ? 0.001 : 0.999;
+    }
 
-//         if (!modeResult) {
-//           console.error(`❌ Error: El modo '${mode}' no existe en la tabla match_mode.`);
-//           queue.unshift(opponent);
-//           return;
-//         }
+    const paddleHalf = this.PADDLE_HEIGHT / 2;
+    // Definimos dónde está la "cara" de la pala (zona de impacto)
+    const PADDLE_MARGIN = 0.035; // El mismo valor que usabas en tus pruebas
 
-//         // Insertar partida en DB
-//         const newMatch = await this.db.insert(schema.match).values({
-//           mModeFk: modeResult.mmodPk,
-//           mDate: sql`NOW()`,
-//         }).returning({ insertedId: schema.match.mPk });
+    // --- COLISIÓN PALA IZQUIERDA (P1) ---
+    // Detectamos si la bola CRUZÓ la línea de la pala (estaba a la derecha y ahora está a la izquierda)
+    if (prevX >= PADDLE_MARGIN && state.ball.x <= PADDLE_MARGIN) {
+        
+        // Calcular en qué punto exacto de Y cruzó la línea X = PADDLE_MARGIN
+        // Fórmula de interpolación lineal
+        const t = (PADDLE_MARGIN - prevX) / (state.ball.x - prevX);
+        const intersectY = prevY + t * (state.ball.y - prevY);
 
-//         const matchId = newMatch[0].insertedId;
-//         const roomId = `match_${matchId}`;
+        // Comprobar si ese punto Y está dentro de la pala (con un pequeño margen de error '0.01' para bordes)
+        if (intersectY >= state.paddles.left - paddleHalf - 0.01 && 
+            intersectY <= state.paddles.left + paddleHalf + 0.01) {
+            
+            // ¡COLISIÓN CONFIRMADA!
+            state.ball.x = PADDLE_MARGIN + 0.01; // Sacar la bola
+            state.ball.vx = Math.abs(state.ball.vx); // Forzar dirección derecha
+            
+            // Lógica de juego
+            state.stats.totalHits++;
+            state.ball.speed *= this.SPEED_INCREMENT;
+            this.adjustAngle(state, state.paddles.left);
+        }
+    }
 
-//         // Unir a sala
-//         await client.join(roomId);    
-//         await opponent.join(roomId);   
+    // --- COLISIÓN PALA DERECHA (P2) ---
+    // Detectamos si la bola CRUZÓ la línea (estaba a la izquierda y ahora está a la derecha)
+    const RIGHT_PADDLE_X = 1 - PADDLE_MARGIN;
+    
+    if (prevX <= RIGHT_PADDLE_X && state.ball.x >= RIGHT_PADDLE_X) {
+        
+        const t = (RIGHT_PADDLE_X - prevX) / (state.ball.x - prevX);
+        const intersectY = prevY + t * (state.ball.y - prevY);
 
-//         console.log(`🚪 Sala creada: ${roomId} | Match ID: ${matchId}`);
+        if (intersectY >= state.paddles.right - paddleHalf - 0.01 && 
+            intersectY <= state.paddles.right + paddleHalf + 0.01) {
+            
+            state.ball.x = RIGHT_PADDLE_X - 0.01; // Sacar la bola
+            state.ball.vx = -Math.abs(state.ball.vx); // Forzar dirección izquierda
+            
+            state.stats.totalHits++;
+            state.ball.speed *= this.SPEED_INCREMENT;
+            this.adjustAngle(state, state.paddles.right);
+        }
+    }
 
-//         // Datos para el oponente (Player 1 - Left)
-//         const responseP1: MatchFoundResponse = {
-//           roomId,
-//           matchId,
-//           side: 'left',
-//           opponent: { name: client.data.user.pNick, avatar: 'default.png' } 
-//         };
+  // DETECCIÓN DE GOLES
+    if (state.ball.x < -0.05) {
+        state.score[1]++; // Punto P2
+        this.handleGoal(state);
+    } else if (state.ball.x > 1.05) {
+        state.score[0]++; // Punto P1
+        this.handleGoal(state);
+    }
+  }
 
-//         // Datos para el cliente actual (Player 2 - Right)
-//         const responseP2: MatchFoundResponse = {
-//           roomId,
-//           matchId,
-//           side: 'right',
-//           opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }
-//         };
+  // Refactorización para no repetir código en goles
+  private handleGoal(state: GameState) {
+      this.server.to(state.roomId).emit('score_updated', { score: state.score });
+      this.resetBall(state);
+      this.checkWinner(state);
+  }
 
-//         opponent.emit('match_found', responseP1);
-//         client.emit('match_found', responseP2);
+  private checkWinner(state: GameState) {
+      if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
+          this.server.to(state.roomId).emit('score_updated', { score: state.score });
+        // 1. Obtener el NICKNAME real del ganador usando los IDs guardados
+          const winnerNick = state.score[0] >= this.MAX_SCORE 
+              ? (state.playerLeftId === state.playerLeftId ? "User_Left" : "Unknown") // Simplificación temporal, mejor usar DB
+              : (state.playerRightId === state.playerRightId ? "User_Right" : "Unknown");
 
-//       } catch (error) {
-//         console.error('❌ Error crítico creando partida en DB:', error);
-//         if (opponent) queue.unshift(opponent);
-//       }
+          // TRUCO: Como no tenemos los nicks a mano en 'state' fácil (solo en DB), 
+          // vamos a enviar "Left" o "Right" y que el Frontend ponga el nombre.
+          const winnerSide = state.score[0] >= this.MAX_SCORE ? "left" : "right";
+          // Llamamos a finish game logic
+          this.stopGameLoop(state.roomId);
+          // 2. DESACTIVAMOS DB TEMPORALMENTE (Para evitar el crash)
+           this.saveMatchToDb(state, winnerSide); 
 
-//     }
-//     // --- ESCENARIO 2: No hay nadie, toca esperar ---
-//     else {
-//       queue.push(client);
-//       console.log(`⏳ Jugador ${client.id} añadido a la cola. Esperando oponente...`);
-      
-//       // Opcional: Avisar al cliente que está esperando
-//       client.emit('waiting_for_match', { 
-//         message: 'Buscando oponente...',
-//         mode: mode 
-//       });
-//     }
-//   }
-// }
+          // 3. Enviamos quién ganó (left o right)
+          // TRUCO DEL DELAY: Esperamos 500ms antes de mandar el Game Over
+            // Esto permite que el Frontend reciba el score, React renderice el 5, 
+            // el usuario lo vea, y LUEGO salte el final.
+            setTimeout(() => {
+                this.server.to(state.roomId).emit('game_over', { winner: winnerSide });
+                console.log("🏁 Evento game_over enviado.");
+            }, 500); // 500 milisegundos (medio segundo)
+      }
+  }
+
+  private resetBall(state: GameState) {
+      state.ball.x = 0.5;
+      state.ball.y = 0.5;
+      state.ball.speed = this.INITIAL_SPEED;
+      const dirX = Math.random() < 0.5 ? -1 : 1;
+      const angle = (Math.random() * 2 - 1) * (Math.PI / 5); 
+      state.ball.vx = dirX * Math.cos(angle) * state.ball.speed;
+      state.ball.vy = Math.sin(angle) * state.ball.speed;
+      // // Simplifiquemos el saque para probar
+      // state.ball.vx = (Math.random() < 0.5 ? -1 : 1) * state.ball.speed;
+      // state.ball.vy = 0;
+  }
+
+  private adjustAngle(state: GameState, paddleY: number) {
+      const deltaY = state.ball.y - paddleY; 
+      const normalizedDelta = deltaY / (this.PADDLE_HEIGHT / 2);
+      const angle = normalizedDelta * (Math.PI / 4);
+      const dirX = state.ball.vx > 0 ? 1 : -1;
+      state.ball.vx = dirX * Math.cos(angle) * state.ball.speed;
+      state.ball.vy = Math.sin(angle) * state.ball.speed;
+  }
 
   // --- PADDLE MOVE (Juego en tiempo real) ---
 
-  @SubscribeMessage('paddle_move')
+@SubscribeMessage('paddle_move')
   handlePaddleMove(
-    @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: PaddleMoveDto 
+      @ConnectedSocket() client: Socket, 
+      @MessageBody() payload: PaddleMoveDto 
   ) {
-    // console.log(`🏓 [MOVE] Cliente: ${client.id} | Dir: ${payload.direction}`);
+    const game = this.games.get(payload.roomId);
     
-    // Seguridad: Verificar que el socket pertenece a la sala que dice
-    if (!client.rooms.has(payload.roomId)) {
-        console.warn(`⚠️ Alerta: El usuario ${client.id} intentó mover en una sala ajena.`);
-        return;
+    // 1. Si la partida no existe, no hacemos nada.
+    if (!game) return;
+
+    // 2. Validación defensiva: Si 'y' no viene, salimos.
+    // (Aunque el DTO ayuda, esto evita errores lógicos si el frontend falla)
+    if (payload.y === undefined || payload.y === null) return;
+
+    // 3. Sanitización (Clamp): Convertir a número y forzar rango 0.0 - 1.0
+    let newY = Number(payload.y); 
+    newY = Math.max(0, Math.min(1, newY)); 
+
+    // 4. Asignación directa según quién sea el cliente
+    if (client.id === game.playerLeftId) {
+        game.paddles.left = newY;
+    } else if (client.id === game.playerRightId) {
+        game.paddles.right = newY;
     }
-
-    const updateData: GameUpdateResponse = {
-      playerId: client.id,
-      move: payload.direction // Esto ahora coincide con la interfaz
-    };
-
-    // Reenviar movimiento al oponente (Broadcast a la sala, excluyendo al emisor)
-    // client.to(payload.roomId).emit('game_update', {
-    //   playerId: client.id,
-    //   move: payload.direction
-    // });
-    client.to(payload.roomId).emit('game_update', updateData);
   }
-
-  // --- FINISH GAME (Cierre de partida + DB Update) ---
+  // --- FINISH GAME (CON INSERT DB FINAL) ---
 
   @SubscribeMessage('finish_game')
   async handleFinishGame(
     @ConnectedSocket() client: Socket, 
     @MessageBody() payload: FinishGameDto 
   ) {
-    console.log(`🏁 [FIN] Sala: ${payload.roomId} | Ganador: ${payload.winnerId} | Match PK: ${payload.matchId}`);
+    console.log(`🏁 Petición fin juego: ${payload.roomId} por ${payload.winnerId}`);
+    
+    // Recuperar estado antes de borrarlo
+    const game = this.games.get(payload.roomId);
+    if (!game) return;
 
-    // Seguridad básica
-    if (!client.rooms.has(payload.roomId)) {
-        console.warn(`⚠️ Intento de cerrar juego ajeno. User: ${client.id}`);
-    }
+    this.stopGameLoop(payload.roomId); 
 
-    try {
-        // 1. Buscar ID del Jugador Ganador por su Nick
-        const winnerPlayer = await this.db.query.player.findFirst({
-            where: eq(schema.player.pNick, payload.winnerId)
-        });
+    // GUARDAR EN BASE DE DATOS (Una sola vez)
+    await this.saveMatchToDb(game, payload.winnerId);
 
-        if (winnerPlayer) {
-            // 2. Actualizar la partida con el Ganador y Duración
-            await this.db.update(schema.match)
-                .set({ 
-                    mWinnerFk: winnerPlayer.pPk, 
-                    mDuration: sql`NOW() - m_date` 
-                }) 
-                .where(eq(schema.match.mPk, payload.matchId));
-            
-            console.log(`💾 ¡Guardado! Ganador ID: ${winnerPlayer.pPk} (${winnerPlayer.pNick})`);
-        } else {
-            console.warn(`⚠️ No se pudo guardar: El usuario '${payload.winnerId}' no existe en la DB.`);
-        }
-
-    } catch (error) {
-        console.error('❌ Error al actualizar DB:', error);
-    }
-
-    // 3. Notificar Fin de Juego
+    // Notificar y limpiar
     this.server.to(payload.roomId).emit('game_over', { winner: payload.winnerId });
-
-    // 4. Limpieza de sala
+    
     const sockets = await this.server.in(payload.roomId).fetchSockets();
     for (const s of sockets) {
         s.leave(payload.roomId);
     }
-    
     console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
   }
+    
+    // MÉTODO EXTRAÍDO CORRECTAMENTE
+    private async saveMatchToDb(state: GameState, winnerNick: string) {
+    // 1. Usamos winnerNick en el log para callar la advertencia de "unused variable"
+    console.log(`💾 Guardando partida. Ganador nominal: ${winnerNick}`);
 
-//   // --- AUXILIAR (Futuro uso si la fisica la hace el servidor) ---
-//   emitScore(roomId: string, scorerId: string, newScore: [number, number]) {
-//     const payload: ScoreUpdateResponse = {
-//       score: newScore,
-//       scorerId: scorerId
-//     };
-//     this.server.to(roomId).emit('score_update', payload);
-//   }
+    const durationMs = Date.now() - state.stats.startTime.getTime();
+    
+    // 2. CORRECCIÓN CLAVE: Tipado explícito para permitir null
+    let winnerPk: number | null = null; 
+
+    // Lógica para determinar ID del ganador basado en puntuación real
+    if (state.score[0] > state.score[1]) {
+        winnerPk = state.playerLeftDbId;
+    } else if (state.score[1] > state.score[0]) {
+        winnerPk = state.playerRightDbId;
+    } else {
+        // En caso de empate técnico o fallo, asignamos al Player 1 por defecto 
+        // o lo dejamos null si tu DB lo permite. Por seguridad ponemos P1.
+        winnerPk = state.playerLeftDbId; 
+    }
+
+    try {
+        await this.db.insert(schema.match).values({
+            mModeFk: 1, 
+            mDate: state.stats.startTime.toISOString(), 
+            mDuration: durationMs.toString() + ' milliseconds', // Cast a string para evitar líos de tipos
+            mWinnerFk: winnerPk,
+            
+            // Datos nuevos
+            mScoreP1: state.score[0],
+            mScoreP2: state.score[1],
+            mTotalHits: state.stats.totalHits
+        });
+        console.log("💾 Partida guardada en DB correctamente.");
+    } catch (error) {
+        console.error("❌ Error guardando partida:", error);
+    }
+  }
+
+  private stopGameLoop(roomId: string) {
+      const game = this.games.get(roomId);
+      if (game && game.intervalId) {
+          clearInterval(game.intervalId);
+          this.games.delete(roomId);
+      }
+  }
+
+  // HELPER NECESARIO
+  private async findPlayerByNick(nickname: string) {
+      return await this.db.query.player.findFirst({
+          where: eq(schema.player.pNick, nickname)
+      });
+  }
 }
