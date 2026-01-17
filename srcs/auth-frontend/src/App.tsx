@@ -32,7 +32,7 @@ function App() {
 
   const [message, setMessage] = useState('');
   const [qrCode, setQrCode] = useState(''); // Para guardar el QR de Python
-
+/*
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('Enviando...');
@@ -80,7 +80,7 @@ function App() {
     </div>
   );
 }
-
+*/
 
   // Se ejecuta cada vez que escribes en un input:
 

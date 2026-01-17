@@ -66,10 +66,13 @@ EXPOSE ${TOTP_CONTAINER_PORT}
 
 # Al estar el venv en el PATH, 'uvicorn' se encontrará directamente
 #CMD ["uvicorn", "totp:app", "--host", "0.0.0.0", "--port", "8000"]
-CMD uvicorn app:app --host 0.0.0.0 --port ${PORT}
+#CMD uvicorn app:app --host 0.0.0.0 --port ${PORT}
 
 # ✅ FUNCIONA - pero sin variables
 #CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # ✅ FUNCIONA - usa /bin/sh -c para expandir variables
 #CMD uvicorn app:app --host 0.0.0.0 --port ${TOTP_CONTAINER_PORT}
+
+# Use Exec form (brackets) for better signal handling (CTRL+C works better)
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT} --reload"]
