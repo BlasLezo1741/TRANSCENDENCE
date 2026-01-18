@@ -28,10 +28,13 @@ import { DatabaseModule } from './database.module'; // ORM DRIZZLE
 // but based on our plan they should be in ./auth/
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
+// --- COUNTRIES ---
+import { CountriesModule } from './countries/countries.module';
 
 @Module({
   imports: [
     DatabaseModule,
+    CountriesModule,
   ],
   controllers: [
     AppController, 

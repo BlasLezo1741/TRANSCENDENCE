@@ -6,7 +6,7 @@
     "modo": "Elige el modo de juego",
     "Jugar": "Jugar",
     "user": "Usuario",
-    "crear_cuenta": "Create una cuenta",
+    "crear_cuenta": "Crear una cuenta",
     "password": "contraseña",
     "rep_pass": "Confirmar la contraseña",
     "cumple": "Fecha de nacimiento",
@@ -15,6 +15,10 @@
     "borrar_t": "Borrar",
     "enviar": "Enviar",
     "enviando": "Enviando...",
+    "bienvenido": "Bienvenido",
+    "init_ses": "Iniciar sesión",
+    "cuenta?" :"¿No tienes cuenta?",
+    "sel_pais" : "Selecciona el país",
     "pass_req": "La contraseña debe tener: minúscula, mayúscula, número y mínimo 8 caracteres.",
     "juegos": "Juegos"
 }

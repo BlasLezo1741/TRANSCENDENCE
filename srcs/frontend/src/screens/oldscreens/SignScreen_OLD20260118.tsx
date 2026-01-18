@@ -1,12 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { checkPassword, registUser } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
-
-interface Country {
-    name: string;
-    code: string;
-}
 
 const SignScreen = ({ dispatch }: ScreenProps) => {
     // USE TRANSLATOR
@@ -24,33 +19,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
-    // NEW: Countries state
-    const [countries, setCountries] = useState<Country[]>([]);
-    const [isLoadingCountries, setIsLoadingCountries] = useState(true);
-
-    // NEW: Fetch countries on component mount
-    useEffect(() => {
-        const fetchCountries = async () => {
-            try {
-                const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-                const response = await fetch(`${API_URL}/countries`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    setCountries(data);
-                } else {
-                    console.error('Failed to fetch countries');
-                }
-            } catch (error) {
-                console.error('Error fetching countries:', error);
-            } finally {
-                setIsLoadingCountries(false);
-            }
-        };
-
-        fetchCountries();
-    }, []);
 
     const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -193,27 +161,20 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                     {/* Country & Language Row */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Country - UPDATED TO DROPDOWN */}
+                        {/* Country */}
                         <div>
                             <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">{t('cod_pais')}</label>
-                            <select
+                            <input
+                                type="text"
                                 id="country"
                                 name="country"
                                 value={country}
                                 onChange={(e) => setCountry(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="ES, FR..."
+                                maxLength={2}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
-                                disabled={isLoadingCountries}
-                            >
-                                <option value="">
-                                    {isLoadingCountries ? 'Loading...' : t('sel_pais') || 'Select a country...'}
-                                </option>
-                                {countries.map((c) => (
-                                    <option key={c.code} value={c.code}>
-                                        {c.name} ({c.code})
-                                    </option>
-                                ))}
-                            </select>
+                            />
                         </div>
 
                         {/* Language */}

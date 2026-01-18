@@ -16,6 +16,10 @@
     "borrar_t": "Clear",
     "enviar": "Submit",
     "enviando": "Sending...",
+    "bienvenido": "Welcome",
+    "init_ses": "Log in",
+    "cuenta?" :"Don't have an account?",
+    "sel_pais" : "Select the country",
     "pass_req": "The password must contain: a lowercase letter, an uppercase letter, a number, and at least 8 characters.",
     "juegos": "Games"
 }
