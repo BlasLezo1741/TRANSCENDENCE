@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Microservicio de Autenticación con NestJS y Drizzle",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "tsc -b && nest build",
     "start": "nest start",

@@ -90,7 +90,7 @@ function bootstrap() {
                     // await espera a que el servidor esté listo
                     // Después de esto, tu API está funcionando en http://localhost:3000
                     _a.sent();
-                    console.log("\uD83D\uDE80 Servidor corriendo en http://localhost:3000");
+                    console.log("\uD83D\uDE80 Servidor corriendo en http://localhost:", port);
                     return [2 /*return*/];
             }
         });

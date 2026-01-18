@@ -4,7 +4,10 @@ services:
     container_name: ${AUF_CONTAINER_NAME}
     image: ${AUF_CONTAINER_NAME}
     command: npm run dev -- --port ${AUF_PORT} --host 0.0.0.0
-    restart: on-failure      
+    restart: on-failure    
+    volumes:
+      - .:/app
+      - /app/node_modules      
     ports:
       - ${AUF_PORT}:${AUF_PORT} # Accedemos por el 5174 para evitar conflictos
     env_file:

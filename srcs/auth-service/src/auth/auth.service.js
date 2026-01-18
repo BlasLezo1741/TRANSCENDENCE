@@ -90,6 +90,7 @@ var common_1 = require("@nestjs/common");
 // (Object-Relational Mapping), una herramienta que te permite hablar con la 
 // base de datos usando JavaScript en lugar de SQL puro.
 var node_postgres_1 = require("drizzle-orm/node-postgres");
+var drizzle_orm_1 = require("drizzle-orm");
 // Importa el esquema de tu base de datos (las definiciones de tus tablas.
 var schema = __importStar(require("../schema"));
 // HttpService - Para hacer peticiones HTTP a otros servicios (en este caso, 
@@ -127,24 +128,24 @@ var AuthService = /** @class */ (function () {
                     case 2:
                         hashedPassword = _a.sent();
                         return [4 /*yield*/, this.db.insert(schema.player).values({
-                                p_nick: dto.user,
-                                p_mail: dto.email,
-                                p_pass: hashedPassword,
-                                p_reg: new Date(),
+                                pNick: dto.user,
+                                pMail: dto.email,
+                                pPass: hashedPassword,
+                                pReg: new Date().toISOString(),
                             }).returning()];
                     case 3:
                         newUser = (_a.sent())[0];
                         pythonUrl = 'http://totp:8000/generate';
                         return [4 /*yield*/, (0, rxjs_1.firstValueFrom)(this.httpService.post(pythonUrl, {
-                                user_id: newUser.p_pk,
-                                user_nick: newUser.p_nick
+                                user_id: newUser.pPk,
+                                user_nick: newUser.pNick
                             }))];
                     case 4:
                         data = (_a.sent()).data;
                         if (!data.secret) return [3 /*break*/, 6];
                         return [4 /*yield*/, this.db.update(schema.player)
-                                .set({ p_totp_secret: data.secret })
-                                .where(schema.player.p_pk.equals(newUser.p_pk))];
+                                .set({ pTotpSecret: data.secret })
+                                .where((0, drizzle_orm_1.eq)(schema.player.pPk, newUser.pPk))];
                     case 5:
                         _a.sent();
                         _a.label = 6;
@@ -156,7 +157,7 @@ var AuthService = /** @class */ (function () {
                     // + El código QR (probablemente en base64) para que el frontend lo muestre
                     return [2 /*return*/, {
                             message: 'Usuario registrado con éxito',
-                            userId: newUser.p_pk,
+                            userId: newUser.pPk,
                             qrCode: data.qr_code, // El string base64 o URL que genera tu Python
                         }];
                     case 7:

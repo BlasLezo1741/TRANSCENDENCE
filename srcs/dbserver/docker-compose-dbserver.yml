@@ -4,8 +4,8 @@ services:
     image: postgres:${DB_POSTGRES_VERSION}
     restart: always
     container_name: dbserver
-    #ports:
-    #  - "5432:5432"  # <--- ESTO ES LO QUE FALTA para acceder fuera de docker   
+    ports:
+      - "5432:5432"  # <--- ESTO ES LO QUE FALTA para acceder fuera de docker   
     env_file:
       - ../.env
     healthcheck:

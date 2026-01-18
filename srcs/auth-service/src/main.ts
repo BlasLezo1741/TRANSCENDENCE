@@ -34,7 +34,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'http://localhost:5174', // URL de tu frontend de prueba
-    methods: 'GET,POST',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
@@ -60,7 +60,8 @@ async function bootstrap() {
   // Inicia el servidor en el puerto 3000
   // await espera a que el servidor esté listo
   // Después de esto, tu API está funcionando en http://localhost:3000
-  await app.listen(port);
-  console.log(`🚀 Servidor corriendo en http://localhost:3000`);
+  await app.listen(port,'0.0.0.0');
+  console.log(`🚀 Servidor corriendo en http://localhost:`,port);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

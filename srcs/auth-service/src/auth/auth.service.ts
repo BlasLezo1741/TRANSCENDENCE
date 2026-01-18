@@ -9,6 +9,8 @@ import { Injectable, Inject, InternalServerErrorException } from '@nestjs/common
 // base de datos usando JavaScript en lugar de SQL puro.
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
+import { eq } from 'drizzle-orm';
+
 // Importa el esquema de tu base de datos (las definiciones de tus tablas.
 import * as schema from '../schema';
 
@@ -82,10 +84,10 @@ export class AuthService {
       // RETURNING *;      
 
       const [newUser] = await this.db.insert(schema.player).values({
-        p_nick: dto.user,
-        p_mail: dto.email,
-        p_pass: hashedPassword,
-        p_reg: new Date(),
+        pNick: dto.user,
+        pMail: dto.email,
+        pPass: hashedPassword,
+        pReg: new Date().toISOString(),
       }).returning();
 
       // 3. Llamar al microservicio totp (Python) 
@@ -100,12 +102,12 @@ export class AuthService {
       // (los contenedores se comunican por nombre)
 
 
-      const pythonUrl = 'http://totp:8000/generate'; 
+      const pythonUrl = 'http://totp:8070/generate'; 
       
       const { data } = await firstValueFrom(
         this.httpService.post(pythonUrl, {
-          user_id: newUser.p_pk,
-          user_nick: newUser.p_nick
+          user_id: newUser.pPk,
+          user_nick: newUser.pNick
         })
       );
 
@@ -116,12 +118,12 @@ export class AuthService {
       // Equivalente SQL:
       // sqlUPDATE player 
       // SET p_totp_secret = 'JBSWY3DPEHPK3PXP' 
-      // WHERE p_pk = 123;
+      // WHERE pPk = 123;
 
       if (data.secret) {
         await this.db.update(schema.player)
-          .set({ p_totp_secret: data.secret })
-          .where(schema.player.p_pk.equals(newUser.p_pk));
+          .set({ pTotpSecret: data.secret })
+          .where(eq(schema.player.pPk, newUser.pPk));
       }
 
       // 5. Devolver al frontend los datos necesarios (como el QR)
@@ -132,7 +134,7 @@ export class AuthService {
 
       return {
         message: 'Usuario registrado con éxito',
-        userId: newUser.p_pk,
+        userId: newUser.pPk,
         qrCode: data.qr_code, // El string base64 o URL que genera tu Python
       };
 
