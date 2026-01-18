@@ -60,7 +60,7 @@ async function bootstrap() {
   // Inicia el servidor en el puerto 3000
   // await espera a que el servidor esté listo
   // Después de esto, tu API está funcionando en http://localhost:3000
-  await app.listen(3000);
+  await app.listen(port);
   console.log(`🚀 Servidor corriendo en http://localhost:3000`);
 }
 bootstrap();

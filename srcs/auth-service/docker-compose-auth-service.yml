@@ -13,7 +13,7 @@ services:
     env_file:
       - ../.env
     volumes:
-      - ./srcs/auth-service:/app
+      - .:/app
       - /app/node_modules # Protege los módulos instalados en el contenedor
     environment:
       # Aquí inyectamos la variable del .env al proceso de NestJS

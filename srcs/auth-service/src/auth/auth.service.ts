@@ -7,7 +7,7 @@ import { Injectable, Inject, InternalServerErrorException } from '@nestjs/common
 // Importa el tipo de base de datos. Drizzle es un ORM 
 // (Object-Relational Mapping), una herramienta que te permite hablar con la 
 // base de datos usando JavaScript en lugar de SQL puro.
-import { NodePdfDatabase } from 'drizzle-orm/node-postgres';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // Importa el esquema de tu base de datos (las definiciones de tus tablas.
 import * as schema from '../schema';
@@ -38,7 +38,7 @@ export class AuthService {
   constructor(
     // Inyectamos la instancia de Drizzle (configurada en database.module.ts)
     @Inject('DRIZZLE_CONNECTION')
-    private db: NodePdfDatabase<typeof schema>,
+    private db: NodePgDatabase<typeof schema>,
     private readonly httpService: HttpService,
   ) {}
   // async - Esta función es asíncrona (espera respuestas de la base de datos y 

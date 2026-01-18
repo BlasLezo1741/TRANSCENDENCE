@@ -12,7 +12,7 @@ export default defineConfig({
   dbCredentials: {
     // Usamos propiedades separadas para evitar el error de parseo de URL
     host: process.env.DB_HOST, 
-    port: process.env.DB_PORT,
+    port: Number(process.env.DB_PORT),
     user: process.env.POSTGRES_USER || 'postgres',
     password: process.env.POSTGRES_PASSWORD || 'example',
     database: process.env.POSTGRES_DB || 'transcendence',
