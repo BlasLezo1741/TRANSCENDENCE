@@ -17,6 +17,7 @@
     "enviando": "Enviando...",
     "bienvenido": "Bienvenido",
     "init_ses": "Iniciar sesión",
+    "logout": "Cerrar sesión",
     "cuenta?" :"¿No tienes cuenta?",
     "sel_pais" : "Selecciona el país",
     "pass_req": "La contraseña debe tener: minúscula, mayúscula, número y mínimo 8 caracteres.",

@@ -42,6 +42,13 @@ function App()
       }
   }, []); 
 
+  useEffect(() => {
+    if (screen === 'login' && currentUser) {
+        // User was logged out, clear the state
+        setCurrentUser("");
+    }
+  }, [screen]);
+
   // ESCUCHA GLOBAL DE SOCKET EN APP  
   useEffect(() => {
       const handleMatchFound = (payload: any) => {
@@ -127,9 +134,9 @@ function renderScreen()
     <div>
       <StatusBadge /> 
       <div style={{position: 'absolute', top: 0, right: 0, color: 'lime', padding: '5px'}}>
-          Soy: {currentUser}
+          Soy: {currentUser || 'Not logged in'}
       </div>
-      <Header dispatch={dispatch}/>
+      <Header dispatch={dispatch} userName={currentUser}/>
       <main>{renderScreen()}</main>
       <Footer />
     </div>
