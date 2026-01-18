@@ -2,15 +2,29 @@
 // Los hooks son funciones especiales que permiten usar características de React
 // en componentes funcionales.
 // Los hooks son funciones especiales de React que te permiten "engancharte" 
-// (hook = gancho en inglés) a características de React desde componentes funcionales.
-// MUY IMPORTANTE - Siempre debes seguir estas reglas:
-// Solo llamar hooks en el nivel superior - NO dentro de loops, condiciones o funciones anidadas
-// Solo llamar hooks en componentes React - O en custom hooks
+// (hook = gancho ) a características de React desde componentes funcionales.
+// MUY IMPORTANTE - Siempre debes seguir estas reglas con los Hooks:
+// Llamar en el nivel superior - NO en loops, condiciones o funciones anidadas
+// Llamar en componentes React - O en custom hooks
 import { useState } from 'react';
 
 // Creas un componente funcional llamado App. 
 // Es una función normal que retorna JSX (HTML + JavaScript).
 function App() {
+
+  // ===========================================================================
+  // CONFIGURACIÓN
+  // ===========================================================================
+
+
+  // Lee una variable de entorno llamada VITE_AUS_API_URL 
+  // "http://localhost:3010")
+  const backendUrl = import.meta.env.VITE_AUS_API_URL;  
+
+  // ===========================================================================
+  // ESTADOS (variables que React observa)
+  // ===========================================================================
+
   //Esto es CLAVE en React:
 
   // useState crea una variable de estado que React observa
@@ -29,61 +43,16 @@ function App() {
     password: ''
   });
 
-
   const [message, setMessage] = useState('');
   const [qrCode, setQrCode] = useState(''); // Para guardar el QR de Python
-/*
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage('Enviando...');
+  const [isLoading, setIsLoading] = useState(false);
 
-    try {
-      const response = await fetch('http://localhost:3000/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
 
-      const data = await response.json();
+  // ===========================================================================
+  // FUNCIONES (handlers)
+  // ===========================================================================
 
-      if (response.ok) {
-        setMessage('¡Usuario registrado con éxito!');
-        setQrCode(data.qrCode); // El backend devuelve { qrCode: "base64..." }
-      } else {
-        // Manejo de errores del ValidationPipe de NestJS
-        setMessage(`Error: ${data.message || 'No se pudo registrar'}`);
-      }
-    } catch (error) {
-      setMessage('Error de conexión con el servidor');
-    }
-  };
-
-  return (
-    <div style={{ padding: '40px', color: 'white', backgroundColor: '#1a1a1a', minHeight: '100vh', fontFamily: 'sans-serif' }}>
-      <h1>Registro de Prueba (Microservicios)</h1>
-      
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
-        <input type="text" placeholder="Usuario" onChange={e => setFormData({...formData, user: e.target.value})} required />
-        <input type="email" placeholder="Email" onChange={e => setFormData({...formData, email: e.target.value})} required />
-        <input type="password" placeholder="Contraseña" onChange={e => setFormData({...formData, password: e.target.value})} required />
-        <button type="submit" style={{ padding: '10px', cursor: 'pointer' }}>Registrar</button>
-      </form>
-
-      {message && <p style={{ marginTop: '20px', color: '#00ff00' }}>{message}</p>}
-
-      {qrCode && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Escanea tu 2FA:</h3>
-          <img src={qrCode} alt="QR Code 2FA" style={{ border: '10px solid white' }} />
-        </div>
-      )}
-    </div>
-  );
-}
-*/
-
-  // Se ejecuta cada vez que escribes en un input:
-
+  // ============= Se ejecuta cada vez que escribes en un input ================
   // e - El evento del input
   // e.target.name - El nombre del input ("user", "email" o "password")
   // e.target.value - Lo que escribiste
@@ -91,33 +60,34 @@ function App() {
 
   // Copia todo lo que había en formData (...formData)
   // Actualiza solo el campo que cambió ([e.target.name]: e.target.value)
-
-
-
   // Ejemplo: Si escribes "Juan" en el input user:
   // Antes: { user: '', email: '', password: '' }
-  // Después: { user: 'Juan', email: '', password: '' }
-
+  // Después: { user: 'Juan', email: '', password: '' }    
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ 
+      ...formData,                    // Copia todo lo anterior
+      [e.target.name]: e.target.value // Actualiza solo el campo que cambió
+    });
   };
 
-  // Simplemente resetea todos los campos a vacío. 
+  // ================= Limpia todos los campos =================================
   // Se ejecuta cuando haces clic en "Borrar".
   const handleBorrar = () => {
     setFormData({ user: '', email: '', password: '' });
+    setMessage('');
+    setQrCode('');
   };
 
+  // =================  Envía el formulario al backend ========================
   // async - Indica que esta función hace operaciones asíncronas 
   // (espera respuestas)
   // e.preventDefault() - Importante: Evita que el formulario recargue la página 
-  // (comportamiento por defecto del HTML)
-  const handleEnviar = async (e: React.FormEvent) => {
+  // (comportamiento por defecto del HTML)   
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);  // ← Input se DESHABILITA
+    setMessage('Enviando...');
     console.log("Enviando datos a NestJS:", formData);
-    // Lee una variable de entorno llamada VITE_AUS_API_URL 
-    // (probablemente la URL de tu backend, ej: "http://localhost:3000")
-    const backendUrl = import.meta.env.VITE_AUS_API_URL;    
     // Aquí haremos el fetch a NestJS más adelante
     try {
       // fetch() - Hace una petición HTTP al servidor
@@ -125,25 +95,49 @@ function App() {
       // Template literal con ${} para insertar la URL
       // POST - Tipo de petición (enviar datos)
       // headers - Le dice al servidor que envías JSON
-      // JSON.stringify(formData) - Convierte tu objeto JavaScript a texto JSON
+      // JSON.stringify(formData) - Convierte tu objeto JavaScript a texto JSON      
       const response = await fetch(`${backendUrl}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
       // Si todo va bien: convierte la respuesta a JSON y la muestra en consola
       // Si hay error: lo captura y muestra en consola
       const data = await response.json();
-      console.log("Respuesta del servidor:", data);
+      if (response.ok) {
+        setMessage('¡Usuario registrado con éxito!');
+        // Si el backend envía un QR code para 2FA        
+        if (data.qrCode)
+        {
+          setQrCode(data.qrCode); // El backend devuelve { qrCode: "base64..." }
+        }
+
+      } else {
+        // Manejo de errores del ValidationPipe de NestJS
+        const errorMsg = Array.isArray(data.message) 
+        ? data.message.join(', ') 
+        : data.message || 'error Descnonicido';
+
+        
+        setMessage(`Error: ${errorMsg} || 'No se pudo registrar'}`);
+      }
     } catch (error) {
+      setMessage('Error de conexión con el servidor');
       console.error("Error al conectar con el backend:", error);
+    } finally {
+      // Siempre ejecuta esto al final (éxito o error)      
+      setIsLoading(false); //← Input se HABILITA de nuevo
     }
-  };
+  }; //handleSubmit
+  
+  // ===========================================================================
+  // INTERFAZ (lo que se muestra en pantalla)
+  // ===========================================================================
   // El return devuelve lo que se va a mostrar en pantalla. 
   // Los estilos inline usan doble llave: {{ }} 
   // (una para JSX, otra para el objeto JavaScript).
 
-  // Cuando envías el formulario (Enter o clic en "Enviar"), ejecuta handleEnviar.
+  // Al envíar el formulario (Enter o clic en "Enviar"), ejecuta handleSubmit.
 
   // Input controlado por React:
 
@@ -153,22 +147,137 @@ function App() {
 
   // type="submit" - Activa el onSubmit del form
   // type="button" - No envía el form, solo ejecuta onClick
+  
+  //console.log("Estado actual:", { formData, isLoading, message });
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>Registro de Usuario (Prueba 2FA)</h1>
-      <form onSubmit={handleEnviar} style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
-        <input name="user" placeholder="Usuario" value={formData.user} onChange={handleChange} required />
-        <input name="email" type="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
-        <input name="password" type="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
-        
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button type="submit" style={{ backgroundColor: '#4CAF50', color: 'white' }}>Enviar</button>
-          <button type="button" onClick={handleBorrar} style={{ backgroundColor: '#f44336', color: 'white' }}>Borrar</button>
-        </div>
+    <div style={{ 
+      padding: '40px', 
+      color: 'white', 
+      backgroundColor: '#1a1a1a', 
+      minHeight: '100vh', 
+      fontFamily: 'sans-serif'
+      }}>
+      <h1>Registro de Prueba (Microservicios)</h1>
+      {/* FORMULARIO */}      
+      <form 
+        onSubmit={handleSubmit} 
+        style={{
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '10px', 
+          maxWidth: '300px'
+        }}
+      >
+        <input 
+          name="user"
+          type="text" 
+          placeholder="Usuario"
+          value={formData.user} 
+          onChange={handleChange}
+          disabled={isLoading}          
+          required
+        />
+        <input
+          name="email" 
+          type="email" 
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          disabled={isLoading}   
+          required
+        />
+        <input 
+          name="password"
+          type="password" 
+          placeholder="Contraseña"
+          value={formData.password}
+          onChange={handleChange}
+          disabled={isLoading}   
+          required
+        />
+        {/* BOTONES */}
+        <div style={{ display: 'flex', gap: '10px' }}>      
+          <button 
+            type="submit"
+            disabled={isLoading}          
+            style={{ 
+              flex: 1,
+              padding: '10px', 
+              backgroundColor: isLoading ? '#666' : '#4CAF50', 
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}
+          >
+            { isLoading ? 'Enviando....' : 'Registrar'}
+          </button>
+          <button 
+            type="button"
+            onClick={handleBorrar}
+            disabled={isLoading}          
+            style={{ 
+              flex: 1,
+              padding: '10px', 
+              backgroundColor: '#f44336', 
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}
+          >
+            Borrar
+          </button>
+        </div>       
       </form>
+      {/* MENSAJES DE ESTADO */}
+      {message && (
+        <div style={{ 
+          marginTop: '20px', 
+          padding: '15px',
+          backgroundColor: message.includes('Error') || message.includes('⚠️') 
+            ? '#ff4444' 
+            : message.includes('Enviando') 
+              ? '#FFA500' 
+              : '#00ff00',
+          borderRadius: '8px',
+          maxWidth: '300px'
+        }}>
+          {message}
+        </div>        
+      )}
+      {/* CÓDIGO QR (solo si existe) */}
+      {qrCode && (
+        <div style={{ marginTop: '20px' }}>
+          <h3>Escanea tu 2FA:</h3>
+          <img
+            src={qrCode}
+            alt="QR Code 2FA"
+            style={{ 
+              border: '5px solid white',
+              borderRadius: '8px',
+              maxWidth: '300px',
+              display: 'block'
+            }} 
+          />
+          <p style={{ 
+            marginTop: '15px', 
+            fontSize: '14px',
+            maxWidth: '350px',
+            lineHeight: '1.5'
+          }}>
+            💡 <strong>Importante:</strong> Guarda este código en tu aplicación de autenticación 
+            (Google Authenticator, Authy, etc.) antes de cerrar esta página.
+          </p>
+        </div>
+      )}
     </div>
   );
-} // del componente funcional App
+}  // del componente funcional App
 
 // Exporta el componente para que main.tsx pueda importarlo.
 export default App;
