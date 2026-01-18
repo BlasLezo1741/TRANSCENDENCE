@@ -549,7 +549,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await this.db.execute(sql`
             SELECT insert_full_match_result(
                 ${MODE_REMOTE_ID}::smallint,        -- p_mode_id
-                ${state.stats.startTime}::timestamp,-- p_date
+                ${state.stats.startTime.toISOString()}::timestamp,-- p_date
                 ${durationMs}::integer,             -- p_duration_ms
                 ${winnerPk}::integer,               -- p_winner_id
                 ${state.playerLeftDbId}::integer,   -- p_p1_id
