@@ -1,0 +1,32 @@
+.menu
+{
+    width: 80%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+h1
+{
+    text-align: center;
+}
+
+.bg_image
+{
+    width: 800px;
+    height: 600px;
+    margin: auto;
+}
+
+.bt
+{
+    display: flex;
+    justify-content: center;
+}
+
+.search
+{
+    display: flex;
+    justify-content: center;
+}

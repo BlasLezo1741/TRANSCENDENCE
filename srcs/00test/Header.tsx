@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import avatarUrl from '../../assets/react.svg'
 import './Header.css';
+import { useTranslation } from 'react-i18next';
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;
@@ -13,6 +14,7 @@ const Header = ({dispatch, userName}: HeaderProps) =>
     const [signed, setSigned] = useState(true);
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const { t } = useTranslation();
 
     const handleProfile = () =>
     {
@@ -28,12 +30,18 @@ const Header = ({dispatch, userName}: HeaderProps) =>
     {
         dispatch({ type: "STATS" });
     };
-
+/*
     const handleSignout = () =>
     {
         setSigned(false);
     };
-
+*/
+    const handleLogout = () => {
+        // Clear localStorage
+        localStorage.removeItem("pong_user_nick");
+        // Dispatch logout action
+        dispatch({ type: "LOGOUT" });
+    };
     useEffect(() =>
     {
         const handleClicks = (event: MouseEvent) =>
@@ -66,6 +74,9 @@ const Header = ({dispatch, userName}: HeaderProps) =>
                     <button onClick={() => dispatch({ type: "LOGIN" })}>
                         Login
                     </button>
+                    <button onClick={() => dispatch({ type: "SIGN" })}>
+                        {t('crear_cuenta')}
+                    </button>
                 )}
 
                 {/* Is logged */}
@@ -81,7 +92,7 @@ const Header = ({dispatch, userName}: HeaderProps) =>
                             <li><a href="#" onClick={handleProfile}>Profile</a></li>
                             <li><a href="#" onClick={handleSettings}>Settings</a></li>
                             <li><a href="#" onClick={handleStats}>Stats</a></li>
-                            <li><a href="#" onClick={handleSignout}>Sign out</a></li>
+                            <li><a href="#" onClick={handleLogout}>Sign out</a></li>
                         </ul>
                     )} 
                     </div>

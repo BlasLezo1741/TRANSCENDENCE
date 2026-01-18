@@ -18,6 +18,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const roomIdRef = useRef<string>(roomId); //nuevo
+    
     //const roomIdRef = useRef<string | null>(null);//guardamos IDde la sala
     const lastSentY = useRef<number>(0.5); // Aquí la última posición enviada
 

@@ -11,13 +11,16 @@ type CanvasProps = {
     opponentName?: string;
     ballInit: { x: number, y: number } | null;
     playerSide?: 'left' | 'right';
+    roomId: string;
 };
 
-function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente", ballInit, playerSide = 'left' }: CanvasProps)
+function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId }: CanvasProps)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const roomIdRef = useRef<string>(roomId); //nuevo
     const animationIdRef = useRef<number | null>(null);
     const gameRunningRef = useRef(false);
+    const lastSentY = useRef<number>(0.5); // Aquí la última posición enviada
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -35,39 +38,28 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
         let leftName = "P1";
         let rightName = "P2";
 
-        if (mode === 'remote') {
-            // MODO ONLINE: Obedecemos ciegamente a 'playerSide'
+        if (mode.includes('remote') || mode === 'tournament') {
             if (playerSide === 'left') {
-                // Soy el de la IZQUIERDA
                 finalPlayerNumber = 1;
-                leftName = userName;          // Yo estoy a la izquierda
-                rightName = opponentName;     // Rival a la derecha
+                leftName = userName;
+                rightName = opponentName;
             } else {
-                // Soy el de la DERECHA
                 finalPlayerNumber = 2;
-                leftName = opponentName;      // Rival a la izquierda
-                rightName = userName;         // Yo estoy a la derecha
+                leftName = opponentName;
+                rightName = userName;
             }
         } 
         else if (mode === 'ia') {
-            // MODO IA
-            finalPlayerNumber = 1;
             leftName = userName;
             rightName = "IA-Bot";
         } 
         else {
-            // MODO LOCAL
-            finalPlayerNumber = 1;
             leftName = userName;
             rightName = "Invitado";
         }
 
-        // 🔍 LOG PARA DEPURAR (Míralo en la consola del navegador)
-        console.log(`🎮 INICIANDO JUEGO [${mode}]`);
-        console.log(`📍 Mi Lado: ${playerSide}`);
-        console.log(`🔢 Mi Número: ${finalPlayerNumber}`);
-        console.log(`⬅️ Izquierda: ${leftName}`);
-        console.log(`➡️ Derecha: ${rightName}`);
+        console.log(`🎮 INICIANDO JUEGO [${mode}] | Soy: ${finalPlayerNumber} (${playerSide})`);
+        console.log(`⚔️ MATCH: ${leftName} (Izda) vs ${rightName} (Dcha)`);
 
         //Inicializar juego
         //const game = new Pong(canvas, ctx, mode, playerNumber, 5);
@@ -77,7 +69,6 @@ function Canvas({ mode, dispatch, playerNumber = 1, userName, opponentName = "Op
             mode,
             //playerNumber,
             finalPlayerNumber,
-            5,
             leftName,
             rightName,
             ballInit

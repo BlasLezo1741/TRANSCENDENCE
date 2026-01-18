@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { joinQueue, socket, setMatchData } from '../services/socketService';
 
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../ts/types.ts';
+
+import bg_image from '../assets/Flag_of_Catalonia.png';
+import cross from '../assets/react.svg';
+
+import "./MenuScreen.css";
 
 type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
@@ -13,6 +18,10 @@ type OptionsProps = ScreenProps & {
 const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) => {   
     const { t } = useTranslation();
 
+    const [statusText, setStatusText] = useState<string>("");
+    const [modeActive, setModeActive] = useState<"offline" | "online" | null>(false);
+    
+    const countDownRef = useRef<NodeJS.Timeout | null>(null);
     // LÓGICA DE BOTONES
     const handleMode = (mode: GameMode) => {
         
@@ -36,6 +45,35 @@ const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) => {
         dispatch({ type: "PONG" });
     };
 
+    const startCountDown = (seconds: number) =>
+    {
+        setStatusText(seconds.toString());
+        if (seconds > 0)
+            countDownRef.current = setTimeout(() => startCountDown(seconds - 1), 1000);
+        else
+        {
+            setStatusText("");
+            setMode("offline");
+            setMode(mode);
+            dispatch({ type: "PONG" });
+            setModeActive(null);
+        }
+    };
+
+    const cancelProcess = () =>
+    {
+        if (modeActive === "offline" && countDownRef.current)
+            clearTimeout(countDownRef.current);
+
+        //else if (modeActive === "online")
+        //    leaveQueue?.();
+
+        setStatusText("");
+        setModeActive(null)
+        console.log("❌ Proceso cancelado");
+    }
+
+/*
     return (
         <div>
             <h1>{t('modo')}</h1>
@@ -45,6 +83,32 @@ const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) => {
             <button onClick={() => handleMode("remote")}>player vs remote</button>
             <button onClick={() => handleMode("tournament")}>tournament</button>
         </div>
+    );
+*/
+
+    return (
+        <section className="menu">
+            <img className="bg_image" src={bg_image} alt="Imagen central"/>
+            
+            <h1>{t('modo')}</h1>
+
+            <div className="bt">
+                <button onClick={() => handleMode("ia")}>player vs ia</button>
+                <button onClick={() => handleMode("local")}>player vs player</button>
+                <button onClick={() => handleMode("remote")}>player vs remote</button>
+                <button onClick={() => handleMode("tournament")}>tournament</button>
+            </div>
+
+            <div className="search">
+                <p>{statusText}</p>
+                {modeActive && 
+                (
+                    <img src={cross} alt="Cancelar" onClick={cancelProcess}/>
+                )}
+            </div>
+
+        </section>
+            
     );
 }
 export default MenuScreen;

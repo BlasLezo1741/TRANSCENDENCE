@@ -2,7 +2,6 @@ export type Screen =
     | "menu"
     | "sign"
     | "login"
-    | "profile"
     | "settings"
     | "pong";
 
@@ -10,7 +9,6 @@ export type Action =
     | { type: "MENU" }
     | { type: "SIGN" }
     | { type: "LOGIN" }
-    | { type: "PROFILE" }
     | { type: "LOGOUT" } //ADDED
     | { type: "SETTINGS" }
     | { type: "PONG" };
