@@ -13,9 +13,12 @@ import "./MenuScreen.css";
 type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
   userName: string;
+  // Añadidos para controlar el estado offline
+  setOpponentName: React.Dispatch<React.SetStateAction<string>>;
+  setPlayerSide: React.Dispatch<React.SetStateAction<'left' | 'right'>>;
 };
 
-const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) => {   
+const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSide }: OptionsProps) => {   
     const { t } = useTranslation();
 
     const [statusText, setStatusText] = useState<string>("");
@@ -40,6 +43,15 @@ const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) => {
         // --- CASO B: MODOS OFFLINE (IA y Local) -> Arrancan al instante ---
         // En local, el rival está en tu teclado, no necesitamos cola de espera.
         console.log("⚡ Iniciando modo Offline:", mode);
+        // 1. Forzamos que en local SIEMPRE seas la izquierda
+        setPlayerSide('left');
+
+        // 2. Definimos el nombre del rival según el modo
+        if (mode === 'ia') {
+            setOpponentName("IA-Bot");
+        } else {
+            setOpponentName("Invitado"); // O "Player 2"
+        }
         //setOpponentName(mode === 'ia' ? "IA-Bot" : "Invitado Local");
         setMode(mode);
         dispatch({ type: "PONG" });

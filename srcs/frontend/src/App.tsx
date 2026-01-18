@@ -110,7 +110,13 @@ function renderScreen()
     switch (screen)
     {
       case "menu":
-        return <MenuScreen dispatch={dispatch} setMode={setMode} userName={currentUser} />;
+        return <MenuScreen 
+          dispatch={dispatch} 
+          setMode={setMode} 
+          userName={currentUser} 
+          setOpponentName={setOpponentName} // <--- NUEVO
+          setPlayerSide={setPlayerSide}     // <--- NUEVO
+        />;
       case "sign":
         return <SignScreen dispatch={dispatch} />;
       case "login":
