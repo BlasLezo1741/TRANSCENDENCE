@@ -484,45 +484,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
   }
     
-  //   // MÉTODO EXTRAÍDO CORRECTAMENTE
-  //   private async saveMatchToDb(state: GameState, winnerNick: string) {
-  //   // 1. Usamos winnerNick en el log para callar la advertencia de "unused variable"
-  //   console.log(`💾 Guardando partida. Ganador nominal: ${winnerNick}`);
-
-  //   const durationMs = Date.now() - state.stats.startTime.getTime();
-    
-  //   // 2. CORRECCIÓN CLAVE: Tipado explícito para permitir null
-  //   let winnerPk: number | null = null; 
-
-  //   // Lógica para determinar ID del ganador basado en puntuación real
-  //   if (state.score[0] > state.score[1]) {
-  //       winnerPk = state.playerLeftDbId;
-  //   } else if (state.score[1] > state.score[0]) {
-  //       winnerPk = state.playerRightDbId;
-  //   } else {
-  //       // En caso de empate técnico o fallo, asignamos al Player 1 por defecto 
-  //       // o lo dejamos null si tu DB lo permite. Por seguridad ponemos P1.
-  //       winnerPk = state.playerLeftDbId; 
-  //   }
-
-  //   try {
-  //       await this.db.insert(schema.match).values({
-  //           mModeFk: 1, 
-  //           mDate: state.stats.startTime.toISOString(), 
-  //           mDuration: durationMs.toString() + ' milliseconds', // Cast a string para evitar líos de tipos
-  //           mWinnerFk: winnerPk,
-            
-  //           // Datos nuevos
-  //           mScoreP1: state.score[0],
-  //           mScoreP2: state.score[1],
-  //           mTotalHits: state.stats.totalHits
-  //       });
-  //       console.log("💾 Partida guardada en DB correctamente.");
-  //   } catch (error) {
-  //       console.error("❌ Error guardando partida:", error);
-  //   }
-  // }
-
+  //MÉTODO INSCRIPCION EN LA BASE DE DATOS EXTRAÍDO CORRECTAMENTE
   private async saveMatchToDb(state: GameState, winnerSide: string) {
     console.log(`💾 Guardando partida en DB (Estructura Relacional)...`);
 
