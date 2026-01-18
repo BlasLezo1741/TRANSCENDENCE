@@ -8,6 +8,7 @@ import SignScreen from './screens/SignScreen.tsx'
 import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
+import StatsScreen from './screens/StatsScreen.tsx'
 import SettingsScreen from './screens/SettingsScreen.tsx'
 
 import Header from './components/Header/Header.tsx'
@@ -102,6 +103,8 @@ function App()
         />;
       case "profile":
         return <ProfileScreen />;
+      case "stats":
+        return <StatsScreen />;
       case "settings":
         return <SettingsScreen />;
       default:

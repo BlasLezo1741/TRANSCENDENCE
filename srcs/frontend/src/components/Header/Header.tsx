@@ -26,7 +26,7 @@ const Header = ({dispatch, userName}: HeaderProps) =>
 
     const handleStats = () =>
     {
-        dispatch({ type: "SETTINGS" });
+        dispatch({ type: "STATS" });
     };
 
     const handleSignout = () =>
