@@ -1,5 +1,6 @@
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import "./Header.css";
+import { useTranslation } from 'react-i18next';
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;
@@ -12,6 +13,7 @@ const Header = ({dispatch, userName}: HeaderProps) =>
     {
         dispatch({ type: "LOGIN" });
     }
+    const { t } = useTranslation();
 
     return (
         <header>
@@ -26,6 +28,10 @@ const Header = ({dispatch, userName}: HeaderProps) =>
                 Login
             </button>
             
+            <button onClick={() => dispatch({ type: "SIGN" })}>
+                {t('crear_cuenta')}
+            </button>
+
             <a href="#" onClick={(e) => {e.preventDefault(); handleUser();}}>
                 <strong>{userName}</strong>
             </a>

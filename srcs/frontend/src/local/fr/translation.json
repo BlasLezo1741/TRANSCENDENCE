@@ -19,6 +19,7 @@
     "bienvenido": "Bienvenue",
     "init_ses": "Se connecter",
     "cuenta?" :"Pas de compte ?",
+    "sel_pais" : "Choisissez le pays",
     "pass_req": "Le mot de passe doit contenir : une minuscule, une majuscule, un chiffre et un minimum de 8 caractères.",
     "juegos": "Jeux"
 }

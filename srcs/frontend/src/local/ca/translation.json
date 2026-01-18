@@ -19,6 +19,7 @@
     "bienvenido": "Benvingut",
     "init_ses": "Iniciar sessió",
     "cuenta?" :"No tens un compte?",
+    "sel_pais" : "Selecciona el país",
     "pass_req": "La contrasenya ha de tenir: minúscula, majúscula, un número i un mínim de 8 caràcters.",
     "juegos": "Jocs"
 }
