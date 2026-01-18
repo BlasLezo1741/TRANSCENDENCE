@@ -139,12 +139,12 @@ VALUES
           "ca": "Temps mitjà de durada dels voleas durant el partit."}'
         ),
     (10, 2, 
-        '{"en": "Net Touches", "es": "Toques en la Red", "fr": "Touches du Filet", "pt": "Toques na Rede", "ca": "Toques a la Xarxa"}', 
-        '{"en": "Number of times the ball touched the net during play.", 
-          "es": "Número de veces que la pelota tocó la red durante el juego.", 
-          "fr": "Nombre de fois que la balle a touché le filet pendant le jeu.", 
-          "pt": "Número de vezes que a bola tocou a rede durante o jogo.",
-          "ca": "Nombre de vegades que la pilota va tocar la xarxa durant el joc."}'
+        '{"en": "Total Hits", "es": "Goles totales", "fr": "Touches Totaux", "pt": "Toques Totais", "ca": "Tocs totals"}', 
+        '{"en": "Number of times the ball touched the paddles.", 
+          "es": "Número de veces que la pelota tocó las raquetas.", 
+          "fr": "Nombre de fois que la balle a touché les raquettes.", 
+          "pt": "Número de vezes que a bola tocou as palas.",
+          "ca": "Nombre de vegades que la pilota va tocar les pales."}'
           ),
 
     -- CATEGORÍA 3: Organization Stats
