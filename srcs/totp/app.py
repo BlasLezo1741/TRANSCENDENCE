@@ -18,6 +18,7 @@ async def health():
 
 @app.post("/generate")
 async def generate_totp(request: TotpRequest):
+    print(f"📥 PETICIÓN RECIBIDA: Generando TOTP para {request.user_nick}")
     return {"status": "ok"}
 
 @app.get("/random")

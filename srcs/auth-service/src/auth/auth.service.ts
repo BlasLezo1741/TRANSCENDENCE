@@ -2,7 +2,12 @@
 // Inject - Para inyectar dependencias (recursos que necesita este servicio)
 // InternalServerErrorException - Para manejar errores del servidor (error 500)
 
-import { Injectable, Inject, InternalServerErrorException } from '@nestjs/common';
+import { 
+  Injectable, 
+  Inject, 
+  InternalServerErrorException, 
+  Logger                          // Importa Logger
+} from '@nestjs/common';
 
 // Importa el tipo de base de datos. Drizzle es un ORM 
 // (Object-Relational Mapping), una herramienta que te permite hablar con la 
@@ -26,13 +31,15 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
 // bcrypt - Librería para encriptar contraseñas de forma segura.
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 // @Injectable() - Decorador dice "el servicio puede ser usado en otros lugares"
 // Es una clase que contiene la lógica de autenticación
 @Injectable()
 export class AuthService {
   // El constructor recibe las "herramientas" que necesita:
+
+  private readonly logger = new Logger(AuthService.name);
 
   // db - La conexión a la base de datos (inyectada con el nombre 'DRIZZLE_CONNECTION')
   // httpService - Para hacer peticiones HTTP
@@ -48,6 +55,7 @@ export class AuthService {
   // dto - Los datos que vienen del frontend (user, email, password)
 
   async register(dto: RegisterUserDto) {
+    this.logger.log(`1. Iniciando registro para el usuario: ${dto.user}`);
     try {
       // 1. Encriptar la contraseña (Seguridad básica)
       // 
@@ -63,7 +71,9 @@ export class AuthService {
       //    ```
       //    Password original: "hola123"
       //    Password hasheada: "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"
+      this.logger.debug('2a. Intentando salt...');
       const salt = await bcrypt.genSalt();
+      this.logger.debug('2b. Intentando hash...');
       const hashedPassword = await bcrypt.hash(dto.password, salt);
 
       // 2. Insertar el usuario en la tabla PLAYER 
@@ -82,6 +92,7 @@ export class AuthService {
       // INSERT INTO player (p_nick, p_mail, p_pass, p_reg) 
       // VALUES ('juan', 'juan@email.com', '$2b$10$...', '2026-01-15')
       // RETURNING *;      
+      this.logger.debug('2. Intentando insertar en DB...');
 
       const [newUser] = await this.db.insert(schema.player).values({
         pNick: dto.user,
@@ -89,7 +100,7 @@ export class AuthService {
         pPass: hashedPassword,
         pReg: new Date().toISOString(),
       }).returning();
-
+      this.logger.log(`3. Usuario insertado con ID: ${newUser.pPk}`);
       // 3. Llamar al microservicio totp (Python) 
       // Usamos el nombre del servicio definido en docker-compose
 
@@ -103,14 +114,14 @@ export class AuthService {
 
 
       const pythonUrl = 'http://totp:8070/generate'; 
-      
+      this.logger.debug('4. Llamando al servicio TOTP en Python...');         
       const { data } = await firstValueFrom(
         this.httpService.post(pythonUrl, {
           user_id: newUser.pPk,
           user_nick: newUser.pNick
         })
       );
-
+      this.logger.log('5. Respuesta recibida de Python con éxito'); 
       // 4. Actualizar el secreto TOTP en la DB (opcional, si Python devuelve el secreto)
       // Si Python devuelve un "secreto" (la clave para generar códigos 2FA)
       // Actualiza el registro del usuario en la base de datos
@@ -147,7 +158,12 @@ export class AuthService {
 
     } catch (error) {
       console.error('Error en el registro:', error);
-      throw new InternalServerErrorException('No se pudo completar el registro');
+      this.logger.error(`❌ Error en el flujo: ${error.message}`, error.stack);  
+      // Enviamos una respuesta clara al frontend
+      throw new InternalServerErrorException({
+        message: 'No se pudo completar el registro',
+        detail: error.message // Ojo: en producción no envíes detalles sensibles
+      });          
     }
   }
 }

@@ -23,7 +23,11 @@ async function bootstrap() {
   // Analogía: Es como construir una casa. Le das los planos (AppModule) al 
   // constructor (NestFactory), y te devuelve la casa construida (app).
 
-  const app = await NestFactory.create(AppModule);
+  // const app = await NestFactory.create(AppModule);
+// En main.ts
+  const app = await NestFactory.create(AppModule, {
+   logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+  });  
   // Prioridad: 1. Variable de entorno, 2. Valor fijo 3010
   const port = process.env.PORT || 3010;
 
