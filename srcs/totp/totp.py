@@ -323,6 +323,31 @@ def get_totp_token(secret):
     return str_totp
 
 
+def generate_qr(shared_secret_key, issuer, email):
+    """
+    Generates a QR image with the information requested by
+    public 2fA autenthicator as Microsoft, Google
+    PARAMETERS
+        shared_secret_key:bytes string secret to construct OTP
+        issuer           :Hold the account's name holder
+        mail             :Hold email for account holder
+    RETURNS
+        Image in format png
+    """
+    chunk1 = "otpauth://totp/"
+    chunk2 = issuer.upper() + ":"
+    chunk3 = email + "?"
+    chunk4 = "secret=" + shared_secret_key + "&"
+    chunk5 = "issuer=" + issuer.upper()
+    qr_data = chunk1 + chunk2 + chunk3 + chunk4 + chunk5
+    print(qr_data)
+    img = qrcode.make(qr_data,)
+    # Saving as an image file
+    img.save('MyQRCode1.png')
+    cwd = os.getcwd()
+    imagepath = os.path.join(cwd, 'MyQRCode1.png')
+    return imagepath
+
 if __name__ == "__main__":
     parser = create_argument_parser()
     # Parse arguments excluding the script name itself

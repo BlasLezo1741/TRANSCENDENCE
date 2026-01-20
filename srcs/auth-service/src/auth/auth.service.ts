@@ -75,6 +75,13 @@ export class AuthService {
       const salt = await bcrypt.genSalt();
       this.logger.debug('2b. Intentando hash...');
       const hashedPassword = await bcrypt.hash(dto.password, salt);
+      this.logger.debug('2c. Generando clave totp...');
+      const pythonUrlrandom = 'http://totp:8070/random'; 
+      this.logger.debug('4. Llamando al servicio TOTP en Python...');         
+      const { data: totprandom } = await firstValueFrom(
+        this.httpService.get(pythonUrlrandom)
+      );
+      this.logger.debug(`2d. Clave aleatoria ${totprandom.totpkey}`);          
 
       // 2. Insertar el usuario en la tabla PLAYER 
       // Usamos los nombres de campos de tu tabla SQL: p_nick, p_mail, p_pass 
@@ -115,7 +122,7 @@ export class AuthService {
 
       const pythonUrl = 'http://totp:8070/generate'; 
       this.logger.debug('4. Llamando al servicio TOTP en Python...');         
-      const { data } = await firstValueFrom(
+      const { data: totpgenerate } = await firstValueFrom(
         this.httpService.post(pythonUrl, {
           user_id: newUser.pPk,
           user_nick: newUser.pNick
@@ -131,9 +138,9 @@ export class AuthService {
       // SET p_totp_secret = 'JBSWY3DPEHPK3PXP' 
       // WHERE pPk = 123;
 
-      if (data.secret) {
+      if (totprandom.totpkey) {
         await this.db.update(schema.player)
-          .set({ pTotpSecret: data.secret })
+          .set({ pTotpSecret: totprandom.totpkey })
           .where(eq(schema.player.pPk, newUser.pPk));
       }
 
@@ -142,11 +149,19 @@ export class AuthService {
       // + Un mensaje de éxito
       // + El ID del usuario
       // + El código QR (probablemente en base64) para que el frontend lo muestre
+      const pythonqr = 'http://totp:8070/qr_text'; 
+      const { data: totpqr } = await firstValueFrom(
+        this.httpService.post(pythonUrl, {
+          user_totp_secret: totprandom.totpkey,
+          user_nick: dto.user,
+          user_mail: dto.email
+        }));
 
+      this.logger.log(`6. Respuesta qr_text ${totpqr.qr_text}`); 
       return {
         message: 'Usuario registrado con éxito',
         userId: newUser.pPk,
-        qrCode: data.qr_code, // El string base64 o URL que genera tu Python
+        qrCode: totpqr.qr_text, // El string base64 o URL que genera tu Python
       };
 
 
