@@ -142,25 +142,51 @@ WHERE random() < 0.15; -- Each player has a 15% chance to belong to any given or
 -- Constraint 1: No duplicate friendships (i.e., if (A, B) exists, (B, A) cannot exist)
 -- Constraint 2: f_type is true at the beginning (active friendship)
 -- Constraint 3: 20% of friendships break over time (f_type becomes false)
-INSERT INTO PLAYER_FRIEND (f_1, f_2, f_date, f_type)
+-- INSERT INTO PLAYER_FRIEND (f_1, f_2, f_date, f_type)
+-- SELECT 
+--     p1.p_pk,
+--     p2.p_pk,
+--     NOW() - (random() * INTERVAL '100 days'),
+--     true -- Constraint 2: Always true at the beginning
+-- FROM PLAYER p1
+-- JOIN PLAYER p2 ON p1.p_pk < p2.p_pk -- Constraint 1: Prevents (45, 23) if (23, 45) exists
+-- WHERE random() < 0.05               -- Probability of a friendship forming
+-- LIMIT 200;
+
+-- INSERT INTO PLAYER_FRIEND (f_1, f_2, f_date, f_type)
+-- SELECT 
+--     f_1, 
+--     f_2, 
+--     -- The friendship breaks between 1 and 30 days after it started
+--     f_date + (random() * INTERVAL '30 days' + INTERVAL '1 day'), 
+--     false -- Marks the relationship as broken
+-- FROM PLAYER_FRIEND
+-- WHERE f_type = true -- Only break existing active friendships
+-- ORDER BY random()
+-- LIMIT (SELECT count(*) * 0.2 FROM PLAYER_FRIEND WHERE f_type = true);
+-- PARTE A: Crear amistades activas (Accepted = ID 2)
+-- Cambiamos 'f_type' por 'f_status_fk' y 'true' por '2'
+INSERT INTO PLAYER_FRIEND (f_1, f_2, f_date, f_status_fk)
 SELECT 
     p1.p_pk,
     p2.p_pk,
     NOW() - (random() * INTERVAL '100 days'),
-    true -- Constraint 2: Always true at the beginning
+    2 -- ID 2 = STATUS ACCEPTED (Amigos)
 FROM PLAYER p1
-JOIN PLAYER p2 ON p1.p_pk < p2.p_pk -- Constraint 1: Prevents (45, 23) if (23, 45) exists
-WHERE random() < 0.05               -- Probability of a friendship forming
+JOIN PLAYER p2 ON p1.p_pk < p2.p_pk
+WHERE random() < 0.05
 LIMIT 200;
 
-INSERT INTO PLAYER_FRIEND (f_1, f_2, f_date, f_type)
+-- PARTE B: Simular rupturas (Bloqueos = ID 3)
+-- Simulamos que el 20% de esas amistades se rompen más tarde.
+-- Insertamos una nueva fila con fecha posterior y estado Bloqueado (3).
+INSERT INTO PLAYER_FRIEND (f_1, f_2, f_date, f_status_fk)
 SELECT 
     f_1, 
     f_2, 
-    -- The friendship breaks between 1 and 30 days after it started
     f_date + (random() * INTERVAL '30 days' + INTERVAL '1 day'), 
-    false -- Marks the relationship as broken
+    3 -- ID 3 = STATUS BLOCKED (Ya no son amigos)
 FROM PLAYER_FRIEND
-WHERE f_type = true -- Only break existing active friendships
+WHERE f_status_fk = 2 -- Solo rompemos amistades activas
 ORDER BY random()
-LIMIT (SELECT count(*) * 0.2 FROM PLAYER_FRIEND WHERE f_type = true);
+LIMIT (SELECT count(*) * 0.2 FROM PLAYER_FRIEND WHERE f_status_fk = 2);

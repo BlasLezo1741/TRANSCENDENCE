@@ -5,6 +5,9 @@ RETURNS TABLE (
     friend_lang CHAR(2),
     friendship_since TIMESTAMP
 ) AS $$
+DECLARE
+    -- Definimos constantes para que el código sea legible (ID 2 = Accepted)
+    STATUS_ACCEPTED CONSTANT smallint := 2;
 BEGIN
     RETURN QUERY
     SELECT 
@@ -20,15 +23,17 @@ BEGIN
         active_friends.f_date
     FROM (
         -- Subconsulta para encontrar el estado más reciente de cada pareja
-        SELECT f_1, f_2, f_type, f_date,
-               ROW_NUMBER() OVER(PARTITION BY f_1, f_2 ORDER BY f_date DESC) as last_event
+        SELECT f_1, f_2, f_status_fk, f_date,
+               ROW_NUMBER() OVER(PARTITION BY -- Truco: LEAST/GREATEST agrupa A-B y B-A como la misma pareja
+                   LEAST(f_1, f_2), GREATEST(f_1, f_2) 
+                   ORDER BY f_date DESC) as last_event
         FROM PLAYER_FRIEND
         WHERE f_1 = target_p_pk OR f_2 = target_p_pk -- Filtramos por el jugador antes de calcular
     ) active_friends
     JOIN PLAYER p1 ON active_friends.f_1 = p1.p_pk
     JOIN PLAYER p2 ON active_friends.f_2 = p2.p_pk
     WHERE active_friends.last_event = 1 
-      AND active_friends.f_type = true;
+      AND active_friends.f_status_fk = STATUS_ACCEPTED; -- <--- CAMBIO CLAVE
 END;
 $$ LANGUAGE plpgsql;
 

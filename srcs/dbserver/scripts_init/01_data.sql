@@ -257,3 +257,8 @@ VALUES
           "ca": "Quant de temps triga un jugador a tornar després d''una caiguda de xarxa. Mesura l''eficiència del vostre sistema de reconnexió WebSocket."}'
           );
 
+INSERT INTO FRIEND_STATUS (fs_i18n_name) VALUES 
+    ('{"en": "Pending", "es": "Pendiente", "fr": "En attente"}'), -- ID 1
+    ('{"en": "Accepted", "es": "Amigos", "fr": "Amis"}'),         -- ID 2
+    ('{"en": "Blocked", "es": "Bloqueado", "fr": "Bloqué"}'),      -- ID 3
+    ('{"en": "Rejected", "es": "Rechazado", "fr": "Rejeté"}');     -- ID 4 (Opcional, por si quieres guardar historial de rechazos)

@@ -120,11 +120,16 @@ CREATE TABLE PLAYER_ORGANIZATION (
     po_org_fk smallint REFERENCES ORGANIZATION(org_pk)
 );
 
+CREATE TABLE FRIEND_STATUS ( 
+    fs_pk smallint generated always as identity PRIMARY KEY,
+    fs_i18n_name JSONB NOT NULL -- Para poder traducirlo igual que tus otros estados
+);
+
 CREATE TABLE PLAYER_FRIEND( 
     friend_pk integer generated always as identity PRIMARY KEY,
-    f_1 integer REFERENCES PLAYER(p_pk),
-    f_2 integer REFERENCES PLAYER(p_pk),
-    f_date timestamp,
-    f_type boolean
+    f_1 integer REFERENCES PLAYER(p_pk), -- El usuario que REALIZA la acción (envía solicitud o bloquea)
+    f_2 integer REFERENCES PLAYER(p_pk), -- El usuario que RECIBE la acción
+    f_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    f_status_fk smallint REFERENCES FRIEND_STATUS(fs_pk) -- En vez de f_type boolean
 );
 

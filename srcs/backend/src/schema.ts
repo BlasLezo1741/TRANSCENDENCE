@@ -198,13 +198,25 @@ export const playerOrganization = pgTable("player_organization", {
 		}),
 ]);
 
+// 1. NUEVA TABLA (Lookup Table para estados)
+export const friendStatus = pgTable("friend_status", {
+	fsPk: smallint("fs_pk").primaryKey().generatedAlwaysAsIdentity(),
+	fsI18nName: jsonb("fs_i18n_name").notNull(),
+});
+
 export const playerFriend = pgTable("player_friend", {
-	friendPk: integer("friend_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_friend_friend_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-	f1: integer("f_1"),
-	f2: integer("f_2"),
-	fDate: timestamp("f_date", { mode: 'string' }),
-	fType: boolean("f_type"),
+	friendPk: integer("friend_pk").primaryKey().generatedAlwaysAsIdentity(),
+	f1: integer("f_1").references(() => player.pPk),
+	f2: integer("f_2").references(() => player.pPk),
+	fDate: timestamp("f_date", { mode: 'string' }).defaultNow(), // Añadido defaultNow
+	
+    // CAMBIO: De booleano a Foreign Key
+    // ANTES: fType: boolean("f_type"),
+    // AHORA:
+    fStatusFk: smallint("f_status_fk").references(() => friendStatus.fsPk), 
+
 }, (table) => [
+    // Foreign Keys explícitas si las necesitas en Drizzle (opcional si usas references arriba)
 	foreignKey({
 			columns: [table.f1],
 			foreignColumns: [player.pPk],

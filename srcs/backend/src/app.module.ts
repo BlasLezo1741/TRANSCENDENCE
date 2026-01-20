@@ -30,11 +30,14 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 // --- COUNTRIES ---
 import { CountriesModule } from './countries/countries.module';
+// --- FRIENDS ---
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
   imports: [
     DatabaseModule,
     CountriesModule,
+    FriendsModule,
   ],
   controllers: [
     AppController, 

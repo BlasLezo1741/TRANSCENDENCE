@@ -4,7 +4,9 @@ export type Screen =
     | "login"
     | "profile"
     | "settings"
-    | "pong";
+    | "pong"
+    | "profile"  // <--- Nuevo
+    | "stats";   // <--- Nuevo
 
 export type Action =
     | { type: "MENU" }
@@ -13,7 +15,9 @@ export type Action =
     | { type: "PROFILE" }
     | { type: "LOGOUT" } //ADDED
     | { type: "SETTINGS" }
-    | { type: "PONG" };
+    | { type: "PONG" }
+    | { type: "PROFILE" } // <--- Nuevo
+    | { type: "STATS" };  // <--- Nuevo
 
 export type GameMode =
     | "ia"
