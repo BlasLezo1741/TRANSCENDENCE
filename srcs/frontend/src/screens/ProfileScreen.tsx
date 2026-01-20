@@ -11,6 +11,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { socket } from '../services/socketService';
 import { 
     getMyFriends, 
     getPendingRequests, 
@@ -34,7 +35,33 @@ const ProfileScreen = () => {
 
     // Cargar datos al montar
     useEffect(() => {
+// 1. Carga inicial
         loadSocialData();
+
+        // --- 2. LISTENERS DE SOCKET (TIEMPO REAL) ---
+        
+        // A: Alguien me envía solicitud (User 2 invita a User 1)
+        const handleNewRequest = (data: any) => {
+            console.log("🔔 [SOCKET] Nueva solicitud recibida:", data);
+            loadSocialData(); // Recargamos para que aparezca el badge rojo
+        };
+
+        // B: Alguien acepta mi solicitud (User 2 acepta a User 1) -> ESTE ES EL QUE TE FALTABA
+        const handleFriendAccepted = (data: any) => {
+            console.log("🎉 [SOCKET] Solicitud aceptada por amigo:", data);
+            loadSocialData(); // Recargamos para que aparezca en la lista de amigos
+            setStatusMsg("¡Nuevo amigo añadido!");
+        };
+
+        // Activar escuchas
+        socket.on('friend_request', handleNewRequest);
+        socket.on('friend_accepted', handleFriendAccepted);
+
+        // Limpiar escuchas al salir de la pantalla
+        return () => {
+            socket.off('friend_request', handleNewRequest);
+            socket.off('friend_accepted', handleFriendAccepted);
+        };
     }, []);
 
     const loadSocialData = async () => {

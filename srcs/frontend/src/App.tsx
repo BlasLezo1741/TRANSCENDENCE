@@ -14,20 +14,28 @@ import SettingsScreen from './screens/SettingsScreen.tsx'
 import Header from './components/Header/Header.tsx'
 import Footer from './components/Footer/Footer.tsx'
 import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
-import { socket, setMatchData } from './services/socketService';
+import { socket, connectSocket, setMatchData } from './services/socketService';
 
 import "./App.css";
 
 function App()
 {
-  //const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
-  const [screen, dispatch] = useReducer(screenReducer, "login" as Screen); // Iniciamos en LOGIN por defecto
+  // 1. LEER EL USUARIO DEL STORAGE ANTES DE INICIALIZAR EL REDUCER
+  const savedUserNick = localStorage.getItem("pong_user_nick") || "";
   
-  // --- GESTIÓN DE USUARIO REAL ---
-  // Intentamos leer del almacenamiento local al inicio, si no hay, es cadena vacía
-  const [currentUser, setCurrentUser] = useState<string>(() => {
-      return localStorage.getItem("pong_user_nick") || "";
-  }); 
+  ////const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
+  //const [screen, dispatch] = useReducer(screenReducer, "login" as Screen); // Iniciamos en LOGIN por defecto
+  
+  // Si ya hay usuario, arrancamos en "menu". Si no, en "login".
+  // Esto evita que React renderice 'LoginScreen' al refrescar y active el borrado de usuario.
+  const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "login" as Screen);
+
+  // // --- GESTIÓN DE USUARIO REAL ---
+  // // Intentamos leer del almacenamiento local al inicio, si no hay, es cadena vacía
+  // const [currentUser, setCurrentUser] = useState<string>(() => {
+  //     return localStorage.getItem("pong_user_nick") || "";
+  // }); 
+  const [currentUser, setCurrentUser] = useState<string>(savedUserNick);
   const [mode, setMode] = useState<GameMode>("ia");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
@@ -36,20 +44,45 @@ function App()
   
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
-  // Si ya tenemos usuario guardado al cargar la página, vamos directos al menú
-  useEffect(() => {
-      if (currentUser && screen === 'login') {
-          // Opcional: Si quieres saltar el login si ya hay usuario
-          dispatch({ type: "MENU" });
-      }
-  }, []); 
+  // // Si ya tenemos usuario guardado al cargar la página, vamos directos al menú
+  // useEffect(() => {
+  //     if (currentUser && screen === 'login') {
+  //         // Opcional: Si quieres saltar el login si ya hay usuario
+  //         dispatch({ type: "MENU" });
+  //     }
+  // }, []); 
 
+  // NUEVO (CRUCIAL): CONEXIÓN AUTOMÁTICA DEL SOCKET
+  // Esto detecta si hay usuario (al hacer Login o al refrescar F5) y conecta el socket
   useEffect(() => {
-    if (screen === 'login' && currentUser) {
-        // User was logged out, clear the state
-        setCurrentUser("");
+    if (currentUser) {
+        console.log("🔄 Usuario activo detectado. Conectando socket...");
+        connectSocket(); // <--- IMPORTANTE: Asegúrate de importar esto arriba
     }
-  }, [screen]);
+  }, [currentUser]);
+
+  // ELIMINAR OBLIGATORIAMENTE: ESTE ES EL CULPABLE DEL ERROR
+  // Este efecto borraba tu usuario porque al refrescar, 'screen' valía 'login' momentáneamente.
+  // useEffect(() => {
+  //   if (screen === 'login' && currentUser) {
+  //       // User was logged out, clear the state
+  //       setCurrentUser("");
+  //   }
+  // }, [screen]);
+
+  // NUEVO: FUNCIÓN DE LOGOUT EXPLÍCITA
+  // Pasa esta función a tu Header o donde tengas el botón de salir
+  const handleLogout = () => {
+      // 1. Limpiar Storage
+      localStorage.removeItem("pong_user_nick");
+      localStorage.removeItem("pong_user_id");
+      // 2. Desconectar Socket
+      socket.disconnect();
+      // 3. Limpiar Estado
+      setCurrentUser("");
+      // 4. Cambiar Pantalla
+      dispatch({ type: "LOGOUT" }); // O "LOGIN"
+  };
 
   // ESCUCHA GLOBAL DE SOCKET EN APP  
   useEffect(() => {
@@ -58,7 +91,7 @@ function App()
 
           if (payload.roomId && payload.matchId !== undefined) {
               
-              // 🔥 NUEVO: GUARDAR ROOM ID EN ESTADO
+              // NUEVO: GUARDAR ROOM ID EN ESTADO
               setRoomId(payload.roomId)
               // 1. Guardar IDs
               setMatchData(payload.roomId, payload.matchId);
@@ -160,7 +193,11 @@ function renderScreen()
       {/* 1. Ponemos el indicador arriba de todo */}
       <StatusBadge />
       {/* 2. El resto de la aplicación */}
-      <Header dispatch={dispatch} userName={currentUser}/>
+      <Header 
+        dispatch={dispatch} 
+        userName={currentUser}
+        onLogout={handleLogout}
+      />
       <main>{renderScreen()}</main>
       <Footer />
     </div>

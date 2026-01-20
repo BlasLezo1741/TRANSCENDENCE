@@ -76,6 +76,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // ALMACÉN DE PARTIDAS ACTIVAS
   private games: Map<string, GameState> = new Map();
 
+  // NUEVO: MAPA DE USUARIOS CONECTADOS (UserId -> SocketId)
+  // Esto nos permite saber qué socket pertenece a qué usuario para enviarle notificaciones
+  private userSockets = new Map<number, string>();
+
   // Constantes de física del servidor (Ajustables)
   private readonly SERVER_WIDTH = 1.0; // Normalizado
   private readonly SERVER_HEIGHT = 1.0; // Normalizado
@@ -92,11 +96,37 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // --- CONEXIÓN / DESCONEXIÓN ---
 
   handleConnection(client: Socket) {
-    console.log(`✅ Cliente conectado: ${client.id}`);
+    //console.log(`✅ Cliente conectado: ${client.id}`);
+    // NUEVO: LÓGICA DE IDENTIFICACIÓN DE USUARIO
+    // El frontend nos envía ?userId=123 en la conexión
+    const userId = client.handshake.query.userId;
+
+    if (userId) {
+        const idNum = parseInt(userId as string, 10);
+        
+        // 1. Guardamos en el mapa
+        this.userSockets.set(idNum, client.id);
+        
+        // 2. Unimos al usuario a una sala con su propio nombre (útil para multitarjeta)
+        client.join(`user_${idNum}`);
+        
+        // 3. Guardamos el ID en el objeto data del socket para usarlo luego
+        client.data.userId = idNum;
+
+        console.log(`✅ Cliente conectado: ${client.id} | Usuario ID: ${idNum}`);
+    } else {
+        console.log(`⚠️ Cliente conectado sin UserID: ${client.id}`);
+    }
   }
 
   handleDisconnect(client: Socket) {
     console.log(`❌ Cliente desconectado: ${client.id}`);
+    // NUEVO: LIMPIEZA DEL MAPA DE USUARIOS
+    // Buscamos si este socket pertenecía a algún usuario y lo borramos
+    if (client.data.userId) {
+        this.userSockets.delete(client.data.userId);
+        console.log(`👋 Usuario ${client.data.userId} eliminado del registro online.`);
+    }
 
     this.queues.forEach((queue, mode) => {
       const index = queue.findIndex(s => s.id === client.id);
@@ -114,6 +144,22 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
              this.server.to(roomId).emit('opponent_disconnected');
         }
     }
+  }
+
+  // NUEVO: MÉTODO PÚBLICO PARA ENVIAR NOTIFICACIONES
+  // Este método será llamado desde FriendsService (u otros servicios)
+  public sendNotification(targetUserId: number, event: string, payload: any) {
+    // Opción A: Usar el mapa directo (Solo funciona si tiene 1 pestaña abierta)
+    // const socketId = this.userSockets.get(targetUserId);
+    // if (socketId) {
+    //     this.server.to(socketId).emit(event, payload);
+    // }
+
+    // Opción B (MEJOR): Usar la sala que creamos en handleConnection
+    // Esto asegura que si tiene 2 pestañas abiertas, le llegue a las dos.
+    this.server.to(`user_${targetUserId}`).emit(event, payload);
+    
+    console.log(`📨 Notificación '${event}' enviada a User ${targetUserId}`);
   }
 
   // --- JOIN QUEUE (MATCHMAKING) ---
@@ -206,6 +252,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         console.log(`🚪 [STEP 9] Uniendo sockets a sala ${roomId}`);
         await client.join(roomId);    
         await opponent.join(roomId);   
+
+        // Notificar cambio de estado a AMIGOS (Opcional Futuro: User X está In-Game)
+        // this.notifyStatusChange(p1Db.pPk, 'in-game');
 
         // --- INICIAR EL BUCLE DE SERVIDOR ---
         //this.startGameLoop(roomId, client.id, opponent.id, p1Db.pPk, p2Db.pPk);

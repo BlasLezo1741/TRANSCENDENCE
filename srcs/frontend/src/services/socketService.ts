@@ -18,13 +18,38 @@ let currentMatchDbId: number | null = null;
 // Configuración de la conexión
 //export const socket: Socket = io(SOCKET_URL || 'http://localhost:3000', { // Fallback por seguridad
 export const socket: Socket = io(SOCKET_URL, {
-  autoConnect: true,
+  //autoConnect: true,
+  autoConnect: false, // Importante: No conectar hasta que tengamos el ID
   transports: ['polling', 'websocket'], 
   reconnection: true,
   reconnectionAttempts: 5,
   withCredentials: true,
   rememberUpgrade: true
 });
+
+// --- HELPER PARA OBTENER ID ---
+const getMyId = () => {
+    const id = localStorage.getItem("pong_user_id");
+    return id ? parseInt(id, 10) : 0;
+};
+
+// --- ESTA ES LA FUNCIÓN QUE TE FALTABA ---
+export const connectSocket = () => {
+    const userId = getMyId();
+    if (userId) {
+        // Actualizamos la query del socket con el ID del usuario
+        socket.io.opts.query = { userId: userId.toString() };
+        
+        // Si no está conectado, conectamos
+        if (!socket.connected) {
+            console.log("🔌 Conectando socket con ID:", userId);
+            socket.connect();
+        }
+    } else {
+        console.warn("⚠️ Intentando conectar socket sin ID de usuario.");
+    }
+};
+
 
 // --- TESTIGOS DE CONEXIÓN ---
 socket.on('connect', () => {
@@ -38,6 +63,9 @@ socket.on('connect_error', (error) => {
 socket.on('disconnect', (reason) => {
     console.warn("⚠️ Desconectado del Backend:", reason);
 });
+
+// Variables reactivas simples por si las usas fuera de React (opcional)
+export let matchData = { roomId: "", matchId: 0 };
 
 // --- EMISORES (Enviar datos al servidor) ---
 

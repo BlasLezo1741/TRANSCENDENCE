@@ -20,7 +20,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 // Importamos tu nuevo receptor de mensajes (Gateway)
-import { GameGateway } from './game.gateway';
+//import { GameGateway } from './game.gateway';
+import { GatewayModule } from './gateway.module'; //adicionado en lugar de GameGateway
 import { DatabaseModule } from './database.module'; // ORM DRIZZLE
 
 // --- NEW IMPORTS ---
@@ -38,6 +39,7 @@ import { FriendsModule } from './friends/friends.module';
     DatabaseModule,
     CountriesModule,
     FriendsModule,
+    GatewayModule,
   ],
   controllers: [
     AppController, 
@@ -45,7 +47,7 @@ import { FriendsModule } from './friends/friends.module';
   ],
   providers: [
     AppService, 
-    GameGateway, 
+    //GameGateway, 
     AuthService    // <--- Add Service here (handles password hashing & DB)
   ],
 })

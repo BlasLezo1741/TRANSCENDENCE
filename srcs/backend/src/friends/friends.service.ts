@@ -3,11 +3,14 @@ import { DRIZZLE } from '../database.module'; // Ajusta la ruta a tu módulo de 
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as schema from '../schema';
 import { sql, eq } from 'drizzle-orm';
+import { GameGateway } from '../game.gateway';
 
 @Injectable()
 export class FriendsService {
     constructor(
         @Inject(DRIZZLE) private readonly db: PostgresJsDatabase<typeof schema>,
+        // IMPORTANTE: Inyectar el Gateway en el constructor
+        private readonly gateway: GameGateway,
     ) {}
 
     // IDs basados en tu insert SQL (1=Pending, 2=Accepted, 3=Blocked)
@@ -24,6 +27,11 @@ export class FriendsService {
             f2: targetId,
             fStatusFk: this.STATUS_PENDING
         });
+        // NOTIFICACIÓN DE SOLICITUD
+        this.gateway.sendNotification(targetId, 'friend_request', { 
+            from: userId,
+            msg: "Tienes una nueva solicitud" 
+        });
         return { ok: true, msg: "Solicitud enviada" };
     }
 
@@ -34,6 +42,14 @@ export class FriendsService {
             f1: userId,
             f2: targetId,
             fStatusFk: this.STATUS_ACCEPTED
+        });
+        // NOTIFICACIÓN DE ACEPTACIÓN
+        // Esto es lo que le dice a User 1 "¡Eh! Ya somos amigos, recarga tu lista"
+        console.log(`📤 Enviando notificación 'friend_accepted' a User ${targetId}`);
+        
+        this.gateway.sendNotification(targetId, 'friend_accepted', {
+            friendId: userId,
+            msg: "Tu solicitud ha sido aceptada"
         });
         return { ok: true, msg: "Solicitud aceptada" };
     }
