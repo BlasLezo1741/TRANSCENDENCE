@@ -1,3 +1,4 @@
+import { socket } from './socketService';
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 // Helper para obtener el ID del usuario logueado
@@ -20,40 +21,68 @@ export interface PendingRequest {
     nick: string;
 }
 
+// NUEVO TIPO: Candidato para invitar
+export interface UserCandidate {
+    id: number;
+    nick: string;
+}
+
 // --- API CALLS ---
 
-// 1. Obtener lista de amigos confirmados
+// // 1. Obtener lista de amigos confirmados
+// export const getMyFriends = async (): Promise<Friend[]> => {
+//     const myId = getMyId();
+//     try {
+//         const response = await fetch(`${API_URL}/friends/list`, {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ myId })
+//         });
+//         if (!response.ok) return [];
+//         return await response.json();
+//     } catch (e) {
+//         console.error("Error fetching friends:", e);
+//         return [];
+//     }
+// };
+
+// 1. Obtener mis amigos (USAR GET)
 export const getMyFriends = async (): Promise<Friend[]> => {
-    const myId = getMyId();
-    try {
-        const response = await fetch(`${API_URL}/friends/list`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ myId })
-        });
-        if (!response.ok) return [];
-        return await response.json();
-    } catch (e) {
-        console.error("Error fetching friends:", e);
-        return [];
-    }
+    const userId = localStorage.getItem("pong_user_id");
+    
+    // 🔥 CORRECCIÓN: Usamos fetch por defecto (que es GET) con query param
+    const response = await fetch(`${API_URL}/friends/list?userId=${userId}`);
+    
+    if (!response.ok) throw new Error("Error fetching friends");
+    return await response.json();
 };
 
-// 2. Obtener solicitudes pendientes (Gente que quiere ser tu amiga)
+// // 2. Obtener solicitudes pendientes (Gente que quiere ser tu amiga)
+// export const getPendingRequests = async (): Promise<PendingRequest[]> => {
+//     const myId = getMyId();
+//     try {
+//         const response = await fetch(`${API_URL}/friends/pending`, {
+//             method: 'POST', // Ojo, definimos POST en el controller
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ myId })
+//         });
+//         if (!response.ok) return [];
+//         return await response.json();
+//     } catch (e) {
+//         console.error("Error fetching requests:", e);
+//         return [];
+//     }
+// };
+
+// 2. Obtener solicitudes pendientes (USAR GET)
 export const getPendingRequests = async (): Promise<PendingRequest[]> => {
-    const myId = getMyId();
-    try {
-        const response = await fetch(`${API_URL}/friends/pending`, {
-            method: 'POST', // Ojo, definimos POST en el controller
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ myId })
-        });
-        if (!response.ok) return [];
-        return await response.json();
-    } catch (e) {
-        console.error("Error fetching requests:", e);
-        return [];
-    }
+    const userId = localStorage.getItem("pong_user_id");
+    
+    // 🔥 CORRECCIÓN: Usamos GET
+    const response = await fetch(`${API_URL}/friends/pending?userId=${userId}`);
+    
+    if (!response.ok) throw new Error("Error fetching requests");
+    return await response.json();
 };
 
 // 3. Enviar una solicitud de amistad
@@ -86,5 +115,23 @@ export const blockUser = async (targetId: number) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ myId, targetId })
     });
+    return await response.json();
+};
+
+// 6. NUEVA FUNCIÓN: Obtener usuarios para invitar (Dropdown)
+export const getUsersToInvite = async (): Promise<UserCandidate[]> => {
+    const userId = localStorage.getItem("pong_user_id");
+    
+    const response = await fetch(`${API_URL}/friends/candidates?userId=${userId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Error fetching candidates");
+    }
+    
     return await response.json();
 };

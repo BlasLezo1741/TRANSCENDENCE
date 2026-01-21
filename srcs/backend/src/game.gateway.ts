@@ -5,7 +5,8 @@ import {
   OnGatewayConnection, 
   OnGatewayDisconnect,
   ConnectedSocket,
-  MessageBody      
+  MessageBody, 
+  OnGatewayInit     
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { UsePipes, ValidationPipe, Inject } from '@nestjs/common';
@@ -66,7 +67,7 @@ interface GameState {
   },
   transports: ['polling', 'websocket']
 })
-export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
@@ -92,6 +93,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @Inject(DRIZZLE) 
     private readonly db: PostgresJsDatabase<typeof schema>,
   ) {}
+  
+  //Metodo de control
+  afterInit(server: Server) {
+    console.log("🚨🚨🚨 [GATEWAY] SOCKET SERVER INICIADO - INSTANCIA ÚNICA ID:", Math.random());
+  }
 
   // --- CONEXIÓN / DESCONEXIÓN ---
 
@@ -129,14 +135,33 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     console.log(`❌ Cliente desconectado: ${client.id}`);
-    // NUEVO: LIMPIEZA DEL MAPA DE USUARIOS
-    // Buscamos si este socket pertenecía a algún usuario y lo borramos
-    if (client.data.userId) {
-        this.userSockets.delete(client.data.userId);
-        console.log(`👋 Usuario ${client.data.userId} eliminado del registro online.`);
+    // // NUEVO: LIMPIEZA DEL MAPA DE USUARIOS
+    // // Buscamos si este socket pertenecía a algún usuario y lo borramos
+    // if (client.data.userId) {
+    //     this.userSockets.delete(client.data.userId);
+    //     console.log(`👋 Usuario ${client.data.userId} eliminado del registro online.`);
 
-        // NUEVO: AVISAR A TODOS QUE ESTE USUARIO ESTÁ OFFLINE
-        this.server.emit('user_status_change', { userId: client.data.userId, status: 'offline' });
+    //     // NUEVO: AVISAR A TODOS QUE ESTE USUARIO ESTÁ OFFLINE
+    //     this.server.emit('user_status_change', { userId: client.data.userId, status: 'offline' });
+    // }
+
+    // --- CORRECCIÓN DEL BUG DE "VISIBILIDAD UNILATERAL" ---
+    if (client.data.userId) {
+        const userId = client.data.userId;
+        
+        // 1. Verificamos si el usuario tiene un socket registrado
+        const currentSocketId = this.userSockets.get(userId);
+
+        // 2. IMPORTANTE: Solo borramos y notificamos si el socket que se va
+        // es EL MISMO que tenemos registrado como activo.
+        // Esto evita que una pestaña vieja cerrándose desconecte a la nueva.
+        if (currentSocketId === client.id) {
+            this.userSockets.delete(userId);
+            console.log(`👋 Usuario ${userId} eliminado del registro online.`);
+            this.server.emit('user_status_change', { userId: userId, status: 'offline' });
+        } else {
+            console.log(`ℹ️ Usuario ${userId} se desconectó (socket viejo), pero sigue conectado en otro socket.`);
+        }
     }
 
     this.queues.forEach((queue, mode) => {
