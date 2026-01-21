@@ -70,7 +70,19 @@ export class FriendsService {
         const result = await this.db.execute(sql`
             SELECT * FROM get_player_friends(${userId})
         `);
-        return result;
+        // 🔥 NUEVO: ENRIQUECEMOS LOS DATOS CON EL ESTADO ONLINE
+        // Mapeamos el resultado para añadir el campo 'is_online' preguntando al Gateway
+        const enrichedResult = result.map((friend: any) => ({
+            id: friend.friend_id,             // Mapeamos friend_id a id para el frontend
+            friend_nick: friend.friend_nick,
+            friend_lang: friend.friend_lang,
+            friendship_since: friend.friendship_since,
+            // Aquí usamos el ID para preguntar al Gateway
+            status: this.gateway.isUserOnline(friend.id) ? 'online' : 'offline'
+        }));
+
+        return enrichedResult;
+        //return result;
     }
 
     // 5. Ver solicitudes pendientes (Quién quiere ser mi amigo)

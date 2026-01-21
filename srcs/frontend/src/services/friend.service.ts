@@ -8,10 +8,11 @@ const getMyId = (): number => {
 
 // --- INTERFACES ---
 export interface Friend {
+    id: number;
     friend_nick: string;
     friend_lang: string;
     friendship_since: string;
-    // status: 'online' | 'offline' | 'ingame'; // Esto lo añadiremos luego con sockets
+    status: 'online' | 'offline' | 'ingame';
 }
 
 export interface PendingRequest {

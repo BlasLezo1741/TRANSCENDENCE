@@ -95,6 +95,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // --- CONEXIÓN / DESCONEXIÓN ---
 
+  public isUserOnline(userId: number): boolean {
+    return this.userSockets.has(userId);
+  }
+
   handleConnection(client: Socket) {
     //console.log(`✅ Cliente conectado: ${client.id}`);
     // NUEVO: LÓGICA DE IDENTIFICACIÓN DE USUARIO
@@ -114,6 +118,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.data.userId = idNum;
 
         console.log(`✅ Cliente conectado: ${client.id} | Usuario ID: ${idNum}`);
+        // NUEVO: AVISAR A TODOS QUE ESTE USUARIO ESTÁ ONLINE
+        // (El frontend filtrará si le importa o no este usuario)
+        this.server.emit('user_status_change', { userId: idNum, status: 'online' });
+
     } else {
         console.log(`⚠️ Cliente conectado sin UserID: ${client.id}`);
     }
@@ -126,6 +134,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (client.data.userId) {
         this.userSockets.delete(client.data.userId);
         console.log(`👋 Usuario ${client.data.userId} eliminado del registro online.`);
+
+        // NUEVO: AVISAR A TODOS QUE ESTE USUARIO ESTÁ OFFLINE
+        this.server.emit('user_status_change', { userId: client.data.userId, status: 'offline' });
     }
 
     this.queues.forEach((queue, mode) => {

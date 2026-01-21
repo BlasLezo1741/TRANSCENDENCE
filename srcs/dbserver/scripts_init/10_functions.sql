@@ -1,39 +1,52 @@
 -- Function to get active friends of a player
 CREATE OR REPLACE FUNCTION get_player_friends(target_p_pk INTEGER)
 RETURNS TABLE (
+    friend_id INTEGER,
     friend_nick VARCHAR(255),
-    friend_lang CHAR(2),
+    friend_lang VARCHAR(255),
     friendship_since TIMESTAMP
 ) AS $$
 DECLARE
-    -- Definimos constantes para que el código sea legible (ID 2 = Accepted)
     STATUS_ACCEPTED CONSTANT smallint := 2;
 BEGIN
     RETURN QUERY
     SELECT 
-        -- Determinamos quién es el amigo (si p1 o p2) basándonos en el target_p_pk
+        -- ID del amigo
+        CASE 
+            WHEN p1.p_pk = target_p_pk THEN p2.p_pk 
+            ELSE p1.p_pk 
+        END AS friend_id,
+        
+        -- Nick del amigo
         CASE 
             WHEN p1.p_pk = target_p_pk THEN p2.p_nick 
             ELSE p1.p_nick 
         END AS friend_nick,
-        CASE 
-            WHEN p1.p_pk = target_p_pk THEN p2.p_lang 
-            ELSE p1.p_lang 
-        END AS friend_lang,
+
+        -- ✅ CORRECCIÓN: Usamos lang_name que es el correcto
+        l.lang_name::varchar AS friend_lang, 
+
         active_friends.f_date
     FROM (
-        -- Subconsulta para encontrar el estado más reciente de cada pareja
         SELECT f_1, f_2, f_status_fk, f_date,
-               ROW_NUMBER() OVER(PARTITION BY -- Truco: LEAST/GREATEST agrupa A-B y B-A como la misma pareja
+               ROW_NUMBER() OVER(PARTITION BY 
                    LEAST(f_1, f_2), GREATEST(f_1, f_2) 
                    ORDER BY f_date DESC) as last_event
         FROM PLAYER_FRIEND
-        WHERE f_1 = target_p_pk OR f_2 = target_p_pk -- Filtramos por el jugador antes de calcular
+        WHERE f_1 = target_p_pk OR f_2 = target_p_pk 
     ) active_friends
     JOIN PLAYER p1 ON active_friends.f_1 = p1.p_pk
     JOIN PLAYER p2 ON active_friends.f_2 = p2.p_pk
+    
+    LEFT JOIN P_LANGUAGE l ON l.lang_pk = (
+        CASE 
+            WHEN p1.p_pk = target_p_pk THEN p2.p_lang 
+            ELSE p1.p_lang 
+        END
+    )
+    
     WHERE active_friends.last_event = 1 
-      AND active_friends.f_status_fk = STATUS_ACCEPTED; -- <--- CAMBIO CLAVE
+      AND active_friends.f_status_fk = STATUS_ACCEPTED;
 END;
 $$ LANGUAGE plpgsql;
 
