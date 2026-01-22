@@ -34,20 +34,7 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
     {
         dispatch({ type: "STATS" });
     };
-/*
-    const handleSignout = () =>
-    {
-        setSigned(false);
-    };
-*/
-/*
-    const handleLogout = () => {
-        // Clear localStorage
-        localStorage.removeItem("pong_user_nick");
-        // Dispatch logout action
-        dispatch({ type: "LOGOUT" });
-    };
-*/
+
     const handleLogoutClick = (e: React.MouseEvent) => {
         e.preventDefault(); // Evitar comportamiento de enlace #
         setOpen(false);
@@ -70,51 +57,6 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
         };
     }, []);
 
-//     return (
-//         <header>
-//             <div className="home" onClick={() => dispatch({type: "MENU"})}>
-//                 <img src={avatarUrl} alt={userName} />
-//                 <p className="letters">Okinawa</p>
-//             </div>
-            
-//             <LanguageSwitcher />
-
-//             <div className="signin">
-
-//                 {/* Is not logged */}
-//                 {!signed && (
-//                     <button onClick={() => dispatch({ type: "LOGIN" })}>
-//                         Login
-//                     </button>
-//                     /*
-//                     <button onClick={() => dispatch({ type: "SIGN" })}>
-//                         {t('crear_cuenta')}
-//                     </button>
-//                     */
-//                 )}
-
-//                 {/* Is logged */}
-//                 {signed && (
-//                     <div className="login" ref={dropdownRef} onClick={() => setOpen(!open)}>
-                        
-//                         <img className="avatarIcon" src={avatarUrl} alt={userName} />
-//                         <p className="letters"><strong>{userName}</strong></p>
-
-//                     {/* Dropdown */}
-//                     {open && (
-//                         <ul className="dropdown">
-//                             <li><a href="#" onClick={handleProfile}>Profile</a></li>
-//                             <li><a href="#" onClick={handleSettings}>Settings</a></li>
-//                             <li><a href="#" onClick={handleStats}>Stats</a></li>
-//                             <li><a href="#" onClick={handleLogout}>Sign out</a></li>
-//                         </ul>
-//                     )} 
-//                     </div>
-//                 )}
-//             </div>
-//         </header>
-//     );
-// }
     return (
         <header>
             <div className="home" onClick={() => dispatch({ type: "MENU" })}>

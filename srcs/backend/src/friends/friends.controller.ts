@@ -122,10 +122,27 @@ export class FriendsController {
   // ==========================================
   // 2. ENVIAR SOLICITUD (POST)
   // ==========================================
-  // Frontend envía: { userId, targetId }
+  // // Frontend envía: { userId, targetId }
+  // @Post('request')
+  // async sendRequest(@Body() body: { userId: number, targetId: number }) {
+  //     console.log(`📤 [DEBUG] User ${body.userId} envía solicitud a ${body.targetId}`);
+  //     return this.friendsService.sendRequest(body.userId, body.targetId);
+  // }
+  // 2. ENVIAR SOLICITUD (POST)
   @Post('request')
   async sendRequest(@Body() body: { userId: number, targetId: number }) {
-      return this.friendsService.sendRequest(body.userId, body.targetId);
+      // LOG PARA DEPURAR: Ver qué llega exactamente
+      console.log("📥 [CONTROLLER] Payload recibido:", body);
+
+      // GUARDA DE SEGURIDAD:
+      // Si userId o targetId no existen, devolvemos error controlado en vez de romper SQL.
+      if (!body.userId || !body.targetId) {
+          console.error("❌ [ERROR] Faltan IDs. Recibido:", body);
+          return { ok: false, msg: "Error: IDs no válidos" };
+      }
+
+      // Convertimos a Number por seguridad (a veces llega como string "1")
+      return this.friendsService.sendRequest(Number(body.userId), Number(body.targetId));
   }
 
   // ==========================================
@@ -133,6 +150,7 @@ export class FriendsController {
   // ==========================================
   @Post('accept')
   async acceptRequest(@Body() body: { userId: number, targetId: number }) {
+      console.log(`🤝 [DEBUG] User ${body.userId} acepta a ${body.targetId}`);
       return this.friendsService.acceptRequest(body.userId, body.targetId);
   }
 
@@ -150,6 +168,7 @@ export class FriendsController {
   // Ojo: Lo cambiamos a GET porque fetch por defecto para leer datos suele ser GET
   @Get('pending')
   async getPending(@Query('userId') userId: string) {
+      console.log(`📬 [DEBUG] User ${userId} consulta PENDIENTES`);
       return this.friendsService.getPendingRequests(Number(userId));
   }
 

@@ -135,15 +135,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   handleDisconnect(client: Socket) {
     console.log(`❌ Cliente desconectado: ${client.id}`);
-    // // NUEVO: LIMPIEZA DEL MAPA DE USUARIOS
-    // // Buscamos si este socket pertenecía a algún usuario y lo borramos
-    // if (client.data.userId) {
-    //     this.userSockets.delete(client.data.userId);
-    //     console.log(`👋 Usuario ${client.data.userId} eliminado del registro online.`);
-
-    //     // NUEVO: AVISAR A TODOS QUE ESTE USUARIO ESTÁ OFFLINE
-    //     this.server.emit('user_status_change', { userId: client.data.userId, status: 'offline' });
-    // }
 
     // --- CORRECCIÓN DEL BUG DE "VISIBILIDAD UNILATERAL" ---
     if (client.data.userId) {
@@ -185,13 +176,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   // NUEVO: MÉTODO PÚBLICO PARA ENVIAR NOTIFICACIONES
   // Este método será llamado desde FriendsService (u otros servicios)
   public sendNotification(targetUserId: number, event: string, payload: any) {
-    // Opción A: Usar el mapa directo (Solo funciona si tiene 1 pestaña abierta)
-    // const socketId = this.userSockets.get(targetUserId);
-    // if (socketId) {
-    //     this.server.to(socketId).emit(event, payload);
-    // }
 
-    // Opción B (MEJOR): Usar la sala que creamos en handleConnection
+    // Usar la sala que creamos en handleConnection
     // Esto asegura que si tiene 2 pestañas abiertas, le llegue a las dos.
     this.server.to(`user_${targetUserId}`).emit(event, payload);
     
@@ -289,11 +275,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         await client.join(roomId);    
         await opponent.join(roomId);   
 
-        // Notificar cambio de estado a AMIGOS (Opcional Futuro: User X está In-Game)
-        // this.notifyStatusChange(p1Db.pPk, 'in-game');
-
         // --- INICIAR EL BUCLE DE SERVIDOR ---
-        //this.startGameLoop(roomId, client.id, opponent.id, p1Db.pPk, p2Db.pPk);
         this.startGameLoop(
             roomId, 
             opponent.id,  // El que esperaba va a la IZQUIERDA (Player 1)
@@ -478,8 +460,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           const winnerSide = state.score[0] >= this.MAX_SCORE ? "left" : "right";
           // Llamamos a finish game logic
           this.stopGameLoop(state.roomId);
-          // 2. DESACTIVAMOS DB TEMPORALMENTE (Para evitar el crash)
-           this.saveMatchToDb(state, winnerSide); 
+          //Inscripcion en la base de datos
+          this.saveMatchToDb(state, winnerSide); 
 
           // 3. Enviamos quién ganó (left o right)
           // TRUCO DEL DELAY: Esperamos 500ms antes de mandar el Game Over

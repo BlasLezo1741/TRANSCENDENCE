@@ -1,11 +1,6 @@
 import { socket } from './socketService';
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
-// Helper para obtener el ID del usuario logueado
-const getMyId = (): number => {
-    const id = localStorage.getItem("pong_user_id");
-    return id ? parseInt(id, 10) : 0;
-};
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 // --- INTERFACES ---
 export interface Friend {
@@ -21,7 +16,6 @@ export interface PendingRequest {
     nick: string;
 }
 
-// NUEVO TIPO: Candidato para invitar
 export interface UserCandidate {
     id: number;
     nick: string;
@@ -29,96 +23,83 @@ export interface UserCandidate {
 
 // --- API CALLS ---
 
-// // 1. Obtener lista de amigos confirmados
-// export const getMyFriends = async (): Promise<Friend[]> => {
-//     const myId = getMyId();
-//     try {
-//         const response = await fetch(`${API_URL}/friends/list`, {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ myId })
-//         });
-//         if (!response.ok) return [];
-//         return await response.json();
-//     } catch (e) {
-//         console.error("Error fetching friends:", e);
-//         return [];
-//     }
-// };
-
-// 1. Obtener mis amigos (USAR GET)
+// 1. Obtener mis amigos (GET)
 export const getMyFriends = async (): Promise<Friend[]> => {
     const userId = localStorage.getItem("pong_user_id");
     
-    // 🔥 CORRECCIÓN: Usamos fetch por defecto (que es GET) con query param
     const response = await fetch(`${API_URL}/friends/list?userId=${userId}`);
     
     if (!response.ok) throw new Error("Error fetching friends");
     return await response.json();
 };
 
-// // 2. Obtener solicitudes pendientes (Gente que quiere ser tu amiga)
-// export const getPendingRequests = async (): Promise<PendingRequest[]> => {
-//     const myId = getMyId();
-//     try {
-//         const response = await fetch(`${API_URL}/friends/pending`, {
-//             method: 'POST', // Ojo, definimos POST en el controller
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ myId })
-//         });
-//         if (!response.ok) return [];
-//         return await response.json();
-//     } catch (e) {
-//         console.error("Error fetching requests:", e);
-//         return [];
-//     }
-// };
-
-// 2. Obtener solicitudes pendientes (USAR GET)
+// 2. Obtener solicitudes pendientes (GET)
 export const getPendingRequests = async (): Promise<PendingRequest[]> => {
     const userId = localStorage.getItem("pong_user_id");
     
-    // 🔥 CORRECCIÓN: Usamos GET
     const response = await fetch(`${API_URL}/friends/pending?userId=${userId}`);
     
     if (!response.ok) throw new Error("Error fetching requests");
     return await response.json();
 };
 
-// 3. Enviar una solicitud de amistad
+// 3. ENVIAR SOLICITUD DE AMISTAD (POST)
 export const sendFriendRequest = async (targetId: number) => {
-    const myId = getMyId();
+    const storedId = localStorage.getItem("pong_user_id");
+    
+    if (!storedId) {
+        console.error("❌ Error CRÍTICO: No hay 'pong_user_id' en localStorage.");
+        return { ok: false, msg: "Error de sesión: Recarga la página" };
+    }
+
+    const userId = parseInt(storedId); 
+
+    console.log(`📤 [FRONT] Enviando solicitud: Yo (${userId}) -> Él (${targetId})`);
+
     const response = await fetch(`${API_URL}/friends/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ myId, targetId })
+        body: JSON.stringify({ userId, targetId }) // Clave correcta: userId
     });
-    return await response.json(); // { ok: true, msg: ... }
+
+    if (!response.ok) {
+        const err = await response.json();
+        console.error("❌ Error del servidor:", err);
+        return { ok: false, msg: "Error en el servidor" };
+    }
+
+    return await response.json();
 };
 
-// 4. Aceptar solicitud
+// 4. ACEPTAR SOLICITUD (POST) - CORREGIDO
 export const acceptFriendRequest = async (targetId: number) => {
-    const myId = getMyId();
+    const storedId = localStorage.getItem("pong_user_id");
+    const userId = storedId ? parseInt(storedId) : 0;
+
     const response = await fetch(`${API_URL}/friends/accept`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ myId, targetId })
+        // 🔥 CORREGIDO: Antes enviabas myId, ahora userId para coincidir con el backend
+        body: JSON.stringify({ userId, targetId }) 
     });
     return await response.json();
 };
 
-// 5. Bloquear usuario
+// 5. BLOQUEAR USUARIO (POST) - CORREGIDO
 export const blockUser = async (targetId: number) => {
-    const myId = getMyId();
+    const storedId = localStorage.getItem("pong_user_id");
+    const userId = storedId ? parseInt(storedId) : 0;
+
     const response = await fetch(`${API_URL}/friends/block`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ myId, targetId })
+        // 🔥 CORREGIDO: Antes enviabas myId, ahora userId
+        body: JSON.stringify({ userId, targetId })
     });
     return await response.json();
 };
 
-// 6. NUEVA FUNCIÓN: Obtener usuarios para invitar (Dropdown)
+// 6. Obtener usuarios para invitar (GET)
 export const getUsersToInvite = async (): Promise<UserCandidate[]> => {
     const userId = localStorage.getItem("pong_user_id");
     

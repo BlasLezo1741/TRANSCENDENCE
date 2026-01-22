@@ -31,10 +31,6 @@ function App()
   const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "login" as Screen);
 
   // // --- GESTIÓN DE USUARIO REAL ---
-  // // Intentamos leer del almacenamiento local al inicio, si no hay, es cadena vacía
-  // const [currentUser, setCurrentUser] = useState<string>(() => {
-  //     return localStorage.getItem("pong_user_nick") || "";
-  // }); 
   const [currentUser, setCurrentUser] = useState<string>(savedUserNick);
   const [mode, setMode] = useState<GameMode>("ia");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
@@ -44,14 +40,7 @@ function App()
   
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
-  // // Si ya tenemos usuario guardado al cargar la página, vamos directos al menú
-  // useEffect(() => {
-  //     if (currentUser && screen === 'login') {
-  //         // Opcional: Si quieres saltar el login si ya hay usuario
-  //         dispatch({ type: "MENU" });
-  //     }
-  // }, []); 
-
+  
   // NUEVO (CRUCIAL): CONEXIÓN AUTOMÁTICA DEL SOCKET
   // Esto detecta si hay usuario (al hacer Login o al refrescar F5) y conecta el socket
   useEffect(() => {
@@ -61,16 +50,7 @@ function App()
     }
   }, [currentUser]);
 
-  // ELIMINAR OBLIGATORIAMENTE: ESTE ES EL CULPABLE DEL ERROR
-  // Este efecto borraba tu usuario porque al refrescar, 'screen' valía 'login' momentáneamente.
-  // useEffect(() => {
-  //   if (screen === 'login' && currentUser) {
-  //       // User was logged out, clear the state
-  //       setCurrentUser("");
-  //   }
-  // }, [screen]);
-
-  // NUEVO: FUNCIÓN DE LOGOUT EXPLÍCITA
+  // FUNCIÓN DE LOGOUT EXPLÍCITA
   // Pasa esta función a tu Header o donde tengas el botón de salir
   const handleLogout = () => {
       // 1. Limpiar Storage
@@ -178,17 +158,6 @@ function renderScreen()
   }
 
   return (
-    /*
-    <div>
-      <StatusBadge /> 
-      <div style={{position: 'absolute', top: 0, right: 0, color: 'lime', padding: '5px'}}>
-          Soy: {currentUser || 'Not logged in'}
-      </div>
-      <Header dispatch={dispatch} userName={currentUser}/>
-      <main>{renderScreen()}</main>
-      <Footer />
-    </div>
-          */
     <div className="app">
       {/* 1. Ponemos el indicador arriba de todo */}
       <StatusBadge />
