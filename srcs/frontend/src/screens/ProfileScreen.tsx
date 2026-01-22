@@ -11,8 +11,11 @@ import {
     sendFriendRequest,
     type Friend, 
     type PendingRequest, 
-    type UserCandidate
+    type UserCandidate,
+    removeFriend
 } from '../services/friend.service';
+
+
 
 const ProfileScreen = () => {
     const { t } = useTranslation();
@@ -57,59 +60,102 @@ const ProfileScreen = () => {
         }
     };
 
+    const handleRemoveFriend = async (friendId: number, friendName: string) => {
+        // 1. Confirmación de seguridad
+        if (!window.confirm(`¿Seguro que quieres eliminar a ${friendName}?`)) {
+            return;
+        }
+
+        // 2. OPTIMISTIC UI: Lo quitamos de la lista visualmente YA
+        setFriends((prev: Friend[]) => prev.filter((f) => Number(f.id) !== Number(friendId)));
+
+        try {
+            // 3. Llamada al backend
+            const res = await removeFriend(friendId);
+            if (res.ok) {
+                setStatusMsg(`Has eliminado a ${friendName}`);
+            } else {
+                // Si falla, recargamos para que vuelva a aparecer
+                loadSocialData(); 
+            }
+        } catch (error) {
+            console.error("Error eliminando amigo:", error);
+        }
+        
+        // 4. Recarga de seguridad a los 300ms (para actualizar candidatos)
+        setTimeout(() => loadSocialData(), 300);
+    };
+
     // Cargar datos al montar
 
     useEffect(() => {
-        // --- 1. Carga inicial ---
+        // Carga inicial
         loadSocialData();
 
-        // --- 2. LISTENERS DE SOCKET (TIEMPO REAL) ---
-        
-        // A: Alguien me envía solicitud (User 2 invita a User 1)
-        //Meto delay
+        // --- HANDLERS ---
+
         const handleNewRequest = () => {
-            console.log("⏳ [SOCKET] Solicitud recibida. Esperando 300ms a la DB...");
-            
-            // Esperamos un poquito antes de pedir los datos al servidor
-            setTimeout(() => {
-                console.log("🔄 [SOCKET] Ahora sí, recargando datos.");
-                loadSocialData();
-            }, 300);
+            console.log("🔔 [SOCKET] Nueva solicitud recibida");
+            setTimeout(() => loadSocialData(), 300);
         };
 
-        // B: Alguien acepta mi solicitud (User 2 acepta a User 1)
-        //Meto delay
         const handleFriendAccepted = () => {
-             // Lo mismo al aceptar, para asegurar que se mueve de "Pendiente" a "Amigo"
+            console.log("🤝 [SOCKET] Amistad aceptada");
             setTimeout(() => {
                 loadSocialData();
                 setStatusMsg("¡Nuevo amigo añadido!");
             }, 300);
         };
 
-        // LISTENER DE CAMBIO DE ESTADO
         const handleStatusChange = (data: { userId: number, status: 'online' | 'offline' }) => {
-            console.log(`🚥 Estado usuario ${data.userId} cambió a: ${data.status}`);
-            
-            // Actualizamos la lista de amigos localmente sin recargar todo del servidor
-            setFriends((prevFriends: Friend[]) => prevFriends.map((f: Friend) => {
-                if (f.id === data.userId) {
-                    return { ...f, status: data.status };
-                }
-                return f;
+            setFriends((prev: Friend[]) => prev.map((f) => {
+            // Usamos Number() para asegurar que comparamos números con números
+            if (Number(f.id) === Number(data.userId)) {
+                return { ...f, status: data.status };
+            }
+            return f;
             }));
         };
 
-        // Activar escuchas
+        // 🔥 ESTE ES EL IMPORTANTE CON LOGS DE DEPURACIÓN
+        const handleFriendRemoved = (data: any) => {
+            console.log("🚨 [SOCKET RECIBIDO] Evento 'friend_removed' llegó con datos:", data);
+
+            if (!data || !data.from) {
+                console.error("❌ El evento llegó sin ID 'from'");
+                return;
+            }
+
+            const idQueMeBorro = Number(data.from);
+            console.log(`🔪 Intentando borrar al usuario ID ${idQueMeBorro} de mi lista local...`);
+
+            setFriends((prev: Friend[]) => {
+                const cantidadAntes = prev.length;
+                // Filtramos: Dejamos pasar a todos MENOS al que tenga ese ID
+                const nuevaLista = prev.filter(f => Number(f.id) !== idQueMeBorro);
+                
+                console.log(`📉 Cambio visual: ${cantidadAntes} amigos -> ${nuevaLista.length} amigos`);
+                return nuevaLista;
+            });
+            
+            // Recarga de seguridad (backup)
+            loadSocialData();
+        };
+
+        // --- SUSCRIPCIONES ---
+        console.log("🎧 Suscribiéndose a eventos del socket...");
         socket.on('friend_request', handleNewRequest);
         socket.on('friend_accepted', handleFriendAccepted);
         socket.on('user_status_change', handleStatusChange);
+        socket.on('friend_removed', handleFriendRemoved);
 
-        // Limpiar escuchas al salir de la pantalla
+        // --- CLEANUP ---
         return () => {
+            console.log("🔕 Desuscribiéndose eventos...");
             socket.off('friend_request', handleNewRequest);
             socket.off('friend_accepted', handleFriendAccepted);
             socket.off('user_status_change', handleStatusChange);
+            socket.off('friend_removed', handleFriendRemoved);
         };
     }, []);
 
@@ -221,7 +267,12 @@ const ProfileScreen = () => {
                                             }}></div>
                                             <span className="font-bold">{f.friend_nick}</span>
                                         </div>
-                                        <button className="text-xs text-red-400 hover:text-red-300">Eliminar</button>
+                                        <button 
+                                            onClick={() => handleRemoveFriend(f.id, f.friend_nick)}
+                                            className="text-xs text-red-400 hover:text-red-300 hover:underline"
+                                            >
+                                            Eliminar
+                                        </button>
                                     </li>
                                 ))}
                             </ul>

@@ -147,5 +147,27 @@ export class FriendsService {
         
         return result;
     }
+
+    // 7. ELIMINAR AMIGO
+    async removeFriend(userId: number, targetId: number) {
+        // Borramos la relación en ambos sentidos (por si acaso)
+        await this.db.execute(sql`
+            DELETE FROM PLAYER_FRIEND 
+            WHERE (f_1 = ${userId} AND f_2 = ${targetId}) 
+               OR (f_1 = ${targetId} AND f_2 = ${userId})
+        `);
+
+        console.log(`🗑️ [DB] Amistad eliminada: ${userId} - ${targetId}`);
+        // Log para ver en la terminal del backend
+        console.log(`🗑️ [DB] Delete ejecutado. Notificando a User ${targetId} que User ${userId} lo borró.`);
+        // NOTIFICACIÓN: Avisar al ex-amigo para que se le actualice la lista
+        this.gateway.sendNotification(targetId, 'friend_removed', { 
+            from: userId,
+            msg: "Un usuario te ha eliminado de amigos" 
+        });
+
+        return { ok: true, msg: "Amigo eliminado correctamente" };
+    }
     
 }
+

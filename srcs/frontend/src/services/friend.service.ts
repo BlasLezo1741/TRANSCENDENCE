@@ -116,3 +116,19 @@ export const getUsersToInvite = async (): Promise<UserCandidate[]> => {
     
     return await response.json();
 };
+
+// 7. ELIMINAR AMIGO
+export const removeFriend = async (targetId: number) => {
+    const storedId = localStorage.getItem("pong_user_id");
+    if (!storedId) return { ok: false, msg: "Error de sesión" };
+    
+    const userId = parseInt(storedId);
+
+    const response = await fetch(`${API_URL}/friends/remove`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, targetId })
+    });
+
+    return await response.json();
+};
