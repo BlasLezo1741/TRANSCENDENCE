@@ -58,7 +58,8 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
     }, []);
 
     return (
-        <header>
+        /*cambiado para conseguir que se mantenga en la zona superior*/
+        <header style={{ position: 'relative', zIndex: 50 }}>
             <div className="home" onClick={() => dispatch({ type: "MENU" })}>
                 <img src={avatarUrl} alt="Logo" />
                 <p className="letters">Okinawa</p>

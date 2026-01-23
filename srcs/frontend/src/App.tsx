@@ -15,6 +15,7 @@ import Header from './components/Header/Header.tsx'
 import Footer from './components/Footer/Footer.tsx'
 import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
 import { socket, connectSocket, setMatchData } from './services/socketService';
+import { ChatSidebar } from './components/ChatSidebar';
 
 import "./App.css";
 
@@ -161,6 +162,9 @@ function renderScreen()
     <div className="app">
       {/* 1. Ponemos el indicador arriba de todo */}
       <StatusBadge />
+      {/* 🔥 NUEVO: BARRA DE CHAT GLOBAL */}
+      {/* La renderizamos solo si hay un usuario logueado */}
+      {currentUser && <ChatSidebar />}
       {/* 2. El resto de la aplicación */}
       <Header 
         dispatch={dispatch} 
