@@ -333,12 +333,15 @@ def generate_qr(shared_secret_key, issuer, email):
         mail             :Hold email for account holder
     RETURNS
         Image in format png
+    otpauth://totp/{ISSUER}:{ACCOUNT}?secret={SECRET}&issuer={ISSUER}&algorithm={ALGORITHM}&digits={DIGITS}&period={PERIOD}
     """
+    
     chunk1 = "otpauth://totp/"
-    chunk2 = issuer.upper() + ":"
-    chunk3 = email + "?"
-    chunk4 = "secret=" + shared_secret_key + "&"
-    chunk5 = "issuer=" + issuer.upper()
+    chunk2 = issuer.upper() + " ("
+    chunk3 = email + ")?"
+    chunk4 = "secret=" + shared_secret_key.replace('=','') + "&"
+    #chunk5 = "issuer=" + issuer.upper()
+    chunk5 = "issuer=Pong Evolution"    
     qr_data = chunk1 + chunk2 + chunk3 + chunk4 + chunk5
     print(qr_data)
     #img = qrcode.make(qr_data,)
