@@ -81,15 +81,10 @@ $(SERVICE1):
 $(SERVICE1)clean:
 	docker image rm $(SERVICE1)
 
-$(SERVICE8):
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE8)
-$(SERVICE8)clean:
-	docker image rm $(SERVICE8)
-
-$(SERVICE9):
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE9)
-$(SERVICE9)clean:
-	docker image rm $(SERVICE9)
+$(SERVICE2):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE2)
+$(SERVICE2)clean:
+	docker image rm $(SERVICE2)
 
 $(SERVICE3):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE3)
@@ -101,10 +96,26 @@ $(SERVICE4):
 $(SERVICE4)clean:
 	docker image rm $(SERVICE4)		
 
-$(SERVICE2):
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE2)
-$(SERVICE2)clean:
-	docker image rm $(SERVICE2)
+$(SERVICE8):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE8)
+$(SERVICE8)clean:
+	docker image rm $(SERVICE8)
+
+$(SERVICE9):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE9)
+$(SERVICE9)clean:
+	docker image rm $(SERVICE9)
+
+$(SERVICE11):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE11)
+$(SERVICE11)clean:
+	docker image rm $(SERVICE11)
+
+$(SERVICE12):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE12)
+$(SERVICE12)clean:
+	docker image rm $(SERVICE12)	
+
 test-db: srcs/.env $(DB_DATA_DIR)
 	# 1. Ensure the containers are up and HEALTHY
 	docker compose -f srcs/docker-compose.yml up -d dbserver

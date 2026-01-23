@@ -149,15 +149,29 @@ export class AuthService {
       // + Un mensaje de éxito
       // + El ID del usuario
       // + El código QR (probablemente en base64) para que el frontend lo muestre
-      const pythonqr = 'http://totp:8070/qr_text'; 
-      const { data: totpqr } = await firstValueFrom(
-        this.httpService.post(pythonUrl, {
-          user_totp_secret: totprandom.totpkey,
-          user_nick: dto.user,
-          user_mail: dto.email
-        }));
+      const pythonqr = 'http://totp:8070/qrtext'; 
 
-      this.logger.log(`6. Respuesta qr_text ${totpqr.qr_text}`); 
+      let totpqr; // ← Declaración fuera del try
+
+      try{
+        const { data } = await firstValueFrom(
+          this.httpService.post(pythonqr, {
+            user_totp_secret: totprandom.totpkey,
+            user_nick: dto.user,
+            user_mail: dto.email
+          }));
+          totpqr = data
+        this.logger.log(`6. Respuesta qr_text ${totpqr.qr_text}`);           
+      } catch (error) {
+        console.log('❌ Error 422 details:', error.response?.data);
+        // Esto te dirá EXACTAMENTE qué campo está mal
+        throw new InternalServerErrorException({
+          message: 'Datos incorrectos',
+          detail: error.message // Ojo: en producción no envíes detalles sensibles
+        }); 
+      }
+
+
       return {
         message: 'Usuario registrado con éxito',
         userId: newUser.pPk,

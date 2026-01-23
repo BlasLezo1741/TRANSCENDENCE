@@ -7,6 +7,7 @@
 // Llamar en el nivel superior - NO en loops, condiciones o funciones anidadas
 // Llamar en componentes React - O en custom hooks
 import { useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
 
 // Creas un componente funcional llamado App. 
 // Es una función normal que retorna JSX (HTML + JavaScript).
@@ -254,16 +255,19 @@ function App() {
       {qrCode && (
         <div style={{ marginTop: '20px' }}>
           <h3>Escanea tu 2FA:</h3>
-          <img
-            src={qrCode}
-            alt="QR Code 2FA"
-            style={{ 
-              border: '5px solid white',
-              borderRadius: '8px',
-              maxWidth: '300px',
-              display: 'block'
-            }} 
+    {/* Reemplazamos <img> por el componente QRCodeSVG */}
+        <div style={{ 
+          background: 'white', 
+          padding: '15px', 
+          display: 'inline-block',
+          borderRadius: '8px' 
+        }}>
+          <QRCodeSVG 
+            value={qrCode} 
+            size={256}
+            level={"H"} // Alta recuperación de errores
           />
+        </div>        
           <p style={{ 
             marginTop: '15px', 
             fontSize: '14px',

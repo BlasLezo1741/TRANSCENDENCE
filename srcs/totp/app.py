@@ -32,9 +32,9 @@ async def random():
     
     return {"totpkey": totp.create_random_key()}
 
-@app.get("/qrtext")
-async def qrtext():
+@app.post("/qrtext")
+async def qrtext(request: TotpqrRequest):
     
     return {"qr_text": totp.generate_qr(request.user_totp_secret, 
-                                        request.user_nicker, 
-                                        request.user_mail)()}
+                                        request.user_nick, 
+                                        request.user_mail)}

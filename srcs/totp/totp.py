@@ -341,12 +341,13 @@ def generate_qr(shared_secret_key, issuer, email):
     chunk5 = "issuer=" + issuer.upper()
     qr_data = chunk1 + chunk2 + chunk3 + chunk4 + chunk5
     print(qr_data)
-    img = qrcode.make(qr_data,)
+    #img = qrcode.make(qr_data,)
     # Saving as an image file
-    img.save('MyQRCode1.png')
-    cwd = os.getcwd()
-    imagepath = os.path.join(cwd, 'MyQRCode1.png')
-    return imagepath
+    #img.save('MyQRCode1.png')
+    #cwd = os.getcwd()
+    #imagepath = os.path.join(cwd, 'MyQRCode1.png')
+    #return imagepath
+    return qr_data
 
 if __name__ == "__main__":
     parser = create_argument_parser()
