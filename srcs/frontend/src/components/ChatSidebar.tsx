@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { socket } from '../services/socketService';
 
 // --- TIPOS MOCK ---
 interface ChatContact {
@@ -122,11 +123,43 @@ export const ChatSidebar = () => {
         textAlign: 'center'
     };
 
+    useEffect(() => {
+        // 1. Escuchar la respuesta del servidor (PONG)
+        socket.on('pong_chat', (payload) => {
+            console.log("🟢 [FRONTEND] Respuesta recibida del Gateway:", payload);
+            alert("¡Conexión exitosa con el Chat! Mira la consola.");
+        });
+
+        // Limpieza al cerrar componente
+        return () => {
+            socket.off('pong_chat');
+        };
+    }, []);
+
+    // Función auxiliar para probar conexión manual
+    const sendTestPing = () => {
+        console.log("📡 [FRONTEND] Enviando ping...");
+        socket.emit('ping_chat', { mensaje: "Hola desde el botón azul!" });
+    };
+
     // --- RENDERIZADO ---
 
+    // if (!isOpen) {
+    //     return (
+    //         <button style={buttonStyle} onClick={() => setIsOpen(true)}>
+    //             💬
+    //         </button>
+    //     );
+    // }
     if (!isOpen) {
         return (
-            <button style={buttonStyle} onClick={() => setIsOpen(true)}>
+            <button 
+                style={buttonStyle} 
+                onClick={() => {
+                    setIsOpen(true);
+                    sendTestPing(); // <--- AÑADIDO
+                }}
+            >
                 💬
             </button>
         );

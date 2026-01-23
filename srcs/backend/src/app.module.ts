@@ -15,6 +15,7 @@ import { AuthService } from './auth/auth.service';
 import { CountriesModule } from './countries/countries.module';
 // --- FRIENDS ---
 import { FriendsModule } from './friends/friends.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FriendsModule } from './friends/friends.module';
     CountriesModule,
     FriendsModule,
     GatewayModule,
+    ChatModule,
   ],
   controllers: [
     AppController, 

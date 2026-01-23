@@ -1,4 +1,5 @@
-import { pgTable, smallint, jsonb, foreignKey, char, varchar, boolean, integer, timestamp, date, doublePrecision, interval, primaryKey } from "drizzle-orm/pg-core"
+//import { pgTable, smallint, jsonb, foreignKey, char, varchar, boolean, integer, timestamp, date, doublePrecision, interval, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, smallint, jsonb, foreignKey, char, varchar, boolean, integer, timestamp, date, doublePrecision, interval, primaryKey, text } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 // --- 1. LOOKUP TABLES (Define these first so others can reference them) ---
@@ -62,41 +63,6 @@ export const metric = pgTable("metric", {
 			name: "metric_metric_cat_fk_fkey"
 		}),
 ]);
-/*
-export const player = pgTable("player", {
-    pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-    pNick: varchar("p_nick", { length: 255 }).unique().notNull(),
-    pMail: varchar("p_mail", { length: 255 }).unique().notNull(),
-    pPass: varchar("p_pass", { length: 255 }).notNull(),
-    pReg: timestamp("p_reg", { mode: 'string' }).defaultNow(),
-    pBir: date("p_bir"),
-    pLang: char("p_lang", { length: 2 }),
-    pCountry: char("p_country", { length: 2 }),
-    pRole: smallint("p_role").default(1), 
-    pStatus: smallint("p_status").default(1),
-}, (table) => [
-    foreignKey({
-            columns: [table.pLang],
-            foreignColumns: [pLanguage.langPk],
-            name: "player_p_lang_fkey"
-        }),
-    foreignKey({
-            columns: [table.pCountry],
-            foreignColumns: [country.coun2Pk], // Now 'country' is defined above, this is safe
-            name: "player_p_country_fkey"
-        }),
-    foreignKey({
-            columns: [table.pRole],
-            foreignColumns: [pRole.rolePk],    // Now 'pRole' is defined above, this is safe
-            name: "player_p_role_fkey"
-        }),
-    foreignKey({
-            columns: [table.pStatus],
-            foreignColumns: [status.statusPk], // Now 'status' is defined above, this is safe
-            name: "player_p_status_fkey"
-        }),
-]);
-*/
 
 export const player = pgTable("player", {
     pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
@@ -265,3 +231,32 @@ export const competitormetric = pgTable("competitormetric", {
 	primaryKey({ columns: [table.mcmPlayerFk, table.mcmMetricFk, table.mcmMatchFk], name: "competitormetric_pkey"}),
 ]);
 
+// --- 4. CHAT SYSTEM TABLES ---
+
+export const directMessage = pgTable("direct_message", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    senderId: integer("sender_id").notNull().references(() => player.pPk, { onDelete: 'cascade' }),
+    receiverId: integer("receiver_id").notNull().references(() => player.pPk, { onDelete: 'cascade' }),
+    content: text("content").notNull(), // Requiere 'text' en los imports
+    isRead: boolean("is_read").default(false),
+    createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+});
+
+export const channel = pgTable("channel", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 50 }).unique().notNull(),
+    type: varchar("type", { length: 20 }).default('public'), // 'public', 'private', 'protected'
+    password: varchar("password", { length: 255 }),
+    ownerId: integer("owner_id").references(() => player.pPk, { onDelete: 'set null' }),
+    createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+});
+
+export const channelMember = pgTable("channel_member", {
+    channelId: integer("channel_id").notNull().references(() => channel.id, { onDelete: 'cascade' }),
+    userId: integer("user_id").notNull().references(() => player.pPk, { onDelete: 'cascade' }),
+    role: varchar("role", { length: 20 }).default('member'),
+    isMuted: boolean("is_muted").default(false),
+    joinedAt: timestamp("joined_at", { mode: 'string' }).defaultNow(),
+}, (table) => [
+    primaryKey({ columns: [table.channelId, table.userId] }),
+]);
