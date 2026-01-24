@@ -23,6 +23,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     const [language, setLanguage] = useState("");
     
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     // NEW: Countries state
@@ -31,7 +32,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
     // NEW: QR Code state
     const [qrCode, setQrCode] = useState<string | null>(null);
-    const [enable2FA, setEnable2FA] = useState(false);
+    const [enable2FA, setEnable2FA] = useState(false);  //Por defecto no se activa
 
     // NEW: Fetch countries on component mount
     useEffect(() => {
@@ -71,8 +72,10 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setSuccess("");
 
         // 1. Check local password syntax
+        console.error('Verifico el Password');
         const passResult = checkPassword(password, repeat);
         if (!passResult.ok) {
             setError(passResult.msg);
@@ -80,12 +83,13 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
             setRepeat("");
             return;
         }
-
+        console.error('El Password se ha validado');
         setIsLoading(true);
 
         try {
             // 2. Check backend registration
             // We now pass BOTH country and language separately
+            console.error('Intento de registro');
             const result = await registUser(user, password, email, birth, country, language, enable2FA);
             
             if (!result.ok) {
@@ -93,7 +97,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 setPassword("");
                 setRepeat("");
             } else {
-                dispatch({ type: "MENU" });
+                setSuccess(result.msg || "¡Registro completado con éxito!");
+                setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
             }
         } catch (err) {
             setError("Error de conexión");
@@ -312,6 +317,19 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                                 💡 <strong>Importante:</strong> Guarda este código en tu aplicación de autenticación 
                                 (Google Authenticator, Authy, etc.) antes de cerrar esta página.
                             </p>
+                        </div>
+                    )}
+                    {/* Mensajes de Feedback */}
+                    {error && (
+                        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded mb-4 shadow-sm animate-pulse">
+                            <p className="font-bold">Error</p>
+                            <p>{error}</p>
+                        </div>
+                    )}
+                    {success && (
+                        <div className="bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded mb-4 shadow-sm">
+                            <p className="font-bold">¡Logrado!</p>
+                            <p>{success}</p>
                         </div>
                     )}
                 </form>

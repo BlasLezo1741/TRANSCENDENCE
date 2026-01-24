@@ -118,6 +118,41 @@ The 'Half-Man's' Tenacity: The Spanish commander gains an increasing bonus to th
 ## Communications Channels
 
 # Technical Stack
+## Architecture
+## Dependencies
+
+### Core Framework
+- **@nestjs/common** (^11.0.1) - Core NestJS functionality including decorators, pipes, guards, and common utilities
+- **@nestjs/core** (^11.0.1) - NestJS core engine that handles dependency injection and application lifecycle
+- **@nestjs/platform-express** (^11.0.1) - Express adapter for NestJS HTTP server
+- **reflect-metadata** (^0.2.2) - Polyfill for metadata reflection API, required by NestJS decorators
+
+### Real-time Communication
+- **@nestjs/websockets** (^11.0.0) - WebSocket support for NestJS
+- **@nestjs/platform-socket.io** (^11.0.0) - Socket.IO adapter for real-time bidirectional communication
+
+### HTTP Client & Inter-service Communication
+- **@nestjs/axios** (^3.0.0) - NestJS wrapper for Axios, enabling HTTP requests between microservices
+- **axios** (^1.6.0) - Promise-based HTTP client for inter-container communication
+- **rxjs** (^7.8.1) - Reactive programming library for handling asynchronous operations
+
+### Database & ORM
+- **drizzle-orm** (^0.45.1) - TypeScript ORM with type-safe SQL query builder
+- **pg** (^8.16.3) - PostgreSQL client for Node.js
+- **postgres** (^3.4.7) - Modern PostgreSQL client with enhanced performance
+
+### Security & Authentication
+- **bcryptjs** (^3.0.3) - Password hashing library for secure credential storage
+- **uuid** (^13.0.0) - RFC4122 UUID generation for unique identifiers
+
+### Validation & Transformation
+- **class-validator** (^0.14.1) - Decorator-based validation for DTOs and class properties
+- **class-transformer** (^0.5.1) - Transform plain objects to class instances and apply validation rules
+
+### Configuration
+- **dotenv** (^16.3.1) - Environment variable management from .env files
+
+
 ## Frontend
 
 ### A keystone flag `-b´ in TypeScript

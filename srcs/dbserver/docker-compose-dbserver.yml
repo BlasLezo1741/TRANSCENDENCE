@@ -9,8 +9,8 @@ services:
     env_file:
       - ../.env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d transcendence"]
-      interval: 1s
+      test: ["CMD-SHELL", "pg_isready -U postgres -d transcendence && psql -U postgres -d transcendence -c 'SELECT COUNT(*) FROM pg_tables WHERE schemaname = ''public'';' | grep -q '[1-9]'"]
+      interval: 5s
       timeout: 5s
       retries: 10
     volumes:
@@ -26,4 +26,5 @@ services:
       driver: "json-file" # Use json-file for easier access if you need to debug raw logs
       options:
         max-size: "30k" # Keep each log file up to 30KB
-        max-file: "3"   # Keep the 3 most recent log files    
+        max-file: "3"   # Keep the 3 most recent log files
+
