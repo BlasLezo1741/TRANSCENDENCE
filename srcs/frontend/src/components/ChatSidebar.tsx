@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { socket } from '../services/socketService';
+import { socket, sendDirectMessage } from '../services/socketService';
 
 // --- TIPOS MOCK ---
 interface ChatContact {
@@ -21,6 +21,7 @@ export const ChatSidebar = () => {
     const [activeTab, setActiveTab] = useState<'dms' | 'channels'>('dms');
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
     const [msgInput, setMsgInput] = useState("");
+    const [messages, setMessages] = useState<ChatMessage[]>([]); // <--- LISTA VACÍA INICIAL
 
     // DATOS MOCK
     const MOCK_FRIENDS: ChatContact[] = [
@@ -123,18 +124,80 @@ export const ChatSidebar = () => {
         textAlign: 'center'
     };
 
+    // ---------------------------------------------------------
+    // 1. EFECTO DE HISTORIAL
+    // Se ejecuta cada vez que cambias de amigo (selectedChatId)
+    // ---------------------------------------------------------
     useEffect(() => {
-        // 1. Escuchar la respuesta del servidor (PONG)
-        socket.on('pong_chat', (payload) => {
-            console.log("🟢 [FRONTEND] Respuesta recibida del Gateway:", payload);
-            alert("¡Conexión exitosa con el Chat! Mira la consola.");
-        });
+        if (!selectedChatId) return;
 
-        // Limpieza al cerrar componente
+        // Limpiamos mensajes anteriores
+        setMessages([]); 
+
+        const MY_ID = 1; // Tu ID temporal
+
+        fetch(`http://localhost:3000/chat/history?user1=${MY_ID}&user2=${selectedChatId}`)
+            .then(res => res.json())
+            .then(data => {
+                const historyFormatted: ChatMessage[] = data.map((msg: any) => ({
+                    id: Number(msg.id),
+                    senderId: msg.senderId,
+                    text: msg.content,
+                    time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }));
+                setMessages(historyFormatted);
+            })
+            .catch(err => console.error("Error cargando historial:", err));
+            
+    }, [selectedChatId]); 
+
+
+    // ---------------------------------------------------------
+    // 2. EFECTO DE SOCKET Escuchar mensajes entrantes
+    // Se ejecuta una sola vez al cargar la web para conectar la "tubería"
+    // ---------------------------------------------------------
+    useEffect(() => {
+        const handleReceiveMessage = (newMessage: any) => {
+            console.log("📩 Nuevo mensaje recibido:", newMessage);
+            
+            // Transformamos el dato del backend al formato del frontend
+            const formattedMsg: ChatMessage = {
+                id: newMessage.id || Date.now(),
+                senderId: newMessage.senderId,
+                text: newMessage.content,
+                time: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            // Lo añadimos a la lista
+            // setMessages((prev) => [...prev, formattedMsg]);
+            // 🔥 CORRECCIÓN ANTI-DUPLICADOS
+            setMessages((prev: ChatMessage[]) => {
+                const exists = prev.some((m: ChatMessage) => m.id === formattedMsg.id);
+                if (exists) return prev; 
+                return [...prev, formattedMsg];
+            });
+        };
+
+        socket.on('receive_message', handleReceiveMessage);
+        socket.on('message_sent', handleReceiveMessage); // Para ver mis propios mensajes
+
         return () => {
-            socket.off('pong_chat');
+            socket.off('receive_message', handleReceiveMessage);
+            socket.off('message_sent', handleReceiveMessage);
         };
     }, []);
+
+    // 🔥 FUNCIÓN: Enviar mensaje
+    const handleSendSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!msgInput.trim() || !selectedChatId) return;
+
+        // 1. Enviar al backend
+        sendDirectMessage(selectedChatId, msgInput);
+
+        // 2. Limpiar input
+        setMsgInput("");
+    };
 
     // Función auxiliar para probar conexión manual
     const sendTestPing = () => {
@@ -144,13 +207,6 @@ export const ChatSidebar = () => {
 
     // --- RENDERIZADO ---
 
-    // if (!isOpen) {
-    //     return (
-    //         <button style={buttonStyle} onClick={() => setIsOpen(true)}>
-    //             💬
-    //         </button>
-    //     );
-    // }
     if (!isOpen) {
         return (
             <button 
@@ -165,7 +221,7 @@ export const ChatSidebar = () => {
         );
     }
 
-return (
+    return (
         <div style={sidebarStyle}>
             {/* CABECERA */}
             <div style={{ height: '50px', backgroundColor: '#0e7490', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', color: 'white' }}>
@@ -196,27 +252,22 @@ return (
                             </button>
                         </div>
 
-                        {/* LISTA DE CONTACTOS */}
+                        {/* LISTA */}
                         <div style={{ padding: '8px' }}>
                             {(activeTab === 'dms' ? MOCK_FRIENDS : MOCK_CHANNELS).map((chat) => (
                                 <div 
                                     key={chat.id} 
                                     onClick={() => setSelectedChatId(chat.id)}
-                                    style={rowStyle} // <-- Aquí usamos la constante
+                                    style={rowStyle}
                                 >
-                                    {/* AVATAR */}
                                     <div style={avatarStyle}>
                                         {chat.name.charAt(0)}
                                     </div>
-                                    
-                                    {/* INFO */}
                                     <div style={{ flex: 1, overflow: 'hidden' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{chat.name}</span>
                                             {chat.unread > 0 && (
-                                                <span style={badgeStyle}>
-                                                    {chat.unread}
-                                                </span>
+                                                <span style={badgeStyle}>{chat.unread}</span>
                                             )}
                                         </div>
                                         <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Clic para hablar...</p>
@@ -226,8 +277,9 @@ return (
                         </div>
                     </>
                 ) : (
-                    // VISTA DE CONVERSACIÓN
+                    // CHAT ABIERTO
                     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        
                         <div style={{ padding: '10px', backgroundColor: '#a5f3fc', display: 'flex', alignItems: 'center' }}>
                             <button onClick={() => setSelectedChatId(null)} style={{ border: 'none', background: 'none', fontWeight: 'bold', color: '#0e7490', cursor: 'pointer', marginRight: '10px' }}>
                                 ⬅ VOLVER
@@ -235,10 +287,14 @@ return (
                             <span style={{fontWeight: 'bold', color: '#155e75'}}>Chat con {selectedChatId}</span>
                         </div>
                         
-                        {/* Mensajes */}
                         <div style={{ flex: 1, padding: '10px', overflowY: 'auto' }}>
-                            {MOCK_MESSAGES.map((msg) => (
-                                <div key={msg.id} style={{ display: 'flex', justifyContent: msg.senderId === 1 ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
+                            {messages.length === 0 && (
+                                <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '20px', fontSize: '14px' }}>
+                                    No hay mensajes aún.<br/>¡Escribe algo! 👋
+                                </p>
+                            )}
+                            {messages.map((msg, index) => (
+                                <div key={index} style={{ display: 'flex', justifyContent: msg.senderId === 1 ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
                                     <div style={{ 
                                         padding: '8px 12px', 
                                         borderRadius: '12px', 
@@ -254,9 +310,8 @@ return (
                             ))}
                         </div>
 
-                        {/* Input */}
                         <div style={{ padding: '10px', backgroundColor: 'white', borderTop: '1px solid #cffafe' }}>
-                            <form style={{ display: 'flex', gap: '8px' }} onSubmit={(e) => { e.preventDefault(); setMsgInput(""); }}>
+                            <form style={{ display: 'flex', gap: '8px' }} onSubmit={handleSendSubmit}>
                                 <input 
                                     style={{ flex: 1, backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '99px', padding: '8px 16px', border: '1px solid #d1d5db', outline: 'none' }}
                                     placeholder="Escribe un mensaje..."
@@ -273,4 +328,4 @@ return (
             </div>
         </div>
     );
-};
+}; // <--- 🟢 CIERRE CORRECTO DEL COMPONENTE AQUÍ AL FINAL

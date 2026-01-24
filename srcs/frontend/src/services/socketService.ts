@@ -33,7 +33,7 @@ const getMyId = () => {
     return id ? parseInt(id, 10) : 0;
 };
 
-// --- ESTA ES LA FUNCIÓN QUE TE FALTABA ---
+// --- CONEXION ---
 export const connectSocket = () => {
     const userId = getMyId();
     if (userId) {
@@ -48,6 +48,15 @@ export const connectSocket = () => {
     } else {
         console.warn("⚠️ Intentando conectar socket sin ID de usuario.");
     }
+};
+
+// Enviar mensaje de chat
+export const sendDirectMessage = (receiverId: number, content: string) => {
+  if (socket && socket.connected) {
+      socket.emit('send_message', { receiverId, content });
+  } else {
+      console.error("❌ No se pudo enviar mensaje: Socket desconectado");
+  }
 };
 
 
