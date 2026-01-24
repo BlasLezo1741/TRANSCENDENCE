@@ -44,12 +44,12 @@ CREATE TABLE PLAYER (
     p_totp_enable BOOLEAN DEFAULT FALSE,
     p_totp_enabled_at TIMESTAMP,
     p_totp_backup_codes TEXT[],  -- códigos de respaldo
-    p_reg TIMESTAMP,
+    p_reg TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Change: Added Default
     p_bir DATE,
     p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),
     p_country char(2) REFERENCES COUNTRY(coun2_pk),
-    p_role smallint REFERENCES P_ROLE(role_pk),
-    p_status smallint REFERENCES STATUS(status_pk)
+    p_role smallint DEFAULT 1 REFERENCES P_ROLE(role_pk),     -- Change: Added Default
+    p_status smallint DEFAULT 1 REFERENCES STATUS(status_pk)  -- Change: Added Default
 );
 
 CREATE TABLE METRIC_CATEGORY ( 
@@ -109,11 +109,16 @@ CREATE TABLE PLAYER_ORGANIZATION (
     po_org_fk smallint REFERENCES ORGANIZATION(org_pk)
 );
 
+CREATE TABLE FRIEND_STATUS ( 
+    fs_pk smallint generated always as identity PRIMARY KEY,
+    fs_i18n_name JSONB NOT NULL -- Para poder traducirlo igual que tus otros estados
+);
+
 CREATE TABLE PLAYER_FRIEND( 
     friend_pk integer generated always as identity PRIMARY KEY,
-    f_1 integer REFERENCES PLAYER(p_pk),
-    f_2 integer REFERENCES PLAYER(p_pk),
-    f_date timestamp,
-    f_type boolean
+    f_1 integer REFERENCES PLAYER(p_pk), -- El usuario que REALIZA la acción (envía solicitud o bloquea)
+    f_2 integer REFERENCES PLAYER(p_pk), -- El usuario que RECIBE la acción
+    f_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    f_status_fk smallint REFERENCES FRIEND_STATUS(fs_pk) -- En vez de f_type boolean
 );
 

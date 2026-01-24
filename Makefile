@@ -34,14 +34,14 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) update-env
 	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
-# Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces
+# Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces CAMBIO A http://localhost:3000
 update-env:
 	@if [ -n "$(CODESPACE_NAME)" ]; then \
 		echo "Actualizando VITE_BACKEND_URL en .env para Codespace: $(CODESPACE_NAME)"; \
 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
 	else \
 		echo "No se detectó CODESPACE_NAME, manteniendo .env sin cambios"; \
-		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://localhost:3000|' srcs/.env; \
+		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://localhost:3000|' srcs/.env; \
 	fi
 
 # Create postgres data directory if does not exists
@@ -138,7 +138,7 @@ test-db: srcs/.env $(DB_DATA_DIR)
 
 # Ejecutar docker compose up
 up:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml up
+	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d
 
 # Detener los contenedores
 down:

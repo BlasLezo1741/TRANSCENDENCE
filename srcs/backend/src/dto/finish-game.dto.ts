@@ -1,13 +1,15 @@
-import { IsString, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 
 export class FinishGameDto {
   @IsString()
   @IsNotEmpty()
-  // Validamos que el ID del ganador sea texto (en el futuro será un UUID de la DB)
-  winnerId: string;
+  roomId: string; // Obligatorio para cerrar el socket
 
   @IsString()
-  @IsOptional()
-  // Podemos recibir el ID de la habitación para cerrar la sesión de juego
-  roomId?: string;
+  @IsNotEmpty()
+  winnerId: string; // Nombre o ID del jugador que ganó
+
+  @IsNumber()
+  @IsNotEmpty()
+  matchId: number; // La clave primaria (PK) de la tabla match
 }

@@ -6,7 +6,10 @@ export function screenReducer(state: Screen, action: Action): Screen {
     case "LOGIN": return "login";
     case "SIGN": return "sign";
     case "SETTINGS": return "settings";
+    case "PROFILE": return "profile";
+    case "STATS": return "stats";
     case "PONG": return "pong";
+    case "LOGOUT": return "login";
     default: return state;
   }
 }

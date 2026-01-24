@@ -1,6 +1,6 @@
 import type { ScreenProps } from "../../ts/screenConf/screenProps.ts";
 import type { GameMode } from "../../ts/types.ts";
-import Header from "../../components/Header.tsx";
+import Header from "../../components/Header/Header.tsx";
 import { useTranslation } from 'react-i18next';
 import { joinQueue } from '../../services/socketService.ts';
 
