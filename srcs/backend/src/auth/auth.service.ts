@@ -107,6 +107,8 @@ export class AuthService {
     email: string;
     nick: string;
     avatarUrl?: string;
+    lang?: string;
+    country?: string;
   }) {
     // Check if user exists by OAuth ID
     const existingUser = await this.db
@@ -147,6 +149,7 @@ export class AuthService {
       finalNick = `${oauthData.nick}_${Math.floor(Math.random() * 10000)}`;
     }
 
+    const hasProfileInfo = oauthData.lang && oauthData.country;
     // Create new user
     const newUser = await this.db
       .insert(player)
@@ -156,7 +159,10 @@ export class AuthService {
         pOauthProvider: oauthData.oauthProvider,
         pOauthId: oauthData.oauthId,
         pAvatarUrl: oauthData.avatarUrl,
-        pProfileComplete: false, // Needs to complete profile (country/language)
+        pLang: oauthData.lang || 'en',
+        pCountry: oauthData.country || 'ES',
+        pProfileComplete: !!hasProfileInfo,
+        pReg: new Date(),
         pRole: 1,
         pStatus: 1,
       })
