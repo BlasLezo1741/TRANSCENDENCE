@@ -7,13 +7,12 @@ import MenuScreen from './screens/Menu/MenuScreen.tsx'
 import SignScreen from './screens/SignScreen.tsx'
 import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
-import ProfileScreen from './screens/ProfileScreen.tsx'
+import ProfileScreen from './screens/Profile/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
 import SettingsScreen from './screens/SettingsScreen.tsx'
 
 import Header from './components/Header/Header.tsx'
 import Footer from './components/Footer/Footer.tsx'
-import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
 import { socket, connectSocket, setMatchData } from './services/socketService';
 import { ChatSidebar } from './components/ChatSidebar';
 
@@ -160,7 +159,6 @@ function renderScreen()
 
   return (
     <div className="app">
-      <StatusBadge />
       {currentUser && <ChatSidebar />}
       <Header 
         dispatch={dispatch} 

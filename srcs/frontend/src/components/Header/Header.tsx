@@ -3,6 +3,7 @@ import { LanguageSwitcher } from '../LanguageSwitcher';
 import avatarUrl from '../../assets/react.svg'
 import './Header.css';
 import { useTranslation } from 'react-i18next';
+import { StatusBadge } from '../StatusBadge'; // Importamos el nuevo badge
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;
@@ -17,8 +18,6 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
     //const [signed, setSigned] = useState(true);
-    const [open, setOpen] = useState(false);
-    const dropdownRef = useRef(null);
     const { t } = useTranslation();
 
     // Variable derivada: Si hay nombre, está logueado. Si no, no.
@@ -62,57 +61,44 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
     }, []);
 
     return (
-        /*cambiado para conseguir que se mantenga en la zona superior*/
-        <header style={{ position: 'relative', zIndex: 50 }}>
-            <div className="home" onClick={() => dispatch({ type: "MENU" })}>
-                <img src={avatarUrl} alt="Logo" />
-                <p className="letters">Okinawa</p>
-            </div>
-            
-            <LanguageSwitcher />
+        <>
+            <StatusBadge />
+            <header style={{ position: 'relative', zIndex: 50 }}>
+                <div className="home" onClick={() => dispatch({ type: "MENU" })}>
+                    <img src={avatarUrl} alt="Logo" />
+                    <p className="letters">Okinawa</p>
+                </div>
+                
+                <LanguageSwitcher />
 
-            <div className="signin">
+                <div className="signin">
+                    {/* ESTADO: NO LOGUEADO */}
+                    {!isLogged && (
+                        <button onClick={() => dispatch({ type: "LOGIN" })}>
+                            Login
+                        </button>
+                    )}
 
-                {/* Is not logged */}
-                {!signed && (
-                    <button onClick={() => dispatch({ type: "LOGIN" })}>
-                        Login
-                    </button>
-                )}
+                    {/* ESTADO: LOGUEADO */}
+                    {isLogged && (
+                        <div className="login" ref={dropdownRef} onClick={() => setOpen(!open)}>
+                            
+                            <img className="avatarIcon" src={avatarUrl} alt={userName} />
+                            <p className="letters"><strong>{userName}</strong></p>
 
-                {/* Is logged */}
-                {signed && (
-
-                {/* ESTADO: NO LOGUEADO */}
-                {!isLogged && (
-                    <button onClick={() => dispatch({ type: "LOGIN" })}>
-                        Login
-                    </button>
-                )}
-
-                {/* ESTADO: LOGUEADO */}
-                {isLogged && (
-
-                    <div className="login" ref={dropdownRef} onClick={() => setOpen(!open)}>
-                        
-                        <img className="avatarIcon" src={avatarUrl} alt={userName} />
-                        <p className="letters"><strong>{userName}</strong></p>
-
-
-                        {/* Dropdown */}
-                        {open && (
-                            <ul className="dropdown">
-                                <li><a href="#" onClick={handleProfile}>Profile</a></li>
-                                <li><a href="#" onClick={handleSettings}>Settings</a></li>
-                                <li><a href="#" onClick={handleStats}>Stats</a></li>
-                                <li><a href="#" onClick={handleLogoutClick}>Sign out</a></li>
-                            </ul>
-                        )} 
-                    </div>
-                )}
-            </div>
-        </header>
-        );
+                            {/* Dropdown */}
+                            {open && (
+                                <ul className="dropdown">
+                                    <li><a href="#" onClick={handleProfile}>Profile</a></li>
+                                    <li><a href="#" onClick={handleLogoutClick}>Sign out</a></li>
+                                </ul>
+                            )} 
+                        </div>
+                    )}
+                </div>
+            </header>
+        </>
+    );
     }
     
 export default Header;

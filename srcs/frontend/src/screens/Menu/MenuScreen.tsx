@@ -5,14 +5,10 @@ import { joinQueue, socket, setMatchData } from '../../services/socketService.ts
 import type { ScreenProps } from '../../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../../ts/types.ts';
 
-import bg_image from '../../assets/Flag_of_Catalonia.png';
 import cross from '../../assets/react.svg';
 
-import "./MenuScreen.css"
-
-import bg_image from '../assets/Imagen_pong_v2.png';
+import bg_image from '../../assets/Imagen_pong_v2.png';
 //import bg_image from '../assets/Flag_of_Catalonia.png';
-import cross from '../assets/react.svg';
 
 import "./MenuScreen.css";
 
