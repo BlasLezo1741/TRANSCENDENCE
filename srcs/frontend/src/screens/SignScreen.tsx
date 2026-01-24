@@ -29,12 +29,26 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     const [countries, setCountries] = useState<Country[]>([]);
     const [isLoadingCountries, setIsLoadingCountries] = useState(true);
 
+    // NEW: QR Code state
+    const [qrCode, setQrCode] = useState<string | null>(null);
+    const [enable2FA, setEnable2FA] = useState(false);
+
     // NEW: Fetch countries on component mount
     useEffect(() => {
         const fetchCountries = async () => {
             try {
                 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-                const response = await fetch(`${API_URL}/countries`);
+                const response = await fetch(`${API_URL}/countries`, 
+                    {
+                        method: 'GET',
+                        mode: 'cors', // Asegura que CORS esté habilitado en el backend
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        // IMPORTANTE: Si usas cookies o sesiones, añade esto:
+                        // credentials: 'include' 
+                    });
                 
                 if (response.ok) {
                     const data = await response.json();
@@ -51,7 +65,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
         fetchCountries();
     }, []);
-
+    // ===========================================================================
+    // FUNCIONES (handlers)
+    // ===========================================================================
     const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -70,7 +86,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         try {
             // 2. Check backend registration
             // We now pass BOTH country and language separately
-            const result = await registUser(user, password, email, birth, country, language);
+            const result = await registUser(user, password, email, birth, country, language, enable2FA);
             
             if (!result.ok) {
                 setError(result.msg || "Error en el registro");
@@ -95,6 +111,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setCountry("");
         setLanguage("");
         setError("");
+        setQrCode(null);
+        setEnable2FA(false);
     };
 
     return (
@@ -235,7 +253,20 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             </select>
                         </div>
                     </div>
-
+                    {/* QR Code check box */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <label htmlFor="lang" className="block text-sm font-medium text-gray-700 mb-1">{t('enable_2fa')}</label>
+                        <label className="flex items-center">
+                            <input
+                                name="enable2FA"
+                                id="enable2FA"
+                                type="checkbox"
+                                checked={enable2FA}
+                                onChange={(e) => setEnable2FA(e.target.checked)}
+                                className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                        </label>
+                    </div>
                     {/* Action Buttons */}
                     <div className="flex gap-4 pt-4">
                         <button
@@ -255,6 +286,34 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             {isLoading ? t('enviando') : t('enviar')}
                         </button>
                     </div>
+                    {/* CÓDIGO QR (solo si existe) */}
+                    {qrCode && (
+                        <div style={{ marginTop: '20px' }}>
+                            <h3>Escanea tu 2FA:</h3>
+                            {/* Reemplazamos <img> por el componente QRCodeSVG */}
+                            <div style={{ 
+                            background: 'white', 
+                            padding: '15px', 
+                            display: 'inline-block',
+                            borderRadius: '8px' 
+                            }}>
+                            <QRCodeSVG 
+                                value={qrCode} 
+                                size={256}
+                                level={"H"} // Alta recuperación de errores
+                            />
+                            </div>        
+                            <p style={{ 
+                                marginTop: '15px', 
+                                fontSize: '14px',
+                                maxWidth: '350px',
+                                lineHeight: '1.5'
+                            }}>
+                                💡 <strong>Importante:</strong> Guarda este código en tu aplicación de autenticación 
+                                (Google Authenticator, Authy, etc.) antes de cerrar esta página.
+                            </p>
+                        </div>
+                    )}
                 </form>
             </div>
         </div>

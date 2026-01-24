@@ -19,7 +19,14 @@ export function checkPassword(password: string, repeat: string) {
     return { ok: true, msg: "Contraseña válida" };
 }
 
-export async function registUser(user: string, pass: string, email: string, birth: string, country: string, language: string) {
+export async function registUser(
+    user: string, 
+    pass: string, 
+    email: string, 
+    birth: string, 
+    country: string, 
+    language: string, 
+    enable2FA: boolean) {
     try {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
@@ -31,7 +38,8 @@ export async function registUser(user: string, pass: string, email: string, birt
                 email, 
                 birth, 
                 country, 
-                lang: language 
+                lang: language,
+                enable2FA
             })
         });
         return await response.json(); 
