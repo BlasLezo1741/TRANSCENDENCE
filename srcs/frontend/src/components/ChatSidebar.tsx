@@ -22,6 +22,12 @@ export const ChatSidebar = () => {
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
     const [msgInput, setMsgInput] = useState("");
     const [messages, setMessages] = useState<ChatMessage[]>([]); // <--- LISTA VACÍA INICIAL
+    // 🆕 NUEVO: Estado para la lista de amigos real
+    const [contacts, setContacts] = useState<ChatContact[]>([]); 
+    
+    // ⚠️ ID DEL USUARIO ACTUAL (IMPORTANTE)
+    // De momento lo dejamos fijo en 1. En el siguiente paso lo haremos dinámico.
+    const CURRENT_USER_ID = 1;
 
     // DATOS MOCK
     const MOCK_FRIENDS: ChatContact[] = [
@@ -187,6 +193,26 @@ export const ChatSidebar = () => {
         };
     }, []);
 
+    // 3. EFECTO: Cargar lista de usuarios al abrir el componente
+    useEffect(() => {
+        fetch(`http://localhost:3000/chat/users?current=${CURRENT_USER_ID}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("👥 Usuarios cargados:", data);
+                
+                // Convertimos los datos del backend al formato del Chat
+                const formattedContacts: ChatContact[] = data.map((u: any) => ({
+                    id: u.pPk,          // Asegúrate de que coincida con tu DB (pPk o id)
+                    name: u.pNick,      // Nombre del usuario
+                    status: 'offline',  // Por defecto offline (luego lo mejoraremos)
+                    unread: 0           // Por defecto 0
+                }));
+
+                setContacts(formattedContacts);
+            })
+            .catch(err => console.error("Error cargando contactos:", err));
+    }, []);
+
     // 🔥 FUNCIÓN: Enviar mensaje
     const handleSendSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -254,7 +280,7 @@ export const ChatSidebar = () => {
 
                         {/* LISTA */}
                         <div style={{ padding: '8px' }}>
-                            {(activeTab === 'dms' ? MOCK_FRIENDS : MOCK_CHANNELS).map((chat) => (
+                        {(activeTab === 'dms' ? contacts : MOCK_CHANNELS).map((chat) => (
                                 <div 
                                     key={chat.id} 
                                     onClick={() => setSelectedChatId(chat.id)}
@@ -328,4 +354,4 @@ export const ChatSidebar = () => {
             </div>
         </div>
     );
-}; // <--- 🟢 CIERRE CORRECTO DEL COMPONENTE AQUÍ AL FINAL
+}; 
