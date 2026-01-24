@@ -1,42 +1,82 @@
-import { Controller, Post, Get, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query } from '@nestjs/common';
 import { FriendsService } from './friends.service';
-import { FriendActionDto } from './friends.dto';
-
-// Si tienes AuthGuard, descomenta esto:
-// import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('friends')
 export class FriendsController {
   constructor(private readonly friendsService: FriendsService) {}
 
-  // POST /friends/request -> Enviar solicitud
+  // ==========================================
+  // 1. OBTENER MI LISTA DE AMIGOS (GET)
+  // ==========================================
+  // El frontend llama a: /friends/list?userId=1
+  @Get('list')
+  async getFriends(@Query('userId') userId: string) {
+    console.log(`🔍 [DEBUG] Solicitando lista de amigos para User ID: ${userId}`); // Chivato
+    return this.friendsService.getFriends(Number(userId));
+  }
+  
+  // ==========================================
+  // 2. ENVIAR SOLICITUD (POST)
+  // ==========================================
   @Post('request')
-  async sendRequest(@Body() body: { myId: number, targetId: number }) {
-      // PROD: usar req.user.id en lugar de body.myId
-      return this.friendsService.sendRequest(body.myId, body.targetId);
+  async sendRequest(@Body() body: { userId: number, targetId: number }) {
+      // LOG PARA DEPURAR: Ver qué llega exactamente
+      console.log("📥 [CONTROLLER] Payload recibido:", body);
+
+      // GUARDA DE SEGURIDAD:
+      // Si userId o targetId no existen, devolvemos error controlado en vez de romper SQL.
+      if (!body.userId || !body.targetId) {
+          console.error("❌ [ERROR] Faltan IDs. Recibido:", body);
+          return { ok: false, msg: "Error: IDs no válidos" };
+      }
+
+      // Convertimos a Number por seguridad (a veces llega como string "1")
+      return this.friendsService.sendRequest(Number(body.userId), Number(body.targetId));
   }
 
-  // POST /friends/accept -> Aceptar solicitud
+  // ==========================================
+  // 3. ACEPTAR SOLICITUD (POST)
+  // ==========================================
   @Post('accept')
-  async acceptRequest(@Body() body: { myId: number, targetId: number }) {
-      return this.friendsService.acceptRequest(body.myId, body.targetId);
+  async acceptRequest(@Body() body: { userId: number, targetId: number }) {
+      console.log(`🤝 [DEBUG] User ${body.userId} acepta a ${body.targetId}`);
+      return this.friendsService.acceptRequest(body.userId, body.targetId);
   }
 
-  // POST /friends/block -> Bloquear
+  // ==========================================
+  // 4. BLOQUEAR USUARIO (POST)
+  // ==========================================
   @Post('block')
-  async blockUser(@Body() body: { myId: number, targetId: number }) {
-      return this.friendsService.blockUser(body.myId, body.targetId);
+  async blockUser(@Body() body: { userId: number, targetId: number }) {
+      return this.friendsService.blockUser(body.userId, body.targetId);
   }
 
-  // GET /friends/list -> Mis amigos
-  @Post('list') // Uso POST para pasar el ID facil por body en pruebas
-  async getFriends(@Body() body: { myId: number }) {
-      return this.friendsService.getFriends(body.myId);
+  // ==========================================
+  // 5. SOLICITUDES PENDIENTES (GET)
+  // ==========================================
+  // Ojo: Lo cambiamos a GET porque fetch por defecto para leer datos suele ser GET
+  @Get('pending')
+  async getPending(@Query('userId') userId: string) {
+      console.log(`📬 [DEBUG] User ${userId} consulta PENDIENTES`);
+      return this.friendsService.getPendingRequests(Number(userId));
   }
 
-  // GET /friends/pending -> Solicitudes pendientes
-  @Post('pending')
-  async getPending(@Body() body: { myId: number }) {
-      return this.friendsService.getPendingRequests(body.myId);
+  // ==========================================
+  // 6. CANDIDATOS PARA INVITAR (GET)
+  // ==========================================
+  @Get('candidates')
+  async getCandidates(@Query('userId') userId: string) {
+    return this.friendsService.getUsersToInvite(Number(userId));
+  }
+  // ==========================================
+  // 7. ELIMINAR AMIGO (POST)
+  // ==========================================
+  @Post('remove')
+  async removeFriend(@Body() body: { userId: number, targetId: number }) {
+      if (!body.userId || !body.targetId) {
+          return { ok: false, msg: "IDs inválidos" };
+      }
+      return this.friendsService.removeFriend(Number(body.userId), Number(body.targetId));
   }
 }
+
