@@ -22,5 +22,7 @@
     "cuenta?" :"Pas de compte ?",
     "sel_pais" : "Choisissez le pays",
     "pass_req": "Le mot de passe doit contenir : une minuscule, une majuscule, un chiffre et un minimum de 8 caractères.",
-    "juegos": "Jeux"
+    "juegos": "Jeux",
+    "enable_2fa": "Activer la 2FA",
+    "qr_setup": "Scannez ce code QR avec votre application d'authentification pour configurer la 2FA :"
 }

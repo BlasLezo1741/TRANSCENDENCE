@@ -22,5 +22,7 @@
     "cuenta?" :"No tens un compte?",
     "sel_pais" : "Selecciona el país",
     "pass_req": "La contrasenya ha de tenir: minúscula, majúscula, un número i un mínim de 8 caràcters.",
-    "juegos": "Jocs"
+    "juegos": "Jocs",
+    "enable_2fa": "Habilitar 2FA",
+    "qr_setup": "Escaneja aquest codi QR amb la teva aplicació d'autenticació per configurar 2FA:"
 }

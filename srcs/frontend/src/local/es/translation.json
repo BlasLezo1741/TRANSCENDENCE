@@ -21,5 +21,7 @@
     "cuenta?" :"¿No tienes cuenta?",
     "sel_pais" : "Selecciona el país",
     "pass_req": "La contraseña debe tener: minúscula, mayúscula, número y mínimo 8 caracteres.",
-    "juegos": "Juegos"
+    "juegos": "Juegos",
+    "enable_2fa": "Habilitar 2FA",
+    "qr_setup": "Escanea este código QR con tu aplicación de autenticación para configurar 2FA:"
 }
