@@ -50,6 +50,7 @@ CREATE TABLE PLAYER (
 );
 */
 
+/* PRE OAUTH
 CREATE TABLE PLAYER ( 
     p_pk integer generated always as identity PRIMARY KEY,
     p_nick VARCHAR(20) NOT NULL UNIQUE,      -- Change: Added NOT NULL and UNIQUE
@@ -62,8 +63,25 @@ CREATE TABLE PLAYER (
     p_role smallint DEFAULT 1 REFERENCES P_ROLE(role_pk),     -- Change: Added Default
     p_status smallint DEFAULT 1 REFERENCES STATUS(status_pk)  -- Change: Added Default
 );
+*/
 
-
+CREATE TABLE PLAYER ( 
+    p_pk integer generated always as identity PRIMARY KEY,
+    p_nick VARCHAR(20) NOT NULL UNIQUE,
+    p_mail VARCHAR(255) NOT NULL UNIQUE,
+    p_pass VARCHAR(255),  -- NULLABLE for OAuth users
+    p_oauth_provider VARCHAR(20),  -- NEW: '42' or 'google'
+    p_oauth_id VARCHAR(255),       -- NEW: OAuth provider's user ID
+    p_avatar_url VARCHAR(500),     -- NEW: Profile picture
+    p_profile_complete BOOLEAN DEFAULT FALSE,  -- NEW: Track profile completion
+    p_reg TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    p_bir DATE,
+    p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),
+    p_country char(2) REFERENCES COUNTRY(coun2_pk),
+    p_role smallint DEFAULT 1 REFERENCES P_ROLE(role_pk),
+    p_status smallint DEFAULT 1 REFERENCES STATUS(status_pk),
+    CONSTRAINT unique_oauth_user UNIQUE(p_oauth_provider, p_oauth_id)
+);
 
 CREATE TABLE METRIC_CATEGORY ( 
     metric_cate_pk smallint generated always as identity PRIMARY KEY,
