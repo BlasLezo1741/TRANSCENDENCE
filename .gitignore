@@ -1,6 +1,6 @@
 # --- SEGURIDAD Y CONFIGURACIÓN (REQUISITO MANDATORIO) ---
 # No subir credenciales ni variables de entorno 
-#.env
+.env
 #.env.local
 #.env.*.local
 #*.env
