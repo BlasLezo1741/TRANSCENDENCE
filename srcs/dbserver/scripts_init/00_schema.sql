@@ -63,6 +63,8 @@ CREATE TABLE PLAYER (
     p_status smallint DEFAULT 1 REFERENCES STATUS(status_pk)  -- Change: Added Default
 );
 
+
+
 CREATE TABLE METRIC_CATEGORY ( 
     metric_cate_pk smallint generated always as identity PRIMARY KEY,
     metric_cate_i18n_name JSONB NOT NULL -- Estructura: {"en": "Competitor Stats", "es": "Estadísticas del Competidor"}
