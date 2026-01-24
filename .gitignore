@@ -5,7 +5,7 @@ srcs/.env
 #.env.local
 #.env.*.local
 #*.env
-#!env.example
+!env.example
 
 # --- SISTEMA OPERATIVO ---
 .DS_Store
