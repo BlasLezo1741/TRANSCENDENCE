@@ -10,99 +10,27 @@ import cross from '../../assets/react.svg';
 
 import "./MenuScreen.css"
 
-// type OptionsProps = ScreenProps & {
-//   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
-//   setOpponentName: (name: string) => void;
-//   userName: string;
-//   setBallInit: (vector: {x: number, y: number}) => void;
-//   setPlayerSide: (side: 'left' | 'right') => void;
-// };
+import bg_image from '../assets/Imagen_pong_v2.png';
+//import bg_image from '../assets/Flag_of_Catalonia.png';
+import cross from '../assets/react.svg';
+
+import "./MenuScreen.css";
 
 type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
   userName: string;
+  // Añadidos para controlar el estado offline
+  setOpponentName: React.Dispatch<React.SetStateAction<string>>;
+  setPlayerSide: React.Dispatch<React.SetStateAction<'left' | 'right'>>;
 };
 
-// const MenuScreen = ({ dispatch, setMode }: OptionsProps) =>
-// {
-//     const { t } = useTranslation();
-//     const handleMode = (mode: GameMode) => {
-//         let socketMode = "";
-//         //Filtramos: Si no es contra la IA, necesitamos al servidor
-//         if (mode !== "ia")
-//         {
-//             if (mode === "local") socketMode = "1v1_local";
-//             else if (mode === "remote") socketMode = "1v1_remote";
-//             else if (mode === "tournament") socketMode = "tournament";
-//             console.log("🚀 Enviando al Socket:", socketMode);
-//             joinQueue(userName, socketMode);
-//         }
-//         // Lógica actual de navegación
-//         setMode(mode);
-//         dispatch({ type: "PONG" });
-//     };
-
-//     return (
-//         <div>
-//             <h1>{t('modo')}</h1>
-
-//             <button onClick={() => handleMode("ia")}>player vs ia</button>
-//             <button onClick={() => handleMode("local")}>player vs player</button>
-//             <button onClick={() => handleMode("remote")}>player vs remote</button>
-//             <button onClick={() => handleMode("remote")}>tournament</button>
-//         </div>
-//     );
-// }
-    //const MenuScreen = ({ dispatch, setMode, setOpponentName, userName, setBallInit, setPlayerSide }: OptionsProps) => {
-const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) =>
-{   
+const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSide }: OptionsProps) => {   
     const { t } = useTranslation();
 
     const [statusText, setStatusText] = useState<string>("");
     const [modeActive, setModeActive] = useState<"offline" | "online" | null>(false);
     
     const countDownRef = useRef<NodeJS.Timeout | null>(null);
-
-    // NOTA: EL LISTENER 'match_found' SE HA MOVIDO A App.tsx
-    // Aquí solo emitimos la intención de jugar.
-
-    // //const [opponentName, setOpponentName] = useState<string>("Oponente");
-    
-    // // 1. ESCUCHAR LA RESPUESTA DEL SERVIDOR (Solo para Online)
-    // useEffect(() => {
-    //     const handleMatchFound = (payload: any) => {
-    //         console.log("✅ ¡Partida Online Encontrada!", payload);
-    //         //Guardo los DATOS AQUÍ
-    //         if (payload.roomId && payload.matchId) {
-    //             setMatchData(payload.roomId, payload.matchId);
-    //             // GUARDAMOS EL NOMBRE DEL RIVAL (Viene del backend)
-    //             if (payload.opponent && payload.opponent.name) {
-    //                 setOpponentName(payload.opponent.name);
-    //             }
-    //             if (payload.ballInit) {
-    //                 console.log("🎱 Física recibida del servidor:", payload.ballInit);
-    //                 setBallInit(payload.ballInit);
-    //             }
-    //             if (payload.side) {
-    //                 console.log("📍 Lado asignado:", payload.side);
-    //                 setPlayerSide(payload.side);
-    //             }
-    //         } else {
-    //             console.error("⚠️ Error: El payload de match_found viene incompleto", payload);
-    //         }
-        
-    //         // Inicio el juego
-    //         setMode("remote"); 
-    //         dispatch({ type: "PONG" });
-    //     };
-
-    //     socket.on('match_found', handleMatchFound);
-
-    //     return () => {
-    //         socket.off('match_found', handleMatchFound);
-    //     };
-    // }, [dispatch, setMode, setOpponentName, setBallInit, setPlayerSide]);
-
 
     // LÓGICA DE BOTONES
     const handleMode = (mode: GameMode) =>
@@ -127,8 +55,19 @@ const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) =>
 
         // Offline
         console.log("⚡ Iniciando modo Offline:", mode);
-        setModeActive("offline");
-        startCountDown(3);
+
+        // 1. Forzamos que en local SIEMPRE seas la izquierda
+        setPlayerSide('left');
+
+        // 2. Definimos el nombre del rival según el modo
+        if (mode === 'ia') {
+            setOpponentName("IA-Bot");
+        } else {
+            setOpponentName("Invitado"); // O "Player 2"
+        }
+        //setOpponentName(mode === 'ia' ? "IA-Bot" : "Invitado Local");
+        setMode(mode);
+        dispatch({ type: "PONG" });
     };
 
     const startCountDown = (seconds: number) =>
@@ -140,6 +79,7 @@ const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) =>
         {
             setStatusText("");
             setMode("offline");
+            setMode(mode);
             dispatch({ type: "PONG" });
             setModeActive(null);
         }
@@ -168,6 +108,7 @@ const MenuScreen = ({ dispatch, setMode, userName }: OptionsProps) =>
                 <button onClick={() => handleMode("ia")}>player vs ia</button>
                 <button onClick={() => handleMode("local")}>player vs player</button>
                 <button onClick={() => handleMode("remote")}>player vs remote</button>
+                <button onClick={() => handleMode("tournament")}>tournament</button>
             </div>
 
             <div className="search">

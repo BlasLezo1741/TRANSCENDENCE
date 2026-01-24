@@ -18,13 +18,38 @@ let currentMatchDbId: number | null = null;
 // Configuración de la conexión
 //export const socket: Socket = io(SOCKET_URL || 'http://localhost:3000', { // Fallback por seguridad
 export const socket: Socket = io(SOCKET_URL, {
-  autoConnect: true,
+  //autoConnect: true,
+  autoConnect: false, // Importante: No conectar hasta que tengamos el ID
   transports: ['polling', 'websocket'], 
   reconnection: true,
   reconnectionAttempts: 5,
   withCredentials: true,
   rememberUpgrade: true
 });
+
+// --- HELPER PARA OBTENER ID ---
+const getMyId = () => {
+    const id = localStorage.getItem("pong_user_id");
+    return id ? parseInt(id, 10) : 0;
+};
+
+// --- ESTA ES LA FUNCIÓN QUE TE FALTABA ---
+export const connectSocket = () => {
+    const userId = getMyId();
+    if (userId) {
+        // Actualizamos la query del socket con el ID del usuario
+        socket.io.opts.query = { userId: userId.toString() };
+        
+        // Si no está conectado, conectamos
+        if (!socket.connected) {
+            console.log("🔌 Conectando socket con ID:", userId);
+            socket.connect();
+        }
+    } else {
+        console.warn("⚠️ Intentando conectar socket sin ID de usuario.");
+    }
+};
+
 
 // --- TESTIGOS DE CONEXIÓN ---
 socket.on('connect', () => {
@@ -38,6 +63,9 @@ socket.on('connect_error', (error) => {
 socket.on('disconnect', (reason) => {
     console.warn("⚠️ Desconectado del Backend:", reason);
 });
+
+// Variables reactivas simples por si las usas fuera de React (opcional)
+export let matchData = { roomId: "", matchId: 0 };
 
 // --- EMISORES (Enviar datos al servidor) ---
 
@@ -60,9 +88,8 @@ export const joinQueue = (nickname: string, mode: string) => {
   console.log(`📡 [Socket] Emitiendo join_queue: Nick=${nickname}, Mode=${mode}`);
   
   // Enviamos el evento con la estructura que espera el Backend
-  // Nota: El backend espera { nickname: string, mode: string }
   socket.emit('join_queue', { 
-      nickname: nickname, // Mapeamos el argumento a la propiedad 'nickname'
+      nickname: nickname,
       mode: mode 
   }); 
 };
@@ -74,7 +101,6 @@ export const sendMove = (direction: 'up' | 'down' | 'stop') => {
         direction 
     });
   } else {
-    // Evitamos spam de logs si no hay sala
     if (!currentRoomId) { /* console.warn("⚠️ Intento de movimiento sin sala."); */ }
   }
 };
@@ -86,7 +112,7 @@ export const finishGame = (winnerName: string) => {
         socket.emit('finish_game', {
             roomId: currentRoomId,
             winnerId: winnerName,
-            matchId: currentMatchDbId // <--- ENVIAMOS EL ID AL BACKEND
+            matchId: currentMatchDbId
         });
     } else {
         console.warn("⚠️ No se puede finalizar: Faltan datos (Room o DB ID)");
@@ -97,28 +123,28 @@ export const finishGame = (winnerName: string) => {
 // --- RECEPTORES (Escuchar datos del servidor) ---
 
 export const onMatchFound = (callback: (data: any) => void) => {
-  socket.off('match_found'); // <--- MEJORA: Evita duplicados si React renderiza dos veces
+  socket.off('match_found');
   socket.on('match_found', (data) => {
     console.log("🎯 Match encontrado. Sala:", data.roomId, "| DB ID:", data.matchId);
     
-    currentRoomId = data.roomId;      // Guardamos la sala
-    currentMatchDbId = data.matchId;  // Guardamos el ID de la BD
+    currentRoomId = data.roomId;
+    currentMatchDbId = data.matchId;
     
     callback(data);
   });
 };
 
 export const onGameUpdate = (callback: (data: GameUpdatePayload) => void) => {
-  socket.off('game_update'); // <--- MEJORA DE LIMPIEZA
+  socket.off('game_update');
   socket.on('game_update', callback);
 };
 
 export const onGameOver = (callback: (data: any) => void) => {
-  socket.off('game_over'); // <--- MEJORA DE LIMPIEZA
+  socket.off('game_over');
   socket.on('game_over', (data) => {
     console.log("🏆 Game Over recibido. Ganador:", data.winner);
-    currentRoomId = null;     // Limpiamos memoria
-    currentMatchDbId = null;  // Limpiamos memoria
+    currentRoomId = null;
+    currentMatchDbId = null;
     callback(data);
   });
 };

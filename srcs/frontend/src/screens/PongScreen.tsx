@@ -9,9 +9,10 @@ type PongScreenProps = ScreenProps & {
   opponentName: string;
   ballInit: { x: number, y: number } | null;
   playerSide: 'left' | 'right';
+  roomId: string;
 };
 
-const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSide }: PongScreenProps) =>
+const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSide, roomId }: PongScreenProps) =>
 {
   const { t } = useTranslation();
   // Si yo estoy a la izquierda: [Yo] vs [Rival]
@@ -19,11 +20,11 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
   const leftPlayer = playerSide === 'left' ? userName : opponentName;
   const rightPlayer = playerSide === 'left' ? opponentName : userName;
   return (
-<div style={{ textAlign: 'center' }}>
+    <div style={{ textAlign: 'center' }}>
       {/* 1. TU TÍTULO ORIGINAL (Lo mantengo) */}
       <h1>{t('juego_mode')}{mode} | {leftPlayer} vs {rightPlayer}</h1>
       
-      {/* 2. EL CHIVATO DE DEPURACIÓN (Temporal, solo para arreglar el error) */}
+      {/* 2. EL CHIVATO DE DEPURACIÓN (Temporal, solo para arreglar el error)
       <div style={{ 
           background: '#444', 
           color: '#fff', 
@@ -36,7 +37,7 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
           <p>🧪 DEBUG INFO:</p>
           <p>Usuario Local: <strong>{userName}</strong></p>
           <p>Lado Asignado por App: <strong style={{ color: playerSide === 'right' ? 'orange' : 'cyan', fontSize: '1.2em' }}>{playerSide.toUpperCase()}</strong></p>
-      </div>
+      </div> */}
 
       {/* 3. EL CANVAS */}
       <div className="flex justify-center">
@@ -46,7 +47,8 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
             userName={userName}
             opponentName={opponentName}
             ballInit={ballInit}
-            playerSide={playerSide} // <--- Esto es lo más importante
+            playerSide={playerSide} 
+            roomId={roomId}
         />
       </div>
     </div>

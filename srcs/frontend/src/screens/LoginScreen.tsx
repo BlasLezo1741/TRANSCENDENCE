@@ -1,79 +1,129 @@
 import React, { useState } from "react";
-import { checkLogin } from "../ts/utils/auth"
+import { checkLogin } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
+import { useTranslation } from 'react-i18next';
 
-const LoginScreen = ({ dispatch }: ScreenProps) =>
-{
+// Añadimos una nueva prop para actualizar el estado padre
+type LoginScreenProps = ScreenProps & {
+    setGlobalUser: (user: string) => void;
+};
+
+const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
+    const { t } = useTranslation();
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleForm = (e: React.FormEvent) =>
-    {
+    const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setIsLoading(true);
 
-        // Check login
-        const result = checkLogin(user, password);
-        if (!result.ok)
-        {
-            setError(result.msg);
-            setPassword("");
-            return ;
+        try {
+            // AWAIT the backend response
+            const result = await checkLogin(user, password);
+            
+            if (!result.ok) {
+                setError(result.msg || "Error desconocido");
+                setPassword("");
+            } else {
+                // 1. Guardamos en LocalStorage para que persista al refrescar
+                localStorage.setItem("pong_user_nick", result.user.name);
+
+                //localStorage.setItem("pong_user_id", result.user.id);
+                localStorage.setItem("pong_user_id", result.user.id.toString());
+
+                // 2. Actualizamos el estado global en App.tsx
+                setGlobalUser(result.user.name);
+                console.log("🔓 Login exitoso. Usuario global actualizado:", result.user.name);
+                
+                // 3. Ir al menú
+                dispatch({ type: "MENU" });
+            }
+        } catch (err) {
+            setError("Error de conexión");
+        } finally {
+            setIsLoading(false);
         }
-
-        dispatch({type: "MENU"});
-    }
+    };
 
     return (
-        <div>
-            <h1>Login</h1>
-            <form onSubmit={handleForm}>
-                
-                {/* Error message */}
-
-                {error && <p>{error}</p>}
-                
-                {/* User */}
-                <div>
-                    <label htmlFor="user">Usuario</label>
-                    <input
-                        type="text"
-                        id="user"
-                        name="user"
-                        value={user}
-                        onChange={(e) => setUser(e.target.value)}
-                        pattern="[\x21-\x7E]+"
-                        title="Nombre de usuario"
-                        required
-                        autoFocus
-                    />
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+            <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900">{t('bienvenido')}</h1>
+                    {/*<p className="text-gray-500 mt-2">{t('init_ses')}</p> */}
                 </div>
 
-                {/* Password */}
+                <form onSubmit={handleForm} className="space-y-6">
+                    {/* Error message */}
+                    {error && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                            <span className="block sm:inline">{error}</span>
+                        </div>
+                    )}
 
-                <div>
-                    <label htmlFor="pass">Contraseña</label>
-                    <input
-                        type="password"
-                        id="pass"
-                        name="pass"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        pattern=".{8,}"
-                        title="Contraseña"
-                        required
-                    />
+                    {/* User */}
+                    <div>
+                        <label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">
+                            {t('user')}
+                        </label>
+                        <input
+                            type="text"
+                            id="user"
+                            name="user"
+                            value={user}
+                            onChange={(e) => setUser(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            pattern="[\x21-\x7E]+"
+                            required
+                            autoFocus
+                        />
+                    </div>
+
+                    {/* Password */}
+                    <div>
+                        <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">
+                            {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
+                        </label>
+                        <input
+                            type="password"
+                            id="pass"
+                            name="pass"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            required
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
+                        ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+                    >
+                        {isLoading ? t('enviando') : t('enviar')}
+                    </button>
+                </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-600">
+                        {t('cuenta?')}{" "}
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                dispatch({ type: "SIGN" });
+                            }}
+                            className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none underline"
+                        >
+                            {t('crear_cuenta')}
+                        </button>
+                    </p>
                 </div>
-
-                <button type="submit">Enviar</button>
-
-            </form>
-            <a href="#" onClick={(e) => {
-                e.preventDefault(); dispatch({ type: "SIGN" });
-            }}>
-                No tenies cuenta? Se tu propio jefe
-            </a>
+            </div>
         </div>
     );
 };

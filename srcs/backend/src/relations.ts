@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm/relations";
-import { metricCategory, metric, pLanguage, player, country, pRole, status, matchMode, match, matchmetric, playerOrganization, organization, playerFriend, competitor, competitormetric } from "./schema";
+//import { metricCategory, metric, pLanguage, player, country, pRole, status, matchMode, match, matchmetric, playerOrganization, organization, playerFriend, competitor, competitormetric } from "./schema";
+import { metricCategory, metric, pLanguage, player, country, pRole, status, matchMode, match, matchmetric, playerOrganization, organization, playerFriend, competitor, competitormetric, directMessage, channel, channelMember } from "./schema";
 
 export const metricRelations = relations(metric, ({one, many}) => ({
     metricCategory: one(metricCategory, {
@@ -13,6 +14,34 @@ export const metricRelations = relations(metric, ({one, many}) => ({
 export const metricCategoryRelations = relations(metricCategory, ({many}) => ({
     metrics: many(metric),
 }));
+
+// export const playerRelations = relations(player, ({one, many}) => ({
+//     pLanguage: one(pLanguage, {
+//         fields: [player.pLang],
+//         references: [pLanguage.langPk]
+//     }),
+//     country: one(country, {
+//         fields: [player.pCountry],
+//         references: [country.coun2Pk]
+//     }),
+//     pRole: one(pRole, {
+//         fields: [player.pRole],
+//         references: [pRole.rolePk]
+//     }),
+//     status: one(status, {
+//         fields: [player.pStatus],
+//         references: [status.statusPk]
+//     }),
+//     matches: many(match),
+//     playerOrganizations: many(playerOrganization),
+//     playerFriends_f1: many(playerFriend, {
+//         relationName: "playerFriend_f1_player_pPk"
+//     }),
+//     playerFriends_f2: many(playerFriend, {
+//         relationName: "playerFriend_f2_player_pPk"
+//     }),
+//     competitors: many(competitor),
+// }));
 
 export const playerRelations = relations(player, ({one, many}) => ({
     pLanguage: one(pLanguage, {
@@ -40,6 +69,10 @@ export const playerRelations = relations(player, ({one, many}) => ({
         relationName: "playerFriend_f2_player_pPk"
     }),
     competitors: many(competitor),
+    // --- NUEVAS RELACIONES DE CHAT ---
+    sentMessages: many(directMessage, { relationName: "sentMessages" }),
+    receivedMessages: many(directMessage, { relationName: "receivedMessages" }),
+    channelMemberships: many(channelMember), // Canales a los que pertenece
 }));
 
 export const pLanguageRelations = relations(pLanguage, ({many}) => ({
@@ -136,5 +169,39 @@ export const competitormetricRelations = relations(competitormetric, ({one}) => 
     competitor: one(competitor, {
         fields: [competitormetric.mcmMatchFk, competitormetric.mcmPlayerFk],
         references: [competitor.mcMatchFk, competitor.mcPlayerFk]
+    }),
+}));
+
+// --- CHAT RELATIONS ---
+
+export const directMessageRelations = relations(directMessage, ({ one }) => ({
+    sender: one(player, {
+        fields: [directMessage.senderId],
+        references: [player.pPk],
+        relationName: "sentMessages"
+    }),
+    receiver: one(player, {
+        fields: [directMessage.receiverId],
+        references: [player.pPk],
+        relationName: "receivedMessages"
+    }),
+}));
+
+export const channelRelations = relations(channel, ({ one, many }) => ({
+    owner: one(player, {
+        fields: [channel.ownerId],
+        references: [player.pPk],
+    }),
+    members: many(channelMember),
+}));
+
+export const channelMemberRelations = relations(channelMember, ({ one }) => ({
+    channel: one(channel, {
+        fields: [channelMember.channelId],
+        references: [channel.id],
+    }),
+    user: one(player, {
+        fields: [channelMember.userId],
+        references: [player.pPk],
     }),
 }));
