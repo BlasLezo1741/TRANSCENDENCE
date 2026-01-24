@@ -55,9 +55,7 @@ export class ChatService {
       }
     });
   }
-}
-
-// 3. Obtener lista de usuarios para el chat (excluyendo al propio usuario)
+  // 3. Obtener lista de usuarios para el chat (excluyendo al propio usuario)
 async getUsers(currentUserId: number) {
     // Obtenemos todos los usuarios (id y nick)
     const allUsers = await this.db.query.player.findMany({
@@ -71,3 +69,6 @@ async getUsers(currentUserId: number) {
     // Filtramos para no devolverme a mí mismo
     return allUsers.filter(user => user.pPk !== currentUserId);
   }
+}
+
+

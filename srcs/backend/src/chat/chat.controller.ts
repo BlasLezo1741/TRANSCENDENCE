@@ -17,11 +17,11 @@ export class ChatController {
 
     return await this.chatService.getConversation(id1, id2);
   }
-}
-
-// Ruta: GET /chat/users?current=1
+  // Ruta: GET /chat/users?current=1
 @Get('users')
 async getUsers(@Query('current') currentUserId: string) {
   const id = parseInt(currentUserId);
   return await this.chatService.getUsers(id);
 }
+}
+

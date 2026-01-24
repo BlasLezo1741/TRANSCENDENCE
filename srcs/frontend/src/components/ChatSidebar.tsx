@@ -25,10 +25,17 @@ export const ChatSidebar = () => {
     // 🆕 NUEVO: Estado para la lista de amigos real
     const [contacts, setContacts] = useState<ChatContact[]>([]); 
     
-    // ⚠️ ID DEL USUARIO ACTUAL (IMPORTANTE)
-    // De momento lo dejamos fijo en 1. En el siguiente paso lo haremos dinámico.
-    const CURRENT_USER_ID = 1;
+    // -----------------------------------------------------------
+    // 🕵️ TRUCO PARA PROBAR: Leer ID de la URL
+    // -----------------------------------------------------------
+    const queryParams = new URLSearchParams(window.location.search);
+    const urlId = queryParams.get('uid'); 
+    
+    // Si la URL tiene ?uid=2, usa 2. Si no, usa 1 por defecto.
+    const CURRENT_USER_ID = urlId ? Number(urlId) : 1; 
 
+    console.log("🕵️ MODO DEBUG: Soy el usuario ID:", CURRENT_USER_ID); // <--- Mira esto en la consola
+    // -----------------------------------------------------------
     // DATOS MOCK
     const MOCK_FRIENDS: ChatContact[] = [
         { id: 1, name: "User 1", status: 'online', unread: 2 },
@@ -140,9 +147,10 @@ export const ChatSidebar = () => {
         // Limpiamos mensajes anteriores
         setMessages([]); 
 
-        const MY_ID = 1; // Tu ID temporal
+        console.log(`📜 Cargando historial entre YO (${CURRENT_USER_ID}) y EL (${selectedChatId})...`);
 
-        fetch(`http://localhost:3000/chat/history?user1=${MY_ID}&user2=${selectedChatId}`)
+        //fetch(`http://localhost:3000/chat/history?user1=${MY_ID}&user2=${selectedChatId}`)
+        fetch(`http://localhost:3000/chat/history?user1=${CURRENT_USER_ID}&user2=${selectedChatId}`)
             .then(res => res.json())
             .then(data => {
                 const historyFormatted: ChatMessage[] = data.map((msg: any) => ({
@@ -155,8 +163,8 @@ export const ChatSidebar = () => {
             })
             .catch(err => console.error("Error cargando historial:", err));
             
-    }, [selectedChatId]); 
-
+    //}, [selectedChatId]); 
+    }, [selectedChatId, CURRENT_USER_ID]);
 
     // ---------------------------------------------------------
     // 2. EFECTO DE SOCKET Escuchar mensajes entrantes
@@ -247,7 +255,7 @@ export const ChatSidebar = () => {
         );
     }
 
-    return (
+return (
         <div style={sidebarStyle}>
             {/* CABECERA */}
             <div style={{ height: '50px', backgroundColor: '#0e7490', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', color: 'white' }}>
@@ -319,21 +327,33 @@ export const ChatSidebar = () => {
                                     No hay mensajes aún.<br/>¡Escribe algo! 👋
                                 </p>
                             )}
-                            {messages.map((msg, index) => (
-                                <div key={index} style={{ display: 'flex', justifyContent: msg.senderId === 1 ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-                                    <div style={{ 
-                                        padding: '8px 12px', 
-                                        borderRadius: '12px', 
-                                        backgroundColor: msg.senderId === 1 ? '#0891b2' : 'white',
-                                        color: msg.senderId === 1 ? 'white' : 'black',
-                                        maxWidth: '85%',
-                                        fontSize: '14px',
-                                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-                                    }}>
-                                        {msg.text}
+                            {/* 🔥 AQUÍ ESTÁ EL CAMBIO IMPORTANTE 🔥 */}
+                            {messages.map((msg, index) => {
+                                // Calculamos dinámicamente si el mensaje es mío
+                                const isMine = Number(msg.senderId) === Number(CURRENT_USER_ID);
+                                
+                                return (
+                                    <div key={index} style={{ display: 'flex', justifyContent: isMine ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
+                                        <div style={{ 
+                                            padding: '8px 12px', 
+                                            borderRadius: '12px', 
+                                            // Usamos isMine para el color
+                                            backgroundColor: isMine ? '#0891b2' : 'white',
+                                            color: isMine ? 'white' : 'black',
+                                            maxWidth: '85%',
+                                            fontSize: '14px',
+                                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                            // Detalle extra: redondear bordes diferente según lado
+                                            borderBottomRightRadius: isMine ? '0' : '12px',
+                                            borderBottomLeftRadius: isMine ? '12px' : '0'
+                                        }}>
+                                            {msg.text}
+                                            {/* (Opcional) Si quieres ver la hora, descomenta esto: */}
+                                            {/* <div style={{ fontSize: '10px', textAlign: 'right', marginTop: '4px', opacity: 0.8 }}>{msg.time}</div> */}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         <div style={{ padding: '10px', backgroundColor: 'white', borderTop: '1px solid #cffafe' }}>

@@ -34,8 +34,13 @@ const getMyId = () => {
 };
 
 // --- CONEXION ---
-export const connectSocket = () => {
-    const userId = getMyId();
+//export const connectSocket = () => {
+    //const userId = getMyId();
+//CAMBIO TEMPORAL******************
+export const connectSocket = (forceId?: number) => {
+    // Si nos pasan un ID, lo usamos. Si no, miramos el localStorage
+    const userId = forceId || getMyId();
+//************************************ */
     if (userId) {
         // Actualizamos la query del socket con el ID del usuario
         socket.io.opts.query = { userId: userId.toString() };

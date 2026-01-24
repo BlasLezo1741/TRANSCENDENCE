@@ -47,7 +47,20 @@ function App()
   useEffect(() => {
     if (currentUser) {
         console.log("🔄 Usuario activo detectado. Conectando socket...");
-        connectSocket(); // <--- IMPORTANTE: Asegúrate de importar esto arriba
+        //connectSocket(); // <--- IMPORTANTE: Asegúrate de importar esto arriba
+        // -----------------------------------------------------------
+        // 🕵️ TRUCO PARA PROBAR: Leer ID de la URL
+        // -----------------------------------------------------------
+        const queryParams = new URLSearchParams(window.location.search);
+        const urlId = queryParams.get('uid'); 
+        
+        // Si hay ?uid=X en la URL, usamos ese. 
+        // Si no, intentamos leer del localStorage (o dejamos que el servicio lo busque).
+        const idToConnect = urlId ? Number(urlId) : Number(localStorage.getItem("pong_user_id"));
+
+        // Pasamos el ID explícito al servicio
+        connectSocket(idToConnect);
+        /*********************************** */
     }
   }, [currentUser]);
 
