@@ -67,9 +67,9 @@ export const ChatSidebar = () => {
         position: 'fixed',
         right: 0,
         // AJUSTE CLAVE: top 64px (asumiendo que el header mide unos 60-64px)
-        top: '64px', 
+        top: '90px', 
         // Restamos los 64px del header a la altura total
-        height: 'calc(100vh - 64px)', 
+        height: 'calc(100vh - 90px)', 
         width: '320px',
         backgroundColor: '#06b6d4', // Gray 900
         borderLeft: '4px solid #374151',
