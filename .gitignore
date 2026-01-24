@@ -2,6 +2,7 @@
 # No subir credenciales ni variables de entorno 
 .env
 srcs/.env
+/srcs/.env
 #.env.local
 #.env.*.local
 #*.env
