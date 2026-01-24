@@ -2,6 +2,9 @@
 TRANSCENDENCE_HOME = $(shell echo $$HOME)
 CODESPACE_NAME = $(shell echo $$CODESPACE_NAME)
 export TRANSCENDENCE_HOME
+
+# Nombre del archivo env
+ENV_FILE = srcs/.env
 # En tu terminal de Codespaces
 
 
@@ -36,13 +39,19 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) update-env
 
 # Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces CAMBIO A http://localhost:3000
 update-env:
+	@echo "Leyendo puertos desde $(ENV_FILE)..."
+	$(eval FE_PORT=$(shell grep FE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2))
+	$(eval BE_PORT=$(shell grep BE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2))
 	@if [ -n "$(CODESPACE_NAME)" ]; then \
 		echo "Actualizando VITE_BACKEND_URL en .env para Codespace: $(CODESPACE_NAME)"; \
-		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-$(BE_PORT).app.github.dev|' $(ENV_FILE); \
+		sed -i 's|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=https://$(CODESPACE_NAME)-$(FE_PORT).app.github.dev|' $(ENV_FILE); \
 	else \
 		echo "No se detectó CODESPACE_NAME, manteniendo .env sin cambios"; \
-		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://localhost:3000|' srcs/.env; \
+		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://localhost:$(BE_PORT)|' $(ENV_FILE); \
+		sed -i 's|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=http://localhost:$(FE_PORT)|' $(ENV_FILE); \
 	fi
+	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)"	
 
 # Create postgres data directory if does not exists
 $(DB_DATA_DIR):
