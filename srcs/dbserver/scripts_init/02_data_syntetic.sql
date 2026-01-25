@@ -11,7 +11,7 @@ INSERT INTO PLAYER (
     p_mail, 
     p_pass, 
     p_totp_secret,
-    p_totp_enabled
+    p_totp_enabled,
     p_totp_enabled_at,
     p_totp_backup_codes,
     p_reg, 

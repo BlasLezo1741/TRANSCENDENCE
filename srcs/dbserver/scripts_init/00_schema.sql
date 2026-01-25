@@ -57,13 +57,7 @@ CREATE TABLE PLAYER (
     CONSTRAINT unique_oauth_user UNIQUE(p_oauth_provider, p_oauth_id) 
 );
 
-CREATE TABLE PLAYER ( 
-    p_pk integer generated always as identity PRIMARY KEY,
-    p_nick VARCHAR(20) NOT NULL UNIQUE,
-    p_mail VARCHAR(255) NOT NULL UNIQUE,
-    p_pass VARCHAR(255),  -- NULLABLE for OAuth users
 
-);
 CREATE TABLE METRIC_CATEGORY ( 
     metric_cate_pk smallint generated always as identity PRIMARY KEY,
     metric_cate_i18n_name JSONB NOT NULL -- Estructura: {"en": "Competitor Stats", "es": "Estadísticas del Competidor"}
