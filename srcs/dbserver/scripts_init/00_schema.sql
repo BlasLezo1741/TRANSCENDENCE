@@ -39,19 +39,31 @@ CREATE TABLE PLAYER (
     p_pk integer generated always as identity PRIMARY KEY,
     p_nick VARCHAR(20) UNIQUE NOT NULL,
     p_mail CITEXT UNIQUE NOT NULL, --Case insensitive
-    p_pass TEXT NOT NULL,
+    p_pass TEXT , -- NULLABLE for OAuth users
     p_totp_secret BYTEA, --encrypted 2fa secret
-    p_totp_enable BOOLEAN DEFAULT FALSE,
+    p_totp_enabled BOOLEAN DEFAULT FALSE,
     p_totp_enabled_at TIMESTAMP,
     p_totp_backup_codes TEXT[],  -- códigos de respaldo
+    p_oauth_provider VARCHAR(20),  -- NEW: '42' or 'google'
+    p_oauth_id VARCHAR(255),       -- NEW: OAuth provider's user ID
+    p_avatar_url VARCHAR(500),     -- NEW: Profile picture
+    p_profile_complete BOOLEAN DEFAULT FALSE,  -- NEW: Track profile completion
     p_reg TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Change: Added Default
     p_bir DATE,
     p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),
     p_country char(2) REFERENCES COUNTRY(coun2_pk),
     p_role smallint DEFAULT 1 REFERENCES P_ROLE(role_pk),     -- Change: Added Default
     p_status smallint DEFAULT 1 REFERENCES STATUS(status_pk)  -- Change: Added Default
+    CONSTRAINT unique_oauth_user UNIQUE(p_oauth_provider, p_oauth_id) 
 );
 
+CREATE TABLE PLAYER ( 
+    p_pk integer generated always as identity PRIMARY KEY,
+    p_nick VARCHAR(20) NOT NULL UNIQUE,
+    p_mail VARCHAR(255) NOT NULL UNIQUE,
+    p_pass VARCHAR(255),  -- NULLABLE for OAuth users
+
+);
 CREATE TABLE METRIC_CATEGORY ( 
     metric_cate_pk smallint generated always as identity PRIMARY KEY,
     metric_cate_i18n_name JSONB NOT NULL -- Estructura: {"en": "Competitor Stats", "es": "Estadísticas del Competidor"}
