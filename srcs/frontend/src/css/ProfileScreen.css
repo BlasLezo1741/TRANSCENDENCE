@@ -1,0 +1,100 @@
+.profile
+{
+    width: 100%;
+    background-color: #2d2979;
+    display: grid;
+    grid-template-columns: 150px 1fr 320px;
+}
+
+.profile nav
+{
+    height: 79vh;
+    background-color: hsl(139, 68%, 37%);
+}
+
+.profile nav ul
+{
+    padding-top: 15px;
+}
+
+.profile nav ul li
+{
+    margin: 10px;
+    text-align: center;
+    list-style: none;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    color: #bbf8dc;
+}
+
+.profile nav ul li:hover
+{
+    background-color: #0077cc;
+    border-bottom: 3px solid blue;
+}
+
+.selected
+{
+    background-color: blue;
+    border-bottom: 3px solid azure;
+    pointer-events: none;
+    
+}
+
+.profile section
+{
+    background-color: black;
+}
+
+.p-cont
+{
+    width: 90%;
+    margin: auto;
+    color: #a1bdf3;
+}
+
+.sol
+{
+    width: 1.25rem;
+    height: 1.25rem;
+    
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+
+    background-color:#ef4444;
+    font-size: 0.75rem;
+    border-radius: 100%;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.list-friend
+{
+    margin-top: 20px;
+}
+
+.amigo
+{
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+}
+
+.amigo div
+{
+    display: flex;
+    align-items: center;
+}
+
+.semaforo
+{
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    margin-top: 4px;
+    margin-right: 10px;
+    border-radius: 50%;
+}

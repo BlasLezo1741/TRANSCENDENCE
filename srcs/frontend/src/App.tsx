@@ -3,20 +3,20 @@ import { screenReducer } from './ts/screenConf/screenReducer.ts';
 
 import type { Screen, GameMode } from "./ts/types.ts"
 
-import MenuScreen from './screens/Menu/MenuScreen.tsx'
+import MenuScreen from './screens/MenuScreen.tsx'
 import SignScreen from './screens/SignScreen.tsx'
 import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
-import ProfileScreen from './screens/Profile/ProfileScreen.tsx'
+import ProfileScreen from './screens/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
 import SettingsScreen from './screens/SettingsScreen.tsx'
 
-import Header from './components/Header/Header.tsx'
-import Footer from './components/Footer/Footer.tsx'
+import Header from './components/Header.tsx'
+import Footer from './components/Footer.tsx'
 import { socket, connectSocket, setMatchData } from './services/socketService';
 import { ChatSidebar } from './components/ChatSidebar';
 
-import "./App.css";
+import "./css/App.css";
 
 function App()
 {

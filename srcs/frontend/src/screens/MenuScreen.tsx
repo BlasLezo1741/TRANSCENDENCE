@@ -1,16 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { joinQueue, socket, setMatchData } from '../../services/socketService.ts';
+import { joinQueue, socket, setMatchData } from '../services/socketService.ts';
 
-import type { ScreenProps } from '../../ts/screenConf/screenProps.ts';
-import type { GameMode } from '../../ts/types.ts';
+import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
+import type { GameMode } from '../ts/types.ts';
 
-import cross from '../../assets/react.svg';
+import cross from '../assets/x_chatgpt.png';
 
-import bg_image from '../../assets/Imagen_pong_v2.png';
+import bg_image from '../assets/Imagen_pong_v2.png';
 //import bg_image from '../assets/Flag_of_Catalonia.png';
 
-import "./MenuScreen.css";
+import "../css/MenuScreen.css";
 
 type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
@@ -111,7 +111,7 @@ const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSid
                 <p>{statusText}</p>
                 {modeActive && 
                 (
-                    <img src={cross} alt="Cancelar" onClick={cancelProcess}/>
+                    <img className="cross" src={cross} alt="Cancelar" onClick={cancelProcess}/>
                 )}
             </div>
 

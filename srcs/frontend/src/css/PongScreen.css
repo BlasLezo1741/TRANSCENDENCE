@@ -1,0 +1,17 @@
+.game
+{
+    min-width: 800px;
+    margin: auto;
+}
+
+.game div
+{
+    display: flex;
+    justify-content: center;
+}
+
+.game-canvas
+{
+    border: 3px solid white;
+    background-color: black;
+}

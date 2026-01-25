@@ -1,7 +1,7 @@
 header
 {
     width: 100%;
-    background-color: black;
+    background-color: rgb(0, 0, 42);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -9,7 +9,8 @@ header
 
 .letters
 {
-    color: white;
+    /* color: yellow; */
+    margin-left: 5px;
 }
 
 .signin
@@ -47,4 +48,15 @@ ul.dropdown li a
 ul.dropdown li a:hover
 {
     background-color: darkblue;
+}
+
+.home img, .avatarIcon
+{
+    width: 50px;
+    height: 50px;
+}
+
+.login p
+{
+    padding-right: 10px;
 }

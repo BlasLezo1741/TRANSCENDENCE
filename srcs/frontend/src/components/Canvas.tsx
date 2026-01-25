@@ -239,7 +239,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
     
     }, [mode, userName, opponentName, ballInit, playerSide, dispatch, roomId]); 
 
-    return <canvas ref={canvasRef} style={{background: "black"}}/>;
+    return <canvas ref={canvasRef} className="game-canvas"/>;
 }
 
 export default Canvas;

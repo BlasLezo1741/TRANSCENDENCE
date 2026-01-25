@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { LanguageSwitcher } from '../LanguageSwitcher';
-import avatarUrl from '../../assets/react.svg'
-import './Header.css';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import avatarUrl from '../assets/react.svg';
+import noAvatarUrl from '../assets/nouser_chatgpt.png';
+import homeIcon from '../assets/Home_chatgpt.png';
 import { useTranslation } from 'react-i18next';
-import { StatusBadge } from '../StatusBadge'; // Importamos el nuevo badge
+import { StatusBadge } from './StatusBadge'; // Importamos el nuevo badge
+import '../css/Header.css';
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;
@@ -65,7 +67,7 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
             <StatusBadge />
             <header style={{ position: 'relative', zIndex: 50 }}>
                 <div className="home" onClick={() => dispatch({ type: "MENU" })}>
-                    <img src={avatarUrl} alt="Logo" />
+                    <img src={homeIcon} alt="Logo" />
                     <p className="letters">Okinawa</p>
                 </div>
                 
@@ -74,9 +76,13 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
                 <div className="signin">
                     {/* ESTADO: NO LOGUEADO */}
                     {!isLogged && (
-                        <button onClick={() => dispatch({ type: "LOGIN" })}>
-                            Login
-                        </button>
+                        // <button onClick={() => dispatch({ type: "LOGIN" })}>
+                        //     Login
+                        // </button>
+                        <div className="login" ref={dropdownRef} onClick={() => dispatch({ type: "LOGIN" })}>
+                            <img className="avatarIcon" src={noAvatarUrl} alt="Local" />
+                            <p className="letters"><strong>Login</strong></p>
+                        </div>
                     )}
 
                     {/* ESTADO: LOGUEADO */}
@@ -99,6 +105,6 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
             </header>
         </>
     );
-    }
+}
     
 export default Header;

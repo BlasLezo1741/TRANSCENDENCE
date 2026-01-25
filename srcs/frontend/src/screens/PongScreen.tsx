@@ -2,6 +2,7 @@ import Canvas from '../components/Canvas.tsx';
 import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../ts/types.ts';
+import '../css/PongScreen.css';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
@@ -20,7 +21,7 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
   const leftPlayer = playerSide === 'left' ? userName : opponentName;
   const rightPlayer = playerSide === 'left' ? opponentName : userName;
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div className="game">
       {/* 1. TU TÍTULO ORIGINAL (Lo mantengo) */}
       <h1>{t('juego_mode')}{mode} | {leftPlayer} vs {rightPlayer}</h1>
       
@@ -40,7 +41,7 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
       </div> */}
 
       {/* 3. EL CANVAS */}
-      <div className="flex justify-center">
+      <div>
         <Canvas
             mode={mode}
             dispatch={dispatch}
@@ -48,8 +49,7 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
             opponentName={opponentName}
             ballInit={ballInit}
             playerSide={playerSide} 
-            roomId={roomId}
-        />
+            roomId={roomId}/>
       </div>
     </div>
   );
