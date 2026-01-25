@@ -1,8 +1,10 @@
+// backend/src/auth/auth.service.ts
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { eq, or } from 'drizzle-orm';
 // bcrypt - Librería para encriptar contraseñas de forma segura.
 import * as bcrypt from 'bcryptjs';
 import { users } from '../schema'; 
+import { player } from '../schema'; 
 import * as schema from '../schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../database.module';
@@ -72,7 +74,7 @@ export class AuthService {
     }
     let now = new Date().toISOString();
     // 4. Insertamos en la base de datos (incluyendo pCountry)
-    await this.db.insert(users).values({
+    await this.db.insert(player).values({
       pNick:       username,
       pMail:       email,
       pPass:       hashedPassword,
@@ -82,7 +84,7 @@ export class AuthService {
       pReg:        now,
       pRole:       1,
       pStatus:     1,
-      ptotpSecret: totpsecret,
+      pTotpSecret: totpsecret,
       pTotpEnable: enable2FA,
       pTotpEnabledAt: now,
     });

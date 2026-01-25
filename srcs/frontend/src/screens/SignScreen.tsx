@@ -32,13 +32,15 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
     // NEW: QR Code state
     const [qrCode, setQrCode] = useState<string | null>(null);
-    const [enable2FA, setEnable2FA] = useState(false);  //Por defecto no se activa
+    const [enabled2FA, setEnabled2FA] = useState(false);  //Por defecto no se activa
 
     // NEW: Fetch countries on component mount
     useEffect(() => {
         const fetchCountries = async () => {
             try {
+                
                 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+                console.error('reading  countries from ${API_URL}/countries');
                 const response = await fetch(`${API_URL}/countries`, 
                     {
                         method: 'GET',
@@ -90,7 +92,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
             // 2. Check backend registration
             // We now pass BOTH country and language separately
             console.error('Intento de registro');
-            const result = await registUser(user, password, email, birth, country, language, enable2FA);
+            const result = await registUser(user, password, email, birth, country, language, enabled2FA);
             
             if (!result.ok) {
                 setError(result.msg || "Error en el registro");
@@ -117,7 +119,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setLanguage("");
         setError("");
         setQrCode(null);
-        setEnable2FA(false);
+        setEnabled2FA(false);
     };
 
     return (
@@ -144,6 +146,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             name="user"
                             value={user}
                             onChange={(e) => setUser(e.target.value)}
+                            placeholder="ej: Jhon_Wick123"
                             pattern="[a-zA-Z0-9_]{3,20}"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
@@ -159,6 +162,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             id="email"
                             name="email"
                             value={email}
+                            placeholder="ej: abc@def.com"
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
@@ -179,6 +183,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                                 id="pass"
                                 name="pass"
                                 value={password}
+                                placeholder="ej: P@ssw0rd!"
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
@@ -263,11 +268,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         <label htmlFor="lang" className="block text-sm font-medium text-gray-700 mb-1">{t('enable_2fa')}</label>
                         <label className="flex items-center">
                             <input
-                                name="enable2FA"
-                                id="enable2FA"
+                                name="enabled2FA"
+                                id="enabled2FA"
                                 type="checkbox"
-                                checked={enable2FA}
-                                onChange={(e) => setEnable2FA(e.target.checked)}
+                                checked={enabled2FA}
+                                onChange={(e) => setEnabled2FA(e.target.checked)}
                                 className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                             />
                         </label>

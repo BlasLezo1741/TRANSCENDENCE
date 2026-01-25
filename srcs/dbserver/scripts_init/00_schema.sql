@@ -53,7 +53,7 @@ CREATE TABLE PLAYER (
     p_lang char(2) REFERENCES P_LANGUAGE(lang_pk),
     p_country char(2) REFERENCES COUNTRY(coun2_pk),
     p_role smallint DEFAULT 1 REFERENCES P_ROLE(role_pk),     -- Change: Added Default
-    p_status smallint DEFAULT 1 REFERENCES STATUS(status_pk)  -- Change: Added Default
+    p_status smallint DEFAULT 1 REFERENCES STATUS(status_pk),  -- Change: Added Default
     CONSTRAINT unique_oauth_user UNIQUE(p_oauth_provider, p_oauth_id) 
 );
 

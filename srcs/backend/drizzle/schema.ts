@@ -1,5 +1,4 @@
 import { pgTable, smallint, jsonb, char, varchar, boolean, foreignKey, unique, integer, text, timestamp, date, interval, doublePrecision, primaryKey, customType } from "drizzle-orm/pg-core"
-
 import { sql } from "drizzle-orm"
 
 // Helper para el tipo bytea de Postgres
@@ -17,23 +16,24 @@ export const pLanguage = pgTable("p_language", {
 	langName: varchar("lang_name", { length: 255 }),
 	langStatus: boolean("lang_status"),
 });
-
+// Alias for compatibility
 export const player = pgTable("player", {
 	pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
 	pNick: varchar("p_nick", { length: 20 }).notNull(),
 	// TODO: failed to parse database type 'citext'
 	pMail: text("p_mail").notNull(),
 	pPass: text("p_pass").notNull(),
+	// TODO: failed to parse database type 'bytea'
 	pTotpSecret: bytea("p_totp_secret"),
-	pTotpEnable: boolean("p_totp_enable").default(false),
+	pTotpEnable: boolean("p_totp_enabled").default(false),
 	pTotpEnabledAt: timestamp("p_totp_enabled_at", { mode: 'string' }),
 	pTotpBackupCodes: text("p_totp_backup_codes").array(),
-	pReg: timestamp("p_reg", { mode: 'string' }),
+	pReg: timestamp("p_reg", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
 	pBir: date("p_bir"),
 	pLang: char("p_lang", { length: 2 }),
 	pCountry: char("p_country", { length: 2 }),
-	pRole: smallint("p_role"),
-	pStatus: smallint("p_status"),
+	pRole: smallint("p_role").default(1),
+	pStatus: smallint("p_status").default(1),
 }, (table) => [
 	foreignKey({
 			columns: [table.pLang],
@@ -58,6 +58,7 @@ export const player = pgTable("player", {
 	unique("player_p_nick_key").on(table.pNick),
 	unique("player_p_mail_key").on(table.pMail),
 ]);
+export const users = player;
 
 export const country = pgTable("country", {
 	counName: char("coun_name", { length: 52 }),
@@ -163,8 +164,8 @@ export const playerFriend = pgTable("player_friend", {
 	friendPk: integer("friend_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_friend_friend_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
 	f1: integer("f_1"),
 	f2: integer("f_2"),
-	fDate: timestamp("f_date", { mode: 'string' }),
-	fType: boolean("f_type"),
+	fDate: timestamp("f_date", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
+	fStatusFk: smallint("f_status_fk"),
 }, (table) => [
 	foreignKey({
 			columns: [table.f1],
@@ -176,7 +177,17 @@ export const playerFriend = pgTable("player_friend", {
 			foreignColumns: [player.pPk],
 			name: "player_friend_f_2_fkey"
 		}),
+	foreignKey({
+			columns: [table.fStatusFk],
+			foreignColumns: [friendStatus.fsPk],
+			name: "player_friend_f_status_fk_fkey"
+		}),
 ]);
+
+export const friendStatus = pgTable("friend_status", {
+	fsPk: smallint("fs_pk").primaryKey().generatedAlwaysAsIdentity({ name: "friend_status_fs_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	fsI18NName: jsonb("fs_i18n_name").notNull(),
+});
 
 export const competitor = pgTable("competitor", {
 	mcMatchFk: integer("mc_match_fk").notNull(),

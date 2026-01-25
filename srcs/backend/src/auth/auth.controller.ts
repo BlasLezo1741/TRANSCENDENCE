@@ -20,13 +20,15 @@ export class AuthController {
     // 4. birth
     // 5. country (¡Nuevo!)
     // 6. lang
+    // 7. enabled2FA (¡Nuevo!, por defecto false)
     return this.authService.registerUser(
         body.username, 
         body.password, 
         body.email, 
         body.birth, 
         body.country, 
-        body.lang
+        body.lang,
+        body.enabled2FA || false
     );
   }
 }

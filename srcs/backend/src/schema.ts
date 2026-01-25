@@ -1,5 +1,10 @@
-import { pgTable, smallint, jsonb, foreignKey, char, varchar, boolean, integer, timestamp, date, doublePrecision, interval, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, smallint, jsonb, foreignKey, unique, char, varchar, boolean, integer, text, timestamp, date, doublePrecision, interval, primaryKey, customType } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
+
+// Helper para el tipo bytea de Postgres
+const bytea = customType<{ data: Buffer }>({
+  dataType() { return 'bytea'; },
+});
 
 // --- 1. LOOKUP TABLES (Define these first so others can reference them) ---
 
@@ -65,41 +70,6 @@ export const metric = pgTable("metric", {
 /*
 export const player = pgTable("player", {
     pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-    pNick: varchar("p_nick", { length: 255 }).unique().notNull(),
-    pMail: varchar("p_mail", { length: 255 }).unique().notNull(),
-    pPass: varchar("p_pass", { length: 255 }).notNull(),
-    pReg: timestamp("p_reg", { mode: 'string' }).defaultNow(),
-    pBir: date("p_bir"),
-    pLang: char("p_lang", { length: 2 }),
-    pCountry: char("p_country", { length: 2 }),
-    pRole: smallint("p_role").default(1), 
-    pStatus: smallint("p_status").default(1),
-}, (table) => [
-    foreignKey({
-            columns: [table.pLang],
-            foreignColumns: [pLanguage.langPk],
-            name: "player_p_lang_fkey"
-        }),
-    foreignKey({
-            columns: [table.pCountry],
-            foreignColumns: [country.coun2Pk], // Now 'country' is defined above, this is safe
-            name: "player_p_country_fkey"
-        }),
-    foreignKey({
-            columns: [table.pRole],
-            foreignColumns: [pRole.rolePk],    // Now 'pRole' is defined above, this is safe
-            name: "player_p_role_fkey"
-        }),
-    foreignKey({
-            columns: [table.pStatus],
-            foreignColumns: [status.statusPk], // Now 'status' is defined above, this is safe
-            name: "player_p_status_fkey"
-        }),
-]);
-*/
-
-export const player = pgTable("player", {
-    pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
     
     // CHANGE: Length set to 20 to match SQL
     pNick: varchar("p_nick", { length: 20 }).unique().notNull(),
@@ -134,6 +104,48 @@ export const player = pgTable("player", {
             foreignColumns: [status.statusPk],
             name: "player_p_status_fkey"
         }),
+]);
+*/
+export const player = pgTable("player", {
+	pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
+	pNick: varchar("p_nick", { length: 20 }).notNull(),
+	// TODO: failed to parse database type 'citext'
+	pMail: text("p_mail").notNull(),
+	pPass: text("p_pass").notNull(),
+	// TODO: failed to parse database type 'bytea'
+	pTotpSecret: bytea("p_totp_secret"),
+	pTotpEnable: boolean("p_totp_enabled").default(false),
+	pTotpEnabledAt: timestamp("p_totp_enabled_at", { mode: 'string' }),
+	pTotpBackupCodes: text("p_totp_backup_codes").array(),
+	pReg: timestamp("p_reg", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
+	pBir: date("p_bir"),
+	pLang: char("p_lang", { length: 2 }),
+	pCountry: char("p_country", { length: 2 }),
+	pRole: smallint("p_role").default(1),
+	pStatus: smallint("p_status").default(1),
+}, (table) => [
+	foreignKey({
+			columns: [table.pLang],
+			foreignColumns: [pLanguage.langPk],
+			name: "player_p_lang_fkey"
+		}),
+	foreignKey({
+			columns: [table.pCountry],
+			foreignColumns: [country.coun2Pk],
+			name: "player_p_country_fkey"
+		}),
+	foreignKey({
+			columns: [table.pRole],
+			foreignColumns: [pRole.rolePk],
+			name: "player_p_role_fkey"
+		}),
+	foreignKey({
+			columns: [table.pStatus],
+			foreignColumns: [status.statusPk],
+			name: "player_p_status_fkey"
+		}),
+	unique("player_p_nick_key").on(table.pNick),
+	unique("player_p_mail_key").on(table.pMail),
 ]);
 
 // Alias for compatibility

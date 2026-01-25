@@ -26,8 +26,10 @@ export async function registUser(
     birth: string, 
     country: string, 
     language: string, 
-    enable2FA: boolean) {
+    enabled2FA: boolean) {
     try {
+        console.log(`Intento de registro en ${API_URL}/auth/register`);
+        console.log(`Datos: ${user}, ${email}, ${birth}, ${country}, ${language}, 2FA: ${enabled2FA}`);
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -39,7 +41,7 @@ export async function registUser(
                 birth, 
                 country, 
                 lang: language,
-                enable2FA
+                enabled2FA
             })
         });
         return await response.json(); 

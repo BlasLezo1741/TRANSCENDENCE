@@ -1,18 +1,31 @@
 import { defineConfig } from 'drizzle-kit';
+import * as dotenv from 'dotenv';
+import path from 'path';
+
+// Aseguramos que cargue el .env correctamente
+dotenv.config({ path: '../.env' });
+
 
 export default defineConfig({
+  dialect: 'postgresql',
   // Aquí le decimos dónde queremos que escriba el archivo generado
-  //schema: "./src/schema.ts", 
   schema: ["./src/schema.ts", "./src/relations.ts"],
   out: "./drizzle",
-  dialect: 'postgresql',
-  dbCredentials: {
-    // Usamos 'dbserver' porque lo ejecutaremos desde dentro de Docker
-    url: "postgres://postgres:example@dbserver:5432/transcendence",
-    // Si ejecutas npm run migrate desde tu terminal, usa localhost
-    //url: "postgres://postgres:example@localhost:5432/transcendence",
+    dbCredentials: {
+    // Usamos propiedades separadas para evitar el error de parseo de URL
+    host: process.env.DB_IP || process.env.DB_HOST || 'localhost', 
+    port: Number(process.env.DB_PORT) || 5432,
+    user: process.env.POSTGRES_USER || 'postgres',
+    password: process.env.POSTGRES_PASSWORD || 'example',
+    database: process.env.POSTGRES_DB || 'transcendence',
+    ssl: false,
   },
-  // Esto hace que borre lo que había antes en schema.ts y ponga lo nuevo
+  //Esto hace que borre lo que había antes en schema.ts y ponga lo nuevo
   verbose: true,
   strict: true,
 });
+
+
+
+
+
