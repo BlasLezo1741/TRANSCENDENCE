@@ -210,14 +210,30 @@ The central entity containing user account information with the following attrib
 |p_mail (Unique Key)|: Email address, must be unique across the system|
 |p_pass|: Password credential|
 |p_totp_secret|:encrypted 2fa secret|
-|p_totp_enable|: Default false|
+|p_totp_enabled|: Default false|
 |p_totp_enabled_at|: TIMESTAMP|
 |p_totp_backup_codes|: códigos de respaldo|
+|p_oauth_provider|: '42' or 'google'|
+|p_oauth_id|: OAuth provider's user ID|
+|p_avatar_url|: Profile picture |
+|p_profile_complete|: BOOLEAN DEFAULT FALSE,  -- NEW: Track profile completion
 |p_reg|: Registration timestamp marking when the account was created|
 |p_bir|: Date of birth|
 |p_lang (Foreign Key)|: Reference to the user's preferred language|
 |p_country (Foreign Key)|: Reference to the user's country|
 |p_role (Foreign Key)|: Reference to the user's role within the system|
+|p_status (Foreign Key)|: Reference to the user's status|
+|unique_oauth_user|CONSTRAINT UNIQUE(p_oauth_provider, p_oauth_id) |
+
+
+
+##### Cómo funciona la constraint con valores NULL
+En PostgreSQL (y en la mayoría de sistemas SQL estándar), los valores NULL NO se consideran iguales entre sí para propósitos de constraints UNIQUE.
+Esto significa que:
+
+✅ Puedes tener múltiples registros con (NULL, NULL) en (p_oauth_provider, p_oauth_id)
+✅ La constraint UNIQUE(p_oauth_provider, p_oauth_id) solo se aplica cuando AMBOS valores NO son NULL
+✅ Usuarios con contraseña tradicional tendrán (NULL, NULL) y no violarán la constraint
 
 #### MATCH Table
 Represents individual competitive matches or games:
