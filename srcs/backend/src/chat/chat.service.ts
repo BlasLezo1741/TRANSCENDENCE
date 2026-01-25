@@ -130,30 +130,23 @@ export class ChatService {
             eq(schema.directMessage.receiverId, currentUserId),
             eq(schema.directMessage.isRead, false)
         ));
-        
+    // Preguntamos al Gateway si este usuario está conectado
+    const isOnline = this.gateway.isUserOnline(Number(friend.pPk));
+    
+    // (Opcional) Log para ver si funciona
+    console.log(`🕵️ [CHAT] Amigo ${friend.pNick} (ID: ${friend.pPk}) -> Online: ${isOnline}`);
+
+    // C. Devolvemos el objeto completo   
     return {
         ...friend,
         // Drizzle devuelve count como string en un array, lo convertimos
-        unread: Number(unreadCountResult[0].count) 
+        unread: Number(unreadCountResult[0].count),
+        status: isOnline ? 'online' : 'offline' 
     };  
   }));
 
   return friendsWithUnread;
   }
-
-  //   // 🔥 7. NUEVO MÉTODO: MARCAR COMO LEÍDOS
-  //   async markAsRead(senderId: number, receiverId: number) {
-  //     await this.db.update(schema.directMessage)
-  //         .set({ isRead: true })
-  //         .where(and(
-  //             eq(schema.directMessage.senderId, senderId),
-  //             eq(schema.directMessage.receiverId, receiverId),
-  //             eq(schema.directMessage.isRead, false)
-  //         ));
-  //     return { success: true };
-  // }
-
-
   // 🔥 7. NUEVO MÉTODO: MARCAR COMO LEÍDOS
   async markAsRead(senderId: number, receiverId: number) {
     console.log(`🧹 [DB] Marcando como leídos mensajes de ${senderId} para ${receiverId}`);
@@ -173,9 +166,3 @@ export class ChatService {
 
 
 }
-
-//     // Filtramos nulos por seguridad
-//     // 👇 AÑADIDO ': any' AQUÍ TAMBIÉN
-//     return myFriends.filter((friend: any) => friend !== null);
-//   }
-// }

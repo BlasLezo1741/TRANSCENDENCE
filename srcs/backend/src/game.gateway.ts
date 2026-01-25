@@ -126,7 +126,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         console.log(`✅ Cliente conectado: ${client.id} | Usuario ID: ${idNum}`);
         // NUEVO: AVISAR A TODOS QUE ESTE USUARIO ESTÁ ONLINE
         // (El frontend filtrará si le importa o no este usuario)
-        this.server.emit('user_status_change', { userId: idNum, status: 'online' });
+        this.server.emit('user_status', { userId: idNum, status: 'online' });
 
     } else {
         console.log(`⚠️ Cliente conectado sin UserID: ${client.id}`);
@@ -149,7 +149,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         if (currentSocketId === client.id) {
             this.userSockets.delete(userId);
             console.log(`👋 Usuario ${userId} eliminado del registro online.`);
-            this.server.emit('user_status_change', { userId: userId, status: 'offline' });
+            this.server.emit('user_status', { userId: userId, status: 'offline' });
         } else {
             console.log(`ℹ️ Usuario ${userId} se desconectó (socket viejo), pero sigue conectado en otro socket.`);
         }

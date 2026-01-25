@@ -146,7 +146,7 @@ const ProfileScreen = () => {
         console.log("🎧 Suscribiéndose a eventos del socket...");
         socket.on('friend_request', handleNewRequest);
         socket.on('friend_accepted', handleFriendAccepted);
-        socket.on('user_status_change', handleStatusChange);
+        socket.on('user_status', handleStatusChange);
         socket.on('friend_removed', handleFriendRemoved);
 
         // --- CLEANUP ---
@@ -154,7 +154,7 @@ const ProfileScreen = () => {
             console.log("🔕 Desuscribiéndose eventos...");
             socket.off('friend_request', handleNewRequest);
             socket.off('friend_accepted', handleFriendAccepted);
-            socket.off('user_status_change', handleStatusChange);
+            socket.off('user_status', handleStatusChange);
             socket.off('friend_removed', handleFriendRemoved);
         };
     }, []);
