@@ -55,20 +55,57 @@ export class ChatService {
       }
     });
   }
-  // 3. Obtener lista de usuarios para el chat (excluyendo al propio usuario)
-async getUsers(currentUserId: number) {
-    // Obtenemos todos los usuarios (id y nick)
-    const allUsers = await this.db.query.player.findMany({
-        columns: {
-            pPk: true,   // ID
-            pNick: true, // Nombre
-            // pAvatar: true, // Descomenta si tienes avatar
+//   // 3. Obtener lista de usuarios para el chat (excluyendo al propio usuario)
+// async getUsers(currentUserId: number) {
+//     // Obtenemos todos los usuarios (id y nick)
+//     const allUsers = await this.db.query.player.findMany({
+//         columns: {
+//             pPk: true,   // ID
+//             pNick: true, // Nombre
+//             // pAvatar: true, // Descomenta si tienes avatar
+//         }
+//     });
+
+//     // Filtramos para no devolverme a mí mismo
+//     return allUsers.filter(user => user.pPk !== currentUserId);
+//   }
+// }
+  // 3. MODIFICADO: Obtener SOLO amigos (Estado 2 = Aceptado)
+  async getUsers(currentUserId: number) {
+      
+    const ACCEPTED_STATUS_ID = 2; // 2 = Aceptado, según tu configuración
+
+    // Buscamos en la tabla 'player_friend'
+    const friendshipRelations = await this.db.query.playerFriend.findMany({
+        where: and(
+            // Condición A: Que el status sea Aceptado (2)
+            eq(schema.playerFriend.fStatusFk, ACCEPTED_STATUS_ID),
+            // Condición B: Que YO sea parte de la amistad (f1 o f2)
+            or(
+                eq(schema.playerFriend.f1, currentUserId),
+                eq(schema.playerFriend.f2, currentUserId)
+            )
+        ),
+        // Traemos los datos completos de los jugadores implicados
+        with: {
+            player_f1: true, 
+            player_f2: true  
         }
     });
 
-    // Filtramos para no devolverme a mí mismo
-    return allUsers.filter(user => user.pPk !== currentUserId);
+  // Procesamos la lista: 
+      // La relación contiene dos usuarios (yo y mi amigo). 
+      // Esta lógica extrae solo al "otro".
+      const myFriends = friendshipRelations.map((rel: any) => {
+        if (rel.f1 === currentUserId) {
+            return rel.player_f2; 
+        } else {
+            return rel.player_f1; 
+        }
+    });
+
+    // Filtramos nulos por seguridad
+    // 👇 AÑADIDO ': any' AQUÍ TAMBIÉN
+    return myFriends.filter((friend: any) => friend !== null);
   }
 }
-
-

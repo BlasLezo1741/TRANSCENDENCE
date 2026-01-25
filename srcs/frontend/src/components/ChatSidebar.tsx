@@ -25,14 +25,22 @@ export const ChatSidebar = () => {
     // 🆕 NUEVO: Estado para la lista de amigos real
     const [contacts, setContacts] = useState<ChatContact[]>([]); 
     
-    // -----------------------------------------------------------
-    // 🕵️ TRUCO PARA PROBAR: Leer ID de la URL
+// -----------------------------------------------------------
+    // 🆔 IDENTIFICACIÓN DEL USUARIO
+    // 1. Prioridad: URL (?uid=X) -> Para pruebas rápidas en incógnito
+    // 2. Prioridad: LocalStorage -> Para el uso normal de la App
     // -----------------------------------------------------------
     const queryParams = new URLSearchParams(window.location.search);
     const urlId = queryParams.get('uid'); 
     
-    // Si la URL tiene ?uid=2, usa 2. Si no, usa 1 por defecto.
-    const CURRENT_USER_ID = urlId ? Number(urlId) : 1; 
+    // // Si la URL tiene ?uid=2, usa 2. Si no, usa 1 por defecto.
+    // const CURRENT_USER_ID = urlId ? Number(urlId) : 1; 
+    const storedId = localStorage.getItem("pong_user_id"); // <--- LEER EL ID REAL
+    // Si hay URL, úsala. Si no, usa el guardado. Si no hay nada, es 0.
+    const CURRENT_USER_ID = urlId ? Number(urlId) : (storedId ? Number(storedId) : 0);
+    
+    // Debug para ver quién eres realmente
+    console.log("🕵️ Usuario del Chat identificado como ID:", CURRENT_USER_ID);
 
     console.log("🕵️ MODO DEBUG: Soy el usuario ID:", CURRENT_USER_ID); // <--- Mira esto en la consola
     // -----------------------------------------------------------
@@ -219,7 +227,7 @@ export const ChatSidebar = () => {
                 setContacts(formattedContacts);
             })
             .catch(err => console.error("Error cargando contactos:", err));
-    }, []);
+    }, [CURRENT_USER_ID]);
 
     // 🔥 FUNCIÓN: Enviar mensaje
     const handleSendSubmit = (e: React.FormEvent) => {

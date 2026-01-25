@@ -89,23 +89,47 @@ export class FriendsService {
         return { ok: true, msg: "Usuario bloqueado" };
     }
 
-    // 4. Obtener Lista de Amigos (Usando tu función SQL corregida)
+    // 4. Obtener Lista de Amigos (VERSIÓN DEFINITIVA: Igual que el Chat)
     async getFriends(userId: number) {
-        // Llamamos a la función SQL que arreglamos antes: get_player_friends(ID)
+        
+        console.log(`🔍 [FRIENDS] Buscando amigos para ID: ${userId} (Lógica directa)`);
+
+        // Usamos STATUS_ACCEPTED que definiste arriba (valor 2)
+        // Nota: Asegúrate de que this.STATUS_ACCEPTED vale 2
+        
         const result = await this.db.execute(sql`
-            SELECT * FROM get_player_friends(${userId})
+            SELECT 
+                p.p_pk as friend_id, 
+                p.p_nick as friend_nick,
+                -- Traemos el nombre del idioma (si existe)
+                l.lang_name as friend_lang,
+                pf.f_date as friendship_since
+            FROM PLAYER_FRIEND pf
+            -- 1. Unimos con la tabla PLAYER para sacar el nombre del amigo
+            JOIN PLAYER p ON p.p_pk = (
+                CASE 
+                    WHEN pf.f_1 = ${userId} THEN pf.f_2 
+                    ELSE pf.f_1 
+                END
+            )
+            -- 2. Unimos con LANGUAGE para sacar el idioma (Left join por si es nulo)
+            LEFT JOIN P_LANGUAGE l ON l.lang_pk = p.p_lang
+            
+            -- 3. FILTRO SENCILLO (Igual que el Chat)
+            WHERE (pf.f_1 = ${userId} OR pf.f_2 = ${userId}) 
+            AND pf.f_status_fk = ${this.STATUS_ACCEPTED}
         `);
-        // ENRIQUECEMOS LOS DATOS CON EL ESTADO ONLINE
-        // Mapeamos el resultado para añadir el campo 'is_online' preguntando al Gateway
+
+        // Enriquecemos con estado Online del Gateway
         const enrichedResult = result.map((friend: any) => ({
-            id: friend.friend_id,             // Mapeamos friend_id a id para el frontend
+            id: friend.friend_id,             
             friend_nick: friend.friend_nick,
-            friend_lang: friend.friend_lang,
+            friend_lang: friend.friend_lang || 'Unknown', // Fallback por si no tiene idioma
             friendship_since: friend.friendship_since,
-            // CORRECCIÓN DE TIPOS: Forzamos Number() por si Postgres devuelve string
             status: this.gateway.isUserOnline(Number(friend.friend_id)) ? 'online' : 'offline'
         }));
 
+        console.log(`✅ [FRIENDS] Encontrados ${enrichedResult.length} amigos.`);
         return enrichedResult;
     }
 
