@@ -1,0 +1,33 @@
+{
+  "name": "Proyecto Fullstack",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+
+  "postCreateCommand": "bash .devcontainer/init-terminals.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode-remote.remote-containers"
+      ],
+      "terminal.integrated.profiles.linux": {
+        "backend": {
+          "path": "/bin/bash",
+          "icon": "server",
+          "color": "terminal.ansiRed"
+        },
+        "frontend": {
+          "path": "/bin/bash",
+          "icon": "browser",
+          "color": "terminal.ansiBlue"
+        },
+        "database": {
+          "path": "/bin/bash",
+          "icon": "database",
+          "color": "terminal.ansiGreen"
+        }
+      }
+    }
+  }
+}
