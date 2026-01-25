@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { socket, sendDirectMessage } from '../services/socketService';
+import './ChatSidebar.css';
 
 // --- TIPOS MOCK ---
 interface ChatContact {
@@ -41,7 +42,6 @@ export const ChatSidebar = () => {
     // Debug para ver quién eres realmente
     console.log("🕵️ Usuario del Chat identificado como ID:", CURRENT_USER_ID);
 
-    console.log("🕵️ MODO DEBUG: Soy el usuario ID:", CURRENT_USER_ID); // <--- Mira esto en la consola
     // -----------------------------------------------------------
     // DATOS MOCK
 
@@ -50,94 +50,10 @@ export const ChatSidebar = () => {
         { id: 98, name: "#PongRoom", status: 'online', unread: 0 },
     ];
 
-    // --- ESTILOS EN LÍNEA PARA FORZAR POSICIONAMIENTO ---
-    
-    // 1. Botón Flotante: Forzamos fixed abajo derecha
-    const buttonStyle: React.CSSProperties = {
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        zIndex: 50, // Alto, pero menos que el modal si hubiera
-        width: '60px',
-        height: '60px',
-        borderRadius: '50%',
-        backgroundColor: '#2563EB', // Azul
-        color: 'white',
-        fontSize: '24px',
-        border: 'none',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-    };
-
-    // 2. Barra Lateral: Fixed a la derecha, pero DEBAJO del Header
-    const sidebarStyle: React.CSSProperties = {
-        position: 'fixed',
-        right: 0,
-        // AJUSTE CLAVE: top 64px (asumiendo que el header mide unos 60-64px)
-        top: '90px', 
-        // Restamos los 64px del header a la altura total
-        height: 'calc(100vh - 90px)', 
-        width: '320px',
-        backgroundColor: '#06b6d4', // Gray 900
-        borderLeft: '4px solid #374151',
-        zIndex: 40, // MENOS que el Header (que le pondremos 50)
-        display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '-4px 0 15px rgba(0,0,0,0.5)',
-        color: '#111827',
-        fontFamily: 'sans-serif'
-    };
-
-    // 3. Estilo de cada Fila de Usuario (Caja blanca)
-    const rowStyle: React.CSSProperties = {
-        display: 'flex',
-        alignItems: 'center',
-        padding: '10px',
-        margin: '5px',
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        cursor: 'pointer',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        border: '1px solid #cffafe'
-    };
-
-    // 4. Estilo del Avatar (Círculo gris)
-    const avatarStyle: React.CSSProperties = {
-        width: '40px',
-        height: '40px',
-        backgroundColor: '#e5e7eb',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: '12px',
-        fontWeight: 'bold',
-        color: '#374151',
-        border: '1px solid #d1d5db',
-        flexShrink: 0 // Evita que se aplaste
-    };
-
-    // 5. Estilo de la Bolita Roja
-    const badgeStyle: React.CSSProperties = {
-        backgroundColor: '#ef4444',
-        color: 'white',
-        fontSize: '10px',
-        fontWeight: 'bold',
-        padding: '2px 6px',
-        borderRadius: '99px',
-        marginLeft: 'auto', // Lo empuja a la derecha
-        minWidth: '18px',
-        textAlign: 'center'
-    };
-
-    // ---------------------------------------------------------
-    // LÓGICA 1: CARGA DE AMIGOS Y EVENTOS
+// ---------------------------------------------------------
+    // 🔄 LÓGICA 1: CARGA DE AMIGOS Y EVENTOS
     // ---------------------------------------------------------
     
-    // Usamos useCallback para que esta función no cambie en cada render
     const loadFriends = useCallback(() => {
         if (!CURRENT_USER_ID) return;
 
@@ -145,20 +61,34 @@ export const ChatSidebar = () => {
         fetch(`http://localhost:3000/chat/users?current=${CURRENT_USER_ID}`)
             .then(res => res.json())
             .then(data => {
-                // Tipamos explícitamente 'prev' como ChatContact[]
                 setContacts((prev: ChatContact[]) => {
-                    // Mantenemos contadores
-                    const unreadMap = new Map(prev.map(c => [c.id, c.unread || 0]));
+                    // Mapa de memoria local (útil para cuando llega un socket en vivo)
+                    const localUnreadMap = new Map(prev.map(c => [c.id, c.unread || 0]));
                     
                     if (!Array.isArray(data)) return prev;
 
-                    return data.map((user: any) => ({
-                        // Soportamos 'id', 'pPk' o 'friend_id'
-                        id: Number(user.id || user.pPk || user.friend_id), 
-                        name: user.name || user.pNick || user.friend_nick || "Usuario",
-                        status: user.status || 'offline',
-                        unread: unreadMap.get(Number(user.id || user.pPk || user.friend_id)) || 0 
-                    }));
+                    return data.map((user: any) => {
+                        const uId = Number(user.id || user.pPk || user.friend_id);
+                        
+                        // CORRECCIÓN CLAVE AQUÍ
+                        // 1. Miramos si el backend nos manda 'unread' (Base de datos)
+                        // 2. Si viene del backend, lo usamos (User.unread)
+                        // 3. Si no viene (undefined), usamos el local (localUnreadMap)
+                        let finalUnread = 0;
+                        
+                        if (user.unread !== undefined && user.unread !== null) {
+                            finalUnread = Number(user.unread); // Prioridad: Base de Datos
+                        } else {
+                            finalUnread = localUnreadMap.get(uId) || 0; // Fallback: Memoria local
+                        }
+
+                        return {
+                            id: uId, 
+                            name: user.name || user.pNick || user.friend_nick || "Usuario",
+                            status: user.status || 'offline',
+                            unread: finalUnread 
+                        };
+                    });
                 });
             })
             .catch(err => console.error("Error cargando amigos:", err));
@@ -175,11 +105,11 @@ export const ChatSidebar = () => {
             socket.off('friend_accepted', loadFriends);
             socket.off('friend_removed', loadFriends);
         };
-    }, [loadFriends]); // loadFriends es dependencia, gracias a useCallback es estable
+    }, [loadFriends]); 
 
 
     // ---------------------------------------------------------
-    //  LÓGICA 2: HISTORIAL DE CHAT
+    // 📜 LÓGICA 2: HISTORIAL DE CHAT
     // ---------------------------------------------------------
     useEffect(() => {
         if (!selectedChatId) return;
@@ -203,7 +133,7 @@ export const ChatSidebar = () => {
 
 
     // ---------------------------------------------------------
-    // LÓGICA 3: RECIBIR MENSAJES (Socket)
+    // 📩 LÓGICA 3: RECIBIR MENSAJES (Socket)
     // ---------------------------------------------------------
     useEffect(() => {
         const handleReceiveMessage = (newMessage: any) => {
@@ -216,7 +146,6 @@ export const ChatSidebar = () => {
 
             // 1. Si tengo el chat abierto, lo añado
             if (msgSenderId === openChatId) {
-                // Tipamos 'prev' como ChatMessage[]
                 setMessages((prev: ChatMessage[]) => [
                     ...prev, 
                     {
@@ -227,7 +156,7 @@ export const ChatSidebar = () => {
                     }
                 ]);
             } else {
-                // 2. Si NO, aumento la bolita roja. Tipamos 'prev' como ChatContact[]
+                // 2. Si NO, aumento la bolita roja.
                 setContacts((prev: ChatContact[]) => prev.map((c: ChatContact) => {
                     if (c.id === msgSenderId) {
                         return { ...c, unread: (c.unread || 0) + 1 };
@@ -246,7 +175,7 @@ export const ChatSidebar = () => {
 
 
     // ---------------------------------------------------------
-    // LÓGICA 4: ENVIAR MENSAJE (UI OPTIMISTA + SERVICIO)
+    // 🚀 LÓGICA 4: ENVIAR MENSAJE (UI OPTIMISTA + SERVICIO)
     // ---------------------------------------------------------
     const handleSendSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -255,7 +184,7 @@ export const ChatSidebar = () => {
         const textToSend = msgInput;
         const tempId = Date.now();
 
-        // 1. UI Optimista (Tipamos prev)
+        // 1. UI Optimista
         const optimisticMsg: ChatMessage = {
             id: tempId,
             senderId: Number(CURRENT_USER_ID),
@@ -265,7 +194,7 @@ export const ChatSidebar = () => {
         setMessages((prev: ChatMessage[]) => [...prev, optimisticMsg]);
         setMsgInput(""); 
 
-        // 2. Enviar usando el SERVICIO (como pediste)
+        // 2. Enviar usando el SERVICIO
         sendDirectMessage(selectedChatId, textToSend);
     };
 
@@ -273,88 +202,102 @@ export const ChatSidebar = () => {
     // --- RENDERIZADO ---
 
     if (!isOpen) {
+        // 🔥 CORREGIDO: Usamos className en lugar de style
         return (
-            <button style={buttonStyle} onClick={() => setIsOpen(true)}>
+            <button className="chat-floating-btn" onClick={() => setIsOpen(true)}>
                 💬
             </button>
         );
     }
 
     return (
-        <div style={sidebarStyle}>
+        <div className="chat-sidebar">
             {/* CABECERA */}
-            <div style={{ height: '50px', backgroundColor: '#0e7490', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', color: 'white' }}>
-                <h2 style={{ fontWeight: 'bold' }}>
-                    {selectedChatId ? `CHAT #${selectedChatId}` : "SOCIAL HUB"}
-                </h2>
-                <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+            <div className="chat-header">
+                <h2>{selectedChatId ? `CHAT #${selectedChatId}` : "SOCIAL HUB"}</h2>
+                <button className="chat-close-btn" onClick={() => setIsOpen(false)}>✕</button>
             </div>
 
             {/* CONTENIDO */}
-            <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#cffafe' }}>
+            <div className="chat-body">
                 
                 {selectedChatId === null ? (
                     <>
                         {/* TABS */}
-                        <div style={{ display: 'flex', backgroundColor: '#0891b2' }}>
+                        <div className="chat-tabs">
                             <button 
                                 onClick={() => setActiveTab('dms')}
-                                style={{ flex: 1, padding: '10px', border: 'none', background: activeTab === 'dms' ? '#cffafe' : 'transparent', color: activeTab === 'dms' ? '#0e7490' : 'white', fontWeight: 'bold', cursor: 'pointer' }}
+                                className={`chat-tab-btn ${activeTab === 'dms' ? 'active' : ''}`}
                             >
                                 AMIGOS
                             </button>
                             <button 
                                 onClick={() => setActiveTab('channels')}
-                                style={{ flex: 1, padding: '10px', border: 'none', background: activeTab === 'channels' ? '#cffafe' : 'transparent', color: activeTab === 'channels' ? '#0e7490' : 'white', fontWeight: 'bold', cursor: 'pointer' }}
+                                className={`chat-tab-btn ${activeTab === 'channels' ? 'active' : ''}`}
                             >
                                 CANALES
                             </button>
                         </div>
 
                         {/* LISTA DE CONTACTOS */}
-                        <div style={{ padding: '8px' }}>
+                        <div className="chat-list">
                         {(activeTab === 'dms' ? contacts : MOCK_CHANNELS).map((chat) => (
                                 <div 
                                     key={chat.id} 
                                     onClick={() => {
+                                        // 1. Lógica Visual (Inmediata)
                                         setSelectedChatId(chat.id);
-                                        // Resetear contador (Tipando prev)
                                         setContacts((prev: ChatContact[]) => prev.map((c: ChatContact) => 
                                             c.id === chat.id ? { ...c, unread: 0 } : c
                                         ));
+                                
+                                        // 2. Lógica de Backend (Persistencia)
+                                        console.log(`📤 [FRONT] Avisando que leí mensajes de: ${chat.id} (Yo soy: ${CURRENT_USER_ID})`);
+                                        
+                                        fetch(`http://localhost:3000/chat/read`, {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                senderId: Number(chat.id),       // El amigo (remitente)
+                                                receiverId: Number(CURRENT_USER_ID) // Yo (destinatario)
+                                            })
+                                        })
+                                        .then(res => res.json())
+                                        .then(data => console.log("✅ [FRONT] Respuesta de lectura:", data))
+                                        .catch(err => console.error("❌ [FRONT] Error marcando leídos:", err));
                                     }}
-                                    style={rowStyle}
+                                    className="chat-contact-row"
                                 >
-                                    <div style={avatarStyle}>
+                                    <div className="chat-avatar">
                                         {chat.name.charAt(0)}
                                     </div>
-                                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{chat.name}</span>
+                                    <div className="chat-info">
+                                        <div className="chat-name-row">
+                                            <span className="chat-name">{chat.name}</span>
                                             {chat.unread > 0 && (
-                                                <span style={badgeStyle}>{chat.unread}</span>
+                                                <span className="chat-badge">{chat.unread}</span>
                                             )}
                                         </div>
-                                        <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Clic para hablar...</p>
+                                        <p className="chat-preview">Clic para hablar...</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </>
                 ) : (
-                    // VISTA DE CONVERSACIÓN ABIERTA
-                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    // VISTA DE CONVERSACIÓN
+                    <div className="chat-conversation">
                         
-                        <div style={{ padding: '10px', backgroundColor: '#a5f3fc', display: 'flex', alignItems: 'center' }}>
-                            <button onClick={() => setSelectedChatId(null)} style={{ border: 'none', background: 'none', fontWeight: 'bold', color: '#0e7490', cursor: 'pointer', marginRight: '10px' }}>
+                        <div className="chat-subheader">
+                            <button onClick={() => setSelectedChatId(null)} className="chat-back-btn">
                                 ⬅ VOLVER
                             </button>
-                            <span style={{fontWeight: 'bold', color: '#155e75'}}>Chat con {selectedChatId}</span>
+                            <span style={{fontWeight: 'bold'}}>Chat con {selectedChatId}</span>
                         </div>
                         
-                        <div style={{ flex: 1, padding: '10px', overflowY: 'auto' }}>
+                        <div className="chat-messages-area">
                             {messages.length === 0 && (
-                                <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '20px', fontSize: '14px' }}>
+                                <p className="chat-empty-msg">
                                     No hay mensajes aún.<br/>¡Escribe algo! 👋
                                 </p>
                             )}
@@ -363,35 +306,25 @@ export const ChatSidebar = () => {
                                 const isMine = Number(msg.senderId) === Number(CURRENT_USER_ID);
                                 
                                 return (
-                                    <div key={index} style={{ display: 'flex', justifyContent: isMine ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-                                        <div style={{ 
-                                            padding: '8px 12px', 
-                                            borderRadius: '12px', 
-                                            backgroundColor: isMine ? '#0891b2' : 'white',
-                                            color: isMine ? 'white' : 'black',
-                                            maxWidth: '85%',
-                                            fontSize: '14px',
-                                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                            borderBottomRightRadius: isMine ? '0' : '12px',
-                                            borderBottomLeftRadius: isMine ? '12px' : '0'
-                                        }}>
+                                    <div key={index} className={`chat-msg-row ${isMine ? 'mine' : 'theirs'}`}>
+                                        <div className={`chat-bubble ${isMine ? 'mine' : 'theirs'}`}>
                                             {msg.text}
-                                            <div style={{ fontSize: '10px', textAlign: 'right', marginTop: '4px', opacity: 0.8 }}>{msg.time}</div>
+                                            <div className="chat-time">{msg.time}</div>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
 
-                        <div style={{ padding: '10px', backgroundColor: 'white', borderTop: '1px solid #cffafe' }}>
-                            <form style={{ display: 'flex', gap: '8px' }} onSubmit={handleSendSubmit}>
+                        <div className="chat-input-area">
+                            <form className="chat-form" onSubmit={handleSendSubmit}>
                                 <input 
-                                    style={{ flex: 1, backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '99px', padding: '8px 16px', border: '1px solid #d1d5db', outline: 'none' }}
+                                    className="chat-input"
                                     placeholder="Escribe un mensaje..."
                                     value={msgInput}
                                     onChange={e => setMsgInput(e.target.value)}
                                 />
-                                <button type="submit" style={{ backgroundColor: '#0891b2', color: 'white', width: '40px', height: '40px', borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <button type="submit" className="chat-send-btn">
                                     ➤
                                 </button>
                             </form>

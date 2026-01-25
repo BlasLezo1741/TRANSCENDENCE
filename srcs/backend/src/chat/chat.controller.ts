@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Patch, Query, Body } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 @Controller('chat')
@@ -17,11 +17,32 @@ export class ChatController {
 
     return await this.chatService.getConversation(id1, id2);
   }
+
   // Ruta: GET /chat/users?current=1
-@Get('users')
-async getUsers(@Query('current') currentUserId: string) {
-  const id = parseInt(currentUserId);
-  return await this.chatService.getUsers(id);
-}
+  @Get('users')
+  async getUsers(@Query('current') currentUserId: string) {
+    const id = parseInt(currentUserId);
+    return await this.chatService.getUsers(id);
+  }
+
+  // 🔥 NUEVA RUTA: PATCH /chat/read
+  // Se llama cuando haces clic en un chat para marcar mensajes como leídos
+  @Patch('read')
+  async markAsRead(@Body() body: { senderId: any, receiverId: any }) {
+      console.log("👀 [BACKEND] Solicitud de lectura recibida:", body);
+
+      // Convertimos a Number para asegurar que la DB no reciba strings
+      const sender = Number(body.senderId);
+      const receiver = Number(body.receiverId);
+
+      // Validación básica de seguridad
+      if (!sender || !receiver) {
+          console.error("❌ [BACKEND] Error: IDs inválidos recibidos:", body);
+          return { success: false, msg: "IDs inválidos" };
+      }
+
+      return await this.chatService.markAsRead(sender, receiver);
+  }
+
 }
 

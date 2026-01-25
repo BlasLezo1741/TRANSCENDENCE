@@ -76,6 +76,14 @@ export class FriendsService {
             friendId: userId,
             msg: "Tu solicitud ha sido aceptada"
         });
+
+        // 🔔 NOTIFICACIÓN 2 (NUEVA): Al que acepta (User 2 - Tú mismo)
+        // Esto obliga a TU ChatSidebar a recargar la lista inmediatamente
+        this.gateway.sendNotification(userId, 'friend_accepted', {
+            friendId: targetId,
+            msg: "Has aceptado la solicitud"
+        });
+
         return { ok: true, msg: "Solicitud aceptada" };
     }
 
@@ -188,6 +196,13 @@ export class FriendsService {
         this.gateway.sendNotification(targetId, 'friend_removed', { 
             from: userId,
             msg: "Un usuario te ha eliminado de amigos" 
+        });
+
+        // 🔔 NOTIFICACIÓN 2 (NUEVA): A ti mismo (Actor)
+        // Para que él desaparezca de TU chat inmediatamente sin recargar
+        this.gateway.sendNotification(userId, 'friend_removed', { 
+            from: targetId,
+            msg: "Has eliminado a un amigo" 
         });
 
         return { ok: true, msg: "Amigo eliminado correctamente" };

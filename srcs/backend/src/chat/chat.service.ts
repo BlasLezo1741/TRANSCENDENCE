@@ -2,7 +2,7 @@
 
 import { Injectable, Inject } from '@nestjs/common';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { eq, or, and, asc } from 'drizzle-orm';
+import { sql, eq, or, and, asc } from 'drizzle-orm';
 
 // ⚠️ AJUSTA ESTAS RUTAS SEGÚN TU PROYECTO
 import { DRIZZLE } from '../database.module'; 
@@ -55,7 +55,7 @@ export class ChatService {
       }
     });
   }
-//   // 3. Obtener lista de usuarios para el chat (excluyendo al propio usuario)
+//   // 3. Obtener lista de todos los usuarios de la base de datos para el chat (excluyendo al propio usuario)
 // async getUsers(currentUserId: number) {
 //     // Obtenemos todos los usuarios (id y nick)
 //     const allUsers = await this.db.query.player.findMany({
@@ -93,19 +93,87 @@ export class ChatService {
         }
     });
 
-  // Procesamos la lista: 
-      // La relación contiene dos usuarios (yo y mi amigo). 
-      // Esta lógica extrae solo al "otro".
-      const myFriends = friendshipRelations.map((rel: any) => {
-        if (rel.f1 === currentUserId) {
-            return rel.player_f2; 
-        } else {
-            return rel.player_f1; 
-        }
-    });
+  // // Procesamos la lista: 
+  //     // La relación contiene dos usuarios (yo y mi amigo). 
+  //     // Esta lógica extrae solo al "otro".
+  //     const myFriends = friendshipRelations.map((rel: any) => {
+  //       if (rel.f1 === currentUserId) {
+  //           return rel.player_f2; 
+  //       } else {
+  //           return rel.player_f1; 
+  //       }
+  //   });
 
-    // Filtramos nulos por seguridad
-    // 👇 AÑADIDO ': any' AQUÍ TAMBIÉN
-    return myFriends.filter((friend: any) => friend !== null);
+  // 4. Extraer lista limpia de amigos
+  const friendsRaw = friendshipRelations.map((rel: any) => {
+    return rel.f1 === currentUserId ? rel.player_f2 : rel.player_f1;
+  }).filter((f: any) => f !== null);
+
+  // 5. Deduplicar
+  const uniqueMap = new Map();
+  friendsRaw.forEach((f: any) => {
+      if (!uniqueMap.has(f.pPk)) uniqueMap.set(f.pPk, f);
+  });
+  const uniqueFriends = Array.from(uniqueMap.values());
+
+  // 🔥 6. NUEVO: AGREGAR CONTADOR DE NO LEÍDOS A CADA AMIGO
+  const friendsWithUnread = await Promise.all(uniqueFriends.map(async (friend: any) => {
+        
+    // Contamos mensajes donde: Sender = Amigo, Receiver = Yo, isRead = False
+    const unreadCountResult = await this.db
+        .select({ count: sql<number>`count(*)` })
+        .from(schema.directMessage)
+        .where(and(
+            eq(schema.directMessage.senderId, friend.pPk),
+            eq(schema.directMessage.receiverId, currentUserId),
+            eq(schema.directMessage.isRead, false)
+        ));
+        
+    return {
+        ...friend,
+        // Drizzle devuelve count como string en un array, lo convertimos
+        unread: Number(unreadCountResult[0].count) 
+    };  
+  }));
+
+  return friendsWithUnread;
   }
+
+  //   // 🔥 7. NUEVO MÉTODO: MARCAR COMO LEÍDOS
+  //   async markAsRead(senderId: number, receiverId: number) {
+  //     await this.db.update(schema.directMessage)
+  //         .set({ isRead: true })
+  //         .where(and(
+  //             eq(schema.directMessage.senderId, senderId),
+  //             eq(schema.directMessage.receiverId, receiverId),
+  //             eq(schema.directMessage.isRead, false)
+  //         ));
+  //     return { success: true };
+  // }
+
+
+  // 🔥 7. NUEVO MÉTODO: MARCAR COMO LEÍDOS
+  async markAsRead(senderId: number, receiverId: number) {
+    console.log(`🧹 [DB] Marcando como leídos mensajes de ${senderId} para ${receiverId}`);
+    
+    const result = await this.db.update(schema.directMessage)
+        .set({ isRead: true })
+        .where(and(
+            eq(schema.directMessage.senderId, senderId),
+            eq(schema.directMessage.receiverId, receiverId),
+            eq(schema.directMessage.isRead, false)
+        ))
+        .returning(); // Para ver cuántos actualizó
+    
+    console.log(`✅ [DB] Mensajes actualizados: ${result.length}`);
+    return { success: true, count: result.length };
+  }
+
+
 }
+
+//     // Filtramos nulos por seguridad
+//     // 👇 AÑADIDO ': any' AQUÍ TAMBIÉN
+//     return myFriends.filter((friend: any) => friend !== null);
+//   }
+// }
