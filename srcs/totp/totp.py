@@ -352,6 +352,26 @@ def generate_qr(shared_secret_key, issuer, email):
     #return imagepath
     return qr_data
 
+def generate_backup_codes(num_codes=10, length=8):
+    """
+    Genera una lista de 'num_codes' códigos de respaldo.
+    Cada código tiene 'length' caracteres (dígitos + letras mayúsculas).
+    
+    secrets.choice() (Seguro): Usa el CSPRNG (Cryptographically Secure Pseudo-Random Number Generator) 
+    del sistema operativo. Esto significa que utiliza fuentes de entropía real (ruido del hardware, 
+    pulsaciones de teclas, temperatura del sistema, etc.) para generar el azar. 
+    Es impredecible incluso si el atacante tiene mucha información previa.    
+    """
+    codes = []
+    alphabet = string.ascii_uppercase + string.digits
+    
+    for _ in range(num_codes):
+        # secrets.choice es criptográficamente seguro (mejor que random)
+        code = ''.join(secrets.choice(alphabet) for _ in range(length))
+        codes.append(code)
+    
+    return codes    
+
 if __name__ == "__main__":
     parser = create_argument_parser()
     # Parse arguments excluding the script name itself
