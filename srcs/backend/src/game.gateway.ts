@@ -61,11 +61,13 @@ interface GameState {
 @UsePipes(new ValidationPipe({ whitelist: true }))
 @WebSocketGateway({
   cors: {
-    origin: true,
-    methods: ["GET", "POST"],
-    credentials: true
+    //origin: true,
+    origin: '*',
+    //methods: ["GET", "POST"],
+    //credentials: true
   },
-  transports: ['polling', 'websocket']
+  //transports: ['polling', 'websocket']
+  transports: ['websocket']
 })
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -450,18 +452,21 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   private checkWinner(state: GameState) {
       if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
           this.server.to(state.roomId).emit('score_updated', { score: state.score });
-        // 1. Obtener el NICKNAME real del ganador usando los IDs guardados
-          const winnerNick = state.score[0] >= this.MAX_SCORE 
-              ? (state.playerLeftId === state.playerLeftId ? "User_Left" : "Unknown") // Simplificación temporal, mejor usar DB
-              : (state.playerRightId === state.playerRightId ? "User_Right" : "Unknown");
+        // // 1. Obtener el NICKNAME real del ganador usando los IDs guardados
+        //   const winnerNick = state.score[0] >= this.MAX_SCORE 
+        //       ? (state.playerLeftId === state.playerLeftId ? "User_Left" : "Unknown") // Simplificación temporal, mejor usar DB
+        //       : (state.playerRightId === state.playerRightId ? "User_Right" : "Unknown");
 
           // TRUCO: Como no tenemos los nicks a mano en 'state' fácil (solo en DB), 
           // vamos a enviar "Left" o "Right" y que el Frontend ponga el nombre.
           const winnerSide = state.score[0] >= this.MAX_SCORE ? "left" : "right";
+          //Inscripcion en la base de datos antes de parar el loop
+          //this.saveMatchToDb(state, winnerSide);
+          this.saveMatchToDb(state);
+          
           // Llamamos a finish game logic
           this.stopGameLoop(state.roomId);
-          //Inscripcion en la base de datos
-          this.saveMatchToDb(state, winnerSide); 
+ 
 
           // 3. Enviamos quién ganó (left o right)
           // TRUCO DEL DELAY: Esperamos 500ms antes de mandar el Game Over
@@ -535,11 +540,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     // Recuperar estado antes de borrarlo
     const game = this.games.get(payload.roomId);
     if (!game) return;
-
-    this.stopGameLoop(payload.roomId); 
-
+    
+console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario ${payload.winnerId}`);
     // GUARDAR EN BASE DE DATOS (Una sola vez)
-    await this.saveMatchToDb(game, payload.winnerId);
+    //await this.saveMatchToDb(game, payload.winnerId);
+    await this.saveMatchToDb(game);
+    
+    // Detenemos bucle y limpiamos memoria
+    this.stopGameLoop(payload.roomId); 
 
     // Notificar y limpiar
     this.server.to(payload.roomId).emit('game_over', { winner: payload.winnerId });
@@ -552,7 +560,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
     
   //MÉTODO INSCRIPCION EN LA BASE DE DATOS EXTRAÍDO CORRECTAMENTE
-  private async saveMatchToDb(state: GameState, winnerSide: string) {
+  //private async saveMatchToDb(state: GameState, winnerSide: string) {
+  private async saveMatchToDb(state: GameState) {
     console.log(`💾 Guardando partida en DB (Estructura Relacional)...`);
 
     const durationMs = Date.now() - state.stats.startTime.getTime();
@@ -564,6 +573,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     } else if (state.score[1] > state.score[0]) {
         winnerPk = state.playerRightDbId;
     } else {
+        // CASO 2: Empate (Raro, posible si hubo desconexión simultánea)
+        // Decisión: Si es 0-0 no guardamos. Si hay puntos, fallback al Left.
+        if (state.score[0] === 0 && state.score[1] === 0) {
+            console.log("⚠️ Partida terminada 0-0, no se guarda en historial.");
+            return;
+        }
         winnerPk = state.playerLeftDbId; // Fallback empate
     }
 
@@ -609,4 +624,118 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           where: eq(schema.player.pNick, nickname)
       });
   }
+
+  // Helper para buscar por ID (Vital para invitaciones)
+  private async findPlayerById(id: number) {
+      return await this.db.query.player.findFirst({
+          where: eq(schema.player.pPk, id) 
+      });
+  }
+
+  // --- INVITACIONES DE JUEGO (PONG) ---
+
+  // 1. Enviar Invitación
+  @SubscribeMessage('send_game_invite')
+  handleSendInvite(client: Socket, payload: { targetId: number }) {
+      const senderId = client.data.userId; // O como obtengas el ID del remitente
+      const targetId = Number(payload.targetId);
+
+      console.log(`📨 [GATEWAY] Usuario ${senderId} invita a jugar a ${targetId}`);
+
+      // A. Buscamos si el objetivo está conectado
+      const targetSocketId = this.userSockets.get(targetId);
+
+      if (!targetSocketId) {
+          // Si no está, avisamos al remitente
+          client.emit('invite_error', { msg: "El usuario no está conectado." });
+          return;
+      }
+
+      // B. Comprobar si ya están en juego (Opcional, pero recomendado)
+      // ... FALTA (Lógica para ver si targetId ya está jugando) ...
+
+      // C. Enviamos la invitación al objetivo
+      // Incluimos el senderId y senderName (si lo tienes en client.data o lo buscas)
+      this.server.to(targetSocketId).emit('incoming_game_invite', {
+          fromUserId: senderId,
+          fromUserName: client.data.user?.pNick || "Un amigo", // Asegúrate de tener el nick
+          mode: 'classic' // O 'custom', si implementas modos
+      });
+  }
+
+  // 2. Aceptar Invitación
+  @SubscribeMessage('accept_game_invite')
+  async handleAcceptInvite(client: Socket, payload: { challengerId: number }) {
+      // 1. Obtener IDs
+      const acceptorDbId = client.data.userId; 
+      const challengerDbId = Number(payload.challengerId);
+
+      console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
+
+      // 2. Variables para los nombres (Valores por defecto)
+      let challengerName = "Jugador 1";
+      let acceptorName = "Jugador 2";
+
+      // 🔥 3. CONSULTA A BASE DE DATOS (LA SOLUCIÓN REAL)
+      // Usamos await para asegurar que tenemos los nombres antes de seguir
+      try {
+          // Buscamos al Desafiante (P1)
+          const p1Data = await this.findPlayerById(challengerDbId);
+          if (p1Data && p1Data.pNick) {
+              challengerName = p1Data.pNick;
+          }
+
+          // Buscamos al Aceptador (P2)
+          const p2Data = await this.findPlayerById(acceptorDbId);
+          if (p2Data && p2Data.pNick) {
+              acceptorName = p2Data.pNick;
+          }
+      } catch (error) {
+          console.error("❌ Error recuperando nombres de la DB:", error);
+      }
+
+      console.log(`🔎 [MATCH] Nombres confirmados: ${challengerName} vs ${acceptorName}`);
+
+      // 4. Validar socket del rival
+      const challengerSocketId = this.userSockets.get(challengerDbId);
+      if (!challengerSocketId) {
+          client.emit('invite_error', { msg: "El desafiante se ha desconectado." });
+          return;
+      }
+      const challengerSocket = this.server.sockets.sockets.get(challengerSocketId);
+
+      // 5. Crear Sala
+      const roomId = `private_${challengerDbId}_${acceptorDbId}_${Date.now()}`;
+      
+      if (challengerSocket) challengerSocket.join(roomId);
+      client.join(roomId);
+
+      // 6. Notificar al Frontend (Con los Nombres de la DB)
+      
+      // A) Para el Desafiante (P1 - Izquierda)
+      this.server.to(challengerSocketId).emit('match_found', {
+          roomId: roomId,
+          side: 'left',
+          opponent: { name: acceptorName, avatar: 'default.png' }, // Nombre REAL de DB
+          matchId: 0 
+      });
+
+      // B) Para el Aceptador (P2 - Derecha)
+      this.server.to(client.id).emit('match_found', {
+          roomId: roomId,
+          side: 'right',
+          opponent: { name: challengerName, avatar: 'default.png' }, // Nombre REAL de DB
+          matchId: 0
+      });
+
+      // 7. Iniciar Juego
+      this.startGameLoop(
+          roomId,
+          challengerSocketId,
+          client.id,
+          challengerDbId,
+          acceptorDbId
+      );
+  }
+
 }

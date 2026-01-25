@@ -193,6 +193,20 @@ export const ChatSidebar = () => {
         );
     }
 
+    // Función para enviar la invitación
+    const handleInviteClick = () => {
+        if (!selectedChatId) return;
+        
+        console.log(`🏓 Enviando reto a ${selectedChatId}...`);
+        
+        // Emitimos el evento al Gateway
+        socket.emit('send_game_invite', { 
+            targetId: selectedChatId 
+        });
+        
+        alert("¡Invitación enviada! Esperando respuesta...");
+    };
+
     return (
         <div className="chat-sidebar">
             {/* CABECERA SIMPLE (Solo título) */}
@@ -261,28 +275,38 @@ export const ChatSidebar = () => {
                             <button onClick={() => setSelectedChatId(null)} className="chat-back-btn">
                                 ⬅ VOLVER
                             </button>
-                            <span style={{fontWeight: 'bold'}}>Chat</span>
-                            {/* AQUÍ PONDREMOS EL BOTÓN DE INVITAR A JUGAR */}
-                        </div>
-                        
-                        <div className="chat-messages-area">
-                            {messages.length === 0 && (
-                                <p className="chat-empty-msg">
-                                    No hay mensajes aún.
-                                </p>
-                            )}
                             
-                            {messages.map((msg, index) => {
-                                const isMine = Number(msg.senderId) === Number(CURRENT_USER_ID);
-                                return (
-                                    <div key={index} className={`chat-msg-row ${isMine ? 'mine' : 'theirs'}`}>
-                                        <div className={`chat-bubble ${isMine ? 'mine' : 'theirs'}`}>
-                                            {msg.text}
-                                            <div className="chat-time">{msg.time}</div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                            {/* 1. INFORMACIÓN DEL CONTACTO (Nombre y Estado) */}
+                            <div style={{flex: 1, marginLeft: '10px'}}>
+                                 <div style={{fontWeight: 'bold'}}>
+                                     {contacts.find(c => c.id === selectedChatId)?.name || 'Chat'}
+                                 </div>
+                                 <div style={{fontSize: '10px', color: '#666'}}>
+                                    {contacts.find(c => c.id === selectedChatId)?.status === 'online' ? '🟢 Online' : '⚫ Offline'}
+                                 </div>
+                            </div>
+
+                            {/* 2. BOTÓN DE RETAR (Solo visible si está Online) */}
+                            {contacts.find(c => c.id === selectedChatId)?.status === 'online' && (
+                                <button 
+                                    onClick={handleInviteClick}
+                                    title="Invitar a jugar Pong"
+                                    style={{
+                                        backgroundColor: '#ea580c', // Naranja vibrante
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        padding: '6px 12px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                        transition: 'background 0.2s'
+                                    }}
+                                >
+                                    🏓 RETAR
+                                </button>
+                            )}
                         </div>
 
                         <div className="chat-input-area">

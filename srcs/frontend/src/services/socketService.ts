@@ -20,10 +20,12 @@ let currentMatchDbId: number | null = null;
 export const socket: Socket = io(SOCKET_URL, {
   //autoConnect: true,
   autoConnect: false, // Importante: No conectar hasta que tengamos el ID
-  transports: ['polling', 'websocket'], 
+  //transports: ['polling', 'websocket'],
+  transports: ['websocket'], 
   reconnection: true,
   reconnectionAttempts: 5,
-  withCredentials: true,
+  //withCredentials: true,
+  withCredentials: false,
   rememberUpgrade: true
 });
 
