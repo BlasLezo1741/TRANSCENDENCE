@@ -1,18 +1,20 @@
 //Se encarga de escribir y leer en la base de datos
 
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { sql, eq, or, and, asc } from 'drizzle-orm';
 
 // ⚠️ AJUSTA ESTAS RUTAS SEGÚN TU PROYECTO
 import { DRIZZLE } from '../database.module'; 
 import * as schema from '../schema'; 
+import { GameGateway } from '../game.gateway';
 
 @Injectable()
 export class ChatService {
   
   constructor(
-      @Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>
+      @Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>,
+      @Inject(forwardRef(() => GameGateway)) private readonly gateway: GameGateway,
   ) {}
 
   // 1. Guardar un mensaje nuevo
