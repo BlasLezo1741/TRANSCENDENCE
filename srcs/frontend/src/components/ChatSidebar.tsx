@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { socket, sendDirectMessage } from '../services/socketService';
 
 // --- TIPOS MOCK ---
@@ -21,8 +21,7 @@ export const ChatSidebar = () => {
     const [activeTab, setActiveTab] = useState<'dms' | 'channels'>('dms');
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
     const [msgInput, setMsgInput] = useState("");
-    const [messages, setMessages] = useState<ChatMessage[]>([]); // <--- LISTA VACÍA INICIAL
-    // 🆕 NUEVO: Estado para la lista de amigos real
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [contacts, setContacts] = useState<ChatContact[]>([]); 
     
 // -----------------------------------------------------------
@@ -45,21 +44,10 @@ export const ChatSidebar = () => {
     console.log("🕵️ MODO DEBUG: Soy el usuario ID:", CURRENT_USER_ID); // <--- Mira esto en la consola
     // -----------------------------------------------------------
     // DATOS MOCK
-    const MOCK_FRIENDS: ChatContact[] = [
-        { id: 1, name: "User 1", status: 'online', unread: 2 },
-        { id: 2, name: "User 2", status: 'ingame', unread: 0 },
-        { id: 3, name: "User 3", status: 'offline', unread: 0 },
-    ];
 
     const MOCK_CHANNELS: ChatContact[] = [
         { id: 99, name: "#General", status: 'online', unread: 5 },
         { id: 98, name: "#PongRoom", status: 'online', unread: 0 },
-    ];
-
-    const MOCK_MESSAGES: ChatMessage[] = [
-        { id: 1, senderId: 2, text: "Hola! Una partida?", time: "10:30" },
-        { id: 2, senderId: 1, text: "Venga, dale", time: "10:32" },
-        { id: 3, senderId: 2, text: "Creo la sala...", time: "10:33" },
     ];
 
     // --- ESTILOS EN LÍNEA PARA FORZAR POSICIONAMIENTO ---
@@ -146,24 +134,64 @@ export const ChatSidebar = () => {
     };
 
     // ---------------------------------------------------------
-    // 1. EFECTO DE HISTORIAL
-    // Se ejecuta cada vez que cambias de amigo (selectedChatId)
+    // LÓGICA 1: CARGA DE AMIGOS Y EVENTOS
+    // ---------------------------------------------------------
+    
+    // Usamos useCallback para que esta función no cambie en cada render
+    const loadFriends = useCallback(() => {
+        if (!CURRENT_USER_ID) return;
+
+        console.log("🔄 Actualizando lista de amigos para ID:", CURRENT_USER_ID);
+        fetch(`http://localhost:3000/chat/users?current=${CURRENT_USER_ID}`)
+            .then(res => res.json())
+            .then(data => {
+                // Tipamos explícitamente 'prev' como ChatContact[]
+                setContacts((prev: ChatContact[]) => {
+                    // Mantenemos contadores
+                    const unreadMap = new Map(prev.map(c => [c.id, c.unread || 0]));
+                    
+                    if (!Array.isArray(data)) return prev;
+
+                    return data.map((user: any) => ({
+                        // Soportamos 'id', 'pPk' o 'friend_id'
+                        id: Number(user.id || user.pPk || user.friend_id), 
+                        name: user.name || user.pNick || user.friend_nick || "Usuario",
+                        status: user.status || 'offline',
+                        unread: unreadMap.get(Number(user.id || user.pPk || user.friend_id)) || 0 
+                    }));
+                });
+            })
+            .catch(err => console.error("Error cargando amigos:", err));
+    }, [CURRENT_USER_ID]);
+
+    // Efecto principal: Carga inicial y Suscripción a eventos
+    useEffect(() => {
+        loadFriends(); // Llamamos a la función definida arriba
+
+        socket.on('friend_accepted', loadFriends);
+        socket.on('friend_removed', loadFriends);
+
+        return () => {
+            socket.off('friend_accepted', loadFriends);
+            socket.off('friend_removed', loadFriends);
+        };
+    }, [loadFriends]); // loadFriends es dependencia, gracias a useCallback es estable
+
+
+    // ---------------------------------------------------------
+    //  LÓGICA 2: HISTORIAL DE CHAT
     // ---------------------------------------------------------
     useEffect(() => {
         if (!selectedChatId) return;
 
-        // Limpiamos mensajes anteriores
-        setMessages([]); 
+        setMessages([]); // Limpiar al cambiar de chat
 
-        console.log(`📜 Cargando historial entre YO (${CURRENT_USER_ID}) y EL (${selectedChatId})...`);
-
-        //fetch(`http://localhost:3000/chat/history?user1=${MY_ID}&user2=${selectedChatId}`)
         fetch(`http://localhost:3000/chat/history?user1=${CURRENT_USER_ID}&user2=${selectedChatId}`)
             .then(res => res.json())
             .then(data => {
                 const historyFormatted: ChatMessage[] = data.map((msg: any) => ({
                     id: Number(msg.id),
-                    senderId: msg.senderId,
+                    senderId: Number(msg.senderId),
                     text: msg.content,
                     time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 }));
@@ -171,99 +199,88 @@ export const ChatSidebar = () => {
             })
             .catch(err => console.error("Error cargando historial:", err));
             
-    //}, [selectedChatId]); 
     }, [selectedChatId, CURRENT_USER_ID]);
 
+
     // ---------------------------------------------------------
-    // 2. EFECTO DE SOCKET Escuchar mensajes entrantes
-    // Se ejecuta una sola vez al cargar la web para conectar la "tubería"
+    // LÓGICA 3: RECIBIR MENSAJES (Socket)
     // ---------------------------------------------------------
     useEffect(() => {
         const handleReceiveMessage = (newMessage: any) => {
-            console.log("📩 Nuevo mensaje recibido:", newMessage);
-            
-            // Transformamos el dato del backend al formato del frontend
-            const formattedMsg: ChatMessage = {
-                id: newMessage.id || Date.now(),
-                senderId: newMessage.senderId,
-                text: newMessage.content,
-                time: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
+            const msgSenderId = Number(newMessage.senderId);
+            const myId = Number(CURRENT_USER_ID);
+            const openChatId = Number(selectedChatId);
 
-            // Lo añadimos a la lista
-            // setMessages((prev) => [...prev, formattedMsg]);
-            // 🔥 CORRECCIÓN ANTI-DUPLICADOS
-            setMessages((prev: ChatMessage[]) => {
-                const exists = prev.some((m: ChatMessage) => m.id === formattedMsg.id);
-                if (exists) return prev; 
-                return [...prev, formattedMsg];
-            });
+            // Si es mío, lo ignoro (ya lo pinté yo)
+            if (msgSenderId === myId) return;
+
+            // 1. Si tengo el chat abierto, lo añado
+            if (msgSenderId === openChatId) {
+                // Tipamos 'prev' como ChatMessage[]
+                setMessages((prev: ChatMessage[]) => [
+                    ...prev, 
+                    {
+                        id: Number(newMessage.id),
+                        senderId: msgSenderId,
+                        text: newMessage.content,
+                        time: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }
+                ]);
+            } else {
+                // 2. Si NO, aumento la bolita roja. Tipamos 'prev' como ChatContact[]
+                setContacts((prev: ChatContact[]) => prev.map((c: ChatContact) => {
+                    if (c.id === msgSenderId) {
+                        return { ...c, unread: (c.unread || 0) + 1 };
+                    }
+                    return c;
+                }));
+            }
         };
 
         socket.on('receive_message', handleReceiveMessage);
-        socket.on('message_sent', handleReceiveMessage); // Para ver mis propios mensajes
 
         return () => {
             socket.off('receive_message', handleReceiveMessage);
-            socket.off('message_sent', handleReceiveMessage);
         };
-    }, []);
+    }, [selectedChatId, CURRENT_USER_ID]);
 
-    // 3. EFECTO: Cargar lista de usuarios al abrir el componente
-    useEffect(() => {
-        fetch(`http://localhost:3000/chat/users?current=${CURRENT_USER_ID}`)
-            .then(res => res.json())
-            .then(data => {
-                console.log("👥 Usuarios cargados:", data);
-                
-                // Convertimos los datos del backend al formato del Chat
-                const formattedContacts: ChatContact[] = data.map((u: any) => ({
-                    id: u.pPk,          // Asegúrate de que coincida con tu DB (pPk o id)
-                    name: u.pNick,      // Nombre del usuario
-                    status: 'offline',  // Por defecto offline (luego lo mejoraremos)
-                    unread: 0           // Por defecto 0
-                }));
 
-                setContacts(formattedContacts);
-            })
-            .catch(err => console.error("Error cargando contactos:", err));
-    }, [CURRENT_USER_ID]);
-
-    // 🔥 FUNCIÓN: Enviar mensaje
+    // ---------------------------------------------------------
+    // LÓGICA 4: ENVIAR MENSAJE (UI OPTIMISTA + SERVICIO)
+    // ---------------------------------------------------------
     const handleSendSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!msgInput.trim() || !selectedChatId) return;
 
-        // 1. Enviar al backend
-        sendDirectMessage(selectedChatId, msgInput);
+        const textToSend = msgInput;
+        const tempId = Date.now();
 
-        // 2. Limpiar input
-        setMsgInput("");
+        // 1. UI Optimista (Tipamos prev)
+        const optimisticMsg: ChatMessage = {
+            id: tempId,
+            senderId: Number(CURRENT_USER_ID),
+            text: textToSend,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages((prev: ChatMessage[]) => [...prev, optimisticMsg]);
+        setMsgInput(""); 
+
+        // 2. Enviar usando el SERVICIO (como pediste)
+        sendDirectMessage(selectedChatId, textToSend);
     };
 
-    // Función auxiliar para probar conexión manual
-    const sendTestPing = () => {
-        console.log("📡 [FRONTEND] Enviando ping...");
-        socket.emit('ping_chat', { mensaje: "Hola desde el botón azul!" });
-    };
 
     // --- RENDERIZADO ---
 
     if (!isOpen) {
         return (
-            <button 
-                style={buttonStyle} 
-                onClick={() => {
-                    setIsOpen(true);
-                    sendTestPing(); // <--- AÑADIDO
-                }}
-            >
+            <button style={buttonStyle} onClick={() => setIsOpen(true)}>
                 💬
             </button>
         );
     }
 
-return (
+    return (
         <div style={sidebarStyle}>
             {/* CABECERA */}
             <div style={{ height: '50px', backgroundColor: '#0e7490', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', color: 'white' }}>
@@ -294,12 +311,18 @@ return (
                             </button>
                         </div>
 
-                        {/* LISTA */}
+                        {/* LISTA DE CONTACTOS */}
                         <div style={{ padding: '8px' }}>
                         {(activeTab === 'dms' ? contacts : MOCK_CHANNELS).map((chat) => (
                                 <div 
                                     key={chat.id} 
-                                    onClick={() => setSelectedChatId(chat.id)}
+                                    onClick={() => {
+                                        setSelectedChatId(chat.id);
+                                        // Resetear contador (Tipando prev)
+                                        setContacts((prev: ChatContact[]) => prev.map((c: ChatContact) => 
+                                            c.id === chat.id ? { ...c, unread: 0 } : c
+                                        ));
+                                    }}
                                     style={rowStyle}
                                 >
                                     <div style={avatarStyle}>
@@ -319,7 +342,7 @@ return (
                         </div>
                     </>
                 ) : (
-                    // CHAT ABIERTO
+                    // VISTA DE CONVERSACIÓN ABIERTA
                     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                         
                         <div style={{ padding: '10px', backgroundColor: '#a5f3fc', display: 'flex', alignItems: 'center' }}>
@@ -335,9 +358,8 @@ return (
                                     No hay mensajes aún.<br/>¡Escribe algo! 👋
                                 </p>
                             )}
-                            {/* 🔥 AQUÍ ESTÁ EL CAMBIO IMPORTANTE 🔥 */}
+                            
                             {messages.map((msg, index) => {
-                                // Calculamos dinámicamente si el mensaje es mío
                                 const isMine = Number(msg.senderId) === Number(CURRENT_USER_ID);
                                 
                                 return (
@@ -345,19 +367,16 @@ return (
                                         <div style={{ 
                                             padding: '8px 12px', 
                                             borderRadius: '12px', 
-                                            // Usamos isMine para el color
                                             backgroundColor: isMine ? '#0891b2' : 'white',
                                             color: isMine ? 'white' : 'black',
                                             maxWidth: '85%',
                                             fontSize: '14px',
                                             boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                            // Detalle extra: redondear bordes diferente según lado
                                             borderBottomRightRadius: isMine ? '0' : '12px',
                                             borderBottomLeftRadius: isMine ? '12px' : '0'
                                         }}>
                                             {msg.text}
-                                            {/* (Opcional) Si quieres ver la hora, descomenta esto: */}
-                                            {/* <div style={{ fontSize: '10px', textAlign: 'right', marginTop: '4px', opacity: 0.8 }}>{msg.time}</div> */}
+                                            <div style={{ fontSize: '10px', textAlign: 'right', marginTop: '4px', opacity: 0.8 }}>{msg.time}</div>
                                         </div>
                                     </div>
                                 );
@@ -382,4 +401,4 @@ return (
             </div>
         </div>
     );
-}; 
+};
