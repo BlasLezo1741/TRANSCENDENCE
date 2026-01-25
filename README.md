@@ -318,7 +318,15 @@ Manages friendship relationships between users:
 |f_1 (Foreign Key, part of composite Primary Key)|: First user in the relationship|
 |f_2 (Foreign Key, part of composite Primary Key)|: Second user in the relationship|
 |f_date|: Date marking either the beginning or ending of the friendship|
-|f_tipo|: Boolean flag indicating relationship status (TRUE = friendship established, FALSE = friendship terminated)|
+|f_status_fk|: Boolean flag indicating relationship status (TRUE = friendship established, FALSE = friendship terminated)|
+
+#### FRIEND_STATUS Table
+Defines friendship status
+
+|field_name|description|
+|----------|-----------|
+|fs_pk|primary key|
+|fs_i18n_name|JSONB with status translations|
 
 ### Key Relationships
 
