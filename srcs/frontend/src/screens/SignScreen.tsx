@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { checkPassword, registUser } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
+import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
 
 interface Country {
     name: string;
@@ -40,7 +41,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
             try {
                 
                 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-                console.error('reading  countries from ${API_URL}/countries');
+                console.log(`reading  countries from ${API_URL}/countries`);
                 const response = await fetch(`${API_URL}/countries`, 
                     {
                         method: 'GET',
@@ -60,7 +61,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     console.error('Failed to fetch countries');
                 }
             } catch (error) {
-                console.error('Error fetching countries:', error);
+                console.error('Error fetching countries:¿is it 3000 public', error);
             } finally {
                 setIsLoadingCountries(false);
             }
@@ -100,8 +101,13 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 setRepeat("");
             } else {
                 setSuccess(result.msg || "¡Registro completado con éxito!");
-                setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
+                // If 2FA is enabled, set the QR code
+                if (enabled2FA && result.qrCode) {
+                    setQrCode(result.qrCode);
+                }
+                //setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
             }
+
         } catch (err) {
             setError("Error de conexión");
         } finally {
@@ -322,6 +328,32 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                                 💡 <strong>Importante:</strong> Guarda este código en tu aplicación de autenticación 
                                 (Google Authenticator, Authy, etc.) antes de cerrar esta página.
                             </p>
+                            
+
+                            {/* --- NUEVO BOTÓN DE CONFIRMACIÓN --- */}
+                            <div className="mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        // 1. Opcional: Mostrar un pequeño feedback visual de éxito
+                                        setSuccess(t('registro_exitoso') || "¡Configuración de 2FA completada!");
+                                        
+                                        // 2. Esperar 2 segundos antes de cambiar al menú
+                                        setTimeout(() => {
+                                            dispatch({ type: "MENU" });
+                                        }, 2000);
+                                    }}
+                                    className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-md shadow-lg transition-colors flex items-center justify-center gap-2 animate-bounce-in"
+                                >
+                                    ✅ {t('ya_escaneado') || "Ya lo he escaneado, ir al menú"}
+                                </button>
+                            </div>
+
+
+
+
+
+
                         </div>
                     )}
                     {/* Mensajes de Feedback */}

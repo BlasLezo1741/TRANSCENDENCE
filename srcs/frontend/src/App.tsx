@@ -15,7 +15,7 @@ import Header from './components/Header/Header.tsx'
 import Footer from './components/Footer/Footer.tsx'
 import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
 import { socket, connectSocket, setMatchData } from './services/socketService';
-import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
+
 import "./App.css";
 
 function App()

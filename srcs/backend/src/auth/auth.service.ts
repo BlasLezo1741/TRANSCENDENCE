@@ -50,7 +50,15 @@ export class AuthService {
   }
 
   // AQUI ESTABA EL ERROR: Faltaba añadir 'country' en los argumentos
-  async registerUser(username: string, password: string, email: string, birth: string, country: string, lang: string, enable2FA: boolean) {
+  async registerUser(
+    username: string, 
+    password: string, 
+    email: string, 
+    birth: string, 
+    country: string, 
+    lang: string, 
+    enable2FA: boolean)
+  {
     
     // 1. Verificamos si existe
     const existing = await this.db.select().from(users)
@@ -73,8 +81,9 @@ export class AuthService {
       totpsecret = data.totpkey;
     }
     let now = new Date().toISOString();
+    let enabled2FAat = enable2FA ? now : null;
     // 4. Insertamos en la base de datos (incluyendo pCountry)
-    await this.db.insert(player).values({
+    const [newUser] =await this.db.insert(player).values({
       pNick:       username,
       pMail:       email,
       pPass:       hashedPassword,
@@ -86,9 +95,39 @@ export class AuthService {
       pStatus:     1,
       pTotpSecret: totpsecret,
       pTotpEnable: enable2FA,
-      pTotpEnabledAt: now,
-    });
+      pTotpEnabledAt: enabled2FAat,
+    }).returning();
 
-    return { ok: true, msg: "Usuario registrado correctamente" };
-  }
-}
+
+    this.logger.log(`3. Usuario insertado con ID: ${newUser.pPk}`);
+    let totpqr; // ← Declaración fuera del try
+    if (enable2FA)
+    {
+      // 5. Llamamos al microservicio TOTP para generar el QR
+      const pythonqr = 'http://totp:8070/qrtext';
+      this.logger.debug('4. Llamando al servicio TOTP en Python...');
+      try{
+        const { data } = await firstValueFrom(
+          this.httpService.post(pythonqr, {
+            user_totp_secret: totpsecret,
+            user_nick: username,
+            user_mail: email
+          })
+        );
+        totpqr = data ? data : null;
+      } catch (error) {
+        this.logger.error('Error al obtener el QR de TOTP:', error);
+        return { ok: false, msg: "Error al generar el código 2FA" };
+      }
+      this.logger.log(`5. Respuesta recibida de Python con éxito ${totpqr.qr_text}`);
+    } // if enable2FA
+
+    // 6. Devolvemos al frontend los datos necesarios
+    return { 
+      ok: true, 
+      msg: "Usuario registrado correctamente",
+      qrCode: totpqr.qr_text };
+  } // registerUser
+       
+  
+} // class AuthService
