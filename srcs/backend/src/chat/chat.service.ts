@@ -57,21 +57,7 @@ export class ChatService {
       }
     });
   }
-//   // 3. Obtener lista de todos los usuarios de la base de datos para el chat (excluyendo al propio usuario)
-// async getUsers(currentUserId: number) {
-//     // Obtenemos todos los usuarios (id y nick)
-//     const allUsers = await this.db.query.player.findMany({
-//         columns: {
-//             pPk: true,   // ID
-//             pNick: true, // Nombre
-//             // pAvatar: true, // Descomenta si tienes avatar
-//         }
-//     });
 
-//     // Filtramos para no devolverme a mí mismo
-//     return allUsers.filter(user => user.pPk !== currentUserId);
-//   }
-// }
   // 3. MODIFICADO: Obtener SOLO amigos (Estado 2 = Aceptado)
   async getUsers(currentUserId: number) {
       
@@ -94,17 +80,6 @@ export class ChatService {
             player_f2: true  
         }
     });
-
-  // // Procesamos la lista: 
-  //     // La relación contiene dos usuarios (yo y mi amigo). 
-  //     // Esta lógica extrae solo al "otro".
-  //     const myFriends = friendshipRelations.map((rel: any) => {
-  //       if (rel.f1 === currentUserId) {
-  //           return rel.player_f2; 
-  //       } else {
-  //           return rel.player_f1; 
-  //       }
-  //   });
 
   // 4. Extraer lista limpia de amigos
   const friendsRaw = friendshipRelations.map((rel: any) => {

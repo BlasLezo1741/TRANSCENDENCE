@@ -31,14 +31,53 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) update-env
 	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
-# Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces CAMBIO A http://localhost:3000
+# # Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces CAMBIO A http://localhost:3000
+# update-env:
+# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
+# 		echo "Actualizando VITE_BACKEND_URL en .env para Codespace: $(CODESPACE_NAME)"; \
+# 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+# 	else \
+# 		echo "No se detectó CODESPACE_NAME, manteniendo .env sin cambios"; \
+# 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://localhost:3000|' srcs/.env; \
+# 	fi
+
+# Actualizar VITE_BACKEND_URL en .env dinámicamente
+# update-env:
+# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
+# 		echo "Actualizando .env para Codespace..."; \
+# 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+# 	else \
+# 		echo "Detectado entorno local. Detectando IP de red..."; \
+# 		# Esta línea intenta detectar la IP local activa en Linux/Mac \
+# 		LOCAL_IP=$$(hostname -I | awk '{print $$1}' 2>/dev/null || ip config getifaddr en0 2>/dev/null || echo "localhost"); \
+# 		echo "Configurando VITE_BACKEND_URL con IP: $$LOCAL_IP"; \
+# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LOCAL_IP:3000|" srcs/.env; \
+# 	fi
+# update-env:
+# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
+# 		echo "Modo: Codespaces"; \
+# 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+# 	else \
+# 		echo "Modo: Local/WSL. Buscando IP de Windows..."; \
+# 		# Ejecutamos PowerShell desde Linux para obtener la IP real del adaptador Ethernet o Wi-Fi \
+# 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 | Where-Object { \$$_.InterfaceAlias -match 'Ethernet|Wi-Fi' -and \$$_.IPAddress -like '192.*' } | Select-Object -ExpandProperty IPAddress" | tr -d '\r' | head -n 1); \
+# 		# Si falla la detección automática, usa localhost como fallback \
+# 		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
+# 		echo "Configurando Backend en: http://$$WIN_IP:3000"; \
+# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
+# 	fi
+
 update-env:
 	@if [ -n "$(CODESPACE_NAME)" ]; then \
-		echo "Actualizando VITE_BACKEND_URL en .env para Codespace: $(CODESPACE_NAME)"; \
+		echo "Modo: Codespaces"; \
 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
 	else \
-		echo "No se detectó CODESPACE_NAME, manteniendo .env sin cambios"; \
-		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://localhost:3000|' srcs/.env; \
+		echo "Modo: Local/WSL. Buscando IP REAL de Windows..."; \
+		# Obtenemos la IP de la interfaz que tiene salida a internet (Default Gateway) \
+		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
+		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
+		echo "IP detectada correctamente: $$WIN_IP"; \
+		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
 	fi
 
 # Create postgres data directory if does not exists

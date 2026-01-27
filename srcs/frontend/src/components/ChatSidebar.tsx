@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { socket, sendDirectMessage } from '../services/socketService';
 import './ChatSidebar.css'; 
 
@@ -18,6 +18,8 @@ interface ChatMessage {
 }
 
 export const ChatSidebar = () => {
+    
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
     // --- ESTADOS ---
     const [isOpen, setIsOpen] = useState(false);
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
@@ -30,8 +32,10 @@ export const ChatSidebar = () => {
     const queryParams = new URLSearchParams(window.location.search);
     const urlId = queryParams.get('uid'); 
     const storedId = localStorage.getItem("pong_user_id"); 
-    
+    const messagesEndRef = useRef<HTMLDivElement>(null); // Referencia al final del chat
+
     const CURRENT_USER_ID = urlId ? Number(urlId) : (storedId ? Number(storedId) : 1);
+
     
     // ---------------------------------------------------------
     // 🔄 LÓGICA 1: CARGA DE AMIGOS
@@ -39,7 +43,8 @@ export const ChatSidebar = () => {
     const loadFriends = useCallback(() => {
         if (!CURRENT_USER_ID) return;
 
-        fetch(`http://localhost:3000/chat/users?current=${CURRENT_USER_ID}`)
+        // fetch(`http://localhost:3000/chat/users?current=${CURRENT_USER_ID}`)
+        fetch(`${API_URL}/chat/users?current=${CURRENT_USER_ID}`)
             .then(res => res.json())
             .then(data => {
                 setContacts((prev: ChatContact[]) => {
@@ -69,6 +74,10 @@ export const ChatSidebar = () => {
             .catch(err => console.error("Error cargando amigos:", err));
     }, [CURRENT_USER_ID]);
 
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+    
     useEffect(() => {
         loadFriends(); // Carga inicial
         
@@ -101,28 +110,36 @@ export const ChatSidebar = () => {
         };
     }, [loadFriends]);
 
-    // ---------------------------------------------------------
-    // 📜 LÓGICA 2: HISTORIAL
-    // ---------------------------------------------------------
     useEffect(() => {
         if (!selectedChatId) return;
 
         setMessages([]); 
 
-        fetch(`http://localhost:3000/chat/history?user1=${CURRENT_USER_ID}&user2=${selectedChatId}`)
+        fetch(`${API_URL}/chat/history?user1=${CURRENT_USER_ID}&user2=${selectedChatId}`)
             .then(res => res.json())
             .then(data => {
-                const historyFormatted: ChatMessage[] = data.map((msg: any) => ({
-                    id: Number(msg.id),
-                    senderId: Number(msg.senderId),
-                    text: msg.content,
-                    time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                }));
+                // DEBUG: Ver qué está llegando exactamente
+                console.log("📦 Datos recibidos del historial:", data);
+
+                if (!Array.isArray(data)) return;
+
+                const historyFormatted: ChatMessage[] = data.map((msg: any) => {
+                    // 🔥 CORRECCIÓN: Intentar leer createdAt O created_at
+                    const dateRaw = msg.createdAt || msg.created_at || new Date().toISOString();
+                    
+                    return {
+                        id: Number(msg.id),
+                        senderId: Number(msg.senderId),
+                        text: msg.content,
+                        // Convertir la fecha de forma segura
+                        time: new Date(dateRaw).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    };
+                });
                 setMessages(historyFormatted);
             })
             .catch(err => console.error("Error cargando historial:", err));
             
-    }, [selectedChatId, CURRENT_USER_ID]);
+    }, [selectedChatId, CURRENT_USER_ID, API_URL]); // Añadido API_URL a dependencias
 
     // ---------------------------------------------------------
     // 📩 LÓGICA 3: RECEPCIÓN SOCKET
@@ -237,7 +254,7 @@ export const ChatSidebar = () => {
                                             c.id === chat.id ? { ...c, unread: 0 } : c
                                         ));
                                         // 2. API: Marcar leído
-                                        fetch(`http://localhost:3000/chat/read`, {
+                                        fetch(`${API_URL}/chat/read`, {
                                             method: 'PATCH',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({
@@ -307,6 +324,36 @@ export const ChatSidebar = () => {
                                     🏓 RETAR
                                 </button>
                             )}
+                        </div>
+
+                        {/* 🔥 ESTA ES LA PARTE QUE FALTABA: LISTA DE MENSAJES 🔥 */}
+                        <div className="chat-messages-area" style={{ flex: 1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {messages.map((msg) => {
+                                const isMine = msg.senderId === Number(CURRENT_USER_ID);
+                                return (
+                                    <div key={msg.id} style={{
+                                        display: 'flex',
+                                        justifyContent: isMine ? 'flex-end' : 'flex-start'
+                                    }}>
+                                        <div style={{
+                                            backgroundColor: isMine ? '#007bff' : '#f1f0f0', // Azul para mí, gris para el otro
+                                            color: isMine ? 'white' : 'black',
+                                            padding: '8px 12px',
+                                            borderRadius: '12px',
+                                            maxWidth: '75%',
+                                            wordWrap: 'break-word',
+                                            fontSize: '14px'
+                                        }}>
+                                            <div>{msg.text}</div>
+                                            <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '4px', textAlign: 'right' }}>
+                                                {msg.time}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            {/* Elemento invisible para auto-scroll */}
+                            <div ref={messagesEndRef} />
                         </div>
 
                         <div className="chat-input-area">
