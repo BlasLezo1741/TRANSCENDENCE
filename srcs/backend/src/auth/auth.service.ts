@@ -101,6 +101,7 @@ export class AuthService {
 
     this.logger.log(`3. Usuario insertado con ID: ${newUser.pPk}`);
     let totpqr; // ← Declaración fuera del try
+    let backupCodesArray: string[] = []; // Inicializamos el array vacío
     if (enable2FA)
     {
       // 5. Llamamos al microservicio TOTP para generar el QR
@@ -119,15 +120,32 @@ export class AuthService {
         this.logger.error('Error al obtener el QR de TOTP:', error);
         return { ok: false, msg: "Error al generar el código 2FA" };
       }
-      this.logger.log(`5. Respuesta recibida de Python con éxito ${totpqr.qr_text}`);
+      this.logger.log(`5. Respuesta recibida de Python con éxito ${totpqr.qr_text[0]}`);
+      this.logger.log(`5. Códigos de respaldo generados: ${totpqr.qr_text[1]}`);
+      // 6. Convertir el string de códigos separados por comas en un array
+      const backupCodesArray: string[] = String(totpqr.qr_text[1])
+        .split(',')
+        .map((code: string) => code.trim()); // trim() elimina espacios en blanco
+  
+      // 7. Actualizar el usuario con los backup codes
+      await this.db
+        .update(player)
+        .set({ pTotpBackupCodes: backupCodesArray })
+        .where(eq(player.pNick, newUser.pNick));
+  
+      this.logger.log(`6. Backup codes guardados en la base de datos`);
     } // if enable2FA
 
     // 6. Devolvemos al frontend los datos necesarios
     return { 
-      ok: true, 
-      msg: "Usuario registrado correctamente",
-      qrCode: totpqr.qr_text };
+  ok: true, 
+  msg: "Usuario registrado correctamente",
+  qrCode: totpqr?.qr_text[0] || null,
+  backupCodes: backupCodesArray  // ["200513", "589663", "815166", ...]  
+    }
   } // registerUser
-       
+
+
+
   
 } // class AuthService

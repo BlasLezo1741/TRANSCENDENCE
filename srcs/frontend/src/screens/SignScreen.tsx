@@ -34,6 +34,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     // NEW: QR Code state
     const [qrCode, setQrCode] = useState<string | null>(null);
     const [enabled2FA, setEnabled2FA] = useState(false);  //Por defecto no se activa
+    const [backupCodes, setBackupCodes] = useState<string[] | null>(null);  // Puede ser null inicialmente
 
     // NEW: Fetch countries on component mount
     useEffect(() => {
@@ -76,6 +77,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         e.preventDefault();
         setError("");
         setSuccess("");
+        setQrCode(null);
+        setBackupCodes(null);
 
         // 1. Check local password syntax
         console.error('Verifico el Password');
@@ -104,10 +107,10 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 // If 2FA is enabled, set the QR code
                 if (enabled2FA && result.qrCode) {
                     setQrCode(result.qrCode);
+                    setBackupCodes(result.backupCodes)
                 }
                 //setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
             }
-
         } catch (err) {
             setError("Error de conexión");
         } finally {
@@ -126,6 +129,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setError("");
         setQrCode(null);
         setEnabled2FA(false);
+        setBackupCodes(null);
     };
 
     return (
@@ -330,6 +334,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             </p>
                             
 
+
+
+
                             {/* --- NUEVO BOTÓN DE CONFIRMACIÓN --- */}
                             <div className="mt-6">
                                 <button
@@ -355,6 +362,17 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
 
                         </div>
+                    )}
+                    {backupCodes && backupCodes.length > 0 && (
+                    <div>
+                        <h3>Códigos de respaldo</h3>
+                        <p>Guarda estos códigos en un lugar seguro:</p>
+                        <ul>
+                        {backupCodes.map((code, index) => (
+                            <li key={index}>{code}</li>
+                        ))}
+                        </ul>
+                    </div>
                     )}
                     {/* Mensajes de Feedback */}
                     {error && (
