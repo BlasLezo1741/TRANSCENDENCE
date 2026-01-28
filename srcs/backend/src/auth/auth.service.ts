@@ -149,7 +149,7 @@ export class AuthService {
       finalNick = `${oauthData.nick}_${Math.floor(Math.random() * 10000)}`;
     }
 
-    const hasProfileInfo = oauthData.lang && oauthData.country;
+    //const hasProfileInfo = oauthData.lang && oauthData.country;
     // Create new user
     const newUser = await this.db
       .insert(player)
@@ -160,8 +160,8 @@ export class AuthService {
         pOauthId: oauthData.oauthId,
         pAvatarUrl: oauthData.avatarUrl,
         pLang: oauthData.lang || 'en',
-        pCountry: oauthData.country || 'ES',
-        pProfileComplete: !!hasProfileInfo,
+        pCountry: oauthData.country || 'FR',
+        pProfileComplete: false,
         pReg: new Date(),
         pRole: 1,
         pStatus: 1,

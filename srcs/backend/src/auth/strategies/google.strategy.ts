@@ -27,7 +27,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     const { id, displayName, emails, photos, _json } = profile;
     let lang = 'en'; // Default
-    let country = 'ES'; // Default for Unkonwn
+    let country = 'FR'; // Default for Unkonwn
+    let avatarUrl = photos?.[0]?.value;
+    if (avatarUrl) {
+      avatarUrl = avatarUrl.split('=')[0];
+      avatarUrl = `${avatarUrl}=s200`;
+    }
 
     if (_json.locale) {
       const parts = _json.locale.split('-'); // Split "en-US" into ["en", "US"]
@@ -40,7 +45,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       oauthProvider: 'google',
       email: emails?.[0]?.value,
       nick: displayName.replace(/\s+/g, '_').substring(0, 20),
-      avatarUrl: photos?.[0]?.value,
+      avatarUrl: avatarUrl,
       lang,
       country,
     };
