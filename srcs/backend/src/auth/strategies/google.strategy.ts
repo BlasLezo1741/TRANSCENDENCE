@@ -26,8 +26,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { id, displayName, emails, photos, _json } = profile;
-    let lang = 'en'; // Default
-    let country = 'FR'; // Default for Unkonwn
+    let lang = 'ca'; // Default
+    let country = 'FR'; // Default country
     let avatarUrl = photos?.[0]?.value;
     if (avatarUrl) {
       avatarUrl = avatarUrl.split('=')[0];
@@ -35,9 +35,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     }
 
     if (_json.locale) {
-      const parts = _json.locale.split('-'); // Split "en-US" into ["en", "US"]
-      if (parts.length > 0) lang = parts[0];
+      const normalizedLocale = _json.locale.replace('_', '-'); // (handles "en_US")
+      const parts = normalizedLocale.split('-'); // Split "en-US" into ["en", "US"]
+      if (parts.length > 0) lang = parts[0].toLocaleLowerCase();
       if (parts.length > 1) country = parts[1].toUpperCase();
+      console.log(`[GoogleStrategy] Locale found for user ${displayName} (ID: ${id})`);
+    } else {
+      // <--- NEW: Log warning if locale is missing
+      console.log(`[GoogleStrategy] Warning: No locale found for user ${displayName} (ID: ${id}). Using defaults.`);
     }
 
     const user = {
