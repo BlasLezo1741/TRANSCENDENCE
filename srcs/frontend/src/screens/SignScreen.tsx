@@ -104,10 +104,12 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 setRepeat("");
             } else {
                 setSuccess(result.msg || "¡Registro completado con éxito!");
+                console.log(`los codigos son${result}`);                
                 // If 2FA is enabled, set the QR code
                 if (enabled2FA && result.qrCode) {
                     setQrCode(result.qrCode);
                     setBackupCodes(result.backupCodes)
+
                 }
                 //setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
             }
@@ -365,8 +367,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     )}
                     {backupCodes && backupCodes.length > 0 && (
                     <div>
-                        <h3>Códigos de respaldo</h3>
-                        <p>Guarda estos códigos en un lugar seguro:</p>
+                        <h3>{t('backup_codes')}</h3>
+                        <p>{t('copy_codes')}</p>
                         <ul>
                         {backupCodes.map((code, index) => (
                             <li key={index}>{code}</li>

@@ -123,7 +123,7 @@ export class AuthService {
       this.logger.log(`5. Respuesta recibida de Python con éxito ${totpqr.qr_text[0]}`);
       this.logger.log(`5. Códigos de respaldo generados: ${totpqr.qr_text[1]}`);
       // 6. Convertir el string de códigos separados por comas en un array
-      const backupCodesArray: string[] = String(totpqr.qr_text[1])
+      backupCodesArray = String(totpqr.qr_text[1])
         .split(',')
         .map((code: string) => code.trim()); // trim() elimina espacios en blanco
   
