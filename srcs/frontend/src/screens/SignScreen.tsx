@@ -311,9 +311,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     {/* CÓDIGO QR (solo si existe) */}
                     {qrCode && (
                         <div style={{ marginTop: '20px' }}>
-                            <h3>Escanea tu 2FA:</h3>
-                            {/* Reemplazamos <img> por el componente QRCodeSVG */}
-                            <div style={{ 
+                            <h3>{t('qr_setup1')}</h3>
+                             <div style={{ 
                             background: 'white', 
                             padding: '15px', 
                             display: 'inline-block',
@@ -331,8 +330,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                                 maxWidth: '350px',
                                 lineHeight: '1.5'
                             }}>
-                                💡 <strong>Importante:</strong> Guarda este código en tu aplicación de autenticación 
-                                (Google Authenticator, Authy, etc.) antes de cerrar esta página.
+                                💡 <strong>{t('qr_setup2')}</strong> {t('qr_setup3')}
                             </p>
                             
 

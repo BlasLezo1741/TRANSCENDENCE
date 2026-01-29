@@ -24,5 +24,13 @@
     "pass_req": "The password must contain: a lowercase letter, an uppercase letter, a number, and at least 8 characters.",
     "juegos": "Games",
     "enable_2fa": "Enable 2FA",
-    "qr_setup": "Scan this QR code with your authenticator app to set up 2FA:"
+    "qr_setup1": "Scan this QR code with your authenticator app to set up 2FA:",
+    "qr_setup2": "Important:",
+    "qr_setup3": "Save this code in your authenticator app (Google Authenticator, Authy, etc.) before closing this page.",
+    "backup_codes": "Backup codes",
+    "copy_codes": "Save these codes in a safe place:",
+    "2fa_code": "2FA code",
+    "verify": "Verify",
+    "resend": "Resend code",
+    "ya_escaneado": "I have already scanned the code"
 }

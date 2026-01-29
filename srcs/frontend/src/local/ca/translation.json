@@ -24,5 +24,13 @@
     "pass_req": "La contrasenya ha de tenir: minúscula, majúscula, un número i un mínim de 8 caràcters.",
     "juegos": "Jocs",
     "enable_2fa": "Habilitar 2FA",
-    "qr_setup": "Escaneja aquest codi QR amb la teva aplicació d'autenticació per configurar 2FA:"
+    "qr_setup1": "Escaneja aquest codi QR amb la teva aplicació d'autenticació per configurar 2FA:",
+    "qr_setup2": "Important:",
+    "qr_setup3": "Desa aquest codi a la teva aplicació d'autenticació (Google Authenticator, Authy, etc.) abans de tancar aquesta pàgina.",
+    "backup_codes": "Codis de reserva",
+    "copy_codes": "Desa aquests codis en un lloc segur:",
+    "2fa_code": "Codi 2FA",
+    "verify": "Verificar",
+    "resend": "Reenviar codi",
+    "ya_escaneado": "Ja he escanejat el codi"
 }

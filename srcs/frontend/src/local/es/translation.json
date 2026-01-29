@@ -23,10 +23,14 @@
     "pass_req": "La contraseña debe tener: minúscula, mayúscula, número y mínimo 8 caracteres.",
     "juegos": "Juegos",
     "enable_2fa": "Habilitar 2FA",
-    "qr_setup": "Escanea este código QR con tu aplicación de autenticación para configurar 2FA:",
+    "qr_setup1": "Escanea este código QR",
+    "qr_setup2": "Importante:",
+    "qr_setup3": "Guarda este código en tu aplicación de autenticación (Google Authenticator, Authy, etc.) antes de cerrar esta página.",
     "backup_codes": "Códigos de respaldo",
     "copy_codes": "Guarda estos códigos en un lugar seguro:",
     "2fa_code": "Código 2FA",
     "verify": "Verificar",
-    "resend": "Reenviar código"
+    "resend": "Reenviar código",
+    "ya_escaneado": "Ya he escaneado el código"
+
 }
