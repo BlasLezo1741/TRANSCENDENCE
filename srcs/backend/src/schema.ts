@@ -114,7 +114,7 @@ export const player = pgTable("player", {
 	pPass: text("p_pass").notNull(),
 	// TODO: failed to parse database type 'bytea'
 	pTotpSecret: bytea("p_totp_secret"),
-	pTotpEnable: boolean("p_totp_enabled").default(false),
+	pTotpEnabled: boolean("p_totp_enabled").default(false),
 	pTotpEnabledAt: timestamp("p_totp_enabled_at", { mode: 'string' }),
 	pTotpBackupCodes: text("p_totp_backup_codes").array(),
 	pReg: timestamp("p_reg", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),

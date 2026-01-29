@@ -46,7 +46,7 @@ export class AuthService {
     if (!match) return { ok: false, msg: "Contraseña incorrecta" };
     if (user.pStatus === 0) return { ok: false, msg: "Cuenta inactiva" };
 
-    return { ok: true, msg: "Login correcto", user: { id: user.pPk, name: user.pNick } };
+    return { ok: true, msg: "Login correcto", user: { id: user.pPk, name: user.pNick, totp: user.pTotpEnabled } };
   }
 
   // AQUI ESTABA EL ERROR: Faltaba añadir 'country' en los argumentos
@@ -94,7 +94,7 @@ export class AuthService {
       pRole:       1,
       pStatus:     1,
       pTotpSecret: totpsecret,
-      pTotpEnable: enable2FA,
+      pTotpEnabled: enable2FA,
       pTotpEnabledAt: enabled2FAat,
     }).returning();
 

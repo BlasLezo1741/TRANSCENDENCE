@@ -14,33 +14,59 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [showTotpInput, setShowTotpInput] = useState(false);
+    const [userId, setUserId] = useState<number | null>(null);
 
     const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setIsLoading(true);
 
-        try {
-            // AWAIT the backend response
-            const result = await checkLogin(user, password);
-            
-            if (!result.ok) {
-                setError(result.msg || "Error desconocido");
-                setPassword("");
-            } else {
-                // 1. Guardamos en LocalStorage para que persista al refrescar
-                localStorage.setItem("pong_user_nick", result.user.name);
-
-                //localStorage.setItem("pong_user_id", result.user.id);
-                localStorage.setItem("pong_user_id", result.user.id.toString());
-
-                // 2. Actualizamos el estado global en App.tsx
-                setGlobalUser(result.user.name);
-                console.log("🔓 Login exitoso. Usuario global actualizado:", result.user.name);
+        try 
+        {
+            if (showTotpInput) {
+                // Aquí deberías llamar a una función que verifique el código TOTP
+                // Por ejemplo: const result = await verifyTOTP(userId, totpCode);
                 
-                // 3. Ir al menú
+                // Por ahora, simulamos la verificación
+                // TODO: Implementar verifyTOTP
+                console.log("Verificando TOTP:", totpCode, "para usuario:", userId);
+                
+                // Si la verificación es exitosa:
+                localStorage.setItem("pong_user_nick", user);
+                localStorage.setItem("pong_user_id", userId!.toString());
+                setGlobalUser(user);
+                console.log("🔓 Login con 2FA exitoso. Usuario global actualizado:", user);
                 dispatch({ type: "MENU" });
-            }
+            } else {
+                // AWAIT the backend response
+                const result = await checkLogin(user, password);
+                console.log("🔓 Este usuario tiene totp:", result.user.totp);                
+                if (!result.ok) {
+                    setError(result.msg || "Error desconocido");
+                    setPassword("");
+                } else {
+                    if (result.user.totp) {
+                        // 2FA enabled, mostrar input de TOTP
+                        setShowTotpInput(true);
+                        setUserId(result.user.id);
+                        setPassword(""); // Limpiar contraseña por seguridad
+                    } else
+                        // 1. Guardamos en LocalStorage para que persista al refrescar
+                        localStorage.setItem("pong_user_nick", result.user.name);
+
+                        //localStorage.setItem("pong_user_id", result.user.id);
+                        localStorage.setItem("pong_user_id", result.user.id.toString());
+
+                        // 2. Actualizamos el estado global en App.tsx
+                        setGlobalUser(result.user.name);
+                        console.log("🔓 Login exitoso. Usuario global actualizado:", result.user.name);
+                        
+                        // 3. Ir al menú
+                        dispatch({ type: "MENU" });
+                    }
+                }
+
         } catch (err) {
             setError("Error de conexión");
         } finally {
