@@ -67,17 +67,35 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) update-env
 # 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
 # 	fi
 
+# update-env:
+# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
+# 		echo "Modo: Codespaces"; \
+# 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+# 	else \
+# 		echo "Modo: Local/WSL. Buscando IP REAL de Windows..."; \
+# 		# Obtenemos la IP de la interfaz que tiene salida a internet (Default Gateway) \
+# 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
+# 		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
+# 		echo "IP detectada correctamente: $$WIN_IP"; \
+# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
+# 	fi
+
 update-env:
 	@if [ -n "$(CODESPACE_NAME)" ]; then \
-		echo "Modo: Codespaces"; \
+		echo "🌍 Modo: Codespaces detected"; \
 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
-	else \
-		echo "Modo: Local/WSL. Buscando IP REAL de Windows..."; \
-		# Obtenemos la IP de la interfaz que tiene salida a internet (Default Gateway) \
+	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
+		echo "🪟 Modo: WSL (Windows) detectado"; \
 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
 		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
-		echo "IP detectada correctamente: $$WIN_IP"; \
+		echo "✅ IP Local (Windows) configurada: $$WIN_IP"; \
 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
+	else \
+		echo "🐧 Modo: Linux Nativo / Mac detectado"; \
+		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
+		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
+		echo "✅ IP Local (Linux) configurada: $$LINUX_IP"; \
+		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env; \
 	fi
 
 # Create postgres data directory if does not exists

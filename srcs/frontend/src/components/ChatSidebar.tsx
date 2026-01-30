@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { socket, sendDirectMessage } from '../services/socketService';
 import './ChatSidebar.css'; 
+import { useModal } from '../context/ModalContext';
 
 // --- INTERFACES ---
 interface ChatContact {
@@ -36,6 +37,7 @@ export const ChatSidebar = () => {
 
     const CURRENT_USER_ID = urlId ? Number(urlId) : (storedId ? Number(storedId) : 1);
 
+    const { showModal } = useModal();
     
     // ---------------------------------------------------------
     // 🔄 LÓGICA 1: CARGA DE AMIGOS
@@ -221,7 +223,12 @@ export const ChatSidebar = () => {
             targetId: selectedChatId 
         });
         
-        alert("¡Invitación enviada! Esperando respuesta...");
+        //alert("¡Invitación enviada! Esperando respuesta...");
+        showModal({
+            title: "🚀 Reto Enviado",
+            message: "La invitación ha sido enviada correctamente. Espera a que tu amigo acepte para comenzar la partida.",
+            type: "info" // Solo botón de OK
+        });
     };
 
     return (

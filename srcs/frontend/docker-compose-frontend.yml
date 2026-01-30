@@ -16,9 +16,10 @@ services:
     networks:
       transcendence_net:
         # ipv4_address: 192.168.1.4  # Fixed IP
-        ipv4_address: 172.20.0.4 #cambio para que no haya conflictos en casa
+        # ipv4_address: 172.20.0.4 #cambio para que no haya conflictos en casa
         aliases:
-          - in_net
+          # - in_net
+          - frontend_alias
     depends_on:
       - ${BE_CONTAINER_NAME}
 

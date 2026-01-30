@@ -347,12 +347,24 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.resetBall(state);
     this.games.set(roomId, state);
 
+    // CALCULAMOS LA HORA DE INICIO REAL (Ahora + 3500ms)
+    // 3000ms de cuenta atrás + 500ms del cartel "GO!"
+    const physicsStartTime = Date.now() + 3500;
+
   // Bucle a 60 FPS (aprox 16ms)
     const interval = setInterval(() => {
       // Protección Zombie: Si la sala se borró, parar.
       if (!this.games.has(roomId)) {
           clearInterval(interval);
           return;
+      }
+
+      // BLOQUEO TEMPORAL
+      // Si aún no ha pasado el tiempo de espera, NO calculamos física.
+      if (Date.now() < physicsStartTime) {
+          // Opcional: Podríamos emitir posiciones estáticas para asegurar
+          // que el cliente tenga la bola centrada, pero el cliente ya lo hace.
+          return; 
       }
 
       this.updateGamePhysics(state);
