@@ -16,9 +16,9 @@ async function bootstrap() {
 // 1. Habilitamos CORS para peticiones HTTP normales
   app.enableCors({
     //origin: [frontendUrl, 'http://localhost:5173'],
-    origin: 'http://localhost:5173', // La URL de tu React
+    //origin: 'http://localhost:5173', // La URL de tu React
     // En Codespaces, el origen debe ser la URL del puerto 5173 o '*' para pruebas
-    //origin: true, // Esto refleja automáticamente el origen de la petición (muy útil en Codespaces)
+    origin: true, // Esto refleja automáticamente el origen de la petición (muy útil en Codespaces)
     //origin: (origin, callback) => {
     // Si el origen es exactamente igual al .env O contiene github.dev
     /* if (!origin || origin === frontendUrl || origin.includes('github.dev')) {
@@ -29,7 +29,7 @@ async function bootstrap() {
       callback(new Error('Not allowed by CORS'));
     } */
   //},
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization',
     preflightContinue: false, // NestJS responderá al preflight automáticamente
@@ -40,6 +40,6 @@ async function bootstrap() {
   // Esto permite que el contenedor acepte conexiones de fuera de sí mismo
   await app.listen(port, '0.0.0.0');
   
-  console.log(`🚀 Servidor corriendo en: http://localhost:${port}`);
+  console.log(`🚀 Servidor corriendo en puerto: ${port}`);
 }
 bootstrap();
