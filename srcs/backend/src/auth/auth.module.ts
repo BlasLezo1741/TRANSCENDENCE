@@ -17,6 +17,10 @@
 
 // Module - Decorador que marca esta clase como un módulo de NestJS.
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 
 // HttpModule - proporciona HttpService para hacer peticiones HTTP (a tu totp).
 import { HttpModule } from '@nestjs/axios';
@@ -24,6 +28,9 @@ import { HttpModule } from '@nestjs/axios';
 // Importa el controlador y servicio que creaste.
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+
+import { GoogleStrategy } from './strategies/google.strategy';
+import { FortyTwoStrategy } from './strategies/fortytwo.strategy';
 
 // Importa el módulo que configura la conexión a la base de datos (Drizzle).
 import { DatabaseModule } from '../database.module'; // Importante para Drizzle
@@ -66,8 +73,18 @@ import { DatabaseModule } from '../database.module'; // Importante para Drizzle
 //  exports hace que AuthService esté disponible para otros módulos que importen AuthModule.
 @Module({
   imports: [
+    PassportModule,
+    ConfigModule,
     // 1. Necesario para que el AuthService pueda usar this.db
     DatabaseModule, 
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1d' },
+      }),
+    }),
     // 2. Necesario para que el AuthService pueda llamar al servicio de Python (2faserver)
     HttpModule.register({
       timeout: 5000,
@@ -75,9 +92,24 @@ import { DatabaseModule } from '../database.module'; // Importante para Drizzle
     }),
     ], // Sin esto, el HttpService no podrá inyectarse
     controllers: [AuthController],
-    providers: [AuthService],
+    providers: [AuthService,
+                GoogleStrategy,
+               FortyTwoStrategy,
+    ],
   // Exportamos el servicio por si otros módulos necesitan validar sesiones en el futuro
   exports: [AuthService],     
 })
 export class AuthModule {}
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -1,5 +1,6 @@
 //backend/src/app.module.ts
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config'; // <--- Imported to load .env
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 // Importamos tu nuevo receptor de mensajes (Gateway)
@@ -21,18 +22,21 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }), // Loads .env file globally
     DatabaseModule,
     CountriesModule,
     FriendsModule,
     GatewayModule,
-    AuthModule,
+    AuthModule, // <--- Added AuthModule here
   ],
   controllers: [
     AppController, 
+    //AuthController // <--- Add Controller here (exposes /auth/login endpoints)
   ],
   providers: [
     AppService, 
-    //GameGateway,
+    //GameGateway, 
+    //AuthService    // <--- Add Service here (handles password hashing & DB)
   ],
 })
 export class AppModule {}

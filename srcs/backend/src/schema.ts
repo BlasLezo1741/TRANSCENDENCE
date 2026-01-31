@@ -70,10 +70,7 @@ export const metric = pgTable("metric", {
 /*
 export const player = pgTable("player", {
     pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-    
-    // CHANGE: Length set to 20 to match SQL
-    pNick: varchar("p_nick", { length: 20 }).unique().notNull(),
-    
+    pNick: varchar("p_nick", { length: 255 }).unique().notNull(),
     pMail: varchar("p_mail", { length: 255 }).unique().notNull(),
     pPass: varchar("p_pass", { length: 255 }).notNull(),
     pReg: timestamp("p_reg", { mode: 'string' }).defaultNow(),
@@ -82,6 +79,46 @@ export const player = pgTable("player", {
     pCountry: char("p_country", { length: 2 }),
     pRole: smallint("p_role").default(1), 
     pStatus: smallint("p_status").default(1),
+}, (table) => [
+    foreignKey({
+            columns: [table.pLang],
+            foreignColumns: [pLanguage.langPk],
+            name: "player_p_lang_fkey"
+        }),
+    foreignKey({
+            columns: [table.pCountry],
+            foreignColumns: [country.coun2Pk], // Now 'country' is defined above, this is safe
+            name: "player_p_country_fkey"
+        }),
+    foreignKey({
+            columns: [table.pRole],
+            foreignColumns: [pRole.rolePk],    // Now 'pRole' is defined above, this is safe
+            name: "player_p_role_fkey"
+        }),
+    foreignKey({
+            columns: [table.pStatus],
+            foreignColumns: [status.statusPk], // Now 'status' is defined above, this is safe
+            name: "player_p_status_fkey"
+        }),
+]);
+*/
+
+
+export const player = pgTable("player", {
+	pPk: integer('p_pk').primaryKey().generatedAlwaysAsIdentity(),
+	pNick: varchar('p_nick', { length: 20 }).notNull().unique(),
+	pMail: varchar('p_mail', { length: 255 }).notNull().unique(),
+	pPass: varchar('p_pass', { length: 255 }), // NULLABLE for OAuth users
+	pOauthProvider: varchar('p_oauth_provider', { length: 20 }), // NEW: '42' or 'google'
+	pOauthId: varchar('p_oauth_id', { length: 255 }), // NEW: OAuth provider's user ID
+	pAvatarUrl: varchar('p_avatar_url', { length: 500 }), // NEW: Profile picture URL
+	pProfileComplete: boolean('p_profile_complete').default(false), // NEW: Track if country/lang set
+	pReg: timestamp('p_reg').defaultNow(),
+	pBir: date('p_bir'),
+	pLang: char('p_lang', { length: 2 }),
+	pCountry: char('p_country', { length: 2 }),
+	pRole: smallint('p_role').default(1),
+	pStatus: smallint('p_status').default(1),
 }, (table) => [
     // ... keep your existing foreign keys ...
     foreignKey({

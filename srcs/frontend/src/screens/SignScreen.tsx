@@ -133,6 +133,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setEnabled2FA(false);
         setBackupCodes(null);
     };
+    const handleOAuth = (provider: 'google' | '42') => {
+        // Redirect browser to Backend Auth Endpoint
+        // Ensure this matches your backend port (usually 3000)
+        window.location.href = `http://localhost:3000/auth/${provider}`;
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
@@ -387,6 +392,27 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             <p>{success}</p>
                         </div>
                     )}
+                    {/* --- OAUTH BUTTONS --- */}
+                    <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white text-gray-500">{t('crear_cuenta')} / {t('init_ses')}: </span>
+                    </div>
+                    <div className="mt-6 grid grid-cols-2 gap-3">
+                        <button
+                            type="button"
+                            onClick={() => handleOAuth('42')}
+                            className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                        >
+                            <span className="font-bold text-black">42 Network</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => handleOAuth('google')}
+                            className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                        >
+                            Google
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
