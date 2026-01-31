@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { checkLogin } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
+import { getBrowserLocale } from '../ts/utils/language';
 
 // Add prop for global state update
 type LoginScreenProps = ScreenProps & {
@@ -24,14 +25,15 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
         if (token) {
             try {
                 // Manually decode JWT payload to get user info
-                // (This avoids installing 'jwt-decode' library for now)
                 const base64Url = token.split('.')[1];
                 const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
+                const jsonPayload = decodeURIComponent(
+                    window.atob(base64).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join('')
+                );
 
-                const payload = JSON.parse(jsonPayload); // { sub: 1, nick: 'foo', ... }
+                const payload = JSON.parse(jsonPayload); // { sub: 1, nick: 'foo', email: '...' }
 
                 // 1. Save data
                 localStorage.setItem("jwt_token", token);
@@ -49,7 +51,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 dispatch({ type: "MENU" });
 
             } catch (err) {
-                console.error("Error processing token:", err);
+                console.error("❌ Error processing OAuth token:", err);
                 setError("Error validando el inicio de sesión OAuth");
             }
         }
@@ -72,13 +74,15 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 localStorage.setItem("pong_user_nick", result.user.name);
                 localStorage.setItem("pong_user_id", result.user.id.toString());
                 
-                // If your backend returns a token for manual login too, save it here:
+                // If your backend returns a token for manual login, save it here:
                 // localStorage.setItem("jwt_token", result.token); 
 
                 setGlobalUser(result.user.name);
+                console.log("🔓 Traditional Login successful:", result.user.name);
                 dispatch({ type: "MENU" });
             }
         } catch (err) {
+            console.error("❌ Error in traditional login:", err);
             setError("Error de conexión");
         } finally {
             setIsLoading(false);
@@ -87,9 +91,29 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
 
     // ==================== 3. OAUTH ACTIONS ====================
     const handleOAuth = (provider: 'google' | '42') => {
+        // Get browser language and country
+        const { language, country } = getBrowserLocale();
+        
+        console.log(`[OAuth Login] Initiating ${provider} OAuth with browser data:`, {
+            language,
+            country,
+        });
+
+        // Build OAuth URL with browser language and country as query params
+        const params = new URLSearchParams();
+        params.append('browserLang', language);
+        if (country) {
+            params.append('browserCountry', country);
+        }
+
+        // Get backend URL from environment
+        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+        const oauthUrl = `${API_URL}/auth/${provider}?${params.toString()}`;
+
+        console.log(`[OAuth Login] Redirecting to: ${oauthUrl}`);
+
         // Redirect browser to Backend Auth Endpoint
-        // Ensure this matches your backend port (usually 3000)
-        window.location.href = `http://localhost:3000/auth/${provider}`;
+        window.location.href = oauthUrl;
     };
 
     return (

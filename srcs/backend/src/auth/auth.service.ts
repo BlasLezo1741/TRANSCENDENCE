@@ -2,7 +2,7 @@ import { Injectable, Inject, ConflictException, UnauthorizedException } from '@n
 import { JwtService } from '@nestjs/jwt';
 import { eq, or, and } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
-import { player } from '../schema'; 
+import { player, pLanguage } from '../schema'; 
 import * as schema from '../schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../database.module';
@@ -15,6 +15,43 @@ export class AuthService {
     @Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>,
     private jwtService: JwtService,
   ) {}
+
+  // ==================== LANGUAGE VALIDATION ====================
+  
+  /**
+   * Validate language against database
+   * Returns language code if valid and supported, null otherwise
+   */
+  async validateLanguage(langCode: string | null): Promise<string | null> {
+    if (!langCode) {
+      console.log('[AuthService] No language code provided, returning null');
+      return null;
+    }
+
+    try {
+      const result = await this.db
+        .select()
+        .from(pLanguage)
+        .where(
+          and(
+            eq(pLanguage.langPk, langCode),
+            eq(pLanguage.langStatus, true), // Only supported languages
+          ),
+        )
+        .limit(1);
+
+      if (result.length > 0) {
+        console.log(`[AuthService] Language '${langCode}' is valid and supported`);
+        return langCode;
+      } else {
+        console.log(`[AuthService] Language '${langCode}' not found or not supported in database, returning null`);
+        return null;
+      }
+    } catch (error) {
+      console.error(`[AuthService] Error validating language '${langCode}':`, error);
+      return null;
+    }
+  }
 
   // ==================== TRADITIONAL LOGIN ====================
   
@@ -99,17 +136,27 @@ export class AuthService {
   }
 
   // ==================== OAUTH AUTHENTICATION ====================
-  
-  // Find or create OAuth user
+  /**
+   * Find or create OAuth user
+   * Validates language against database, sets profile as incomplete
+   */
   async findOrCreateOAuthUser(oauthData: {
     oauthId: string;
     oauthProvider: string;
     email: string;
     nick: string;
     avatarUrl?: string;
-    lang?: string;
-    country?: string;
+    language?: string | null;   // From browser or OAuth provider
+    country?: string | null;    // From browser or OAuth provider
   }) {
+    console.log(`[AuthService] Processing OAuth user:`, {
+      provider: oauthData.oauthProvider,
+      email: oauthData.email,
+      nick: oauthData.nick,
+      rawLanguage: oauthData.language,
+      rawCountry: oauthData.country,
+    });
+
     // Check if user exists by OAuth ID
     const existingUser = await this.db
       .select()
@@ -123,6 +170,7 @@ export class AuthService {
       .limit(1);
 
     if (existingUser.length > 0) {
+      console.log(`[AuthService] Existing OAuth user found: ${existingUser[0].pNick}`);
       return existingUser[0];
     }
 
@@ -137,7 +185,7 @@ export class AuthService {
       throw new ConflictException('Email ya registrado con otra cuenta');
     }
 
-    // Check if nick is already used, if so, append random number
+    // Check if nick is already used
     let finalNick = oauthData.nick;
     const nickExists = await this.db
       .select()
@@ -147,9 +195,19 @@ export class AuthService {
 
     if (nickExists.length > 0) {
       finalNick = `${oauthData.nick}_${Math.floor(Math.random() * 10000)}`;
+      console.log(`[AuthService] Nick '${oauthData.nick}' taken, using '${finalNick}'`);
     }
 
-    //const hasProfileInfo = oauthData.lang && oauthData.country;
+    // Validate language against database
+    const validatedLanguage = await this.validateLanguage(oauthData.language ?? null);
+
+    console.log(`[AuthService] Creating new OAuth user:`, {
+      nick: finalNick,
+      language: validatedLanguage,
+      country: oauthData.country,
+      profileComplete: false,
+    });
+
     // Create new user
     const newUser = await this.db
       .insert(player)
@@ -159,18 +217,17 @@ export class AuthService {
         pOauthProvider: oauthData.oauthProvider,
         pOauthId: oauthData.oauthId,
         pAvatarUrl: oauthData.avatarUrl,
-        pLang: oauthData.lang || 'en',
-        pCountry: oauthData.country || 'FR',
-        pProfileComplete: false,
-        pReg: new Date(),
+        pLang: validatedLanguage,           // Will be null if not supported
+        pCountry: oauthData.country,        // Will be null if not available
+        pProfileComplete: false,            // Always false for OAuth
         pRole: 1,
         pStatus: 1,
       })
       .returning();
 
+    console.log(`[AuthService] New OAuth user created successfully: ${newUser[0].pNick}`);
     return newUser[0];
   }
-
   // ==================== PROFILE COMPLETION ====================
   
   // Complete user profile (country & language)
