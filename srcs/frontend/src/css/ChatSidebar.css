@@ -29,8 +29,8 @@
 .chat-sidebar {
     position: fixed;
     right: 0;
-    top: 90px; /* Ajuste para no tapar el header */
-    height: calc(100vh - 90px);
+    top: 115px; /* Ajuste para no tapar el header */
+    height: calc(100vh - 115px);
     width: 320px;
     background-color: #06b6d4; /* Cyan 500 */
     border-left: 4px solid #374151;
@@ -51,6 +51,11 @@
     justify-content: space-between;
     padding: 0 16px;
     color: white;
+}
+
+.chat-header button
+{
+    width: 30px;
 }
 
 .chat-header h2 {

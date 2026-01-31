@@ -104,7 +104,7 @@ const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSid
                 <button onClick={() => handleMode("ia")}>player vs ia</button>
                 <button onClick={() => handleMode("local")}>player vs player</button>
                 <button onClick={() => handleMode("remote")}>player vs remote</button>
-                <button onClick={() => handleMode("tournament")}>tournament</button>
+                {/* <button onClick={() => handleMode("tournament")}>tournament</button> */}
             </div>
 
             <div className="search">

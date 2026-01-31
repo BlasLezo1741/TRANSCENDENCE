@@ -10,6 +10,7 @@ import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
 import SettingsScreen from './screens/SettingsScreen.tsx'
+import InfoScreen from './screens/InfoScreen.tsx'
 
 import Header from './components/Header.tsx'
 import Footer from './components/Footer.tsx'
@@ -28,7 +29,7 @@ function App()
   
   // Si ya hay usuario, arrancamos en "menu". Si no, en "login".
   // Esto evita que React renderice 'LoginScreen' al refrescar y active el borrado de usuario.
-  const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "login" as Screen);
+  const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "menu" as Screen);
 
   // // --- GESTIÓN DE USUARIO REAL,GESTIÓN DE ESTADOS GLOBALES ---
   const [currentUser, setCurrentUser] = useState<string>(savedUserNick);
@@ -37,7 +38,8 @@ function App()
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
   const [ballInit, setBallInit] = useState<{x: number, y: number} | null>(null);
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
-  
+  const [option, setOption] = useState<string>("");
+
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
 
@@ -199,6 +201,8 @@ function renderScreen()
           return <StatsScreen />;
         case "settings":
           return <SettingsScreen />;
+        case "info":
+          return <InfoScreen dispatch={dispatch} option={option} />; 
         default:
           return null;
     }
@@ -249,7 +253,7 @@ function renderScreen()
 
       <Header dispatch={dispatch} userName={currentUser} onLogout={handleLogout} />
       <main>{renderScreen()}</main>
-      <Footer />
+      <Footer dispatch={dispatch} setOption={setOption}/>
     </div>
   );
 }

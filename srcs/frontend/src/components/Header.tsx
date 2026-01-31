@@ -71,7 +71,10 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
                     <p className="letters">Okinawa</p>
                 </div>
                 
-                <LanguageSwitcher />
+                <div>
+                     <LanguageSwitcher />
+
+                </div>
 
                 <div className="signin">
                     {/* ESTADO: NO LOGUEADO */}

@@ -225,6 +225,8 @@ const ProfileScreen = () => {
     const InfoScreen = () =>
     (
         <>
+            <h1>Perfil de usuario</h1>
+
             <h3>{localStorage.getItem("pong_user_nick")}</h3>
             <p>ID: {localStorage.getItem("pong_user_id")}</p>
         </>
@@ -233,6 +235,8 @@ const ProfileScreen = () => {
     const FriendScreen = () =>
     (
         <>
+            <h1>Lista de amigos</h1>
+
             {/* --- SELECT DE INVITACIÓN --- */}
             <div>
                 <label>Invitar:</label>
@@ -287,6 +291,8 @@ const ProfileScreen = () => {
     const RequestScreen = () =>
     (
         <>
+            <h1>Solicitudes</h1>
+
             <h3>Solicitudes Pendientes</h3>
 
             {requests.length === 0 && <p>No hay solicitudes.</p>}
@@ -313,6 +319,7 @@ const ProfileScreen = () => {
     const StatScreen = () =>
     (
         <>
+            <h1>Estadisticas</h1>
             <p>Esta es la pagina de stats</p>
         </>
     );
@@ -335,10 +342,10 @@ const ProfileScreen = () => {
                     <li
                         onClick={() => setActiveTab("requests")}
                         className={activeTab === "requests" ? "selected" : ""}>
-                        Solicitudes
-                        {requests.length > 0 && (
-                            <span className="sol">{requests.length}</span>
-                        )}
+                        Solicitudes {requests.length > 0 && 
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                ({requests.length})
+                            </span>}
                     </li>
                     <li
                         onClick={() => setActiveTab("stats")}
@@ -350,7 +357,6 @@ const ProfileScreen = () => {
 
             {/* Contenido */}
             <section>
-                <h1>{activeTab}</h1>
                 <div className="p-cont">
                     {activeTab === 'info' && <InfoScreen />}
                     {activeTab === 'friends' && <FriendScreen />}

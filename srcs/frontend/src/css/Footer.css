@@ -4,4 +4,23 @@ footer
     height: 100px;
     color: white;
     background-color: rgb(0, 0, 42);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.foot-cont
+{
+    display: flex;
+}
+
+.foot-cont a
+{
+    color: white;
+}
+
+.foot-cont hr
+{
+    margin-right: 20px;
+    margin-left: 20px;
 }
