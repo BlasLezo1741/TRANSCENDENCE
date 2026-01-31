@@ -12,6 +12,7 @@ import {
     type UserCandidate,
     removeFriend
 } from '../services/friend.service';
+import { useModal } from '../context/ModalContext';
 
 import "../css/ProfileScreen.css";
 
@@ -31,6 +32,8 @@ const ProfileScreen = () => {
     // Estado para añadir amigo (temporalmente por ID hasta que tengamos buscador por nombre)
     const [targetIdInput, setTargetIdInput] = useState("");
     const [statusMsg, setStatusMsg] = useState("");
+
+    const { showModal } = useModal();
 
     // --- CARGA DE DATOS ---
 
@@ -58,30 +61,66 @@ const ProfileScreen = () => {
         }
     };
 
-    const handleRemoveFriend = async (friendId: number, friendName: string) => {
-        // 1. Confirmación de seguridad
-        if (!window.confirm(`¿Seguro que quieres eliminar a ${friendName}?`)) {
-            return;
-        }
-
-        // 2. OPTIMISTIC UI: Lo quitamos de la lista visualmente YA
-        setFriends((prev: Friend[]) => prev.filter((f) => Number(f.id) !== Number(friendId)));
-
-        try {
-            // 3. Llamada al backend
-            const res = await removeFriend(friendId);
-            if (res.ok) {
-                setStatusMsg(`Has eliminado a ${friendName}`);
-            } else {
-                // Si falla, recargamos para que vuelva a aparecer
-                loadSocialData(); 
-            }
-        } catch (error) {
-            console.error("Error eliminando amigo:", error);
-        }
+    // const handleRemoveFriend = async (friendId: number, friendName: string) => {
+    //     // 1. Confirmación de seguridad
+    //     if (!window.confirm(`¿Seguro que quieres eliminar a ${friendName}?`)) {
+    //         return;
+    //     }
         
-        // 4. Recarga de seguridad a los 300ms (para actualizar candidatos)
-        setTimeout(() => loadSocialData(), 300);
+
+    //     // 2. OPTIMISTIC UI: Lo quitamos de la lista visualmente YA
+    //     setFriends((prev: Friend[]) => prev.filter((f) => Number(f.id) !== Number(friendId)));
+
+    //     try {
+    //         // 3. Llamada al backend
+    //         const res = await removeFriend(friendId);
+    //         if (res.ok) {
+    //             setStatusMsg(`Has eliminado a ${friendName}`);
+    //         } else {
+    //             // Si falla, recargamos para que vuelva a aparecer
+    //             loadSocialData(); 
+    //         }
+    //     } catch (error) {
+    //         console.error("Error eliminando amigo:", error);
+    //     }
+        
+    //     // 4. Recarga de seguridad a los 300ms (para actualizar candidatos)
+    //     setTimeout(() => loadSocialData(), 300);
+    // };
+
+    const handleRemoveFriend = (friendId: number, friendName: string) => {
+        
+        // 1. Lanzamos el Modal en lugar del window.confirm
+        showModal({
+            title: "🗑️ Eliminar Amigo",
+            message: `¿Seguro que quieres eliminar a ${friendName}?`,
+            type: "confirm", // Esto muestra botones Aceptar/Cancelar
+            onConfirm: async () => {
+                
+                // --- AQUÍ EMPIEZA LA LÓGICA QUE TENÍAS ANTES ---
+
+                // 2. OPTIMISTIC UI: Lo quitamos de la lista visualmente YA
+                setFriends((prev: Friend[]) => prev.filter((f) => Number(f.id) !== Number(friendId)));
+
+                try {
+                    // 3. Llamada al backend
+                    const res = await removeFriend(friendId);
+                    
+                    if (res.ok) {
+                        setStatusMsg(`Has eliminado a ${friendName}`);
+                    } else {
+                        // Si falla, recargamos para que vuelva a aparecer (Rollback)
+                        loadSocialData(); 
+                    }
+                } catch (error) {
+                    console.error("Error eliminando amigo:", error);
+                    // Opcional: Podrías mostrar otro showModal de error aquí si quisieras
+                }
+                
+                // 4. Recarga de seguridad a los 300ms
+                setTimeout(() => loadSocialData(), 300);
+            }
+        });
     };
 
     // Cargar datos al montar
@@ -144,7 +183,7 @@ const ProfileScreen = () => {
         console.log("🎧 Suscribiéndose a eventos del socket...");
         socket.on('friend_request', handleNewRequest);
         socket.on('friend_accepted', handleFriendAccepted);
-        socket.on('user_status_change', handleStatusChange);
+        socket.on('user_status', handleStatusChange);
         socket.on('friend_removed', handleFriendRemoved);
 
         // --- CLEANUP ---
@@ -152,7 +191,7 @@ const ProfileScreen = () => {
             console.log("🔕 Desuscribiéndose eventos...");
             socket.off('friend_request', handleNewRequest);
             socket.off('friend_accepted', handleFriendAccepted);
-            socket.off('user_status_change', handleStatusChange);
+            socket.off('user_status', handleStatusChange);
             socket.off('friend_removed', handleFriendRemoved);
         };
     }, []);

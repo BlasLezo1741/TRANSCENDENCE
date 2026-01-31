@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { socket } from '../services/socketService';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { socket, sendDirectMessage } from '../services/socketService';
+import './ChatSidebar.css'; 
+import { useModal } from '../context/ModalContext';
 
-// --- TIPOS MOCK ---
+// --- INTERFACES ---
 interface ChatContact {
     id: number;
     name: string;
@@ -17,209 +19,273 @@ interface ChatMessage {
 }
 
 export const ChatSidebar = () => {
+    
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    // --- ESTADOS ---
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'dms' | 'channels'>('dms');
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
     const [msgInput, setMsgInput] = useState("");
-
-    // DATOS MOCK
-    const MOCK_FRIENDS: ChatContact[] = [
-        { id: 1, name: "User 1", status: 'online', unread: 2 },
-        { id: 2, name: "User 2", status: 'ingame', unread: 0 },
-        { id: 3, name: "User 3", status: 'offline', unread: 0 },
-    ];
-
-    const MOCK_CHANNELS: ChatContact[] = [
-        { id: 99, name: "#General", status: 'online', unread: 5 },
-        { id: 98, name: "#PongRoom", status: 'online', unread: 0 },
-    ];
-
-    const MOCK_MESSAGES: ChatMessage[] = [
-        { id: 1, senderId: 2, text: "Hola! Una partida?", time: "10:30" },
-        { id: 2, senderId: 1, text: "Venga, dale", time: "10:32" },
-        { id: 3, senderId: 2, text: "Creo la sala...", time: "10:33" },
-    ];
-
-    // --- ESTILOS EN LÍNEA PARA FORZAR POSICIONAMIENTO ---
     
-    // 1. Botón Flotante: Forzamos fixed abajo derecha
-    const buttonStyle: React.CSSProperties = {
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        zIndex: 50, // Alto, pero menos que el modal si hubiera
-        width: '60px',
-        height: '60px',
-        borderRadius: '50%',
-        backgroundColor: '#2563EB', // Azul
-        color: 'white',
-        fontSize: '24px',
-        border: 'none',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-    };
+    const [messages, setMessages] = useState<ChatMessage[]>([]); 
+    const [contacts, setContacts] = useState<ChatContact[]>([]); 
+    
+    // --- IDENTIFICACIÓN DEL USUARIO ---
+    const queryParams = new URLSearchParams(window.location.search);
+    const urlId = queryParams.get('uid'); 
+    const storedId = localStorage.getItem("pong_user_id"); 
+    const messagesEndRef = useRef<HTMLDivElement>(null); // Referencia al final del chat
 
-    // 2. Barra Lateral: Fixed a la derecha, pero DEBAJO del Header
-    const sidebarStyle: React.CSSProperties = {
-        position: 'fixed',
-        right: 0,
-        // AJUSTE CLAVE: top 64px (asumiendo que el header mide unos 60-64px)
-        top: '90px', 
-        // Restamos los 64px del header a la altura total
-        height: 'calc(100vh - 90px)', 
-        width: '320px',
-        backgroundColor: '#06b6d4', // Gray 900
-        borderLeft: '4px solid #374151',
-        zIndex: 40, // MENOS que el Header (que le pondremos 50)
-        display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '-4px 0 15px rgba(0,0,0,0.5)',
-        color: '#111827',
-        fontFamily: 'sans-serif'
-    };
+    const CURRENT_USER_ID = urlId ? Number(urlId) : (storedId ? Number(storedId) : 1);
 
-    // 3. Estilo de cada Fila de Usuario (Caja blanca)
-    const rowStyle: React.CSSProperties = {
-        display: 'flex',
-        alignItems: 'center',
-        padding: '10px',
-        margin: '5px',
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        cursor: 'pointer',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        border: '1px solid #cffafe'
-    };
+    const { showModal } = useModal();
+    
+    // ---------------------------------------------------------
+    // 🔄 LÓGICA 1: CARGA DE AMIGOS
+    // ---------------------------------------------------------
+    const loadFriends = useCallback(() => {
+        if (!CURRENT_USER_ID) return;
 
-    // 4. Estilo del Avatar (Círculo gris)
-    const avatarStyle: React.CSSProperties = {
-        width: '40px',
-        height: '40px',
-        backgroundColor: '#e5e7eb',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: '12px',
-        fontWeight: 'bold',
-        color: '#374151',
-        border: '1px solid #d1d5db',
-        flexShrink: 0 // Evita que se aplaste
-    };
+        // fetch(`http://localhost:3000/chat/users?current=${CURRENT_USER_ID}`)
+        fetch(`${API_URL}/chat/users?current=${CURRENT_USER_ID}`)
+            .then(res => res.json())
+            .then(data => {
+                setContacts((prev: ChatContact[]) => {
+                    const localUnreadMap = new Map(prev.map(c => [c.id, c.unread || 0]));
+                    
+                    if (!Array.isArray(data)) return prev;
 
-    // 5. Estilo de la Bolita Roja
-    const badgeStyle: React.CSSProperties = {
-        backgroundColor: '#ef4444',
-        color: 'white',
-        fontSize: '10px',
-        fontWeight: 'bold',
-        padding: '2px 6px',
-        borderRadius: '99px',
-        marginLeft: 'auto', // Lo empuja a la derecha
-        minWidth: '18px',
-        textAlign: 'center'
-    };
+                    return data.map((user: any) => {
+                        const uId = Number(user.id || user.pPk || user.friend_id);
+                        
+                        let finalUnread = 0;
+                        if (user.unread !== undefined && user.unread !== null) {
+                            finalUnread = Number(user.unread); 
+                        } else {
+                            finalUnread = localUnreadMap.get(uId) || 0; 
+                        }
+
+                        return {
+                            id: uId, 
+                            name: user.name || user.pNick || user.friend_nick || "Usuario",
+                            status: user.status || 'offline',
+                            unread: finalUnread 
+                        };
+                    });
+                });
+            })
+            .catch(err => console.error("Error cargando amigos:", err));
+    }, [CURRENT_USER_ID]);
 
     useEffect(() => {
-        // 1. Escuchar la respuesta del servidor (PONG)
-        socket.on('pong_chat', (payload) => {
-            console.log("🟢 [FRONTEND] Respuesta recibida del Gateway:", payload);
-            alert("¡Conexión exitosa con el Chat! Mira la consola.");
-        });
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+    
+    useEffect(() => {
+        loadFriends(); // Carga inicial
+        
+        // Eventos de amistad (Recargar lista completa)
+        socket.on('friend_accepted', loadFriends);
+        socket.on('friend_removed', loadFriends);
 
-        // Limpieza al cerrar componente
-        return () => {
-            socket.off('pong_chat');
+        // 🔥 NUEVO EVENTO: Cambio de estado (Actualizar solo un usuario)
+        // No llamamos a loadFriends() porque sería muy pesado recargar todo.
+        // Solo actualizamos el array localmente.
+        const handleStatusChange = (data: { userId: number, status: 'online' | 'offline' | 'ingame' }) => {
+            console.log("🚦 Cambio de estado recibido:", data);
+            
+            setContacts((prevContacts: ChatContact[]) => prevContacts.map((contact: ChatContact) => {
+                // Si el ID coincide, cambiamos su estado
+                if (contact.id === Number(data.userId)) {
+                    return { ...contact, status: data.status };
+                }
+                return contact; // Si no es él, lo dejamos igual
+            }));
         };
-    }, []);
 
-    // Función auxiliar para probar conexión manual
-    const sendTestPing = () => {
-        console.log("📡 [FRONTEND] Enviando ping...");
-        socket.emit('ping_chat', { mensaje: "Hola desde el botón azul!" });
+        socket.on('user_status', handleStatusChange);
+
+        return () => {
+            socket.off('friend_accepted', loadFriends);
+            socket.off('friend_removed', loadFriends);
+            // No olvides limpiar el listener nuevo
+            socket.off('user_status', handleStatusChange);
+        };
+    }, [loadFriends]);
+
+    useEffect(() => {
+        if (!selectedChatId) return;
+
+        setMessages([]); 
+
+        fetch(`${API_URL}/chat/history?user1=${CURRENT_USER_ID}&user2=${selectedChatId}`)
+            .then(res => res.json())
+            .then(data => {
+                // DEBUG: Ver qué está llegando exactamente
+                console.log("📦 Datos recibidos del historial:", data);
+
+                if (!Array.isArray(data)) return;
+
+                const historyFormatted: ChatMessage[] = data.map((msg: any) => {
+                    // 🔥 CORRECCIÓN: Intentar leer createdAt O created_at
+                    const dateRaw = msg.createdAt || msg.created_at || new Date().toISOString();
+                    
+                    return {
+                        id: Number(msg.id),
+                        senderId: Number(msg.senderId),
+                        text: msg.content,
+                        // Convertir la fecha de forma segura
+                        time: new Date(dateRaw).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    };
+                });
+                setMessages(historyFormatted);
+            })
+            .catch(err => console.error("Error cargando historial:", err));
+            
+    }, [selectedChatId, CURRENT_USER_ID, API_URL]); // Añadido API_URL a dependencias
+
+    // ---------------------------------------------------------
+    // 📩 LÓGICA 3: RECEPCIÓN SOCKET
+    // ---------------------------------------------------------
+    useEffect(() => {
+        const handleReceiveMessage = (newMessage: any) => {
+            const msgSenderId = Number(newMessage.senderId);
+            const myId = Number(CURRENT_USER_ID);
+            const openChatId = Number(selectedChatId);
+
+            if (msgSenderId === myId) return;
+
+            if (msgSenderId === openChatId) {
+                setMessages((prev: ChatMessage[]) => [
+                    ...prev, 
+                    {
+                        id: Number(newMessage.id),
+                        senderId: msgSenderId,
+                        text: newMessage.content,
+                        time: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }
+                ]);
+            } else {
+                setContacts((prev: ChatContact[]) => prev.map((c: ChatContact) => {
+                    if (c.id === msgSenderId) {
+                        return { ...c, unread: (c.unread || 0) + 1 };
+                    }
+                    return c;
+                }));
+            }
+        };
+
+        socket.on('receive_message', handleReceiveMessage);
+        return () => {
+            socket.off('receive_message', handleReceiveMessage);
+        };
+    }, [selectedChatId, CURRENT_USER_ID]);
+
+    // ---------------------------------------------------------
+    // 🚀 LÓGICA 4: ENVÍO
+    // ---------------------------------------------------------
+    const handleSendSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!msgInput.trim() || !selectedChatId) return;
+
+        const textToSend = msgInput;
+        const tempId = Date.now();
+
+        const optimisticMsg: ChatMessage = {
+            id: tempId,
+            senderId: Number(CURRENT_USER_ID),
+            text: textToSend,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages((prev: ChatMessage[]) => [...prev, optimisticMsg]);
+        setMsgInput(""); 
+
+        sendDirectMessage(selectedChatId, textToSend);
     };
 
     // --- RENDERIZADO ---
 
-    // if (!isOpen) {
-    //     return (
-    //         <button style={buttonStyle} onClick={() => setIsOpen(true)}>
-    //             💬
-    //         </button>
-    //     );
-    // }
     if (!isOpen) {
         return (
-            <button 
-                style={buttonStyle} 
-                onClick={() => {
-                    setIsOpen(true);
-                    sendTestPing(); // <--- AÑADIDO
-                }}
-            >
+            <button className="chat-floating-btn" onClick={() => setIsOpen(true)}>
                 💬
             </button>
         );
     }
 
-return (
-        <div style={sidebarStyle}>
-            {/* CABECERA */}
-            <div style={{ height: '50px', backgroundColor: '#0e7490', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', color: 'white' }}>
-                <h2 style={{ fontWeight: 'bold' }}>
-                    {selectedChatId ? `CHAT #${selectedChatId}` : "SOCIAL HUB"}
-                </h2>
-                <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+    // Función para enviar la invitación
+    const handleInviteClick = () => {
+        if (!selectedChatId) return;
+        
+        console.log(`🏓 Enviando reto a ${selectedChatId}...`);
+        
+        // Emitimos el evento al Gateway
+        socket.emit('send_game_invite', { 
+            targetId: selectedChatId 
+        });
+        
+        //alert("¡Invitación enviada! Esperando respuesta...");
+        showModal({
+            title: "🚀 Reto Enviado",
+            message: "La invitación ha sido enviada correctamente. Espera a que tu amigo acepte para comenzar la partida.",
+            type: "info" // Solo botón de OK
+        });
+    };
+
+    return (
+        <div className="chat-sidebar">
+            {/* CABECERA SIMPLE (Solo título) */}
+            <div className="chat-header">
+                <h2>{selectedChatId ? `CHAT CON ${contacts.find(c => c.id === selectedChatId)?.name || '...'}` : "MIS AMIGOS"}</h2>
+                <button className="chat-close-btn" onClick={() => setIsOpen(false)}>✕</button>
             </div>
 
-            {/* CONTENIDO */}
-            <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#cffafe' }}>
+            <div className="chat-body">
                 
                 {selectedChatId === null ? (
                     <>
-                        {/* TABS */}
-                        <div style={{ display: 'flex', backgroundColor: '#0891b2' }}>
-                            <button 
-                                onClick={() => setActiveTab('dms')}
-                                style={{ flex: 1, padding: '10px', border: 'none', background: activeTab === 'dms' ? '#cffafe' : 'transparent', color: activeTab === 'dms' ? '#0e7490' : 'white', fontWeight: 'bold', cursor: 'pointer' }}
-                            >
-                                AMIGOS
-                            </button>
-                            <button 
-                                onClick={() => setActiveTab('channels')}
-                                style={{ flex: 1, padding: '10px', border: 'none', background: activeTab === 'channels' ? '#cffafe' : 'transparent', color: activeTab === 'channels' ? '#0e7490' : 'white', fontWeight: 'bold', cursor: 'pointer' }}
-                            >
-                                CANALES
-                            </button>
-                        </div>
+                        {/* SIN TABS, SOLO LISTA DIRECTA */}
+                        <div className="chat-list">
+                            {contacts.length === 0 && (
+                                <p style={{textAlign: 'center', padding: '20px', color: '#666'}}>
+                                    No tienes amigos conectados.<br/>¡Añade a alguien desde el perfil!
+                                </p>
+                            )}
 
-                        {/* LISTA DE CONTACTOS */}
-                        <div style={{ padding: '8px' }}>
-                            {(activeTab === 'dms' ? MOCK_FRIENDS : MOCK_CHANNELS).map((chat) => (
+                            {contacts.map((chat) => (
                                 <div 
                                     key={chat.id} 
-                                    onClick={() => setSelectedChatId(chat.id)}
-                                    style={rowStyle} // <-- Aquí usamos la constante
+                                    onClick={() => {
+                                        setSelectedChatId(chat.id);
+                                        // 1. UI: Limpiar bolita
+                                        setContacts((prev: ChatContact[]) => prev.map((c: ChatContact) => 
+                                            c.id === chat.id ? { ...c, unread: 0 } : c
+                                        ));
+                                        // 2. API: Marcar leído
+                                        fetch(`${API_URL}/chat/read`, {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                senderId: Number(chat.id),
+                                                receiverId: Number(CURRENT_USER_ID)
+                                            })
+                                        }).catch(console.error);
+                                    }}
+                                    className="chat-contact-row"
                                 >
-                                    {/* AVATAR */}
-                                    <div style={avatarStyle}>
+                                    <div className="chat-avatar">
                                         {chat.name.charAt(0)}
                                     </div>
-                                    
-                                    {/* INFO */}
-                                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{chat.name}</span>
+                                    <div className="chat-info">
+                                        <div className="chat-name-row">
+                                            <span className="chat-name">{chat.name}</span>
                                             {chat.unread > 0 && (
-                                                <span style={badgeStyle}>
-                                                    {chat.unread}
-                                                </span>
+                                                <span className="chat-badge">{chat.unread}</span>
                                             )}
                                         </div>
-                                        <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Clic para hablar...</p>
+                                        {/* Aquí mostramos el estado en lugar de "clic para hablar" */}
+                                        <p className="chat-preview" style={{color: chat.status === 'online' ? 'green' : 'gray'}}>
+                                            {chat.status === 'online' ? '🟢 Online' : '⚫ Offline'}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -227,45 +293,85 @@ return (
                     </>
                 ) : (
                     // VISTA DE CONVERSACIÓN
-                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                        <div style={{ padding: '10px', backgroundColor: '#a5f3fc', display: 'flex', alignItems: 'center' }}>
-                            <button onClick={() => setSelectedChatId(null)} style={{ border: 'none', background: 'none', fontWeight: 'bold', color: '#0e7490', cursor: 'pointer', marginRight: '10px' }}>
+                    <div className="chat-conversation">
+                        
+                        <div className="chat-subheader">
+                            <button onClick={() => setSelectedChatId(null)} className="chat-back-btn">
                                 ⬅ VOLVER
                             </button>
-                            <span style={{fontWeight: 'bold', color: '#155e75'}}>Chat con {selectedChatId}</span>
-                        </div>
-                        
-                        {/* Mensajes */}
-                        <div style={{ flex: 1, padding: '10px', overflowY: 'auto' }}>
-                            {MOCK_MESSAGES.map((msg) => (
-                                <div key={msg.id} style={{ display: 'flex', justifyContent: msg.senderId === 1 ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-                                    <div style={{ 
-                                        padding: '8px 12px', 
-                                        borderRadius: '12px', 
-                                        backgroundColor: msg.senderId === 1 ? '#0891b2' : 'white',
-                                        color: msg.senderId === 1 ? 'white' : 'black',
-                                        maxWidth: '85%',
-                                        fontSize: '14px',
-                                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-                                    }}>
-                                        {msg.text}
-                                    </div>
-                                </div>
-                            ))}
+                            
+                            {/* 1. INFORMACIÓN DEL CONTACTO (Nombre y Estado) */}
+                            <div style={{flex: 1, marginLeft: '10px'}}>
+                                 <div style={{fontWeight: 'bold'}}>
+                                     {contacts.find(c => c.id === selectedChatId)?.name || 'Chat'}
+                                 </div>
+                                 <div style={{fontSize: '10px', color: '#666'}}>
+                                    {contacts.find(c => c.id === selectedChatId)?.status === 'online' ? '🟢 Online' : '⚫ Offline'}
+                                 </div>
+                            </div>
+
+                            {/* 2. BOTÓN DE RETAR (Solo visible si está Online) */}
+                            {contacts.find(c => c.id === selectedChatId)?.status === 'online' && (
+                                <button 
+                                    onClick={handleInviteClick}
+                                    title="Invitar a jugar Pong"
+                                    style={{
+                                        backgroundColor: '#ea580c', // Naranja vibrante
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        padding: '6px 12px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                        transition: 'background 0.2s'
+                                    }}
+                                >
+                                    🏓 RETAR
+                                </button>
+                            )}
                         </div>
 
-                        {/* Input */}
-                        <div style={{ padding: '10px', backgroundColor: 'white', borderTop: '1px solid #cffafe' }}>
-                            <form style={{ display: 'flex', gap: '8px' }} onSubmit={(e) => { e.preventDefault(); setMsgInput(""); }}>
+                        {/* 🔥 ESTA ES LA PARTE QUE FALTABA: LISTA DE MENSAJES 🔥 */}
+                        <div className="chat-messages-area" style={{ flex: 1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {messages.map((msg) => {
+                                const isMine = msg.senderId === Number(CURRENT_USER_ID);
+                                return (
+                                    <div key={msg.id} style={{
+                                        display: 'flex',
+                                        justifyContent: isMine ? 'flex-end' : 'flex-start'
+                                    }}>
+                                        <div style={{
+                                            backgroundColor: isMine ? '#007bff' : '#f1f0f0', // Azul para mí, gris para el otro
+                                            color: isMine ? 'white' : 'black',
+                                            padding: '8px 12px',
+                                            borderRadius: '12px',
+                                            maxWidth: '75%',
+                                            wordWrap: 'break-word',
+                                            fontSize: '14px'
+                                        }}>
+                                            <div>{msg.text}</div>
+                                            <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '4px', textAlign: 'right' }}>
+                                                {msg.time}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            {/* Elemento invisible para auto-scroll */}
+                            <div ref={messagesEndRef} />
+                        </div>
+
+                        <div className="chat-input-area">
+                            <form className="chat-form" onSubmit={handleSendSubmit}>
                                 <input 
-                                    style={{ flex: 1, backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '99px', padding: '8px 16px', border: '1px solid #d1d5db', outline: 'none' }}
+                                    className="chat-input"
                                     placeholder="Escribe un mensaje..."
                                     value={msgInput}
                                     onChange={e => setMsgInput(e.target.value)}
                                 />
-                                <button type="submit" style={{ backgroundColor: '#0891b2', color: 'white', width: '40px', height: '40px', borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    ➤
-                                </button>
+                                <button type="submit" className="chat-send-btn">➤</button>
                             </form>
                         </div>
                     </div>

@@ -20,10 +20,12 @@ let currentMatchDbId: number | null = null;
 export const socket: Socket = io(SOCKET_URL, {
   //autoConnect: true,
   autoConnect: false, // Importante: No conectar hasta que tengamos el ID
-  transports: ['polling', 'websocket'], 
+  //transports: ['polling', 'websocket'],
+  transports: ['websocket'], 
   reconnection: true,
   reconnectionAttempts: 5,
-  withCredentials: true,
+  //withCredentials: true,
+  withCredentials: false,
   rememberUpgrade: true
 });
 
@@ -33,9 +35,14 @@ const getMyId = () => {
     return id ? parseInt(id, 10) : 0;
 };
 
-// --- ESTA ES LA FUNCIÓN QUE TE FALTABA ---
-export const connectSocket = () => {
-    const userId = getMyId();
+// --- CONEXION ---
+//export const connectSocket = () => {
+    //const userId = getMyId();
+//CAMBIO TEMPORAL******************
+export const connectSocket = (forceId?: number) => {
+    // Si nos pasan un ID, lo usamos. Si no, miramos el localStorage
+    const userId = forceId || getMyId();
+//************************************ */
     if (userId) {
         // Actualizamos la query del socket con el ID del usuario
         socket.io.opts.query = { userId: userId.toString() };
@@ -48,6 +55,15 @@ export const connectSocket = () => {
     } else {
         console.warn("⚠️ Intentando conectar socket sin ID de usuario.");
     }
+};
+
+// Enviar mensaje de chat
+export const sendDirectMessage = (receiverId: number, content: string) => {
+  if (socket && socket.connected) {
+      socket.emit('send_message', { receiverId, content });
+  } else {
+      console.error("❌ No se pudo enviar mensaje: Socket desconectado");
+  }
 };
 
 

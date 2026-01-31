@@ -1,11 +1,25 @@
 .game
 {
+    width: 100%;
+    min-height: 100vh;
     min-width: 800px;
     margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.game h1
+{
+    margin-bottom: 10px;
 }
 
 .game div
 {
+    width: 800px;
+    height: 600px;
+    position: relative;
     display: flex;
     justify-content: center;
 }

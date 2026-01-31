@@ -16,9 +16,11 @@ services:
       - ${GF_CONTAINER_PORT}:${GF_SERVER_HTTP_PORT}
     networks:
       transcendence_net:
-        ipv4_address: 192.168.1.9 # Fixed IP
+        # ipv4_address: 192.168.1.9 # Fixed IP
+        #ipv4_address: 172.20.0.6 # Fixed IP
         aliases:
-          - in_net
+         # - in_net
+         - grafana_alias
     logging:
       driver: "json-file" # Use json-file for easier access if you need to debug raw logs
       options:
