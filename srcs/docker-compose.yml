@@ -2,8 +2,6 @@ name: ${PROJECT_NAME}
 
 include: # Please keep alphabetic order
   - adminer/docker-compose-adminer.yml
-  - auth-frontend/docker-compose-auth-frontend.yml
-  - auth-service/docker-compose-auth-service.yml
   - backend/docker-compose-backend.yml  
   - dbserver/docker-compose-dbserver.yml
   - frontend/docker-compose-frontend.yml

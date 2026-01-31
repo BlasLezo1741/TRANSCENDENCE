@@ -136,6 +136,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     const handleOAuth = (provider: 'google' | '42') => {
         // Redirect browser to Backend Auth Endpoint
         // Ensure this matches your backend port (usually 3000)
+        console.log(`Redirigiendo a OAuth con ${provider}`);
         window.location.href = `http://localhost:3000/auth/${provider}`;
     };
 

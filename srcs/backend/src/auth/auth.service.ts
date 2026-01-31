@@ -2,10 +2,12 @@
 
 import { eq, or , and } from 'drizzle-orm';
 // bcrypt - Librería para encriptar contraseñas de forma segura.
-import { users } from '../schema'; 
+
 import { Injectable, Inject, Logger , ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+
+import { users } from '../schema';
 import { player } from '../schema'; 
 import * as schema from '../schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
@@ -271,18 +273,23 @@ async verifyTOTP(
 
     const hasProfileInfo = oauthData.lang && oauthData.country;
     // Create new user
+    let now = new Date().toISOString();
     const newUser = await this.db
       .insert(player)
       .values({
         pNick: finalNick,
         pMail: oauthData.email,
+        pTotpSecret: null,
+        pTotpEnabled: false,
+        pTotpEnabledAt: null,
+        pTotpBackupCodes: [],
         pOauthProvider: oauthData.oauthProvider,
         pOauthId: oauthData.oauthId,
         pAvatarUrl: oauthData.avatarUrl,
         pLang: oauthData.lang || 'en',
         pCountry: oauthData.country || 'ES',
         pProfileComplete: !!hasProfileInfo,
-        pReg: new Date(),
+        pReg: now,
         pRole: 1,
         pStatus: 1,
       })

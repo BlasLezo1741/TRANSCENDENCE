@@ -16,8 +16,7 @@ SERVICE3 = backend
 SERVICE4 = frontend
 SERVICE8 = grafana
 SERVICE9 = adminer
-SERVICE11 = auth-frontend
-SERVICE12 = auth-service
+
 
 #SERVICES = $(SERVICE2) $(SERVICE9) $(SERVICE8)
 SERVICES = $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) $(SERVICE1)
@@ -115,15 +114,7 @@ $(SERVICE9):
 $(SERVICE9)clean:
 	docker image rm $(SERVICE9)
 
-$(SERVICE11):
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE11)
-$(SERVICE11)clean:
-	docker image rm $(SERVICE11)
 
-$(SERVICE12):
-	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE12)
-$(SERVICE12)clean:
-	docker image rm $(SERVICE12)	
 
 test-db: srcs/.env $(DB_DATA_DIR)
 	# 1. Ensure the containers are up and HEALTHY

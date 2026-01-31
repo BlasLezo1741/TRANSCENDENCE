@@ -130,6 +130,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
         setTotpCode("");
         setPassword("");
         setUserId(null);
+    }
     // ==================== 3. OAUTH ACTIONS ====================
     const handleOAuth = (provider: 'google' | '42') => {
         // Redirect browser to Backend Auth Endpoint

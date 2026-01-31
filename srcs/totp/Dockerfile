@@ -1,5 +1,5 @@
 # --- ETAPA 1: Builder ---
-FROM python:3-slim AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
@@ -17,6 +17,9 @@ RUN python -m venv /opt/venv
 # Aseguramos que los siguientes comandos usen el venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Actualizamos pip ANTES de instalar nada
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 # Seguridad: Usuario no-root
@@ -26,7 +29,7 @@ COPY generate_encrypt_key.py .
 RUN python3 generate_encrypt_key.py
 
 # --- ETAPA 2: Final ---
-FROM python:3-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 

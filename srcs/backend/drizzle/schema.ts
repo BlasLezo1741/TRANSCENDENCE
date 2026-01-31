@@ -1,4 +1,4 @@
-import { pgTable, smallint, jsonb, char, varchar, boolean, foreignKey, unique, integer, text, timestamp, date, interval, doublePrecision, primaryKey, customType } from "drizzle-orm/pg-core"
+import { pgTable, char, varchar, boolean, foreignKey, unique, integer, text, timestamp, date, smallint, jsonb, interval, doublePrecision, primaryKey,customType } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 // Helper para el tipo bytea de Postgres
@@ -6,28 +6,27 @@ const bytea = customType<{ data: Buffer }>({
   dataType() { return 'bytea'; },
 });
 
-export const metricCategory = pgTable("metric_category", {
-	metricCatePk: smallint("metric_cate_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_category_metric_cate_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	metricCateI18NName: jsonb("metric_cate_i18n_name").notNull(),
-});
-
 export const pLanguage = pgTable("p_language", {
 	langPk: char("lang_pk", { length: 2 }).primaryKey().notNull(),
 	langName: varchar("lang_name", { length: 255 }),
 	langStatus: boolean("lang_status"),
 });
-// Alias for compatibility
+
 export const player = pgTable("player", {
 	pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-	pNick: varchar("p_nick", { length: 20 }).notNull(),
+	pNick: varchar("p_nick", { length: 255 }).notNull(),
 	// TODO: failed to parse database type 'citext'
 	pMail: text("p_mail").notNull(),
-	pPass: text("p_pass").notNull(),
+	pPass: text("p_pass"),
 	// TODO: failed to parse database type 'bytea'
 	pTotpSecret: bytea("p_totp_secret"),
 	pTotpEnabled: boolean("p_totp_enabled").default(false),
 	pTotpEnabledAt: timestamp("p_totp_enabled_at", { mode: 'string' }),
 	pTotpBackupCodes: text("p_totp_backup_codes").array(),
+	pOauthProvider: varchar("p_oauth_provider", { length: 20 }),
+	pOauthId: varchar("p_oauth_id", { length: 255 }),
+	pAvatarUrl: varchar("p_avatar_url", { length: 500 }),
+	pProfileComplete: boolean("p_profile_complete").default(false),
 	pReg: timestamp("p_reg", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
 	pBir: date("p_bir"),
 	pLang: char("p_lang", { length: 2 }),
@@ -57,8 +56,8 @@ export const player = pgTable("player", {
 		}),
 	unique("player_p_nick_key").on(table.pNick),
 	unique("player_p_mail_key").on(table.pMail),
+	unique("unique_oauth_user").on(table.pOauthProvider, table.pOauthId),
 ]);
-export const users = player;
 
 export const country = pgTable("country", {
 	counName: char("coun_name", { length: 52 }),
@@ -84,9 +83,9 @@ export const status = pgTable("status", {
 	statusI18NName: jsonb("status_i18n_name").notNull(),
 });
 
-export const matchMode = pgTable("match_mode", {
-	mmodPk: smallint("mmod_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_mode_mmod_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	mmodName: varchar("mmod_name", { length: 20 }),
+export const metricCategory = pgTable("metric_category", {
+	metricCatePk: smallint("metric_cate_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_category_metric_cate_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	metricCateI18NName: jsonb("metric_cate_i18n_name").notNull(),
 });
 
 export const metric = pgTable("metric", {
@@ -101,6 +100,11 @@ export const metric = pgTable("metric", {
 			name: "metric_metric_cat_fk_fkey"
 		}),
 ]);
+
+export const matchMode = pgTable("match_mode", {
+	mmodPk: smallint("mmod_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_mode_mmod_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	mmodName: varchar("mmod_name", { length: 20 }),
+});
 
 export const match = pgTable("match", {
 	mPk: integer("m_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_m_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),

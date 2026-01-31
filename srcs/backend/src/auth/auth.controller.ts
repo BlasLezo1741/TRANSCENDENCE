@@ -41,7 +41,8 @@ export class AuthController {
   async verifyTotp(@Body() body: any) {
     // Recibimos { userId, totpCode } del frontend
     const { userId, totpCode } = body;
-    return AuthService.verifyTOTP(userId, totpCode);
+    //return AuthService.verifyTOTP(userId, totpCode);
+  }
   // ==================== GOOGLE OAUTH ====================
   
   @Get('google')

@@ -1,16 +1,9 @@
-import { pgTable, smallint, jsonb, foreignKey, unique, char, varchar, boolean, integer, text, timestamp, date, doublePrecision, interval, primaryKey, customType } from "drizzle-orm/pg-core"
+import { pgTable, char, varchar, boolean, foreignKey, unique, integer, text, timestamp, date, smallint, jsonb, interval, doublePrecision, primaryKey, customType } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 // Helper para el tipo bytea de Postgres
 const bytea = customType<{ data: Buffer }>({
   dataType() { return 'bytea'; },
-});
-
-// --- 1. LOOKUP TABLES (Define these first so others can reference them) ---
-
-export const metricCategory = pgTable("metric_category", {
-	metricCatePk: smallint("metric_cate_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_category_metric_cate_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	metricCateI18NName: jsonb("metric_cate_i18n_name").notNull(),
 });
 
 export const pLanguage = pgTable("p_language", {
@@ -19,141 +12,21 @@ export const pLanguage = pgTable("p_language", {
 	langStatus: boolean("lang_status"),
 });
 
-export const country = pgTable("country", {
-	counName: char("coun_name", { length: 52 }),
-	coun2Pk: char("coun2_pk", { length: 2 }).primaryKey().notNull(),
-	coun3: char({ length: 3 }),
-	counCode: char("coun_code", { length: 3 }),
-	counIsoCode: char("coun_iso_code", { length: 13 }),
-	counRegion: char("coun_region", { length: 8 }),
-	counRegionSub: char("coun_region_sub", { length: 31 }),
-	counRegionInt: char("coun_region_int", { length: 15 }),
-	counRegionCode: char("coun_region_code", { length: 3 }),
-	counRegionSubCode: char("coun_region_sub_code", { length: 3 }),
-	counRegionIntCode: char("coun_region_int_code", { length: 3 }),
-});
-
-export const pRole = pgTable("p_role", {
-	rolePk: smallint("role_pk").primaryKey().generatedAlwaysAsIdentity({ name: "p_role_role_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	roleI18NName: jsonb("role_i18n_name").notNull(),
-});
-
-export const status = pgTable("status", {
-	statusPk: smallint("status_pk").primaryKey().generatedAlwaysAsIdentity({ name: "status_status_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	statusI18NName: jsonb("status_i18n_name").notNull(),
-});
-
-export const matchMode = pgTable("match_mode", {
-    mmodPk: smallint("mmod_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_mode_mmod_pk_seq", startWith: 1, increment: 1 }),
-    mmodName: varchar("mmod_name", { length: 20 }),
-});
-
-export const organization = pgTable("organization", {
-	orgPk: smallint("org_pk").primaryKey().generatedAlwaysAsIdentity({ name: "organization_org_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	orgName: varchar("org_name", { length: 255 }),
-});
-
-// --- 2. DEPENDENT TABLES (These reference the tables above) ---
-
-export const metric = pgTable("metric", {
-	metricPk: smallint("metric_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_metric_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
-	metricCatFk: smallint("metric_cat_fk"),
-	metricI18NName: jsonb("metric_i18n_name").notNull(),
-	metricI18NDescription: jsonb("metric_i18n_description").notNull(),
-}, (table) => [
-	foreignKey({
-			columns: [table.metricCatFk],
-			foreignColumns: [metricCategory.metricCatePk],
-			name: "metric_metric_cat_fk_fkey"
-		}),
-]);
-/*
-export const player = pgTable("player", {
-    pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-    pNick: varchar("p_nick", { length: 255 }).unique().notNull(),
-    pMail: varchar("p_mail", { length: 255 }).unique().notNull(),
-    pPass: varchar("p_pass", { length: 255 }).notNull(),
-    pReg: timestamp("p_reg", { mode: 'string' }).defaultNow(),
-    pBir: date("p_bir"),
-    pLang: char("p_lang", { length: 2 }),
-    pCountry: char("p_country", { length: 2 }),
-    pRole: smallint("p_role").default(1), 
-    pStatus: smallint("p_status").default(1),
-}, (table) => [
-    foreignKey({
-            columns: [table.pLang],
-            foreignColumns: [pLanguage.langPk],
-            name: "player_p_lang_fkey"
-        }),
-    foreignKey({
-            columns: [table.pCountry],
-            foreignColumns: [country.coun2Pk], // Now 'country' is defined above, this is safe
-            name: "player_p_country_fkey"
-        }),
-    foreignKey({
-            columns: [table.pRole],
-            foreignColumns: [pRole.rolePk],    // Now 'pRole' is defined above, this is safe
-            name: "player_p_role_fkey"
-        }),
-    foreignKey({
-            columns: [table.pStatus],
-            foreignColumns: [status.statusPk], // Now 'status' is defined above, this is safe
-            name: "player_p_status_fkey"
-        }),
-]);
-*/
-
-
-export const player = pgTable("player", {
-	pPk: integer('p_pk').primaryKey().generatedAlwaysAsIdentity(),
-	pNick: varchar('p_nick', { length: 20 }).notNull().unique(),
-	pMail: varchar('p_mail', { length: 255 }).notNull().unique(),
-	pPass: varchar('p_pass', { length: 255 }), // NULLABLE for OAuth users
-	pOauthProvider: varchar('p_oauth_provider', { length: 20 }), // NEW: '42' or 'google'
-	pOauthId: varchar('p_oauth_id', { length: 255 }), // NEW: OAuth provider's user ID
-	pAvatarUrl: varchar('p_avatar_url', { length: 500 }), // NEW: Profile picture URL
-	pProfileComplete: boolean('p_profile_complete').default(false), // NEW: Track if country/lang set
-	pReg: timestamp('p_reg').defaultNow(),
-	pBir: date('p_bir'),
-	pLang: char('p_lang', { length: 2 }),
-	pCountry: char('p_country', { length: 2 }),
-	pRole: smallint('p_role').default(1),
-	pStatus: smallint('p_status').default(1),
-}, (table) => [
-    // ... keep your existing foreign keys ...
-    foreignKey({
-            columns: [table.pLang],
-            foreignColumns: [pLanguage.langPk],
-            name: "player_p_lang_fkey"
-        }),
-    foreignKey({
-            columns: [table.pCountry],
-            foreignColumns: [country.coun2Pk],
-            name: "player_p_country_fkey"
-        }),
-    foreignKey({
-            columns: [table.pRole],
-            foreignColumns: [pRole.rolePk],
-            name: "player_p_role_fkey"
-        }),
-    foreignKey({
-            columns: [table.pStatus],
-            foreignColumns: [status.statusPk],
-            name: "player_p_status_fkey"
-        }),
-]);
-*/
 export const player = pgTable("player", {
 	pPk: integer("p_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_p_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-	pNick: varchar("p_nick", { length: 20 }).notNull(),
+	pNick: varchar("p_nick", { length: 255 }).notNull(),
 	// TODO: failed to parse database type 'citext'
 	pMail: text("p_mail").notNull(),
-	pPass: text("p_pass").notNull(),
+	pPass: text("p_pass"),
 	// TODO: failed to parse database type 'bytea'
 	pTotpSecret: bytea("p_totp_secret"),
 	pTotpEnabled: boolean("p_totp_enabled").default(false),
 	pTotpEnabledAt: timestamp("p_totp_enabled_at", { mode: 'string' }),
 	pTotpBackupCodes: text("p_totp_backup_codes").array(),
+	pOauthProvider: varchar("p_oauth_provider", { length: 20 }),
+	pOauthId: varchar("p_oauth_id", { length: 255 }),
+	pAvatarUrl: varchar("p_avatar_url", { length: 500 }),
+	pProfileComplete: boolean("p_profile_complete").default(false),
 	pReg: timestamp("p_reg", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
 	pBir: date("p_bir"),
 	pLang: char("p_lang", { length: 2 }),
@@ -183,35 +56,76 @@ export const player = pgTable("player", {
 		}),
 	unique("player_p_nick_key").on(table.pNick),
 	unique("player_p_mail_key").on(table.pMail),
+	unique("unique_oauth_user").on(table.pOauthProvider, table.pOauthId),
 ]);
 
-// Alias for compatibility
 export const users = player;
 
-export const match = pgTable("match", {
-    mPk: integer("m_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_m_pk_seq", startWith: 1, increment: 1 }),
-    mDate: timestamp("m_date", { mode: 'string' }),
-    mDuration: interval("m_duration"),
-    mModeFk: smallint("m_mode_fk"), 
-    mWinnerFk: integer("m_winner_fk"),
-	// --- NUEVAS COLUMNAS ---
-    mScoreP1: integer("m_score_p1").default(0),
-    mScoreP2: integer("m_score_p2").default(0),
-    mTotalHits: integer("m_total_hits").default(0),
+export const country = pgTable("country", {
+	counName: char("coun_name", { length: 52 }),
+	coun2Pk: char("coun2_pk", { length: 2 }).primaryKey().notNull(),
+	coun3: char({ length: 3 }),
+	counCode: char("coun_code", { length: 3 }),
+	counIsoCode: char("coun_iso_code", { length: 13 }),
+	counRegion: char("coun_region", { length: 8 }),
+	counRegionSub: char("coun_region_sub", { length: 31 }),
+	counRegionInt: char("coun_region_int", { length: 15 }),
+	counRegionCode: char("coun_region_code", { length: 3 }),
+	counRegionSubCode: char("coun_region_sub_code", { length: 3 }),
+	counRegionIntCode: char("coun_region_int_code", { length: 3 }),
+});
+
+export const pRole = pgTable("p_role", {
+	rolePk: smallint("role_pk").primaryKey().generatedAlwaysAsIdentity({ name: "p_role_role_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	roleI18NName: jsonb("role_i18n_name").notNull(),
+});
+
+export const status = pgTable("status", {
+	statusPk: smallint("status_pk").primaryKey().generatedAlwaysAsIdentity({ name: "status_status_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	statusI18NName: jsonb("status_i18n_name").notNull(),
+});
+
+export const metricCategory = pgTable("metric_category", {
+	metricCatePk: smallint("metric_cate_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_category_metric_cate_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	metricCateI18NName: jsonb("metric_cate_i18n_name").notNull(),
+});
+
+export const metric = pgTable("metric", {
+	metricPk: smallint("metric_pk").primaryKey().generatedAlwaysAsIdentity({ name: "metric_metric_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	metricCatFk: smallint("metric_cat_fk"),
+	metricI18NName: jsonb("metric_i18n_name").notNull(),
+	metricI18NDescription: jsonb("metric_i18n_description").notNull(),
 }, (table) => [
-    foreignKey({
-            columns: [table.mWinnerFk],
-            foreignColumns: [player.pPk],
-            name: "match_m_winner_fk_fkey"
-        }),
-    foreignKey({
-            columns: [table.mModeFk],
-            foreignColumns: [matchMode.mmodPk],
-            name: "match_m_mode_fk_fkey"
-        }),
+	foreignKey({
+			columns: [table.metricCatFk],
+			foreignColumns: [metricCategory.metricCatePk],
+			name: "metric_metric_cat_fk_fkey"
+		}),
 ]);
 
-// --- 3. DEEPLY NESTED TABLES (These reference tables from group 2) ---
+export const matchMode = pgTable("match_mode", {
+	mmodPk: smallint("mmod_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_mode_mmod_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	mmodName: varchar("mmod_name", { length: 20 }),
+});
+
+export const match = pgTable("match", {
+	mPk: integer("m_pk").primaryKey().generatedAlwaysAsIdentity({ name: "match_m_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
+	mDate: timestamp("m_date", { mode: 'string' }),
+	mDuration: interval("m_duration"),
+	mModeFk: smallint("m_mode_fk"),
+	mWinnerFk: integer("m_winner_fk"),
+}, (table) => [
+	foreignKey({
+			columns: [table.mModeFk],
+			foreignColumns: [matchMode.mmodPk],
+			name: "match_m_mode_fk_fkey"
+		}),
+	foreignKey({
+			columns: [table.mWinnerFk],
+			foreignColumns: [player.pPk],
+			name: "match_m_winner_fk_fkey"
+		}),
+]);
 
 export const matchmetric = pgTable("matchmetric", {
 	mmPk: integer("mm_pk").primaryKey().generatedAlwaysAsIdentity({ name: "matchmetric_mm_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
@@ -221,7 +135,7 @@ export const matchmetric = pgTable("matchmetric", {
 }, (table) => [
 	foreignKey({
 			columns: [table.mmMatchFk],
-			foreignColumns: [match.mPk], // match is defined above
+			foreignColumns: [match.mPk],
 			name: "matchmetric_mm_match_fk_fkey"
 		}),
 	foreignKey({
@@ -247,25 +161,18 @@ export const playerOrganization = pgTable("player_organization", {
 		}),
 ]);
 
-// 1. NUEVA TABLA (Lookup Table para estados)
-export const friendStatus = pgTable("friend_status", {
-	fsPk: smallint("fs_pk").primaryKey().generatedAlwaysAsIdentity(),
-	fsI18nName: jsonb("fs_i18n_name").notNull(),
+export const organization = pgTable("organization", {
+	orgPk: smallint("org_pk").primaryKey().generatedAlwaysAsIdentity({ name: "organization_org_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	orgName: varchar("org_name", { length: 255 }),
 });
 
 export const playerFriend = pgTable("player_friend", {
-	friendPk: integer("friend_pk").primaryKey().generatedAlwaysAsIdentity(),
-	f1: integer("f_1").references(() => player.pPk),
-	f2: integer("f_2").references(() => player.pPk),
-	fDate: timestamp("f_date", { mode: 'string' }).defaultNow(), // Añadido defaultNow
-	
-    // CAMBIO: De booleano a Foreign Key
-    // ANTES: fType: boolean("f_type"),
-    // AHORA:
-    fStatusFk: smallint("f_status_fk").references(() => friendStatus.fsPk), 
-
+	friendPk: integer("friend_pk").primaryKey().generatedAlwaysAsIdentity({ name: "player_friend_friend_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
+	f1: integer("f_1"),
+	f2: integer("f_2"),
+	fDate: timestamp("f_date", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
+	fStatusFk: smallint("f_status_fk"),
 }, (table) => [
-    // Foreign Keys explícitas si las necesitas en Drizzle (opcional si usas references arriba)
 	foreignKey({
 			columns: [table.f1],
 			foreignColumns: [player.pPk],
@@ -276,7 +183,17 @@ export const playerFriend = pgTable("player_friend", {
 			foreignColumns: [player.pPk],
 			name: "player_friend_f_2_fkey"
 		}),
+	foreignKey({
+			columns: [table.fStatusFk],
+			foreignColumns: [friendStatus.fsPk],
+			name: "player_friend_f_status_fk_fkey"
+		}),
 ]);
+
+export const friendStatus = pgTable("friend_status", {
+	fsPk: smallint("fs_pk").primaryKey().generatedAlwaysAsIdentity({ name: "friend_status_fs_pk_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 32767, cache: 1 }),
+	fsI18NName: jsonb("fs_i18n_name").notNull(),
+});
 
 export const competitor = pgTable("competitor", {
 	mcMatchFk: integer("mc_match_fk").notNull(),
@@ -313,4 +230,3 @@ export const competitormetric = pgTable("competitormetric", {
 		}),
 	primaryKey({ columns: [table.mcmPlayerFk, table.mcmMetricFk, table.mcmMatchFk], name: "competitormetric_pkey"}),
 ]);
-
