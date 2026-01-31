@@ -10,13 +10,14 @@ import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
 import SettingsScreen from './screens/SettingsScreen.tsx'
+import InfoScreen from './screens/InfoScreen.tsx'
 
-import Header from './components/Header/Header.tsx'
-import Footer from './components/Footer/Footer.tsx'
-import { StatusBadge } from './components/StatusBadge'; // Importamos el nuevo badge
+import Header from './components/Header.tsx'
+import Footer from './components/Footer.tsx'
 import { socket, connectSocket, setMatchData } from './services/socketService';
+import { ChatSidebar } from './components/ChatSidebar';
 
-import "./App.css";
+import "./css/App.css";
 
 function App()
 {
@@ -28,25 +29,43 @@ function App()
   
   // Si ya hay usuario, arrancamos en "menu". Si no, en "login".
   // Esto evita que React renderice 'LoginScreen' al refrescar y active el borrado de usuario.
-  const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "login" as Screen);
+  const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "menu" as Screen);
 
-  // // --- GESTIÓN DE USUARIO REAL ---
+  // // --- GESTIÓN DE USUARIO REAL,GESTIÓN DE ESTADOS GLOBALES ---
   const [currentUser, setCurrentUser] = useState<string>(savedUserNick);
   const [mode, setMode] = useState<GameMode>("ia");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
   const [ballInit, setBallInit] = useState<{x: number, y: number} | null>(null);
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
-  
+  const [option, setOption] = useState<string>("");
+
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
+
+  // 🔥 ESTADO PARA LA INVITACIÓN MODAL
+  const [inviteRequest, setInviteRequest] = useState<{fromUserId: number, fromUserName: string} | null>(null);
   
-  // NUEVO (CRUCIAL): CONEXIÓN AUTOMÁTICA DEL SOCKET
-  // Esto detecta si hay usuario (al hacer Login o al refrescar F5) y conecta el socket
+  // -----------------------------------------------------------
+  // 1. CONEXIÓN AUTOMÁTICA DEL SOCKET
+  // -----------------------------------------------------------
   useEffect(() => {
     if (currentUser) {
         console.log("🔄 Usuario activo detectado. Conectando socket...");
-        connectSocket(); // <--- IMPORTANTE: Asegúrate de importar esto arriba
+        //connectSocket(); // <--- IMPORTANTE: Asegúrate de importar esto arriba
+        // -----------------------------------------------------------
+        // 🕵️ TRUCO PARA PROBAR: Leer ID de la URL
+        // -----------------------------------------------------------
+        const queryParams = new URLSearchParams(window.location.search);
+        const urlId = queryParams.get('uid'); 
+        
+        // Si hay ?uid=X en la URL, usamos ese. 
+        // Si no, intentamos leer del localStorage (o dejamos que el servicio lo busque).
+        const idToConnect = urlId ? Number(urlId) : Number(localStorage.getItem("pong_user_id"));
+
+        // Pasamos el ID explícito al servicio
+        connectSocket(idToConnect);
+        /*********************************** */
     }
   }, [currentUser]);
 
@@ -63,61 +82,91 @@ function App()
       // 4. Cambiar Pantalla
       dispatch({ type: "LOGOUT" }); // O "LOGIN"
   };
-
-  // ESCUCHA GLOBAL DE SOCKET EN APP  
+  
+  // -----------------------------------------------------------------------
+  // 2. ESCUCHA GLOBAL DE SOCKET (PARTIDAS E INVITACIONES)
+  // -----------------------------------------------------------------------
   useEffect(() => {
-      const handleMatchFound = (payload: any) => {
+  const handleMatchFound = (payload: any) => {
           console.log("🔔 [App.tsx] Evento match_found recibido:", payload);
 
-          if (payload.roomId && payload.matchId !== undefined) {
+          if (payload.roomId) { 
               
-              // NUEVO: GUARDAR ROOM ID EN ESTADO
               setRoomId(payload.roomId)
-              // 1. Guardar IDs
-              setMatchData(payload.roomId, payload.matchId);
+              // Si hay matchId lo guardamos, si no (privada), usamos 0
+              setMatchData(payload.roomId, payload.matchId || 0);
               
-              // 2. Guardar Nombre Rival
+              // Guardar Nombre Rival
               if (payload.opponent && payload.opponent.name) {
                   setOpponentName(payload.opponent.name);
               } else {
                   setOpponentName("Oponente Online");
               }
 
-              // 3. Guardar Física
+              // Guardar Física (si viene del backend)
               if (payload.ballInit) {
                   setBallInit(payload.ballInit);
               }
 
-              // 4. Guardar Lado (CRUCIAL)
+              // Guardar Lado
               if (payload.side) {
                   console.log("📍 Lado asignado a este cliente:", payload.side);
                   setPlayerSide(payload.side);
               }
 
-              // 5. Configurar modo y cambiar pantalla
+              // Configurar modo remoto
               setMode("remote");
 
-              // 6. CAMBIO DE PANTALLA CON RETRASO (SOLUCIÓN)
-              // Esperamos 50ms para asegurar que React actualice playerSide y opponentName
-              // antes de montar el componente PongScreen.
+              // 🔥 IMPORTANTE: Asegurar que se cierra cualquier invitación pendiente
+              setInviteRequest(null);
+
+              // CAMBIO DE PANTALLA
+              // Usamos dispatch, no navigate. El setTimeout ayuda a que los estados se asienten.
               setTimeout(() => {
                   console.log("🚀 Ejecutando cambio de pantalla a PONG...");
-                  dispatch({ type: "PONG" });
+                  dispatch({ type: "PONG" }); 
               }, 50);
           } else {
-             console.error("❌ Error: roomId o matchId no válidos", payload);
+             console.error("❌ Error: roomId no válido", payload);
           }
       };
 
-      // Activar listener
-      socket.on('match_found', handleMatchFound);
+      // 🔥 MANEJO DE INVITACIÓN CON MODAL PROPIO (NO window.confirm)
+      const handleIncomingInvite = (data: { fromUserId: number, fromUserName: string }) => {
+        console.log("🔔 Invitación recibida (Modal):", data);
+        setInviteRequest(data); // Esto abrirá el pop-up visual
+      };
 
-      // Limpiar listener al desmontar
+      socket.on('match_found', handleMatchFound);
+      socket.on('incoming_game_invite', handleIncomingInvite);
+
       return () => {
           socket.off('match_found', handleMatchFound);
+          socket.off('incoming_game_invite', handleIncomingInvite);
       };
-    }, []); // Array vacío = se ejecuta al montar App una vez
+    }, []);
 
+    // --- FUNCIÓN PARA ACEPTAR/RECHAZAR ---
+const handleInviteResponse = (accept: boolean) => {
+      // Si no hay invitación, no hacemos nada
+      if (!inviteRequest) return;
+
+      if (accept) {
+          console.log("✅ Aceptando reto...");
+          // 1. Avisamos al servidor
+          socket.emit('accept_game_invite', { challengerId: inviteRequest.fromUserId });
+          
+          // 🔥 2. IMPORTANTE: Cerramos el modal VISUALMENTE ya.
+          // No esperamos a que el servidor responda. Si hay error, ya lo manejaremos,
+          // pero el usuario no debe ver el modal bloqueando la pantalla.
+          setInviteRequest(null); 
+      } else {
+          console.log("❌ Rechazando reto.");
+          setInviteRequest(null); // Cerramos el modal
+      }
+  };
+   
+// --- RENDERIZADO DE PANTALLAS ---
 function renderScreen()
   {
     switch (screen)
@@ -152,23 +201,59 @@ function renderScreen()
           return <StatsScreen />;
         case "settings":
           return <SettingsScreen />;
-      default:
+        case "info":
+          return <InfoScreen dispatch={dispatch} option={option} />; 
+        default:
           return null;
     }
   }
 
   return (
     <div className="app">
-      {/* 1. Ponemos el indicador arriba de todo */}
-      <StatusBadge />
-      {/* 2. El resto de la aplicación */}
-      <Header 
-        dispatch={dispatch} 
-        userName={currentUser}
-        onLogout={handleLogout}
-      />
+      {currentUser && <ChatSidebar />}
+      {/* 🔥🔥 MODAL DE INVITACIÓN - ESTILOS INLINE PARA RAPIDEZ 🔥🔥 */}
+      {inviteRequest && (
+          <div style={{
+              position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+              backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999,
+              display: 'flex', justifyContent: 'center', alignItems: 'center'
+          }}>
+              <div style={{
+                  backgroundColor: '#222', padding: '30px', borderRadius: '10px',
+                  border: '2px solid #ea580c', textAlign: 'center', color: 'white',
+                  maxWidth: '400px', boxShadow: '0 0 20px rgba(234, 88, 12, 0.5)'
+              }}>
+                  <h2 style={{marginTop: 0}}>⚔️ ¡DESAFÍO PONG!</h2>
+                  <p style={{fontSize: '18px', margin: '20px 0'}}>
+                      <strong>{inviteRequest.fromUserName}</strong> quiere jugar contigo.
+                  </p>
+                  <div style={{display: 'flex', gap: '20px', justifyContent: 'center'}}>
+                      <button 
+                          onClick={() => handleInviteResponse(true)}
+                          style={{
+                              backgroundColor: '#22c55e', color: 'white', border: 'none',
+                              padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
+                          }}
+                      >
+                          ACEPTAR
+                      </button>
+                      <button 
+                          onClick={() => handleInviteResponse(false)}
+                          style={{
+                              backgroundColor: '#ef4444', color: 'white', border: 'none',
+                              padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
+                          }}
+                      >
+                          RECHAZAR
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      <Header dispatch={dispatch} userName={currentUser} onLogout={handleLogout} />
       <main>{renderScreen()}</main>
-      <Footer />
+      <Footer dispatch={dispatch} setOption={setOption}/>
     </div>
   );
 }

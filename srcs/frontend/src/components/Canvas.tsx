@@ -2,6 +2,7 @@ import React, {useRef, useEffect} from "react";
 import { Pong } from "../ts/models/Pong.ts"
 import { socket } from '../services/socketService'; 
 import type { GameMode } from "../ts/types.ts";
+import { useModal } from '../context/ModalContext';
 
 type CanvasProps = {
     mode: GameMode;
@@ -12,14 +13,28 @@ type CanvasProps = {
     ballInit: { x: number, y: number } | null;
     playerSide?: 'left' | 'right';
     roomId: string;
+    isGameActive: boolean;
 };
 
-function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId }: CanvasProps)
+function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId,
+    isGameActive }: CanvasProps)
 {
+    const { showModal } = useModal();
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const animationIdRef = useRef<number | null>(null);
+    const gameRunningRef = useRef(false);
     const roomIdRef = useRef<string>(roomId); //nuevo
     //const roomIdRef = useRef<string | null>(null);//guardamos IDde la sala
     const lastSentY = useRef<number>(0.5); // Aquí la última posición enviada
+
+    // TRUCO DE REF: Guardamos el estado en una referencia
+    // Esto permite que el renderLoop (que corre aislado) lea el valor actual sin reiniciarse
+    const activeRef = useRef(isGameActive);
+
+    // Actualizamos la referencia cada vez que cambia la prop
+    useEffect(() => {
+        activeRef.current = isGameActive;
+    }, [isGameActive])
 
     // -----------------------------------------------------------
     // INICIO DEL USE EFFECT (Todo ocurre aquí dentro)
@@ -80,6 +95,8 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         socket.on('game_update_physics', (data: any) => {
             if (!game) return;
 
+            if (!activeRef.current) return;
+
             // 1. SINCRONIZAR BOLA
             if (game.ball && data.ball) {
                 // Multiplicamos AQUÍ por width/height
@@ -136,15 +153,31 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             // Paramos animación
             cancelAnimationFrame(animationId);
             
-            alert("Game Over! Winner: " + winnerName);
-            dispatch({ type: "MENU" });
+            // alert("Game Over! Winner: " + winnerName);
+            // dispatch({ type: "MENU" });
+            showModal({
+                title: "🏆 ¡JUEGO TERMINADO!",
+                message: `Victoria para: ${winnerName}`,
+                type: "success",
+                onConfirm: () => {
+                    dispatch({ type: "MENU" });
+                }
+            });
         };
 
         // Definimos qué hacer cuando el rival se desconecta
         const handleOpponentDisconnected = () => {
             console.warn("⚠️ Rival desconectado");
-            alert("El rival se ha desconectado. Ganaste por abandono.");
-            dispatch({ type: "MENU" });
+            // alert("El rival se ha desconectado. Ganaste por abandono.");
+            // dispatch({ type: "MENU" });
+            showModal({
+                title: "🔌 Rival Desconectado",
+                message: "El rival ha perdido la conexión. ¡Has ganado por abandono!",
+                type: "info",
+                onConfirm: () => {
+                    dispatch({ type: "MENU" });
+                }
+            });
         };
 
         // Activamos listeners de eventos de juego
@@ -158,6 +191,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         };
 
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (!activeRef.current) return;
             if (game.keysPressed[e.key]) return;
             game.keysPressed[e.key] = true;
             if (e.code === "Space" && mode !== "remote")
@@ -171,7 +205,20 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         let animationId: number;
 
         const renderLoop = () => {
-            // 1. Mover pala localmente (Tu teclado actualiza game.player1.y aquí)
+            
+            // BLOQUEO BUCLE PRINCIPAL En CUENTA ATRAS
+            if (!activeRef.current) {
+                // Si estamos en cuenta atrás:
+                // DIBUJAMOS (para ver el tablero estático de fondo)
+                game.draw(); 
+                // Pero NO ACTUALIZAMOS (game.update() no se llama)
+                
+                // Pedimos siguiente frame y SALIMOS
+                animationId = requestAnimationFrame(renderLoop);
+                return; 
+            }
+            
+            // 1.Si activeRef.current es TRUE. Mover pala localmente (Tu teclado actualiza game.player1.y aquí)
             game.update(); 
             game.draw(); 
 
@@ -186,8 +233,16 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                     
                     // Avisamos y salimos con delay para dar tiempo a meter el ultimo tanto en el marcador
                     setTimeout(() => {
-                        alert(`¡Juego Terminado! Ganador: ${winnerName}`);
-                        dispatch({ type: "MENU" });
+                        // alert(`¡Juego Terminado! Ganador: ${winnerName}`);
+                        // dispatch({ type: "MENU" });
+                        showModal({
+                            title: "🏆 ¡PARTIDA FINALIZADA!",
+                            message: `Ganador: ${winnerName}`,
+                            type: "success",
+                            onConfirm: () => {
+                                dispatch({ type: "MENU" });
+                            }
+                        });
                     }, 50);
                     return; 
                 }
@@ -236,7 +291,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
     
     }, [mode, userName, opponentName, ballInit, playerSide, dispatch, roomId]); 
 
-    return <canvas ref={canvasRef} style={{background: "black"}}/>;
+    return <canvas ref={canvasRef} className="game-canvas"/>;
 }
 
 export default Canvas;

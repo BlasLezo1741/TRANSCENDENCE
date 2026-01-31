@@ -1,15 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { joinQueue, socket, setMatchData } from '../services/socketService';
+import { joinQueue, socket, setMatchData } from '../services/socketService.ts';
 
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../ts/types.ts';
 
+import cross from '../assets/x_chatgpt.png';
+
 import bg_image from '../assets/Imagen_pong_v2.png';
 //import bg_image from '../assets/Flag_of_Catalonia.png';
-import cross from '../assets/react.svg';
 
-import "./MenuScreen.css";
+import "../css/MenuScreen.css";
 
 type OptionsProps = ScreenProps & {
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
@@ -26,24 +27,31 @@ const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSid
     const [modeActive, setModeActive] = useState<"offline" | "online" | null>(false);
     
     const countDownRef = useRef<NodeJS.Timeout | null>(null);
+
     // LÓGICA DE BOTONES
-    const handleMode = (mode: GameMode) => {
-        
-        // --- CASO A: MODOS ONLINE (Requieren espera y servidor) ---
-        if (mode === "remote" || mode === "tournament") {
-            const socketMode = mode === "remote" ? "1v1_remote" : "tournament";
+    const handleMode = (mode: GameMode) =>
+    {
+        if (modeActive) return;
+
+        if (mode === "remote")
+        {
+            const socketMode = "1v1_remote";
             console.log("🚀 Enviando al Socket (Online):", socketMode);
             
             joinQueue(userName, socketMode); 
 
             console.log("⏳ Esperando a que el servidor encuentre rival...");
+
+            setStatusText("Buscando jugador...");
+            setModeActive("online");
+
             // 🛑 STOP: No hacemos setMode ni dispatch aquí. Esperamos al useEffect.
             return; 
         }
 
-        // --- CASO B: MODOS OFFLINE (IA y Local) -> Arrancan al instante ---
-        // En local, el rival está en tu teclado, no necesitamos cola de espera.
+        // Offline
         console.log("⚡ Iniciando modo Offline:", mode);
+
         // 1. Forzamos que en local SIEMPRE seas la izquierda
         setPlayerSide('left');
 
@@ -86,24 +94,6 @@ const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSid
         console.log("❌ Proceso cancelado");
     }
 
-/*
-    return (
-        <div>
-            <h1>{t('modo')}</h1>
-            <iframe
-  src="http://localhost:4000/public-dashboards/c884460c9e5c426891797c029e78a282"
-  width="100%"
-  height="500"
-  frameborder="0">
-</iframe>
-            <button onClick={() => handleMode("ia")}>player vs ia</button>
-            <button onClick={() => handleMode("local")}>player vs player</button>
-            <button onClick={() => handleMode("remote")}>player vs remote</button>
-            <button onClick={() => handleMode("tournament")}>tournament</button>
-        </div>
-    );
-*/
-
     return (
         <section className="menu">
             <img className="bg_image" src={bg_image} alt="Imagen central"/>
@@ -114,14 +104,14 @@ const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSid
                 <button onClick={() => handleMode("ia")}>player vs ia</button>
                 <button onClick={() => handleMode("local")}>player vs player</button>
                 <button onClick={() => handleMode("remote")}>player vs remote</button>
-                <button onClick={() => handleMode("tournament")}>tournament</button>
+                {/* <button onClick={() => handleMode("tournament")}>tournament</button> */}
             </div>
 
             <div className="search">
                 <p>{statusText}</p>
                 {modeActive && 
                 (
-                    <img src={cross} alt="Cancelar" onClick={cancelProcess}/>
+                    <img className="cross" src={cross} alt="Cancelar" onClick={cancelProcess}/>
                 )}
             </div>
 

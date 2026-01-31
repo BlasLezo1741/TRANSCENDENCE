@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 
+import "../css/Login.css";
+
 // Add prop for global state update
 type LoginScreenProps = ScreenProps & {
     setGlobalUser: (user: string) => void;
@@ -139,6 +141,59 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
     };
 
     return (
+        <div className="registro">
+            <h1>{t('bienvenido')}</h1>
+
+            <form onSubmit={handleForm} className="login">
+                {/* User */}
+                <label htmlFor="user">{t('user')}</label>
+                <input
+                    type="text"
+                    id="user"
+                    name="user"
+                    value={user}
+                    onChange={(e) => setUser(e.target.value)}
+                    pattern="[\x21-\x7E]+"
+                    required
+                    autoFocus
+                />
+
+                {/* Password */}
+                <label htmlFor="pass">
+                    {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
+                </label>
+                <input
+                    type="password"
+                    id="pass"
+                    name="pass"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+
+                <button type="submit" disabled={isLoading}>
+                    {isLoading ? t('enviando') : t('enviar')}
+                </button>
+
+                {/* Error message */}
+                { error && ( <span className="error-msg">{error}</span> )}
+            </form>
+
+            <div className="no-login">
+                <p>
+                    {t('cuenta?')}{" "}
+                </p>
+                <button onClick={(e) => {
+                        e.preventDefault();
+                        dispatch({ type: "SIGN" });
+                    }}>
+                    {t('crear_cuenta')}
+                </button>
+            </div>
+        </div>
+    );
+
+   /*  return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
             <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
                 <div className="text-center mb-8">
@@ -287,7 +342,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 </div>
             </div>
         </div>
-    );
+    ); */
 };
 
 export default LoginScreen;

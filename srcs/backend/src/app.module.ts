@@ -17,6 +17,7 @@ import { AuthService } from './auth/auth.service';
 import { CountriesModule } from './countries/countries.module';
 // --- FRIENDS ---
 import { FriendsModule } from './friends/friends.module';
+import { ChatModule } from './chat/chat.module';
 // --- AUTH MODULE ---
 import { AuthModule } from './auth/auth.module';
 
@@ -27,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
     CountriesModule,
     FriendsModule,
     GatewayModule,
+    ChatModule,
     AuthModule, // <--- Added AuthModule here
   ],
   controllers: [

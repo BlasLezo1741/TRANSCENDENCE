@@ -1,7 +1,10 @@
+import React, { useState } from 'react';
 import Canvas from '../components/Canvas.tsx';
 import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../ts/types.ts';
+import { Countdown } from '../components/Countdown';
+import '../css/PongScreen.css';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
@@ -19,29 +22,30 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
   // Si yo estoy a la derecha:   [Rival] vs [Yo]
   const leftPlayer = playerSide === 'left' ? userName : opponentName;
   const rightPlayer = playerSide === 'left' ? opponentName : userName;
-  return (
-    <div style={{ textAlign: 'center' }}>
-      {/* 1. TU TÍTULO ORIGINAL (Lo mantengo) */}
-      <h1>{t('juego_mode')}{mode} | {leftPlayer} vs {rightPlayer}</h1>
-      
-      {/* 2. EL CHIVATO DE DEPURACIÓN (Temporal, solo para arreglar el error)
-      <div style={{ 
-          background: '#444', 
-          color: '#fff', 
-          padding: '10px', 
-          margin: '10px auto', 
-          width: '80%',
-          borderRadius: '5px',
-          border: '2px solid red'
-      }}>
-          <p>🧪 DEBUG INFO:</p>
-          <p>Usuario Local: <strong>{userName}</strong></p>
-          <p>Lado Asignado por App: <strong style={{ color: playerSide === 'right' ? 'orange' : 'cyan', fontSize: '1.2em' }}>{playerSide.toUpperCase()}</strong></p>
-      </div> */}
+  const [isCountingDown, setIsCountingDown] = useState(true);
 
-      {/* 3. EL CANVAS */}
-      <div className="flex justify-center">
-        <Canvas
+  return (
+    // Contenedor Principal para centrar todo en la pantalla
+    <div className="game">
+      
+      {/* TÍTULO */}
+      <h1>
+          {t('juego_mode')}{mode} | {leftPlayer} vs {rightPlayer}
+      </h1>
+      
+      {/* CONTENEDOR DEL JUEGO (Relativo) 
+          Importante: Le damos el tamaño exacto del Canvas (800x600)
+          para que la cuenta atrás se superponga perfectamente.
+      */}
+      <div style={{ position: 'relative', width: '800px', height: '600px' }}>
+          
+          {/* A. LA CUENTA ATRÁS (Overlay Absolute) */}
+          {isCountingDown && (
+              <Countdown onComplete={() => setIsCountingDown(false)} />
+          )}
+
+          {/* B. EL CANVAS */}
+          <Canvas
             mode={mode}
             dispatch={dispatch}
             userName={userName}
@@ -49,7 +53,8 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
             ballInit={ballInit}
             playerSide={playerSide} 
             roomId={roomId}
-        />
+            isGameActive={!isCountingDown}
+          />
       </div>
     </div>
   );

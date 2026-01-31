@@ -16,6 +16,8 @@ services:
       - ../.env
     networks:
       transcendence_net:
-        ipv4_address: ${BE_IP}  # Fixed IP
+        # ipv4_address: 192.168.1.3  # Fixed IP
+        # ipv4_address: 172.20.0.3 #cambio para que no haya conflictos en casa
         aliases:
-          - in_net
+          # - in_net
+          - backend_alias

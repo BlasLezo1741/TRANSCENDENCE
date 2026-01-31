@@ -1,0 +1,50 @@
+/* src/components/Countdown.css */
+
+/* El contenedor que tapa el juego */
+.countdown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* --- AJUSTES DE VISIBILIDAD --- */
+    background-color: rgba(0, 0, 0, 0.3); /* Un poco oscuro, pero deja ver */
+    backdrop-filter: blur(1px);          /* Desenfoque suave */
+    /* ----------------------------- */
+    
+    z-index: 50;
+    border-radius: 8px; /* Opcional, si tu canvas tiene bordes redondos */
+}
+
+/* El número gigante o el texto GO! */
+.countdown-text {
+    font-size: 150px;
+    font-family: monospace; /* Fuente tipo digital/arcade */
+    font-weight: bold;
+    color: #ea580c; /* Tu naranja corporativo */
+    text-shadow: 0 0 30px rgba(234, 88, 12, 0.8); /* Resplandor neón */
+    
+    /* Aplicamos la animación definida abajo */
+    animation: pulse 0.9s infinite;
+    user-select: none; /* Evita que se seleccione el texto al hacer clic */
+}
+
+/* Definición de la animación de latido */
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

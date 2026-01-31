@@ -12,9 +12,9 @@ networks:
   transcendence_net:
     name: thenet
     driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.1.0/28  # Define the IP range
+    # ipam:
+    #   config:
+    #     # - subnet: 192.168.1.0/28  # Define the IP range
   auth_net:
     name: auth_net
     driver: bridge    
@@ -28,7 +28,8 @@ networks:
     internal: true # Solo compartida con la base de datos
     ipam:
       config:
-        - subnet: 192.168.3.0/28  # Define the IP range
+        - subnet: 192.168.3.0/28  # Define the IP range    #     - subnet: 172.20.0.0/28
+
 
 volumes:
   volumes:

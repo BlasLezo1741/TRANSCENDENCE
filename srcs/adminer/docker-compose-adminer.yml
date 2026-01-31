@@ -8,6 +8,7 @@ services:
       - ${ADMINER_CONTAINER_PORT}:${ADMINER_CONTAINER_PORT} # Puerto para Adminer
     networks:
       transcendence_net:
-        ipv4_address: ${AD_IP}  # Fixed IP
+        # ipv4_address: ${ADMINER_IP}  # Fixed IP
         aliases:
-          - in_net
+          # - in_net
+          - adminer_alias

@@ -1,0 +1,59 @@
+.app
+{
+    width: 100%;
+    display: grid;
+    grid-template-rows: auto 50px 1fr auto;
+    min-height: 100vh;
+}
+
+main
+{
+    color: white;
+    /* background-color: rgb(202, 237, 255); */
+    background-color: black;
+}
+
+h1, h2, h3, p
+{
+    color: aqua;
+}
+
+h1
+{
+    margin: 20px auto;
+}
+
+button
+{
+    width: 125px;
+    height: 30px;
+    background-color: beige;
+    cursor: pointer;
+}
+
+.lang-but
+{
+    display: flex;
+}
+
+.lang-but button
+{
+    background-color: gray;
+}
+
+.lang-but button:hover
+{
+    color: white;
+    background-color: black;
+}
+
+.lang-but button.lang-sel
+{
+    color: black;
+    background-color: white;
+}
+
+.cat
+{
+    padding-bottom: 3px;
+}

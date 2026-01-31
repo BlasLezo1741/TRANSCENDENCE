@@ -129,3 +129,31 @@ CREATE TABLE PLAYER_FRIEND(
     f_status_fk smallint REFERENCES FRIEND_STATUS(fs_pk) -- En vez de f_type boolean
 );
 
+-- --- 4. CHAT SYSTEM TABLES (Añadido manualmente) ---
+
+CREATE TABLE direct_message (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    sender_id INT NOT NULL REFERENCES player(p_pk) ON DELETE CASCADE,
+    receiver_id INT NOT NULL REFERENCES player(p_pk) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE channel (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    type VARCHAR(20) DEFAULT 'public',
+    password VARCHAR(255),
+    owner_id INT REFERENCES player(p_pk) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE channel_member (
+    channel_id INT NOT NULL REFERENCES channel(id) ON DELETE CASCADE,
+    user_id INT NOT NULL REFERENCES player(p_pk) ON DELETE CASCADE,
+    role VARCHAR(20) DEFAULT 'member',
+    is_muted BOOLEAN DEFAULT FALSE,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (channel_id, user_id)
+);

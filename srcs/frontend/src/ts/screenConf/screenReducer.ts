@@ -10,6 +10,7 @@ export function screenReducer(state: Screen, action: Action): Screen {
     case "STATS": return "stats";
     case "PONG": return "pong";
     case "LOGOUT": return "login";
+    case "INFO": return "info";
     default: return state;
   }
 }

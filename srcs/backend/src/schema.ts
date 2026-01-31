@@ -1,4 +1,5 @@
-import { pgTable, char, varchar, boolean, foreignKey, unique, integer, text, timestamp, date, smallint, jsonb, interval, doublePrecision, primaryKey, customType } from "drizzle-orm/pg-core"
+//import { pgTable, char, varchar, boolean, foreignKey, unique, integer, text, timestamp, date, smallint, jsonb, interval, doublePrecision, primaryKey, customType } from "drizzle-orm/pg-core"
+import { pgTable, smallint, jsonb, foreignKey, char, varchar, boolean, integer, timestamp, date, doublePrecision, interval, primaryKey, text, customType, unique } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 // Helper para el tipo bytea de Postgres
@@ -229,4 +230,34 @@ export const competitormetric = pgTable("competitormetric", {
 			name: "fk_mcm_match_player"
 		}),
 	primaryKey({ columns: [table.mcmPlayerFk, table.mcmMetricFk, table.mcmMatchFk], name: "competitormetric_pkey"}),
+]);
+
+// --- 4. CHAT SYSTEM TABLES ---
+
+export const directMessage = pgTable("direct_message", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    senderId: integer("sender_id").notNull().references(() => player.pPk, { onDelete: 'cascade' }),
+    receiverId: integer("receiver_id").notNull().references(() => player.pPk, { onDelete: 'cascade' }),
+    content: text("content").notNull(), // Requiere 'text' en los imports
+    isRead: boolean("is_read").default(false),
+    createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+});
+
+export const channel = pgTable("channel", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 50 }).unique().notNull(),
+    type: varchar("type", { length: 20 }).default('public'), // 'public', 'private', 'protected'
+    password: varchar("password", { length: 255 }),
+    ownerId: integer("owner_id").references(() => player.pPk, { onDelete: 'set null' }),
+    createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+});
+
+export const channelMember = pgTable("channel_member", {
+    channelId: integer("channel_id").notNull().references(() => channel.id, { onDelete: 'cascade' }),
+    userId: integer("user_id").notNull().references(() => player.pPk, { onDelete: 'cascade' }),
+    role: varchar("role", { length: 20 }).default('member'),
+    isMuted: boolean("is_muted").default(false),
+    joinedAt: timestamp("joined_at", { mode: 'string' }).defaultNow(),
+}, (table) => [
+    primaryKey({ columns: [table.channelId, table.userId] }),
 ]);
