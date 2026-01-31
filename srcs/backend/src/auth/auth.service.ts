@@ -145,7 +145,30 @@ export class AuthService {
     }
   } // registerUser
 
+async verifyTOTP(
+  userId: number, 
+  totpCode: string) 
+{
+    // 1. Obtenemos el usuario
+    const result = await this.db.select().from(users).where(eq(users.pPk, userId)).limit(1);
+    const user = result[0];
 
+    if (!user) return { ok: false, msg: "Usuario no encontrado" };
+    if (!user.pTotpEnabled || !user.pTotpSecret) 
+      return { ok: false, msg: "2FA no está habilitado para este usuario" };
+
+    // 2. Llamamos al microservicio TOTP para verificar el código
+    const pythonVerifyUrl = 'http://totp:8070/verify';
+    this.logger.debug('Llamando al servicio TOTP en Python para verificar código...');         
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post(pythonVerifyUrl, {
+          user_totp_secret: user.pTotpSecret,
+          totp_code: totpCode
+        })
+      );
+      this.logger.debug(`Respuesta de verificación TOTP: ${data.valid}`);
+}
 
   
 } // class AuthService

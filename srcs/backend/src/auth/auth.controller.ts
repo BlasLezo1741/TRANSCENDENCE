@@ -31,4 +31,10 @@ export class AuthController {
         body.enabled2FA || false
     );
   }
+  @Post('verify-totp')
+  async verifyTotp(@Body() body: any) {
+    // Recibimos { userId, totpCode } del frontend
+    const { userId, totpCode } = body;
+    return AuthService.verifyTOTP(userId, totpCode);
+  }
 }

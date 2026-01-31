@@ -63,3 +63,17 @@ export async function checkLogin(user: string, pass: string) {
         return { ok: false, msg: "Error de conexión" };
     }
 }
+
+export async function send2FACode(userId: number, totpCode: string) {
+    try {
+        const response = await fetch(`${API_URL}/auth/verify-totp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, totpCode })
+        });
+        return await response.json(); 
+    } catch (e) {
+        return { ok: false, msg: "Error de conexión" };
+    }
+}
+
