@@ -1,8 +1,7 @@
 .game
 {
     width: 100%;
-    min-height: 100vh;
-    min-width: 800px;
+    height: 100%;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -15,12 +14,13 @@
     margin-bottom: 10px;
 }
 
-.game div
+/* .game div
 {
+    position: relative;
     width: 800px;
     height: 600px;
-    position: relative;
-}
+    
+} */
 
 .game-canvas
 {

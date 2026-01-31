@@ -3,8 +3,8 @@ import Canvas from '../components/Canvas.tsx';
 import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../ts/types.ts';
-import '../css/PongScreen.css';
 import { Countdown } from '../components/Countdown';
+import '../css/PongScreen.css';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
@@ -37,7 +37,7 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, ballInit, playerSi
           Importante: Le damos el tamaño exacto del Canvas (800x600)
           para que la cuenta atrás se superponga perfectamente.
       */}
-      <div>
+      <div style={{ position: 'relative', width: '800px', height: '600px' }}>
           
           {/* A. LA CUENTA ATRÁS (Overlay Absolute) */}
           {isCountingDown && (
