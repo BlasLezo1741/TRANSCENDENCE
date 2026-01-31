@@ -3,11 +3,8 @@ import Canvas from '../components/Canvas.tsx';
 import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode } from '../ts/types.ts';
-<<<<<<< HEAD
 import '../css/PongScreen.css';
-=======
 import { Countdown } from '../components/Countdown';
->>>>>>> origin/natalia_ports
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
