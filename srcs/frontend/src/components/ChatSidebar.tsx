@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { socket, sendDirectMessage } from '../services/socketService';
-import './ChatSidebar.css'; 
+import '../css/ChatSidebar.css'; 
 import { useModal } from '../context/ModalContext';
 
 // --- INTERFACES ---
