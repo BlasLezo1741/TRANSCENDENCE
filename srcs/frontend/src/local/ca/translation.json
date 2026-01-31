@@ -32,5 +32,10 @@
     "2fa_code": "Codi 2FA",
     "verify": "Verificar",
     "resend": "Reenviar codi",
-    "ya_escaneado": "Ja he escanejat el codi"
+    "ya_escaneado": "Ja he escanejat el codi",
+    "veri_2fa": "Verificació 2FA",
+    "ingresa_codigo_2fa": "Introdueix el codi de la teva aplicació d'autenticació",
+    "volver": "Tornar",
+    "enviar_codigo": "Enviar codi",
+    "cod_2fa": "Codi d'autenticació"
 }

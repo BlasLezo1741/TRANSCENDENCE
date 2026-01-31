@@ -32,6 +32,12 @@
     "2fa_code": "Code 2FA",
     "verify": "Vérifier",
     "resend": "Renvoyer le code",
-    "ya_escaneado": "J'ai déjà scanné le code"
+    "ya_escaneado": "J'ai déjà scanné le code",
+    "veri_2fa": "Vérification 2FA",
+    "ingresa_codigo_2fa": "Entrez le code de votre application d'authentification",
+    "volver": "Retour",
+    "enviar_codigo": "Envoyer le code",
+    "cod_2fa": "Code d'authentification"
+
 
 }

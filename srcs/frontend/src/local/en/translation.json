@@ -32,5 +32,10 @@
     "2fa_code": "2FA code",
     "verify": "Verify",
     "resend": "Resend code",
-    "ya_escaneado": "I have already scanned the code"
+    "ya_escaneado": "I have already scanned the code",
+    "veri_2fa": "2FA Verification",
+    "ingresa_codigo_2fa": "Enter the code from your authenticator app",
+    "volver": "Go back",
+    "enviar_codigo": "Send code",
+    "cod_2fa": "Authentication code"
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { checkLogin } from "../ts/utils/auth";
+import { checkLogin, send2FACode } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +12,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
     const { t } = useTranslation();
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
+    const [totpCode, setTotpCode] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showTotpInput, setShowTotpInput] = useState(false);
@@ -31,6 +32,14 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 // Por ahora, simulamos la verificación
                 // TODO: Implementar verifyTOTP
                 console.log("Verificando TOTP:", totpCode, "para usuario:", userId);
+                const result = await send2FACode(userId!, totpCode);
+
+                
+                if (!result.ok) {
+                    setError("Código 2FA incorrecto");
+                    setTotpCode("");
+                    return;
+                } else {    
                 
                 // Si la verificación es exitosa:
                 localStorage.setItem("pong_user_nick", user);
@@ -38,6 +47,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 setGlobalUser(user);
                 console.log("🔓 Login con 2FA exitoso. Usuario global actualizado:", user);
                 dispatch({ type: "MENU" });
+        }
             } else {
                 // AWAIT the backend response
                 const result = await checkLogin(user, password);
@@ -51,7 +61,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                         setShowTotpInput(true);
                         setUserId(result.user.id);
                         setPassword(""); // Limpiar contraseña por seguridad
-                    } else
+                    } else {
                         // 1. Guardamos en LocalStorage para que persista al refrescar
                         localStorage.setItem("pong_user_nick", result.user.name);
 
@@ -64,8 +74,9 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                         
                         // 3. Ir al menú
                         dispatch({ type: "MENU" });
-                    }
-                }
+                    } //else no 2FA
+                } //
+            } //showTotpInput
 
         } catch (err) {
             setError("Error de conexión");
@@ -74,12 +85,25 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
         }
     };
 
+    const handleBack = () => {
+        setShowTotpInput(false);
+        setTotpCode("");
+        setPassword("");
+        setUserId(null);
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
             <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">{t('bienvenido')}</h1>
-                    {/*<p className="text-gray-500 mt-2">{t('init_ses')}</p> */}
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        {showTotpInput ? t('veri_2fa') || 'Verificación 2FA' : t('bienvenido')}
+                    </h1>
+                    {showTotpInput && (
+                        <p className="text-gray-500 mt-2">
+                            {t('ingresa_codigo_2fa') || 'Ingresa el código de tu aplicación de autenticación'}
+                        </p>
+                    )}
                 </div>
 
                 <form onSubmit={handleForm} className="space-y-6">
@@ -90,39 +114,73 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                         </div>
                     )}
 
-                    {/* User */}
-                    <div>
-                        <label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">
-                            {t('user')}
-                        </label>
-                        <input
-                            type="text"
-                            id="user"
-                            name="user"
-                            value={user}
-                            onChange={(e) => setUser(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            pattern="[\x21-\x7E]+"
-                            required
-                            autoFocus
-                        />
-                    </div>
+                    {!showTotpInput ?  (
+                        <>
+                            {/* User */}
+                            <div>
+                                <label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">
+                                    {t('user')}
+                                </label>
+                                <input
+                                    type="text"
+                                    id="user"
+                                    name="user"
+                                    value={user}
+                                    onChange={(e) => setUser(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    pattern="[\x21-\x7E]+"
+                                    required
+                                    autoFocus
+                                />
+                            </div>
 
-                    {/* Password */}
-                    <div>
-                        <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">
-                            {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
-                        </label>
-                        <input
-                            type="password"
-                            id="pass"
-                            name="pass"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                        />
-                    </div>
+                            {/* Password */}
+                            <div>
+                                <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">
+                                    {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
+                                </label>
+                                <input
+                                    type="password"
+                                    id="pass"
+                                    name="pass"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                        </>
+                    ):(
+                        <>
+                            {/* TOTP Code Input */}
+                            <div>
+                                <label htmlFor="totp" className="block text-sm font-medium text-gray-700 mb-1">
+                                    {t('cod_2fa') || 'Código de autenticación'}
+                                </label>
+                                <input
+                                    type="text"
+                                    id="totp"
+                                    name="totp"
+                                    value={totpCode}
+                                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))} // Solo números
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest"
+                                    maxLength={6}
+                                    pattern="\d{6}"
+                                    placeholder="000000"
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={handleBack}
+                                className="w-full text-sm text-blue-600 hover:text-blue-500 focus:outline-none underline"
+                            >
+                                {t('volver') || 'Volver'}
+                            </button>
+                        </>
+                    )}
 
                     <button
                         type="submit"
@@ -131,7 +189,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                         ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
                     >
-                        {isLoading ? t('enviando') : t('enviar')}
+                         {isLoading ? t('enviando') : (showTotpInput ? (t('verificar') || 'Verificar') : t('enviar'))}
                     </button>
                 </form>
 

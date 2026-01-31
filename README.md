@@ -192,6 +192,22 @@ It is particularly useful sharing share code (such as DTOs) across multiple micr
 
 For tsc -b to work correctly, the tsconfig.json file must have the option "composite": true
 
+
+
+### A react fragment '<>'
+
+In React, when you use a ternary operator or a function—as is the case in the login screen—you must always return a **single root** element. You cannot return two "sibling" `<div>` elements sitting side-by-side.
+
+In the code, there are two main blocks: the **User** field and the **Password** field.
+
++ **The Problem**: If you remove the <>, React will throw a syntax error because you are trying to return two `<div>` elements at once.
+
++ The **"Dirty"** Solution: You could wrap them in a `<div>...</div>`, but that would clutter your HTML with unnecessary divs that might ruin your design or CSS.
+
++ The **Elegant** Solution (<>): By using a Fragment, React understands that these elements belong together, but when the page renders, the <> disappears completely, leaving the HTML clean.
+
+In short: It is a "ghost" tag that allows you to group multiple child elements without adding an extra node (like a `<div>`) to the browser's actual DOM.
+
 ## Backend
 ## Database system
 
