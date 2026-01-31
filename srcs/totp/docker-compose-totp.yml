@@ -12,9 +12,10 @@ services:
       - .:/app
     networks:
       transcendence_net:
-        ipv4_address: ${TOTP_IP}  # Fixed IP
+        # ipv4_address: ${TOTP_IP}  # Fixed IP
         aliases:
-          - in_net
+        #  - in_net
+          - totp_alias
     env_file:
       - ../.env
     restart: always

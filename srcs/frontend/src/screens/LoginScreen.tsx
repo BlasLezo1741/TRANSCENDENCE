@@ -139,13 +139,13 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
         // Ensure this matches your backend port (usually 3000)
         window.location.href = `http://localhost:3000/auth/${provider}`;
     };
-
+/*
     return (
         <div className="registro">
             <h1>{t('bienvenido')}</h1>
 
             <form onSubmit={handleForm} className="login">
-                {/* User */}
+                
                 <label htmlFor="user">{t('user')}</label>
                 <input
                     type="text"
@@ -158,7 +158,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     autoFocus
                 />
 
-                {/* Password */}
+                
                 <label htmlFor="pass">
                     {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
                 </label>
@@ -175,7 +175,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     {isLoading ? t('enviando') : t('enviar')}
                 </button>
 
-                {/* Error message */}
+                
                 { error && ( <span className="error-msg">{error}</span> )}
             </form>
 
@@ -192,8 +192,8 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
             </div>
         </div>
     );
-
-   /*  return (
+*/
+     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
             <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
                 <div className="text-center mb-8">
@@ -207,7 +207,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     )}
                 </div>
 
-                {/* --- MANUAL LOGIN FORM --- */}
+                
                 <form onSubmit={handleForm} className="space-y-6">
                     {error && (
                         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
@@ -217,7 +217,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
 
                     {!showTotpInput ?  (
                         <>
-                            {/* User */}
+                            
                             <div>
                                 <label htmlFor="user" className="block text-sm font-medium text-gray-700 mb-1">
                                     {t('user')}
@@ -235,7 +235,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                                 />
                             </div>
 
-                            {/* Password */}
+                            
                             <div>
                                 <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">
                                     {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
@@ -253,7 +253,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                         </>
                     ):(
                         <>
-                            {/* TOTP Code Input */}
+                            
                             <div>
                                 <label htmlFor="totp" className="block text-sm font-medium text-gray-700 mb-1">
                                     {t('cod_2fa') || 'Código de autenticación'}
@@ -294,7 +294,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     </button>
                 </form>
 
-                {/* --- DIVIDER --- */}
+                
                 <div className="mt-6">
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
@@ -305,7 +305,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                         </div>
                     </div>
 
-                    {/* --- OAUTH BUTTONS --- */}
+                   
                     <div className="mt-6 grid grid-cols-2 gap-3">
                         <button
                             type="button"
@@ -325,7 +325,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     </div>
                 </div>
 
-                {/* --- FOOTER --- */}
+                
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
                         {t('cuenta?')}{" "}
@@ -342,7 +342,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 </div>
             </div>
         </div>
-    ); */
+    );
 };
 
 export default LoginScreen;

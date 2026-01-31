@@ -30,7 +30,8 @@ services:
         condition: service_healthy
     networks:
       transcendence_net:
-        ipv4_address: ${AUS_IP}  # Fixed IP
+        # ipv4_address: ${AUS_IP}  # Fixed IP
         aliases:
-          - in_net
+          #- in_net
+          - aus_alias
 
