@@ -35,6 +35,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     const [qrCode, setQrCode] = useState<string | null>(null);
     const [enabled2FA, setEnabled2FA] = useState(false);  //Por defecto no se activa
     const [backupCodes, setBackupCodes] = useState<string[] | null>(null);  // Puede ser null inicialmente
+    // SHOW OAUTH BUTTONS FLAG
+    const [showOAuthButtons, setShowOAuthButtons] = useState(true)  ; // Cambia esto según tus necesidades
+    // ===========================================================================
 
     // NEW: Fetch countries on component mount
     useEffect(() => {
@@ -79,6 +82,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setSuccess("");
         setQrCode(null);
         setBackupCodes(null);
+        setShowOAuthButtons(true); // Show OAuth buttons on form submission
 
         // 1. Check local password syntax
         console.error('Verifico el Password');
@@ -108,7 +112,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 // If 2FA is enabled, set the QR code
                 if (enabled2FA && result.qrCode) {
                     setQrCode(result.qrCode);
-                    setBackupCodes(result.backupCodes)
+                    setBackupCodes(result.backupCodes);
+                    setShowOAuthButtons(false); // Show OAuth buttons on form submission
 
                 }
                 //setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
@@ -132,6 +137,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setQrCode(null);
         setEnabled2FA(false);
         setBackupCodes(null);
+        setShowOAuthButtons(true); // Show OAuth buttons on form submission
     };
     const handleOAuth = (provider: 'google' | '42') => {
         // Redirect browser to Backend Auth Endpoint
@@ -394,26 +400,30 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         </div>
                     )}
                     {/* --- OAUTH BUTTONS --- */}
-                    <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-gray-500">{t('crear_cuenta')} / {t('init_ses')}: </span>
-                    </div>
-                    <div className="mt-6 grid grid-cols-2 gap-3">
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('42')}
-                            className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-                        >
-                            <span className="font-bold text-black">42 Network</span>
-                        </button>
+                    {showOAuthButtons && (
+                        <>
+                        <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-white text-gray-500">{t('crear_cuenta')} / {t('init_ses')}: </span>
+                        </div>
+                        <div className="mt-6 grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => handleOAuth('42')}
+                                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                            >
+                                <span className="font-bold text-black">42 Network</span>
+                            </button>
 
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('google')}
-                            className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-                        >
-                            Google
-                        </button>
-                    </div>
+                            <button
+                                type="button"
+                                onClick={() => handleOAuth('google')}
+                                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                            >
+                                Google
+                            </button>
+                        </div>
+                        </>
+                    )}
                 </form>
             </div>
         </div>

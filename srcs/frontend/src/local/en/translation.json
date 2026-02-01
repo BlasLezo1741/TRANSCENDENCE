@@ -37,5 +37,6 @@
     "ingresa_codigo_2fa": "Enter the code from your authenticator app",
     "volver": "Go back",
     "enviar_codigo": "Send code",
-    "cod_2fa": "Authentication code"
+    "cod_2fa": "Authentication code",
+    "registro_exitoso":"2FA setup complete!"
 }

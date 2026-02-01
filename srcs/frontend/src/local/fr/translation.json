@@ -37,7 +37,8 @@
     "ingresa_codigo_2fa": "Entrez le code de votre application d'authentification",
     "volver": "Retour",
     "enviar_codigo": "Envoyer le code",
-    "cod_2fa": "Code d'authentification"
+    "cod_2fa": "Code d'authentification",
+    "registro_exitoso":"Configuration de la 2FA terminée !"
 
 
 }
