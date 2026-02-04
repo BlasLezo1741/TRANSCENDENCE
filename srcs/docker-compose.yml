@@ -10,7 +10,7 @@ include: # Please keep alphabetic order
 
 networks:
   transcendence_net:
-    name: thenet
+    name: thenet_v2
     driver: bridge
     # ipam:
     #   config:
