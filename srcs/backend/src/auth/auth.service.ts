@@ -1,6 +1,6 @@
 // backend/src/auth/auth.service.ts
 
-import { eq, or , and } from 'drizzle-orm';
+import { eq, or , and, sql } from 'drizzle-orm';
 // bcrypt - Librería para encriptar contraseñas de forma segura.
 
 import { Injectable, Inject, Logger , ConflictException, UnauthorizedException } from '@nestjs/common';
@@ -46,8 +46,16 @@ export class AuthService {
   // ==================== TRADITIONAL LOGIN ====================
   
   async loginUser(username: string, plainPassword: string) {
+
     const result = await this.db
-      .select()
+      .select({
+        pNick: player.pNick,
+        pPass: player.pPass,
+        pPk: player.pPk,
+        pMail: player.pMail,
+        pAvatarUrl: player.pAvatarUrl,
+        pTotpEnabled: player.pTotpEnabled,
+        pStatus: player.pStatus,})
       .from(player)
       .where(eq(player.pNick, username))
       .limit(1);
