@@ -65,7 +65,8 @@ export class AuthController {
     //    return res.redirect(`${frontendUrl}/complete-profile?token=${accessToken}`);
     // }
 
-    res.redirect(`${frontendUrl}/login?token=${accessToken}`);
+    // res.redirect(`${frontendUrl}/login?token=${accessToken}`);
+    res.redirect(`${frontendUrl}/?token=${accessToken}`); // Changed to avid the double click to login 
   }
 
   // ==================== 42 SCHOOL OAUTH ====================
@@ -84,6 +85,7 @@ export class AuthController {
 
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
 
-    res.redirect(`${frontendUrl}/login?token=${accessToken}`);
+    // res.redirect(`${frontendUrl}/login?token=${accessToken}`);
+    res.redirect(`${frontendUrl}/?token=${accessToken}`); // Changed to avid the double click to login 
   }
 }

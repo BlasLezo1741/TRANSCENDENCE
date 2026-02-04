@@ -20,7 +20,8 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
     const [showTotpInput, setShowTotpInput] = useState(false);
     const [userId, setUserId] = useState<number | null>(null);
 
-    // ==================== 1. HANDLE OAUTH REDIRECT ====================
+/*     // ==================== 1. HANDLE OAUTH REDIRECT ====================
+       //==================== OAuth is now handled in App.tsx ====================
     useEffect(() => {
         // Check URL for ?token=...
         const params = new URLSearchParams(window.location.search);
@@ -59,7 +60,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
             }
         }
     }, [dispatch, setGlobalUser]);
-
+ */
     // ==================== 2. HANDLE FORM LOGIN ====================
     const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();

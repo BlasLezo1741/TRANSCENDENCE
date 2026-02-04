@@ -45,7 +45,53 @@ function App()
 
   // 🔥 ESTADO PARA LA INVITACIÓN MODAL
   const [inviteRequest, setInviteRequest] = useState<{fromUserId: number, fromUserName: string} | null>(null);
-  
+
+  // -----------------------------------------------------------
+  // 0. VERIFICACIÓN OAUTH AL CARGAR LA APP (ANTES QUE TODO) (EVITA DOBLE CLICK EN LOGIN PARA OAUTH)
+  // -----------------------------------------------------------
+  useEffect(() => {
+    // Check URL for OAuth token on app load
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (token) {
+      try {
+        console.log("🔐 OAuth token detected in URL, processing...");
+        
+        // Decode JWT payload to get user info
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          window.atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+
+        const payload = JSON.parse(jsonPayload); // { sub: 1, nick: 'foo', ... }
+
+        // 1. Save data to localStorage
+        localStorage.setItem("jwt_token", token);
+        localStorage.setItem("pong_user_nick", payload.nick);
+        localStorage.setItem("pong_user_id", payload.sub.toString());
+
+        // 2. Update Global State (this will trigger the app to show user as logged in)
+        setCurrentUser(payload.nick);
+        console.log("🔓 OAuth Login successful:", payload.nick);
+
+        // 3. Clean URL (remove token from address bar)
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        // 4. Navigate to Menu
+        dispatch({ type: "MENU" });
+
+      } catch (err) {
+        console.error("❌ Error processing OAuth token:", err);
+      }
+    }
+  }, []); // Run only once on mount
+
+
   // -----------------------------------------------------------
   // 1. CONEXIÓN AUTOMÁTICA DEL SOCKET
   // -----------------------------------------------------------
