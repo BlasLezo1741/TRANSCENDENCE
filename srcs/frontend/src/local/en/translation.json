@@ -38,5 +38,6 @@
     "volver": "Go back",
     "enviar_codigo": "Send code",
     "cod_2fa": "Authentication code",
-    "registro_exitoso":"2FA setup complete!"
+    "registro_exitoso":"2FA setup complete!",
+    "verificar": "Verify"
 }

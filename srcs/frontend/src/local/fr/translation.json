@@ -38,7 +38,8 @@
     "volver": "Retour",
     "enviar_codigo": "Envoyer le code",
     "cod_2fa": "Code d'authentification",
-    "registro_exitoso":"Configuration de la 2FA terminée !"
+    "registro_exitoso":"Configuration de la 2FA terminée !",
+    "verificar": "Vérifier"
 
 
 }

@@ -37,6 +37,7 @@
     "volver": "Volver",
     "enviar_codigo": "Enviar código",
     "cod_2fa": "Código de autenticación",
-    "registro_exitoso":"¡Configuración de 2FA completada!"
+    "registro_exitoso":"¡Configuración de 2FA completada!",
+    "verificar": "Verificar"
 
 }
