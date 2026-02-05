@@ -76,7 +76,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 // Por ahora, simulamos la verificación
                 // TODO: Implementar verifyTOTP
                 console.log("Verificando TOTP:", totpCode, "para usuario:", userId);
-                const result = await send2FACode(userId!, totpCode);
+                const result = await send2FACode(userId, totpCode);
 
                 
                 if (!result.ok) {

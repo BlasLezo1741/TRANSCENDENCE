@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
 
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -41,7 +42,9 @@ export class AuthController {
   async verifyTotp(@Body() body: any) {
     // Recibimos { userId, totpCode } del frontend
     const { userId, totpCode } = body;
-    //return AuthService.verifyTOTP(userId, totpCode);
+
+    return this.authService.verifyTOTP(userId, totpCode);
+  
   }
   // ==================== GOOGLE OAUTH ====================
   
