@@ -35,6 +35,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       if (parts.length > 1) country = parts[1].toUpperCase();
     }
 
+    console.log("Google Profile _json:", JSON.stringify(profile._json, null, 2)); // Show in the logs the full data recovered from the profile
+
     const user = {
       oauthId: id,
       oauthProvider: 'google',

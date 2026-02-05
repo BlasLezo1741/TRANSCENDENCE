@@ -27,14 +27,19 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     refreshToken: string,
     profile: any, // Use 'any' because the library doesn't export the Profile interface cleanly
   ): Promise<any> {
-    const { id, username, emails, photos } = profile;
+    const { id, username, emails } = profile;
+    console.log("42 Profile _json:", JSON.stringify(profile._json, null, 2)); // Show in the logs the full data recovered from the profile
+    const avatarUrl = profile._json?.image?.versions?.medium 
+                   || profile._json?.image?.link 
+                   || null;
+  
     
     const user = {
       oauthId: id,
       oauthProvider: '42',
       email: emails?.[0]?.value || `${username}@student.42.fr`,
       nick: username,
-      avatarUrl: photos?.[0]?.value,
+      avatarUrl: avatarUrl,
     };
 
     return user;

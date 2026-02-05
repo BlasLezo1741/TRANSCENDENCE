@@ -84,7 +84,7 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
                         // </button>
                         <div className="login" ref={dropdownRef} onClick={() => dispatch({ type: "LOGIN" })}>
                             <img className="avatarIcon" src={noAvatarUrl} alt="Local" />
-                            <p className="letters"><strong>Login</strong></p>
+                            <p className="letters"><strong>{t('init_ses')}</strong></p>
                         </div>
                     )}
 
