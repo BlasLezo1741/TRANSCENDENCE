@@ -46,6 +46,14 @@ export class AuthController {
     return this.authService.verifyTOTP(userId, totpCode);
   
   }
+  @Post('verify-backup')
+  async verifyBackup(@Body() body: any) {
+    // Recibimos { userId, totpCode } del frontend
+    const { userId, totpCode } = body;
+
+    return this.authService.verifyBackupCode(userId, totpCode);
+  
+  }
   // ==================== GOOGLE OAUTH ====================
   
   @Get('google')

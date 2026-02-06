@@ -359,7 +359,7 @@ def generate_qr(shared_secret_key, issuer, email):
     #return imagepath
     return (qr_data, generate_backup_codes() )
 
-def generate_backup_codes(num_codes=10, length=6):
+def generate_backup_codes(num_codes=10, length=8):
     """
     Genera una lista de 'num_codes' códigos de respaldo.
     Cada código tiene 'length' caracteres (dígitos + letras mayúsculas).
@@ -370,8 +370,8 @@ def generate_backup_codes(num_codes=10, length=6):
     Es impredecible incluso si el atacante tiene mucha información previa.    
     """
     codes = []
-    #alphabet = string.ascii_uppercase + string.digits
-    alphabet = string.digits
+    alphabet = string.ascii_uppercase + string.digits
+    #alphabet = string.digits
     
     for _ in range(num_codes):
         # secrets.choice es criptográficamente seguro (mejor que random)

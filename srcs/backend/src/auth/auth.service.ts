@@ -1,6 +1,6 @@
 // backend/src/auth/auth.service.ts
 
-import { eq, or , and, sql } from 'drizzle-orm';
+import { eq, or , and, sql, arrayContains } from 'drizzle-orm';
 // bcrypt - Librería para encriptar contraseñas de forma segura.
 
 import { Injectable, Inject, Logger , ConflictException, UnauthorizedException } from '@nestjs/common';
@@ -230,7 +230,11 @@ async verifyTOTP(
         })
       );
       this.logger.debug(`Respuesta de verificación TOTP: ${data.status}`);
-      return { ok: true, msg: "Crrecta validación del código 2FA" };
+      if (data.status === 'ok') {
+        return { ok: true, msg: "Correcta validación del código 2FA" };
+      } else {
+        return { ok: false, msg: "Código 2FA inválido" };
+      }
       //this.logger.debug('Respuesta de verificación TOTP: ${data.valid}');
       }   catch (error) { 
       this.logger.error('Error al verificar el código TOTP:', error);
@@ -238,6 +242,46 @@ async verifyTOTP(
       }
   }
 
+async verifyBackupCode(
+  userId: number, 
+  totpCode: string) 
+{
+     const result = await this.db.update(player)
+    .set({
+      // Eliminamos el código del array
+      pTotpBackupCodes: sql`array_remove(${player.pTotpBackupCodes}, ${totpCode})`,
+    })
+    .where(
+      and(
+        eq(player.pPk, userId),
+        // Solo procedemos si el código está presente en el array
+        sql`${player.pTotpBackupCodes} @> ARRAY[${totpCode}]`
+      )
+    )
+    .returning({
+      updatedNick: player.pNick,
+    });
+
+  if (result.length === 0) {
+    this.logger.debug('back code incorrecto...');       
+    return { ok: false, msg: "Código de respaldo inválido o ya utilizado" };
+  } else {
+      const result = await this.db.select({
+      // Usamos sql<number> para decirle a TS que el resultado es un número
+      codesLeft: sql<number>`cardinality(${player.pTotpBackupCodes})`,
+    })
+    .from(player)
+    .where(eq(player.pPk, userId));
+
+    this.logger.debug(`Al usuario le quedan ${result[0].codesLeft} códigos.`);       
+    return { ok: true, msg: `Al usuario le quedan ${result[0].codesLeft} códigos tras la Correcta validación del código de respaldo` };
+
+  }
+
+
+   
+}
+  
   
 
 
