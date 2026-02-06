@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s # Frecuencia de lectura de métricas
+
+scrape_configs:
+  # 1. Prometheus se monitorea a sí mismo
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 2. Monitoreo del Backend (NestJS)
+  - job_name: 'backend'
+    metrics_path: '/metrics' # Asegúrate de que tu NestJS exponga esto
+    static_configs:
+      - targets: ['backend_alias:3000'] # Usa el alias y puerto interno del contenedor

@@ -6,6 +6,7 @@ include: # Please keep alphabetic order
   - dbserver/docker-compose-dbserver.yml
   - frontend/docker-compose-frontend.yml
   - grafana/docker-compose-grafana.yml
+  - prometheus/docker-compose-prometheus.yml
   - totp/docker-compose-totp.yml
 
 networks:
@@ -45,4 +46,9 @@ volumes:
       type: none
       device: "${TRANSCENDENCE_HOME}/data/grafana"
       o: bind
-
+  # prometheus_data:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: "${TRANSCENDENCE_HOME}/data/prometheus"
+  #     o: bind

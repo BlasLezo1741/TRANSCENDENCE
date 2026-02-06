@@ -29,3 +29,14 @@ datasources:
       timescaledb: false
       # Parámetros personalizados de consulta
       #customQueryParameters: "options=-c datestyle=ISO,MDY"
+    # --- (PROMETHEUS) ---
+  - name: Prometheus
+    type: prometheus
+    # Aquí usamos el alias que definimos en el docker-compose de prometheus
+    url: http://prometheus_alias:9090 
+    access: proxy
+    isDefault: false
+    uid: prometheus_001
+    jsonData:
+      # Intervalo de scrapeo por defecto
+      timeInterval: "15s"
