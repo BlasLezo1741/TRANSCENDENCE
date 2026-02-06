@@ -208,30 +208,29 @@ async verifyTOTP(
     if (!user.pTotpEnabled || !user.pTotpSecret) 
       return { ok: false, msg: "2FA no está habilitado para este usuario" };
 
-    // 2. Asegurarnos de que sea un Buffer
-    let totpSecretBuffer: Buffer;
+    // 2. Convertir Buffer a string (es un string Base32)
+    let totpSecret: string;
     if (Buffer.isBuffer(user.pTotpSecret)) {
-      totpSecretBuffer = user.pTotpSecret;
+      totpSecret = user.pTotpSecret.toString('utf-8');
     } else {
-      // Si es string, convertirlo a Buffer
-      totpSecretBuffer = Buffer.from(user.pTotpSecret, 'utf-8');
+      totpSecret = user.pTotpSecret;
     }
 
-    // 3. Convertir a base64 para enviar por JSON
-    const secretBase64 = totpSecretBuffer.toString('base64');
+    this.logger.log(`Secret TOTP: ${totpSecret}`);
 
-    this.logger.log(`Verificando TOTP - Secret en base64: ${secretBase64}`);
+    this.logger.log(`Verificando TOTP - Secret en base64: ${totpSecret}, Código recibido: ${totpCode}`);
     // 2. Llamamos al microservicio TOTP para verificar el código
     const pythonVerifyUrl = 'http://totp:8070/verify';
     this.logger.debug('Llamando al servicio TOTP en Python para verificar código...');         
     try {
       const { data } = await firstValueFrom(
         this.httpService.post(pythonVerifyUrl, {
-          user_totp_secret: secretBase64,
+          user_totp_secret: totpSecret,
           totp_code: totpCode
         })
       );
       this.logger.debug(`Respuesta de verificación TOTP: ${data.status}`);
+      return { ok: true, msg: "Crrecta validación del código 2FA" };
       //this.logger.debug('Respuesta de verificación TOTP: ${data.valid}');
       }   catch (error) { 
       this.logger.error('Error al verificar el código TOTP:', error);

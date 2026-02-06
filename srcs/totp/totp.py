@@ -268,10 +268,15 @@ def get_totp_token(secret):
     CORE FUNCTION: Implements the TOTP Algorithm (RFC 6238).
     Formula: TOTP = Truncate(HMAC-SHA1(K, T))
     """
+
+
     try:
         # Decode the secret from Base32. If padding is missing, try to handle it.
         # 'map01' maps '0' to 'O' and '1' to 'L' to fix common typos in Base32.
-        secret_b32 = base64.b32decode(secret.decode(), True, map01='l')
+        print(f"type(secret) = {type(secret)} - secret = {secret}")
+        #secret_b32 = base64.b32decode(secret.decode(), True, map01='l')
+        secret_b32 = secret
+        secret_b32 = base64.b32decode(secret.encode('utf-8'), True, map01='l')
 
     except binascii.Error:
         # Fallback to Base64 if Base32 fails
