@@ -38,6 +38,8 @@
     "enviar_codigo": "Enviar código",
     "cod_2fa": "Código de autenticación",
     "registro_exitoso":"¡Configuración de 2FA completada!",
-    "verificar": "Verificar"
+    "verificar": "Authenticator",
+    "veri_backup": "Respaldo",
+    "placeholder": "6 dígitos o código respaldo"
 
 }

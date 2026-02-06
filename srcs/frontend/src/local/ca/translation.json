@@ -39,5 +39,7 @@
     "enviar_codigo": "Enviar codi",
     "cod_2fa": "Codi d'autenticació",
     "registro_exitoso":"Configuració de 2FA completada!",
-    "verificar": "Verificar"
+    "verificar": "Authenticator",
+    "veri_backup": "Reserva",
+    "placeholder": "6 dígits o codi de reserva"
 }
