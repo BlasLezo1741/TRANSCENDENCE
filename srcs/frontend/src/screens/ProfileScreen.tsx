@@ -77,7 +77,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
             
             if (!profile) {
                 console.error("❌ [ProfileScreen] No profile data received");
-                throw new Error('No se pudo cargar el perfil');
+                throw new Error(t('prof.prof_no_load'));
             }
 
             console.log("✅ [ProfileScreen] Profile loaded:", profile);
@@ -99,8 +99,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
         } catch (error) {
             console.error('❌ [ProfileScreen] Error loading user profile:', error);
             showModal({
-                title: "Error",
-                message: "No se pudo cargar tu perfil",
+                title: t('error'),
+                message: t('prof.prof_no_load'),
                 type: "alert"
             });
         } finally {
@@ -155,8 +155,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
         console.log(`🗑️ [ProfileScreen] Removing friend: ${friendName} (ID: ${friendId})`);
         
         showModal({
-            title: "🗑️ Eliminar Amigo",
-            message: `¿Seguro que quieres eliminar a ${friendName}?`,
+            title: t('prof.del_friend'),
+            message: t('prof.conf_del_friend', { name: friendName }),
             type: "confirm",
             onConfirm: async () => {
                 console.log("✅ [ProfileScreen] User confirmed friend removal");
@@ -461,7 +461,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                             <strong>ID:</strong> {userProfile.id}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>Usuario:</strong> {userProfile.nick}
+                            <strong>{t('user')}:</strong> {userProfile.nick}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
                             <strong>Email:</strong> {userProfile.email}
