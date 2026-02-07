@@ -15,7 +15,7 @@ class TotpqrRequest(BaseModel):
     user_mail: str  # NestJS envía newUser.pMail (que es una cadena)
 
 class TotpVerifyRequest(BaseModel):
-    user_totp_secret: bytes #
+    user_totp_secret: str # String Base32: "I5NGEPK4GJ..."
     totp_code: str  # NestJS envía el código TOTP que el usuario ingresa para verificar
 
 
@@ -48,8 +48,12 @@ async def qrtext(request: TotpqrRequest):
 @app.post("/verify")
 async def verify_totp(request: TotpVerifyRequest):
     currentcode = totp.get_totp_token(request.user_totp_secret)
-    print(f"📥 PETICIÓN RECIBIDA: Verificando TOTP para {request.totp_code} con {currentcode}")
+    print(f"type(request.totp_code) = {type(request.totp_code)} - request.totp_code = {request.totp_code} ")
+    print(f"type(currentcode) = {type(currentcode)} - currentcode = {currentcode} ")
+    
     if currentcode == request.totp_code:
+        print(f"correcta Verificando TOTP para {request.totp_code} con {request.user_totp_secret}")
         return {"status": "ok", "verified": True}
     else:
+        print(f"incorrecta Verificando TOTP para {request.totp_code} con {request.user_totp_secret}")
         return {"status": "error", "verified": False    }

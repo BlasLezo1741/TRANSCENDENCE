@@ -39,7 +39,9 @@
     "enviar_codigo": "Envoyer le code",
     "cod_2fa": "Code d'authentification",
     "registro_exitoso":"Configuration de la 2FA terminée !",
-    "verificar": "Vérifier"
+    "verificar": "Authenticator",
+    "veri_backup": "Secours",
+    "placeholder": "6 chiffres ou code de secours"
 
 
 }

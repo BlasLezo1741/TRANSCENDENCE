@@ -39,5 +39,7 @@
     "enviar_codigo": "Send code",
     "cod_2fa": "Authentication code",
     "registro_exitoso":"2FA setup complete!",
-    "verificar": "Verify"
+    "verificar": "Authtenticator",
+    "veri_backup": "Backup",
+    "placeholder": "6 digits or backup code"
 }

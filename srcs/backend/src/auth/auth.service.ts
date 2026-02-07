@@ -1,6 +1,6 @@
 // backend/src/auth/auth.service.ts
 
-import { eq, or , and, sql } from 'drizzle-orm';
+import { eq, or , and, sql, arrayContains } from 'drizzle-orm';
 // bcrypt - Librería para encriptar contraseñas de forma segura.
 
 import { Injectable, Inject, Logger , ConflictException, UnauthorizedException } from '@nestjs/common';
@@ -208,30 +208,33 @@ async verifyTOTP(
     if (!user.pTotpEnabled || !user.pTotpSecret) 
       return { ok: false, msg: "2FA no está habilitado para este usuario" };
 
-    // 2. Asegurarnos de que sea un Buffer
-    let totpSecretBuffer: Buffer;
+    // 2. Convertir Buffer a string (es un string Base32)
+    let totpSecret: string;
     if (Buffer.isBuffer(user.pTotpSecret)) {
-      totpSecretBuffer = user.pTotpSecret;
+      totpSecret = user.pTotpSecret.toString('utf-8');
     } else {
-      // Si es string, convertirlo a Buffer
-      totpSecretBuffer = Buffer.from(user.pTotpSecret, 'utf-8');
+      totpSecret = user.pTotpSecret;
     }
 
-    // 3. Convertir a base64 para enviar por JSON
-    const secretBase64 = totpSecretBuffer.toString('base64');
+    this.logger.log(`Secret TOTP: ${totpSecret}`);
 
-    this.logger.log(`Verificando TOTP - Secret en base64: ${secretBase64}`);
+    this.logger.log(`Verificando TOTP - Secret en base64: ${totpSecret}, Código recibido: ${totpCode}`);
     // 2. Llamamos al microservicio TOTP para verificar el código
     const pythonVerifyUrl = 'http://totp:8070/verify';
     this.logger.debug('Llamando al servicio TOTP en Python para verificar código...');         
     try {
       const { data } = await firstValueFrom(
         this.httpService.post(pythonVerifyUrl, {
-          user_totp_secret: secretBase64,
+          user_totp_secret: totpSecret,
           totp_code: totpCode
         })
       );
       this.logger.debug(`Respuesta de verificación TOTP: ${data.status}`);
+      if (data.status === 'ok') {
+        return { ok: true, msg: "Correcta validación del código 2FA" };
+      } else {
+        return { ok: false, msg: "Código 2FA inválido" };
+      }
       //this.logger.debug('Respuesta de verificación TOTP: ${data.valid}');
       }   catch (error) { 
       this.logger.error('Error al verificar el código TOTP:', error);
@@ -239,6 +242,46 @@ async verifyTOTP(
       }
   }
 
+async verifyBackupCode(
+  userId: number, 
+  totpCode: string) 
+{
+     const result = await this.db.update(player)
+    .set({
+      // Eliminamos el código del array
+      pTotpBackupCodes: sql`array_remove(${player.pTotpBackupCodes}, ${totpCode})`,
+    })
+    .where(
+      and(
+        eq(player.pPk, userId),
+        // Solo procedemos si el código está presente en el array
+        sql`${player.pTotpBackupCodes} @> ARRAY[${totpCode}]`
+      )
+    )
+    .returning({
+      updatedNick: player.pNick,
+    });
+
+  if (result.length === 0) {
+    this.logger.debug('back code incorrecto...');       
+    return { ok: false, msg: "Código de respaldo inválido o ya utilizado" };
+  } else {
+      const result = await this.db.select({
+      // Usamos sql<number> para decirle a TS que el resultado es un número
+      codesLeft: sql<number>`cardinality(${player.pTotpBackupCodes})`,
+    })
+    .from(player)
+    .where(eq(player.pPk, userId));
+
+    this.logger.debug(`Al usuario le quedan ${result[0].codesLeft} códigos.`);       
+    return { ok: true, msg: `Al usuario le quedan ${result[0].codesLeft} códigos tras la Correcta validación del código de respaldo` };
+
+  }
+
+
+   
+}
+  
   
 
 

@@ -90,6 +90,8 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 localStorage.setItem("pong_user_id", userId!.toString());
                 setGlobalUser(user);
                 console.log("🔓 Login con 2FA exitoso. Usuario global actualizado:", user);
+                console.log("Usuario ", user, " le quedan ", result.msg.split(' ')[4], " códigos de respaldo.");
+                dispatch({ type: "MENU" });
                 }
             } else {
                 // AWAIT the backend response
@@ -264,15 +266,24 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                                     id="totp"
                                     name="totp"
                                     value={totpCode}
-                                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))} // Solo números
+                                    onChange={(e) => {
+                                        const value = e.target.value.toUpperCase();
+                                        const filtered = value.replace(/[^A-Z0-9]/g, '');
+                                        setTotpCode(filtered);
+                                    }}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest"
-                                    maxLength={6}
-                                    pattern="\d{6}"
-                                    placeholder="000000"
+                                    maxLength={8} // Permitir hasta 8 caracteres para códigos de respaldo Alfanumericos (6 para TOTP numérico)
+                                    pattern="(\d{6}|[A-Z0-9]{8})" // 6 dígitos O 8 alfanuméricos
+                                    placeholder={(t('placeholder') || '123456 o ABCD1234')}
+                                    title={t('qr_setup1') ?? 'Ingresa 6 dígitos numéricos o 8 caracteres alfanuméricos'}                                    
                                     required
                                     autoFocus
                                 />
                             </div>
+
+
+                        </>
+                    )}
 
                             <button
                                 type="button"
@@ -281,66 +292,67 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                             >
                                 {t('volver') || 'Volver'}
                             </button>
-                        </>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-                        ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
-                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
-                    >
-                         {isLoading ? t('enviando') : (showTotpInput ? (t('verificar') || 'Verificar') : t('enviar'))}
-                    </button>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
+                                ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
+                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+                            >
+                                {isLoading ? t('enviando') : (showTotpInput ? (t('verificar') || 'Verificar código 2FA') : t('enviar'))}
+                            </button>
+                         
                 </form>
 
-                
-                <div className="mt-6">
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-300"></div>
+                {!showTotpInput ?  (
+                    <>
+                        <div className="mt-6">
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-300"></div>
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-white text-gray-500">{t('init_ses')}</span>
+                                </div>
+                            </div>
+
+                        
+                            <div className="mt-6 grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => handleOAuth('42')}
+                                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                                >
+                                    <span className="font-bold text-black">42 Network</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => handleOAuth('google')}
+                                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                                >
+                                    Google
+                                </button>
+                            </div>
                         </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-gray-500">{t('init_ses')}</span>
-                        </div>
-                    </div>
-
-                   
-                    <div className="mt-6 grid grid-cols-2 gap-3">
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('42')}
-                            className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-                        >
-                            <span className="font-bold text-black">42 Network</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('google')}
-                            className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-                        >
-                            Google
-                        </button>
-                    </div>
-                </div>
 
                 
-                <div className="mt-6 text-center">
-                    <p className="text-sm text-gray-600">
-                        {t('cuenta?')}{" "}
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                dispatch({ type: "SIGN" });
-                            }}
-                            className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none underline"
-                        >
-                            {t('crear_cuenta')}
-                        </button>
-                    </p>
-                </div>
+                        <div className="mt-6 text-center">
+                            <p className="text-sm text-gray-600">
+                                {t('cuenta?')}{" "}
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        dispatch({ type: "SIGN" });
+                                    }}
+                                    className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none underline"
+                                >
+                                    {t('crear_cuenta')}
+                                </button>
+                            </p>
+                        </div>
+                    </>
+                ) : null}
             </div>
         </div>
     );

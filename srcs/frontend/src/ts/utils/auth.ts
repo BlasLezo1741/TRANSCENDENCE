@@ -66,12 +66,18 @@ export async function checkLogin(user: string, pass: string) {
 
 export async function send2FACode(userId: number, totpCode: string) {
     try {
-        const response = await fetch(`${API_URL}/auth/verify-totp`, {
+        // Determinar el endpoint según la longitud del código
+        const endpoint = totpCode.length === 6 
+            ? `${API_URL}/auth/verify-totp`
+            : `${API_URL}/auth/verify-backup`;
+
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, totpCode })
         });
-        return await response.json(); 
+
+        return await response.json();
     } catch (e) {
         return { ok: false, msg: "Error de conexión" };
     }
