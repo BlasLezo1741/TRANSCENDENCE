@@ -41,7 +41,9 @@
     "registro_exitoso":"Configuration de la 2FA terminée !",
     "verificar": "Authenticator",
     "veri_backup": "Secours",
-    "placeholder": "6 chiffres ou code de secours"
-
-
+    "placeholder": "6 chiffres ou code de secours",
+    "error": "Erreur",
+    "prof.prof_no_load": "Impossible de charger le profil",
+    "prof.del_friend": "Supprimer l'ami",
+    "prof.conf_del_friend": "Êtes-vous sûr de vouloir supprimer {{name}}?"
 }

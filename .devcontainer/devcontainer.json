@@ -1,32 +1,25 @@
 {
   "name": "Proyecto Fullstack",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  // Esta es mi configuración de Docker-in-Docker. prefiero bash ==>false
   "features": {
+    "ghcr.io/devcontainers/features/common-utils:1": {
+        "configureZshAsDefaultShell": false
+    },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
+    },
 
-  "postCreateCommand": "bash .devcontainer/init-terminals.sh",
+  //"postCreateCommand": "bash .devcontainer/init-terminals.sh",
 
-  "customizations": {
+"customizations": {
     "vscode": {
       "extensions": [
         "ms-vscode-remote.remote-containers"
       ],
       "terminal.integrated.profiles.linux": {
-        "backend": {
-          "path": "/bin/bash",
-          "icon": "server",
-          "color": "terminal.ansiRed"
-        },
-        "frontend": {
-          "path": "/bin/bash",
-          "icon": "browser",
-          "color": "terminal.ansiBlue"
-        },
-        "database": {
-          "path": "/bin/bash",
-          "icon": "database",
-          "color": "terminal.ansiGreen"
-        }
+        "backend": { "path": "/bin/bash", "icon": "server" },
+        "frontend": { "path": "/bin/bash", "icon": "browser" },
+        "database": { "path": "/bin/bash", "icon": "database" }
       }
     }
   }

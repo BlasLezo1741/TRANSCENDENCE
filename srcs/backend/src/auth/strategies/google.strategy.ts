@@ -26,8 +26,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { id, displayName, emails, photos, _json } = profile;
-    let lang = 'en'; // Default
-    let country = 'ES'; // Default for Unkonwn
+    let lang = 'ca'; // Default
+    let country = 'FR'; // Default for Unkonwn
 
     if (_json.locale) {
       const parts = _json.locale.split('-'); // Split "en-US" into ["en", "US"]

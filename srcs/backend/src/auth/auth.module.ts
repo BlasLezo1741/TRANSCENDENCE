@@ -1,4 +1,5 @@
-//Para que el microservicio reconozca el controlador, el servicio y la conexión 
+// srcs/backend/src/auth/auth.module.ts
+// Para que el microservicio reconozca el controlador, el servicio y la conexión 
 // a la base de datos, el archivo auth.module.ts debe actuar como el "pegamento"
 //  que une todas las piezas.
 
@@ -21,7 +22,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-
 // HttpModule - proporciona HttpService para hacer peticiones HTTP (a tu totp).
 import { HttpModule } from '@nestjs/axios';
 
@@ -29,8 +29,13 @@ import { HttpModule } from '@nestjs/axios';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
+// Importa las estrategias de autenticación
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FortyTwoStrategy } from './strategies/fortytwo.strategy';
+
+// Importa el guard JWT
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 // Importa el módulo que configura la conexión a la base de datos (Drizzle).
 import { DatabaseModule } from '../database.module'; // Importante para Drizzle
@@ -69,11 +74,10 @@ import { DatabaseModule } from '../database.module'; // Importante para Drizzle
 //       Permite que AuthController lo inyecte en su constructor
 //       NestJS crea automáticamente una instancia de AuthService
 
-
 //  exports hace que AuthService esté disponible para otros módulos que importen AuthModule.
 @Module({
   imports: [
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }), // ← IMPORTANTE: registra JWT como estrategia por defecto
     ConfigModule,
     // 1. Necesario para que el AuthService pueda usar this.db
     DatabaseModule, 
@@ -82,7 +86,7 @@ import { DatabaseModule } from '../database.module'; // Importante para Drizzle
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1d' },
+        signOptions: { expiresIn: '7d' }, // Cambiado de 1d a 7d
       }),
     }),
     // 2. Necesario para que el AuthService pueda llamar al servicio de Python (2faserver)
@@ -90,26 +94,16 @@ import { DatabaseModule } from '../database.module'; // Importante para Drizzle
       timeout: 5000,
       maxRedirects: 5,
     }),
-    ], // Sin esto, el HttpService no podrá inyectarse
-    controllers: [AuthController],
-    providers: [AuthService,
-                GoogleStrategy,
-               FortyTwoStrategy,
-    ],
-  // Exportamos el servicio por si otros módulos necesitan validar sesiones en el futuro
-  exports: [AuthService],     
+  ], // Sin esto, el HttpService no podrá inyectarse
+  controllers: [AuthController],
+  providers: [
+    AuthService,
+    JwtStrategy,      // ← CRÍTICO: registra la estrategia JWT
+    JwtAuthGuard,     // ← CRÍTICO: registra el guard JWT
+    GoogleStrategy,
+    FortyTwoStrategy,
+  ],
+  // Exportamos el servicio y el guard por si otros módulos necesitan validar sesiones
+  exports: [AuthService, JwtAuthGuard, JwtStrategy],
 })
 export class AuthModule {}
-
-
-
-
-
-
-
-
-
-
-
-
-
