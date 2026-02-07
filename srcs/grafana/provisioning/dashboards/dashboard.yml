@@ -1,7 +1,7 @@
 apiVersion: 1
 
 providers:
-  - name: 'Transcendence Provider'
+  - name: 'Transcendence_Provider'
     orgId: 1
     folder: 'Servicios'
     type: file
