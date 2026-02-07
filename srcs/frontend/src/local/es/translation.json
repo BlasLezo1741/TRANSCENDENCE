@@ -4,6 +4,7 @@
     "sel_lang": "Selecciona el idioma",
     "count": "Somos ",
     "modo": "Elige el modo de juego",
+    "juego_mode": "Modo de juego: ",
     "Jugar": "Jugar",
     "user": "Usuario",
     "crear_cuenta": "Crear una cuenta",
@@ -40,6 +41,9 @@
     "registro_exitoso":"¡Configuración de 2FA completada!",
     "verificar": "Authenticator",
     "veri_backup": "Respaldo",
-    "placeholder": "6 dígitos o código respaldo"
-
+    "placeholder": "6 dígitos o código respaldo",
+    "error": "Error",
+    "prof.prof_no_load": "No se pudo cargar el perfil",
+    "prof.del_friend": "Eliminar Amigo",
+    "prof.conf_del_friend": "¿Seguro que quieres eliminar a {{name}}?"
 }

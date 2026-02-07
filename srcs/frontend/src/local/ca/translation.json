@@ -41,5 +41,9 @@
     "registro_exitoso":"Configuració de 2FA completada!",
     "verificar": "Authenticator",
     "veri_backup": "Reserva",
-    "placeholder": "6 dígits o codi de reserva"
+    "placeholder": "6 dígits o codi de reserva",
+    "error": "Error",
+    "prof.prof_no_load": "No s'ha pogut carregar el perfil",
+    "prof.del_friend": "Eliminar Amic",
+    "prof.conf_del_friend": "Segur que vols eliminar a {{name}}?"
 }
