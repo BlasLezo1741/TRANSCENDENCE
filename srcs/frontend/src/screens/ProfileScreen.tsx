@@ -16,9 +16,11 @@ import { useModal } from '../context/ModalContext';
 
 import "../css/ProfileScreen.css";
 
+type states = 'info' | 'friends' | 'requests' | 'stats';
+
 const ProfileScreen = () => {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<'info' | 'friends' | 'requests'>('info');
+    const [activeTab, setActiveTab] = useState<states>('info');
     
     // Estados de datos
     const [friends, setFriends] = useState<Friend[]>([]);
