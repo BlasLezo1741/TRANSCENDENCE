@@ -457,9 +457,9 @@ async verifyBackupCode(
 
       // Case-insensitive search in the country table
       const result = await this.db
-        .select({ code: schema.country.coun2Pk })
-        .from(schema.country)
-        .where(sql`LOWER(${schema.country.counName}) = LOWER(${countryName})`)
+        .select({ code: country.coun2Pk })
+        .from(country)
+        .where(sql`LOWER(${country.counName}) = LOWER(${countryName})`)
         .limit(1);
 
       // Return the code if found, otherwise default to 'FR'
@@ -469,6 +469,192 @@ async verifyBackupCode(
     } catch (error) {
       this.logger.error('Error fetching country code:', error);
       return 'FR'; // Default to FR on error
+    }
+  }
+
+  // ==================== PROFILE MANAGEMENT ====================
+
+  /**
+   * Get all countries from database
+   */
+  async getCountries() {
+    this.logger.log('📡 [getCountries] Fetching countries from database...');
+    
+    try {
+      const result = await this.db
+        .select({
+          coun2_pk: country.coun2Pk,
+          coun_name: country.counName,
+        })
+        .from(country)
+        .orderBy(country.counName);
+
+      this.logger.log(`✅ [getCountries] Found ${result.length} countries`);
+      return result;
+    } catch (error) {
+      this.logger.error('❌ [getCountries] Error fetching countries:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Update user profile with validation
+   */
+  async updateUserProfile(userId: number, updateData: {
+    nick?: string;
+    email?: string;
+    birth?: string;
+    country?: string;
+    lang?: string;
+    currentPassword?: string;
+    newPassword?: string;
+  }) {
+    this.logger.log(`📡 [updateUserProfile] Updating user ${userId}`);
+    this.logger.debug(`📝 [updateUserProfile] Update data:`, updateData);
+
+    try {
+      // 1. Get current user
+      const currentUser = await this.findUserById(userId);
+      if (!currentUser) {
+        this.logger.error(`❌ [updateUserProfile] User not found: ${userId}`);
+        return { ok: false, msg: 'Usuario no encontrado' };
+      }
+
+      this.logger.log(`✅ [updateUserProfile] Current user found: ${currentUser.pNick}`);
+
+      // 2. Check if trying to change to existing nick
+      if (updateData.nick && updateData.nick !== currentUser.pNick) {
+        this.logger.log(`🔍 [updateUserProfile] Checking if nick '${updateData.nick}' is available...`);
+        
+        const nickExists = await this.db
+          .select()
+          .from(player)
+          .where(
+            and(
+              eq(player.pNick, updateData.nick),
+              sql`${player.pPk} != ${userId}`
+            )
+          )
+          .limit(1);
+
+        if (nickExists.length > 0) {
+          this.logger.warn(`⚠️ [updateUserProfile] Nick already exists: ${updateData.nick}`);
+          return { ok: false, msg: 'Ese nombre de usuario ya está en uso' };
+        }
+        
+        this.logger.log(`✅ [updateUserProfile] Nick is available`);
+      }
+
+      // 3. Check if trying to change to existing email
+      if (updateData.email && updateData.email !== currentUser.pMail) {
+        this.logger.log(`🔍 [updateUserProfile] Checking if email '${updateData.email}' is available...`);
+        
+        const emailExists = await this.db
+          .select()
+          .from(player)
+          .where(
+            and(
+              eq(player.pMail, updateData.email),
+              sql`${player.pPk} != ${userId}`
+            )
+          )
+          .limit(1);
+
+        if (emailExists.length > 0) {
+          this.logger.warn(`⚠️ [updateUserProfile] Email already exists: ${updateData.email}`);
+          return { ok: false, msg: 'Ese email ya está en uso' };
+        }
+        
+        this.logger.log(`✅ [updateUserProfile] Email is available`);
+      }
+
+      // 4. Prepare update data
+      const dataToUpdate: any = {};
+
+      if (updateData.nick) {
+        dataToUpdate.pNick = updateData.nick;
+        this.logger.log(`📝 [updateUserProfile] Will update nick to: ${updateData.nick}`);
+      }
+      if (updateData.email) {
+        dataToUpdate.pMail = updateData.email;
+        this.logger.log(`📝 [updateUserProfile] Will update email to: ${updateData.email}`);
+      }
+      if (updateData.birth) {
+        dataToUpdate.pBir = updateData.birth;
+        this.logger.log(`📝 [updateUserProfile] Will update birth to: ${updateData.birth}`);
+      }
+      if (updateData.country) {
+        dataToUpdate.pCountry = updateData.country;
+        this.logger.log(`📝 [updateUserProfile] Will update country to: ${updateData.country}`);
+      }
+      if (updateData.lang) {
+        dataToUpdate.pLang = updateData.lang;
+        this.logger.log(`📝 [updateUserProfile] Will update lang to: ${updateData.lang}`);
+      }
+
+      // 5. Handle password change (only for non-OAuth users)
+      if (updateData.newPassword) {
+        this.logger.log(`🔐 [updateUserProfile] Password change requested`);
+        
+        // Check if user has a password (not OAuth)
+        if (!currentUser.pPass) {
+          this.logger.warn(`⚠️ [updateUserProfile] User is OAuth, cannot change password`);
+          return { 
+            ok: false, 
+            msg: 'No puedes cambiar la contraseña de una cuenta OAuth' 
+          };
+        }
+
+        // Verify current password
+        this.logger.log(`🔍 [updateUserProfile] Verifying current password...`);
+        const isCurrentPasswordValid = await bcrypt.compare(
+          updateData.currentPassword || '',
+          currentUser.pPass
+        );
+
+        if (!isCurrentPasswordValid) {
+          this.logger.warn(`⚠️ [updateUserProfile] Current password is incorrect`);
+          return { ok: false, msg: 'Contraseña actual incorrecta' };
+        }
+
+        this.logger.log(`✅ [updateUserProfile] Current password verified`);
+
+        // Hash new password
+        this.logger.log(`🔐 [updateUserProfile] Hashing new password...`);
+        const hashedNewPassword = await bcrypt.hash(updateData.newPassword, 10);
+        dataToUpdate.pPass = hashedNewPassword;
+        
+        this.logger.log(`✅ [updateUserProfile] New password hashed`);
+      }
+
+      // 6. Update database
+      this.logger.log(`💾 [updateUserProfile] Updating database...`);
+      
+      const [updatedUser] = await this.db
+        .update(player)
+        .set(dataToUpdate)
+        .where(eq(player.pPk, userId))
+        .returning();
+
+      this.logger.log(`✅ [updateUserProfile] User ${userId} (${updatedUser.pNick}) updated successfully`);
+
+      return {
+        ok: true,
+        msg: 'Perfil actualizado',
+        user: {
+          id: updatedUser.pPk,
+          nick: updatedUser.pNick,
+          email: updatedUser.pMail,
+          birth: updatedUser.pBir,
+          country: updatedUser.pCountry,
+          lang: updatedUser.pLang,
+          avatarUrl: updatedUser.pAvatarUrl,
+        }
+      };
+
+    } catch (error) {
+      this.logger.error('❌ [updateUserProfile] Error updating user profile:', error);
+      return { ok: false, msg: 'Error al actualizar el perfil' };
     }
   }
 

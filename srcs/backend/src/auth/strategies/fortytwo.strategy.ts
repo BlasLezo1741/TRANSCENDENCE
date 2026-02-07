@@ -37,7 +37,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     const languageIdentifier = profile._json?.campus?.[0]?.language?.identifier || 'ca';
     const campusCountry = profile._json?.campus?.[0]?.country || null;
     const countryCode = await this.authService.getCountryCode(campusCountry);
-    console.log('Campus country: ${campusCountry} -> Country code: ${countryCode}');
+    console.log(`Campus country: ${campusCountry} -> Country code: ${countryCode}`);
   
     
     const user = {

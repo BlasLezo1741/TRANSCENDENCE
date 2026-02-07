@@ -8,6 +8,7 @@ import SignScreen from './screens/SignScreen.tsx'
 import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
+//import ProfileScreen from './screens/ProfileScreen.tsx/index.ts'
 import StatsScreen from './screens/StatsScreen.tsx'
 import SettingsScreen from './screens/SettingsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
@@ -71,7 +72,8 @@ function App()
         const payload = JSON.parse(jsonPayload); // { sub: 1, nick: 'foo', ... }
 
         // 1. Save data to localStorage
-        localStorage.setItem("jwt_token", token);
+        //localStorage.setItem("jwt_token", token);
+        localStorage.setItem("pong_token", token);
         localStorage.setItem("pong_user_nick", payload.nick);
         localStorage.setItem("pong_user_id", payload.sub.toString());
 
@@ -121,6 +123,7 @@ function App()
       // 1. Limpiar Storage
       localStorage.removeItem("pong_user_nick");
       localStorage.removeItem("pong_user_id");
+      localStorage.removeItem("pong_token");
       // 2. Desconectar Socket
       socket.disconnect();
       // 3. Limpiar Estado
@@ -242,7 +245,7 @@ function renderScreen()
           roomId={roomId} 
         />;
         case "profile":
-          return <ProfileScreen />;
+          return <ProfileScreen setGlobalUser={setCurrentUser}/>; // added to update the Header instantly in case of change of nick
         case "stats":
           return <StatsScreen />;
         case "settings":

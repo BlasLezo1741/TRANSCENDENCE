@@ -12,24 +12,50 @@ import {
     type UserCandidate,
     removeFriend
 } from '../services/friend.service';
+import { 
+    getMyProfile, 
+    updateMyProfile, 
+    getCountries,
+    type UserProfile,
+    type Country,
+    type UpdateProfileData
+} from '../services/user.service';
 import { useModal } from '../context/ModalContext';
 
 import "../css/ProfileScreen.css";
 
 const ProfileScreen = () => {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<'info' | 'friends' | 'requests'>('info');
+    const [activeTab, setActiveTab] = useState<'info' | 'friends' | 'requests' | 'stats'>('info');
     
-    // Estados de datos
+    // Estados de datos sociales
     const [friends, setFriends] = useState<Friend[]>([]);
     const [requests, setRequests] = useState<PendingRequest[]>([]);
-
-    // --- LÓGICA COPIADA DE SIGNSCREEN (Adaptada) ---
-    const [candidates, setCandidates] = useState<UserCandidate[]>([]); // Como 'countries'
-    const [isLoadingCandidates, setIsLoadingCandidates] = useState(true); // Como 'isLoadingCountries'
+    const [candidates, setCandidates] = useState<UserCandidate[]>([]);
+    const [isLoadingCandidates, setIsLoadingCandidates] = useState(true);
     
+    // Estados para perfil de usuario
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
     
-    // Estado para añadir amigo (temporalmente por ID hasta que tengamos buscador por nombre)
+    // Estados para formulario de edición
+    const [editForm, setEditForm] = useState({
+        nick: '',
+        email: '',
+        birth: '',
+        country: '',
+        lang: '',
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    
+    // Estados para países
+    const [countries, setCountries] = useState<Country[]>([]);
+    const [isLoadingCountries, setIsLoadingCountries] = useState(true);
+    
+    // Estado para añadir amigo
     const [targetIdInput, setTargetIdInput] = useState("");
     const [statusMsg, setStatusMsg] = useState("");
 
@@ -37,102 +63,262 @@ const ProfileScreen = () => {
 
     // --- CARGA DE DATOS ---
 
-    const loadSocialData = async () => {
+    const loadUserProfile = async () => {
+        console.log("🔄 [ProfileScreen] loadUserProfile() - Starting...");
+        
         try {
-            //Cargamos amigos
-            const f = await getMyFriends();
-            // CHIVATO: Veremos en la consola qué llega exactamente
-            console.log("📦 [DEBUG] Amigos cargados:", f); 
-            setFriends(f);
+            setIsLoadingProfile(true);
+            const profile = await getMyProfile();
             
-            const r = await getPendingRequests();
-            setRequests(r);
-            console.log("📨 [DEBUG] Solicitudes cargadas del servidor:", r);
+            if (!profile) {
+                console.error("❌ [ProfileScreen] No profile data received");
+                throw new Error('No se pudo cargar el perfil');
+            }
 
-            // Cargar candidatos (Lógica similar al useEffect de SignScreen)
-            setIsLoadingCandidates(true); // Activamos carga
-            const c = await getUsersToInvite();
-            setCandidates(c);
+            console.log("✅ [ProfileScreen] Profile loaded:", profile);
+            setUserProfile(profile);
+            
+            // Inicializar formulario de edición con datos actuales
+            setEditForm({
+                nick: profile.nick || '',
+                email: profile.email || '',
+                birth: profile.birth || '',
+                country: profile.country || '',
+                lang: profile.lang || '',
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: ''
+            });
 
-        } catch (e) {
-            console.error("Error cargando datos", e);
+            console.log("✅ [ProfileScreen] Edit form initialized");
+        } catch (error) {
+            console.error('❌ [ProfileScreen] Error loading user profile:', error);
+            showModal({
+                title: "Error",
+                message: "No se pudo cargar tu perfil",
+                type: "alert"
+            });
         } finally {
-            setIsLoadingCandidates(false); // Desactivamos carga al terminar
+            setIsLoadingProfile(false);
+            console.log("🏁 [ProfileScreen] loadUserProfile() - Finished");
         }
     };
 
-    // const handleRemoveFriend = async (friendId: number, friendName: string) => {
-    //     // 1. Confirmación de seguridad
-    //     if (!window.confirm(`¿Seguro que quieres eliminar a ${friendName}?`)) {
-    //         return;
-    //     }
+    const loadCountries = async () => {
+        console.log("🔄 [ProfileScreen] loadCountries() - Starting...");
         
+        try {
+            setIsLoadingCountries(true);
+            const countriesData = await getCountries();
+            
+            console.log("✅ [ProfileScreen] Countries loaded:", countriesData.length);
+            setCountries(countriesData);
+        } catch (error) {
+            console.error('❌ [ProfileScreen] Error loading countries:', error);
+        } finally {
+            setIsLoadingCountries(false);
+            console.log("🏁 [ProfileScreen] loadCountries() - Finished");
+        }
+    };
 
-    //     // 2. OPTIMISTIC UI: Lo quitamos de la lista visualmente YA
-    //     setFriends((prev: Friend[]) => prev.filter((f) => Number(f.id) !== Number(friendId)));
-
-    //     try {
-    //         // 3. Llamada al backend
-    //         const res = await removeFriend(friendId);
-    //         if (res.ok) {
-    //             setStatusMsg(`Has eliminado a ${friendName}`);
-    //         } else {
-    //             // Si falla, recargamos para que vuelva a aparecer
-    //             loadSocialData(); 
-    //         }
-    //     } catch (error) {
-    //         console.error("Error eliminando amigo:", error);
-    //     }
+    const loadSocialData = async () => {
+        console.log("🔄 [ProfileScreen] loadSocialData() - Starting...");
         
-    //     // 4. Recarga de seguridad a los 300ms (para actualizar candidatos)
-    //     setTimeout(() => loadSocialData(), 300);
-    // };
+        try {
+            const f = await getMyFriends();
+            console.log("📦 [ProfileScreen] Friends loaded:", f.length); 
+            setFriends(f);
+            
+            const r = await getPendingRequests();
+            console.log("📨 [ProfileScreen] Requests loaded:", r.length);
+            setRequests(r);
+
+            setIsLoadingCandidates(true);
+            const c = await getUsersToInvite();
+            console.log("👥 [ProfileScreen] Candidates loaded:", c.length);
+            setCandidates(c);
+
+        } catch (e) {
+            console.error("❌ [ProfileScreen] Error loading social data:", e);
+        } finally {
+            setIsLoadingCandidates(false);
+            console.log("🏁 [ProfileScreen] loadSocialData() - Finished");
+        }
+    };
 
     const handleRemoveFriend = (friendId: number, friendName: string) => {
+        console.log(`🗑️ [ProfileScreen] Removing friend: ${friendName} (ID: ${friendId})`);
         
-        // 1. Lanzamos el Modal en lugar del window.confirm
         showModal({
             title: "🗑️ Eliminar Amigo",
             message: `¿Seguro que quieres eliminar a ${friendName}?`,
-            type: "confirm", // Esto muestra botones Aceptar/Cancelar
+            type: "confirm",
             onConfirm: async () => {
+                console.log("✅ [ProfileScreen] User confirmed friend removal");
                 
-                // --- AQUÍ EMPIEZA LA LÓGICA QUE TENÍAS ANTES ---
-
-                // 2. OPTIMISTIC UI: Lo quitamos de la lista visualmente YA
                 setFriends((prev: Friend[]) => prev.filter((f) => Number(f.id) !== Number(friendId)));
 
                 try {
-                    // 3. Llamada al backend
                     const res = await removeFriend(friendId);
                     
                     if (res.ok) {
+                        console.log("✅ [ProfileScreen] Friend removed successfully");
                         setStatusMsg(`Has eliminado a ${friendName}`);
                     } else {
-                        // Si falla, recargamos para que vuelva a aparecer (Rollback)
+                        console.error("❌ [ProfileScreen] Failed to remove friend, reloading...");
                         loadSocialData(); 
                     }
                 } catch (error) {
-                    console.error("Error eliminando amigo:", error);
-                    // Opcional: Podrías mostrar otro showModal de error aquí si quisieras
+                    console.error("❌ [ProfileScreen] Error removing friend:", error);
                 }
                 
-                // 4. Recarga de seguridad a los 300ms
                 setTimeout(() => loadSocialData(), 300);
             }
         });
     };
 
-    // Cargar datos al montar
+    const handleUpdateProfile = async () => {
+        console.log("💾 [ProfileScreen] handleUpdateProfile() - Starting...");
+        console.log("📝 [ProfileScreen] Form data:", editForm);
 
+        // Validaciones
+        if (!editForm.nick || !editForm.email) {
+            console.warn("⚠️ [ProfileScreen] Validation failed: Missing required fields");
+            showModal({
+                title: "Error",
+                message: "El nombre de usuario y el email son obligatorios",
+                type: "alert"
+            });
+            return;
+        }
+
+        // Si quiere cambiar contraseña, validar
+        if (editForm.newPassword) {
+            console.log("🔐 [ProfileScreen] Password change requested");
+            
+            if (!editForm.currentPassword) {
+                console.warn("⚠️ [ProfileScreen] Validation failed: Missing current password");
+                showModal({
+                    title: "Error",
+                    message: "Debes introducir tu contraseña actual para cambiarla",
+                    type: "alert"
+                });
+                return;
+            }
+            if (editForm.newPassword !== editForm.confirmPassword) {
+                console.warn("⚠️ [ProfileScreen] Validation failed: Passwords don't match");
+                showModal({
+                    title: "Error",
+                    message: "Las contraseñas nuevas no coinciden",
+                    type: "alert"
+                });
+                return;
+            }
+            if (editForm.newPassword.length < 6) {
+                console.warn("⚠️ [ProfileScreen] Validation failed: Password too short");
+                showModal({
+                    title: "Error",
+                    message: "La nueva contraseña debe tener al menos 6 caracteres",
+                    type: "alert"
+                });
+                return;
+            }
+        }
+
+        try {
+            const updateData: UpdateProfileData = {
+                nick: editForm.nick,
+                email: editForm.email,
+                birth: editForm.birth,
+                country: editForm.country,
+                lang: editForm.lang
+            };
+
+            // Solo incluir contraseñas si se está intentando cambiar
+            if (editForm.newPassword) {
+                updateData.currentPassword = editForm.currentPassword;
+                updateData.newPassword = editForm.newPassword;
+                console.log("🔐 [ProfileScreen] Including password change in update");
+            }
+
+            console.log("📡 [ProfileScreen] Sending update request...");
+            const result = await updateMyProfile(updateData);
+
+            if (!result.ok) {
+                console.error("❌ [ProfileScreen] Update failed:", result.msg);
+                throw new Error(result.msg || 'Error actualizando perfil');
+            }
+
+            console.log("✅ [ProfileScreen] Profile updated successfully");
+
+            // Actualizar localStorage si cambió el nick
+            if (editForm.nick !== userProfile?.nick) {
+                console.log("🔄 [ProfileScreen] Updating localStorage with new nick:", editForm.nick);
+                localStorage.setItem('pong_user_nick', editForm.nick);
+            }
+
+            showModal({
+                title: "✅ Perfil Actualizado",
+                message: "Tu perfil se ha actualizado correctamente",
+                type: "alert"
+            });
+
+            // Recargar perfil y salir del modo edición
+            await loadUserProfile();
+            setIsEditing(false);
+            
+            // Limpiar campos de contraseña
+            setEditForm(prev => ({
+                ...prev,
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: ''
+            }));
+
+            console.log("🏁 [ProfileScreen] handleUpdateProfile() - Success");
+
+        } catch (error: any) {
+            console.error('❌ [ProfileScreen] Error updating profile:', error);
+            showModal({
+                title: "Error",
+                message: error.message || "No se pudo actualizar tu perfil",
+                type: "alert"
+            });
+        }
+    };
+
+    const handleCancelEdit = () => {
+        console.log("❌ [ProfileScreen] User cancelled edit mode");
+        
+        if (!userProfile) return;
+        
+        // Restaurar valores originales
+        setEditForm({
+            nick: userProfile.nick || '',
+            email: userProfile.email || '',
+            birth: userProfile.birth || '',
+            country: userProfile.country || '',
+            lang: userProfile.lang || '',
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+        });
+        setIsEditing(false);
+        
+        console.log("✅ [ProfileScreen] Form reset to original values");
+    };
+
+    // Cargar datos al montar
     useEffect(() => {
-        // Carga inicial
+        console.log("🚀 [ProfileScreen] Component mounted - Loading initial data...");
+        
+        loadUserProfile();
+        loadCountries();
         loadSocialData();
 
-        // --- HANDLERS ---
-
+        // --- HANDLERS DE SOCKET ---
         const handleNewRequest = () => {
-            console.log("🔔 [SOCKET] Nueva solicitud recibida");
+            console.log("📩 [SOCKET] Nueva solicitud recibida");
             setTimeout(() => loadSocialData(), 300);
         };
 
@@ -145,18 +331,17 @@ const ProfileScreen = () => {
         };
 
         const handleStatusChange = (data: { userId: number, status: 'online' | 'offline' }) => {
+            console.log(`👤 [SOCKET] User status changed: ${data.userId} -> ${data.status}`);
             setFriends((prev: Friend[]) => prev.map((f) => {
-            // Usamos Number() para asegurar que comparamos números con números
-            if (Number(f.id) === Number(data.userId)) {
-                return { ...f, status: data.status };
-            }
-            return f;
+                if (Number(f.id) === Number(data.userId)) {
+                    return { ...f, status: data.status };
+                }
+                return f;
             }));
         };
 
-        // 🔥 ESTE ES EL IMPORTANTE CON LOGS DE DEPURACIÓN
         const handleFriendRemoved = (data: any) => {
-            console.log("🚨 [SOCKET RECIBIDO] Evento 'friend_removed' llegó con datos:", data);
+            console.log("🚨 [SOCKET] Evento 'friend_removed' llegó con datos:", data);
 
             if (!data || !data.from) {
                 console.error("❌ El evento llegó sin ID 'from'");
@@ -168,14 +353,12 @@ const ProfileScreen = () => {
 
             setFriends((prev: Friend[]) => {
                 const cantidadAntes = prev.length;
-                // Filtramos: Dejamos pasar a todos MENOS al que tenga ese ID
                 const nuevaLista = prev.filter(f => Number(f.id) !== idQueMeBorro);
                 
                 console.log(`📉 Cambio visual: ${cantidadAntes} amigos -> ${nuevaLista.length} amigos`);
                 return nuevaLista;
             });
             
-            // Recarga de seguridad (backup)
             loadSocialData();
         };
 
@@ -188,7 +371,7 @@ const ProfileScreen = () => {
 
         // --- CLEANUP ---
         return () => {
-            console.log("🔕 Desuscribiéndose eventos...");
+            console.log("🔕 Desuscribiéndose eventos del socket...");
             socket.off('friend_request', handleNewRequest);
             socket.off('friend_accepted', handleFriendAccepted);
             socket.off('user_status', handleStatusChange);
@@ -197,47 +380,249 @@ const ProfileScreen = () => {
     }, []);
 
     const handleSendRequest = async () => {
-        if (!targetIdInput) return; // Validación básica
+        if (!targetIdInput) return;
         
-        setIsLoadingCandidates(true); // Bloqueamos visualmente mientras envía
+        console.log("📤 [ProfileScreen] Sending friend request to:", targetIdInput);
+        
+        setIsLoadingCandidates(true);
         const res = await sendFriendRequest(parseInt(targetIdInput));
         setStatusMsg(res.msg || (res.ok ? "Solicitud enviada" : "Error"));
         
-        setTargetIdInput(""); // Reseteamos el select
-        loadSocialData(); // Recargamos para que el usuario desaparezca de la lista
+        console.log("📬 [ProfileScreen] Friend request result:", res);
+        
+        setTargetIdInput("");
+        loadSocialData();
     };
 
     const handleAccept = async (id: number) => {
-        // 1. OPTIMISTIC UI: Lo borramos visualmente INMEDIATAMENTE
-        // Esto hace que la interfaz se sienta ultra rápida
+        console.log("✅ [ProfileScreen] Accepting friend request:", id);
+        
         setRequests((prev: PendingRequest[]) => prev.filter((r) => r.id !== id));
-
-        // 2. Llamamos al backend
         await acceptFriendRequest(id);
 
-        // 3. Recargamos datos reales por si acaso (para actualizar la lista de amigos)
-        // Esperamos un poco para asegurar que la DB terminó
         setTimeout(() => {
             loadSocialData();
         }, 300);
     };
 
-    const InfoScreen = () =>
-    (
-        <>
-            <h1>Perfil de usuario</h1>
+    // --- COMPONENTES DE PANTALLA ---
 
-            <h3>{localStorage.getItem("pong_user_nick")}</h3>
-            <p>ID: {localStorage.getItem("pong_user_id")}</p>
-        </>
-    );
+    const InfoScreen = () => {
+        if (isLoadingProfile) {
+            console.log("⏳ [InfoScreen] Loading profile...");
+            return <p>Cargando perfil...</p>;
+        }
 
-    const FriendScreen = () =>
-    (
+        if (!userProfile) {
+            console.error("❌ [InfoScreen] No profile data available");
+            return <p>No se pudo cargar el perfil</p>;
+        }
+
+        const isOAuthUser = !!userProfile.oauthProvider;
+        console.log("👤 [InfoScreen] Rendering profile. OAuth user:", isOAuthUser);
+
+        return (
+            <>
+                <h1>Perfil de usuario</h1>
+
+                {/* Avatar */}
+                {userProfile.avatarUrl && (
+                    <div style={{ marginBottom: '20px' }}>
+                        <img 
+                            src={userProfile.avatarUrl} 
+                            alt="Avatar" 
+                            style={{ 
+                                width: '150px', 
+                                height: '150px', 
+                                borderRadius: '50%',
+                                objectFit: 'cover'
+                            }} 
+                        />
+                    </div>
+                )}
+
+                {!isEditing ? (
+                    // MODO VISUALIZACIÓN
+                    <>
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>ID:</strong> {userProfile.id}
+                        </div>
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>Usuario:</strong> {userProfile.nick}
+                        </div>
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>Email:</strong> {userProfile.email}
+                        </div>
+                        {userProfile.birth && (
+                            <div style={{ marginBottom: '10px' }}>
+                                <strong>Fecha de Nacimiento:</strong> {userProfile.birth}
+                            </div>
+                        )}
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>País:</strong> {userProfile.country}
+                        </div>
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>Idioma:</strong> {userProfile.lang}
+                        </div>
+                        {isOAuthUser && (
+                            <div style={{ marginBottom: '10px' }}>
+                                <strong>Proveedor OAuth:</strong> {userProfile.oauthProvider}
+                            </div>
+                        )}
+
+                        <button 
+                            onClick={() => {
+                                console.log("✏️ [InfoScreen] Entering edit mode");
+                                setIsEditing(true);
+                            }}
+                            style={{ marginTop: '20px' }}>
+                            ✏️ Editar Perfil
+                        </button>
+                    </>
+                ) : (
+                    // MODO EDICIÓN
+                    <>
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>ID:</strong> {userProfile.id} <em>(no editable)</em>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>
+                                <strong>Usuario:</strong>
+                                <input
+                                    type="text"
+                                    value={editForm.nick}
+                                    onChange={(e) => setEditForm({ ...editForm, nick: e.target.value })}
+                                    style={{ width: '100%', marginTop: '5px' }}
+                                />
+                            </label>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>
+                                <strong>Email:</strong>
+                                <input
+                                    type="email"
+                                    value={editForm.email}
+                                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                    style={{ width: '100%', marginTop: '5px' }}
+                                />
+                            </label>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>
+                                <strong>Fecha de Nacimiento:</strong>
+                                <input
+                                    type="date"
+                                    value={editForm.birth}
+                                    onChange={(e) => setEditForm({ ...editForm, birth: e.target.value })}
+                                    style={{ width: '100%', marginTop: '5px' }}
+                                />
+                            </label>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>
+                                <strong>País:</strong>
+                                <select
+                                    value={editForm.country}
+                                    onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                                    style={{ width: '100%', marginTop: '5px' }}
+                                    disabled={isLoadingCountries}>
+                                    <option value="">
+                                        {isLoadingCountries ? "Cargando países..." : "-- Selecciona un país --"}
+                                    </option>
+                                    {countries.map((c) => (
+                                        <option key={c.coun2_pk} value={c.coun2_pk}>
+                                            {c.coun_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                        </div>
+
+                        <div style={{ marginBottom: '15px' }}>
+                            <label>
+                                <strong>Idioma:</strong>
+                                <select
+                                    value={editForm.lang}
+                                    onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
+                                    style={{ width: '100%', marginTop: '5px' }}>
+                                    <option value="">-- Selecciona idioma --</option>
+                                    <option value="es">Español</option>
+                                    <option value="ca">Català</option>
+                                    <option value="en">English</option>
+                                    <option value="fr">Français</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        {/* Cambio de contraseña - Solo para usuarios NO OAuth */}
+                        {!isOAuthUser && (
+                            <>
+                                <hr style={{ margin: '20px 0' }} />
+                                <h3>Cambiar Contraseña (opcional)</h3>
+
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label>
+                                        <strong>Contraseña Actual:</strong>
+                                        <input
+                                            type="password"
+                                            value={editForm.currentPassword}
+                                            onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
+                                            style={{ width: '100%', marginTop: '5px' }}
+                                            placeholder="Solo si quieres cambiar la contraseña"
+                                        />
+                                    </label>
+                                </div>
+
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label>
+                                        <strong>Nueva Contraseña:</strong>
+                                        <input
+                                            type="password"
+                                            value={editForm.newPassword}
+                                            onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
+                                            style={{ width: '100%', marginTop: '5px' }}
+                                            placeholder="Mínimo 6 caracteres"
+                                        />
+                                    </label>
+                                </div>
+
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label>
+                                        <strong>Confirmar Nueva Contraseña:</strong>
+                                        <input
+                                            type="password"
+                                            value={editForm.confirmPassword}
+                                            onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
+                                            style={{ width: '100%', marginTop: '5px' }}
+                                            placeholder="Repite la nueva contraseña"
+                                        />
+                                    </label>
+                                </div>
+                            </>
+                        )}
+
+                        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                            <button onClick={handleUpdateProfile}>
+                                💾 Guardar Cambios
+                            </button>
+                            <button onClick={handleCancelEdit}>
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </>
+                )}
+            </>
+        );
+    };
+
+    const FriendScreen = () => (
         <>
             <h1>Lista de amigos</h1>
 
-            {/* --- SELECT DE INVITACIÓN --- */}
             <div>
                 <label>Invitar:</label>
                 <select
@@ -248,9 +633,9 @@ const ProfileScreen = () => {
                         {isLoadingCandidates ? "Cargando usuarios..." : "-- Selecciona Jugador --"}
                     </option>
                     {candidates.map((user) => (
-                    <option key={user.id} value={user.id}>
-                        {user.nick}
-                    </option>
+                        <option key={user.id} value={user.id}>
+                            {user.nick}
+                        </option>
                     ))}
                 </select>
                 <button
@@ -260,36 +645,35 @@ const ProfileScreen = () => {
                 </button>
             </div>
 
-            {/* Mensaje de estado */}
             {statusMsg && <p>{statusMsg}</p>}
 
-            {/* Lista de amigos */}
             <h3>Lista de Amigos</h3>
             {friends.length === 0 ? (
-            <p>No tienes amigos aún.</p>
+                <p>No tienes amigos aún.</p>
             ) : (
-            <ul className="list-friend">
-                {friends.map((f, i) => (
-                <li key={i} className="amigo">
-                    <div>
-                        {/* Semáforo verde/gris */}
-                        <div className="semaforo"
-                            style={{backgroundColor: f.status === 'online' ? '#22c55e' : '#6b7280', boxShadow: f.status === 'online' ? '0 0 8px #22c55e' : 'none'}}>
-                        </div>
-                        <span>{f.friend_nick}</span>
-                    </div>
-                    <button onClick={() => handleRemoveFriend(f.id, f.friend_nick)}>
-                        Eliminar
-                    </button>
-                </li>
-                ))}
-            </ul>
+                <ul className="list-friend">
+                    {friends.map((f, i) => (
+                        <li key={i} className="amigo">
+                            <div>
+                                <div className="semaforo"
+                                    style={{
+                                        backgroundColor: f.status === 'online' ? '#22c55e' : '#6b7280',
+                                        boxShadow: f.status === 'online' ? '0 0 8px #22c55e' : 'none'
+                                    }}>
+                                </div>
+                                <span>{f.friend_nick}</span>
+                            </div>
+                            <button onClick={() => handleRemoveFriend(f.id, f.friend_nick)}>
+                                Eliminar
+                            </button>
+                        </li>
+                    ))}
+                </ul>
             )}
         </>
     );
 
-    const RequestScreen = () =>
-    (
+    const RequestScreen = () => (
         <>
             <h1>Solicitudes</h1>
 
@@ -300,33 +684,31 @@ const ProfileScreen = () => {
             {requests.length > 0 && (
                 <ul>
                     {requests.map((r) => (
-                    <li key={r.id}>
-                        <span>
-                            <strong>{r.nick}</strong> quiere ser tu amigo
-                        </span>
-                        <div>
-                            <button onClick={() => handleAccept(r.id)}>
-                                Aceptar
-                            </button>
-                        </div>
-                    </li>
+                        <li key={r.id}>
+                            <span>
+                                <strong>{r.nick}</strong> quiere ser tu amigo
+                            </span>
+                            <div>
+                                <button onClick={() => handleAccept(r.id)}>
+                                    Aceptar
+                                </button>
+                            </div>
+                        </li>
                     ))}
                 </ul>
             )}
         </>
     );
 
-    const StatScreen = () =>
-    (
+    const StatScreen = () => (
         <>
-            <h1>Estadisticas</h1>
-            <p>Esta es la pagina de stats</p>
+            <h1>Estadísticas</h1>
+            <p>Esta es la página de stats</p>
         </>
     );
 
     return (
         <main className="profile">
-            {/* Navegacion */}
             <nav>
                 <ul>
                     <li
@@ -355,7 +737,6 @@ const ProfileScreen = () => {
                 </ul>
             </nav>
 
-            {/* Contenido */}
             <section>
                 <div className="p-cont">
                     {activeTab === 'info' && <InfoScreen />}
@@ -364,7 +745,6 @@ const ProfileScreen = () => {
                     {activeTab === 'stats' && <StatScreen />}
                 </div>
             </section>
-            {/* <section></section> */}
         </main>
     );
 };
