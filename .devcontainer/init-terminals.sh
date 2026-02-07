@@ -1,13 +1,9 @@
 #!/bin/bash
 
-# Esperar a que VS Code esté listo
-sleep 2
+# Give the VS Code server a moment to fully initialize
+sleep 5
 
-# Crear terminal Backend
-code --new-window --command workbench.action.terminal.newWithProfile --args backend
-
-# Crear terminal Frontend
-code --command workbench.action.terminal.newWithProfile --args frontend
-
-# Crear terminal Database
-code --command workbench.action.terminal.newWithProfile --args database
+# Open terminals using the specific profile names defined in devcontainer.json
+code --terminal --profile "backend"
+code --terminal --profile "frontend"
+code --terminal --profile "database"
