@@ -24,7 +24,12 @@ import { useModal } from '../context/ModalContext';
 
 import "../css/ProfileScreen.css";
 
-const ProfileScreen = () => {
+// To update header if user changes the nick
+interface ProfileScreenProps {
+    setGlobalUser: (nick: string) => void;
+}
+
+const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'info' | 'friends' | 'requests' | 'stats'>('info');
     
@@ -190,6 +195,14 @@ const ProfileScreen = () => {
                 type: "alert"
             });
             return;
+        }
+
+        if (editForm.nick !== userProfile?.nick) {
+            console.log("🔄 [ProfileScreen] Updating localStorage with new nick:", editForm.nick);
+            localStorage.setItem('pong_user_nick', editForm.nick);
+            
+            // 🔥 NEW: Update the global App state (Header) immediately
+            setGlobalUser(editForm.nick); 
         }
 
         // Si quiere cambiar contraseña, validar
@@ -407,7 +420,7 @@ const ProfileScreen = () => {
 
     // --- COMPONENTES DE PANTALLA ---
 
-    const InfoScreen = () => {
+    const renderInfoScreen = () => {
         if (isLoadingProfile) {
             console.log("⏳ [InfoScreen] Loading profile...");
             return <p>Cargando perfil...</p>;
@@ -488,7 +501,7 @@ const ProfileScreen = () => {
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>
-                                <strong>Usuario:</strong>
+                                <strong>{t('user')}:</strong>
                                 <input
                                     type="text"
                                     value={editForm.nick}
@@ -619,7 +632,7 @@ const ProfileScreen = () => {
         );
     };
 
-    const FriendScreen = () => (
+    const renderFriendScreen = () => (
         <>
             <h1>Lista de amigos</h1>
 
@@ -673,7 +686,7 @@ const ProfileScreen = () => {
         </>
     );
 
-    const RequestScreen = () => (
+    const renderRequestScreen = () => (
         <>
             <h1>Solicitudes</h1>
 
@@ -700,7 +713,7 @@ const ProfileScreen = () => {
         </>
     );
 
-    const StatScreen = () => (
+    const renderStatScreen = () => (
         <>
             <h1>Estadísticas</h1>
             <p>Esta es la página de stats</p>
@@ -739,10 +752,10 @@ const ProfileScreen = () => {
 
             <section>
                 <div className="p-cont">
-                    {activeTab === 'info' && <InfoScreen />}
-                    {activeTab === 'friends' && <FriendScreen />}
-                    {activeTab === 'requests' && <RequestScreen />}
-                    {activeTab === 'stats' && <StatScreen />}
+                    {activeTab === 'info' && renderInfoScreen()}
+                    {activeTab === 'friends' && renderFriendScreen()}
+                    {activeTab === 'requests' && renderRequestScreen()}
+                    {activeTab === 'stats' && renderStatScreen()}
                 </div>
             </section>
         </main>
