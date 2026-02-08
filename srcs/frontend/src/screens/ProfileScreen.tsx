@@ -21,7 +21,7 @@ import {
     type UpdateProfileData
 } from '../services/user.service';
 import { useModal } from '../context/ModalContext';
-
+import { Avatar } from '../components/Avatar';
 import "../css/ProfileScreen.css";
 
 // To update header if user changes the nick
@@ -439,20 +439,14 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                 <h1>Perfil de usuario</h1>
 
                 {/* Avatar */}
-                {userProfile.avatarUrl && (
-                    <div style={{ marginBottom: '20px' }}>
-                        <img 
-                            src={userProfile.avatarUrl} 
-                            alt="Avatar" 
-                            style={{ 
-                                width: '150px', 
-                                height: '150px', 
-                                borderRadius: '50%',
-                                objectFit: 'cover'
-                            }} 
-                        />
-                    </div>
-                )}
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <Avatar 
+                        src={userProfile.avatarUrl}
+                        userId={userProfile.id}
+                        size={150}
+                        alt={userProfile.nick}
+                    />
+                </div>
 
                 {!isEditing ? (
                     // MODO VISUALIZACIÓN

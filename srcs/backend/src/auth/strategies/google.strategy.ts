@@ -36,13 +36,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     }
 
     console.log("Google Profile _json:", JSON.stringify(profile._json, null, 2)); // Show in the logs the full data recovered from the profile
+    const photoUrl = photos?.[0]?.value;
+    const fullPicture = photoUrl?.split('=');
 
     const user = {
       oauthId: id,
       oauthProvider: 'google',
       email: emails?.[0]?.value,
       nick: displayName.replace(/\s+/g, '_').substring(0, 20),
-      avatarUrl: photos?.[0]?.value,
+      avatarUrl: fullPicture?.[0] ?? photoUrl,
       lang,
       country,
     };
