@@ -716,8 +716,9 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 const StatScreen = () => {
         // Configuramos la URL de Grafana con el UID transcendence_001
         // kiosk=tv: elimina toda la interfaz de Grafana para que parezca parte de tu web
-        const grafanaUrl = "http://localhost:4000/d/transcendence_001?orgId=1&kiosk=tv";
+        //const grafanaUrl = "http://localhost:4000/d/transcendence_001?orgId=1&kiosk=tv";
         //const grafanaUrl = "http://localhost:4000/d/transcendence_001?orgId=1&from=now-6h&to=now&timezone=browser&refresh=5s";
+        const grafanaUrl = "https://fluffy-acorn-5gjwr44p44qfvr7g-4000.app.github.dev/d/transcendence_001?orgId=1&kiosk=tv"
 
         return (
             <>

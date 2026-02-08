@@ -101,3 +101,174 @@ BEGIN
 END;
 
 $$ LANGUAGE plpgsql;
+
+
+-- Function to count the number of victories for a given player/team
+CREATE OR REPLACE FUNCTION get_victories_count(p_pk INTEGER)
+RETURNS INTEGER
+l
+AS $$
+DECLARE
+    v_victories INTEGER;
+BEGIN
+    SELECT COUNT(m_pk) 
+    INTO v_victories
+    FROM match 
+    WHERE m_winner_fk = p_pk;
+    
+    RETURN v_victories;
+END;
+$$ LANGUAGE plpgsq;
+
+-- Example usage:
+-- SELECT get_victories_count(1);
+-- SELECT get_victories_count(42);
+
+-- Function to count the number of matches played by a given player
+CREATE OR REPLACE FUNCTION get_matches_played(p_player_id INTEGER)
+RETURNS INTEGER
+
+AS $$
+DECLARE
+    v_matches_played INTEGER;
+BEGIN
+    SELECT COUNT(DISTINCT mcm_match_fk)
+    INTO v_matches_played
+    FROM match_player_metrics  -- Replace with your actual table name
+    WHERE mcm_player_fk = p_player_id;
+    
+    RETURN v_matches_played;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Example usage:
+-- SELECT get_matches_played(22);  -- Returns number of matches for player 22
+-- SELECT get_matches_played(43);  -- Returns number of matches for player 43
+-- SELECT get_matches_played(999); -- Returns 0 if player doesn't exist
+
+
+-- Function to get complete win/loss record as a custom type
+-- First, create a custom type to return multiple values
+DROP TYPE IF EXISTS player_record CASCADE;
+CREATE TYPE player_record AS (
+    wins INTEGER,
+    losses INTEGER,
+    total_matches INTEGER
+);
+
+
+-- Match scores is a temporary table from competitormetric that filters only 
+-- metrics with code 1 (Points scored)
+--mcm_match_fk	mcm_player_fk  score
+--1             22             863
+--1             43             5351
+--2             15             549
+--2             55             2717
+--3             87             4832
+--3             12             4249
+--4             13             3357
+--4             84             5150
+--5             48             4294
+
+-- then joins such table with it self where match code is the same
+-- and player code is differente
+--        ON ms1.mcm_match_fk = ms2.mcm_match_fk 
+--        AND ms1.mcm_player_fk != ms2.mcm_player_fk.
+-- that returns two rows by match
+-- mcm_match_fk	player_id	player_score	opponent_id	  opponent_score result
+-- 1            22          863             43            5351           LOSS
+-- 1            43          5351            22            863            WIN
+-- 2            15          549             55            2717           LOSS
+-- 2            55          2717            15            549            WIN
+-- 3            87          4832            12            4249           WIN
+-- 3            12          4249            87            4832           LOSS
+-- but filtered by the player id we want calculate statisics for.
+--        WHERE ms1.mcm_player_fk = p_player_id
+--
+-- Finally counts how many rows of each type exists.
+
+-- Function that returns all stats at once
+CREATE OR REPLACE FUNCTION get_player_record(p_player_id INTEGER)
+RETURNS player_record
+
+AS $$
+DECLARE
+    v_record player_record;
+BEGIN
+    WITH match_scores AS (
+        SELECT 
+            mcm_match_fk,
+            mcm_player_fk,
+            mcm_value AS score
+        FROM competitormetric
+        WHERE mcm_metric_fk = 1
+    ),
+    match_results AS (
+        SELECT 
+            ms1.mcm_player_fk AS player_id,
+            CASE 
+                WHEN ms1.score > ms2.score THEN 'WIN'
+                WHEN ms1.score < ms2.score THEN 'LOSS'
+                ELSE 'DRAW'
+            END AS result
+        FROM match_scores ms1
+        JOIN match_scores ms2 
+            ON ms1.mcm_match_fk = ms2.mcm_match_fk 
+            AND ms1.mcm_player_fk != ms2.mcm_player_fk
+        WHERE ms1.mcm_player_fk = p_player_id
+    )
+    SELECT 
+        COALESCE(COUNT(CASE WHEN result = 'WIN' THEN 1 END), 0),
+        COALESCE(COUNT(CASE WHEN result = 'LOSS' THEN 1 END), 0),
+        COALESCE(COUNT(CASE WHEN result = 'DRAW' THEN 1 END), 0),
+        COALESCE(COUNT(*), 0)
+    INTO v_record.wins, v_record.losses, v_record.draws, v_record.total_matches
+    FROM match_results;
+    
+    RETURN v_record;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Example usage:
+-- Get wins only:
+-- SELECT get_player_wins(22);
+
+-- Get losses only:
+-- SELECT get_player_losses(43);
+
+-- Get complete record:
+-- SELECT * FROM get_player_record(22);
+-- SELECT (get_player_record(22)).*;
+-- SELECT wins, losses FROM get_player_record(22);
+
+
+CREATE OR REPLACE FUNCTION anonymize_player_by_id(player_id INTEGER)
+RETURNS void AS $$
+DECLARE
+    current_unix_timestamp BIGINT;
+BEGIN
+    current_unix_timestamp := EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::BIGINT;
+    
+    UPDATE PLAYER
+    SET
+        p_nick = 'Legacy_' || current_unix_timestamp,
+        p_mail = 'deleted_' || p_pk || '@legacy.local',
+        p_pass = NULL,
+        p_totp_secret = NULL,
+        p_totp_enabled = FALSE,
+        p_totp_enabled_at = NULL,
+        p_totp_backup_codes = NULL,
+        p_oauth_provider = NULL,
+        p_oauth_id = NULL,
+        p_avatar_url = NULL,
+        p_profile_complete = FALSE,
+        p_reg = NULL,
+        p_bir = NULL,
+        p_lang = NULL,
+        p_country = NULL,
+        p_role = 1,
+        p_status = 1
+    WHERE p_pk = player_id;
+END;
+$$ LANGUAGE plpgsql;
