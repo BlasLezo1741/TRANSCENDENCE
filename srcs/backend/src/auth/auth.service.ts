@@ -8,7 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 
 import { users } from '../schema';
-import { player } from '../schema'; 
+import { player } from '../schema';
+import { country } from '../schema';
 import * as schema from '../schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../database.module';
@@ -336,7 +337,7 @@ async verifyBackupCode(
       finalNick = `${oauthData.nick}_${Math.floor(Math.random() * 10000)}`;
     }
 
-    const hasProfileInfo = oauthData.lang && oauthData.country;
+    //const hasProfileInfo = oauthData.lang && oauthData.country;
     // Create new user
     let now = new Date().toISOString();
     const newUser = await this.db
@@ -351,9 +352,9 @@ async verifyBackupCode(
         pOauthProvider: oauthData.oauthProvider,
         pOauthId: oauthData.oauthId,
         pAvatarUrl: oauthData.avatarUrl,
-        pLang: oauthData.lang || 'en',
-        pCountry: oauthData.country || 'ES',
-        pProfileComplete: !!hasProfileInfo,
+        pLang: oauthData.lang || 'ca',
+        pCountry: oauthData.country || 'FR',
+        pProfileComplete: false,
         pReg: now,
         pRole: 1,
         pStatus: 1,
@@ -443,6 +444,32 @@ async verifyBackupCode(
       .limit(1);
 
     return user.length > 0 ? user[0] : null;
+  }
+
+  // ==================== COUNTRY MAPPING ====================
+  
+  // Map country name to country code from database
+  async getCountryCode(countryName: string): Promise<string> {
+    try {
+      if (!countryName) {
+        return 'FR';
+      }
+
+      // Case-insensitive search in the country table
+      const result = await this.db
+        .select({ code: schema.country.coun2Pk })
+        .from(schema.country)
+        .where(sql`LOWER(${schema.country.counName}) = LOWER(${countryName})`)
+        .limit(1);
+
+      // Return the code if found, otherwise default to 'FR'
+      const countryCode = result.length > 0 ? result[0].code : 'FR';
+      this.logger.debug(`Country mapping: ${countryName} -> ${countryCode}`);
+      return countryCode;
+    } catch (error) {
+      this.logger.error('Error fetching country code:', error);
+      return 'FR'; // Default to FR on error
+    }
   }
 
 } // class AuthService
