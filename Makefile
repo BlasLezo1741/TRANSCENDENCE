@@ -142,6 +142,8 @@ $(SERVICE10):
 $(SERVICE10)clean:
 	docker image rm $(SERVICE10)
 
+re-backend:
+	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d --build $(SERVICE3)
 
 test-db: srcs/.env $(DB_DATA_DIR)
 	# 1. Ensure the containers are up and HEALTHY
