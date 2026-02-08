@@ -24,6 +24,7 @@ export interface UpdateProfileData {
     lang?: string;
     currentPassword?: string;
     newPassword?: string;
+    avatarUrl?: string;
 }
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
@@ -77,8 +78,10 @@ export const getMyProfile = async (): Promise<UserProfile | null> => {
 
 // 2. Update profile
 export const updateMyProfile = async (updateData: UpdateProfileData) => {
-    console.log("📡 [user.service] updateMyProfile() - Starting request...");
-    console.log("📝 [user.service] Update data:", updateData);
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log("🔍 [user.service] STEP 8: updateMyProfile called");
+    console.log("🔍 [user.service] Update data received:");
+    console.log(JSON.stringify(updateData, null, 2));
 
     try {
         const token = getToken();
@@ -88,7 +91,8 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
         }
 
         const url = `${API_URL}/auth/profile`;
-        console.log("📡 [user.service] Sending PUT to:", url);
+        console.log("🔍 [user.service] STEP 9: Sending PUT request to:", url);
+        console.log("🔍 [user.service] Request body:", JSON.stringify(updateData));
 
         const response = await fetch(url, {
             method: 'PUT',
@@ -99,13 +103,17 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
             body: JSON.stringify(updateData)
         });
 
-        console.log("📡 [user.service] Response status:", response.status);
+        console.log("🔍 [user.service] STEP 10: Response received");
+        console.log("🔍 [user.service] Response status:", response.status);
+        console.log("🔍 [user.service] Response ok:", response.ok);
 
         const data = await response.json();
-        console.log("📡 [user.service] Response data:", data);
+        console.log("🔍 [user.service] STEP 11: Response data:");
+        console.log(JSON.stringify(data, null, 2));
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         if (!response.ok) {
-            console.error("❌ [user.service] Update failed:", data);
+            console.error("❌ [user.service] Update failed");
             return { 
                 ok: false, 
                 msg: data.message || "Update failed" 
@@ -119,7 +127,9 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
             user: data.user 
         };
     } catch (error) {
-        console.error("❌ [user.service] Error in updateMyProfile():", error);
+        console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        console.error("❌ [user.service] Exception in updateMyProfile:", error);
+        console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         return { 
             ok: false, 
             msg: "Connection error" 

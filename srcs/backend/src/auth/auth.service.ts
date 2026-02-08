@@ -506,6 +506,7 @@ async verifyBackupCode(
     birth?: string;
     country?: string;
     lang?: string;
+    avatarUrl?: string;
     currentPassword?: string;
     newPassword?: string;
   }) {
@@ -590,6 +591,10 @@ async verifyBackupCode(
       if (updateData.lang) {
         dataToUpdate.pLang = updateData.lang;
         this.logger.log(`📝 [updateUserProfile] Will update lang to: ${updateData.lang}`);
+      }
+      if (updateData.avatarUrl !== undefined) {
+        dataToUpdate.pAvatarUrl = updateData.avatarUrl;
+        this.logger.log(`📝 [updateUserProfile] Will update avatarUrl to: ${updateData.avatarUrl}`);
       }
 
       // 5. Handle password change (only for non-OAuth users)

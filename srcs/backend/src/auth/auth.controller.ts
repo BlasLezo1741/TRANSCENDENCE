@@ -248,6 +248,7 @@ export class AuthController {
       birth?: string;
       country?: string;
       lang?: string;
+      avatarUrl?: string; 
       currentPassword?: string;
       newPassword?: string;
     }
@@ -259,6 +260,7 @@ export class AuthController {
       birth: updateData.birth,
       country: updateData.country,
       lang: updateData.lang,
+      avatarUrl: updateData.avatarUrl,
       passwordChange: !!updateData.newPassword
     });
     
