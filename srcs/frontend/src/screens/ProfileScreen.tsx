@@ -22,6 +22,7 @@ import {
 } from '../services/user.service';
 import { useModal } from '../context/ModalContext';
 import { Avatar } from '../components/Avatar';
+import { AvatarSelector } from '../components/AvatarSelector';
 import "../css/ProfileScreen.css";
 
 // To update header if user changes the nick
@@ -63,6 +64,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
     // Estado para añadir amigo
     const [targetIdInput, setTargetIdInput] = useState("");
     const [statusMsg, setStatusMsg] = useState("");
+
+    const [isSelectingAvatar, setIsSelectingAvatar] = useState(false);
 
     const { showModal } = useModal();
 
@@ -148,6 +151,75 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
         } finally {
             setIsLoadingCandidates(false);
             console.log("🏁 [ProfileScreen] loadSocialData() - Finished");
+        }
+    };
+
+    const handleAvatarSelect = async (newAvatarUrl: string) => {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🔍 [ProfileScreen] STEP 3: handleAvatarSelect called');
+        console.log('🔍 [ProfileScreen] Received value:', newAvatarUrl);
+        console.log('🔍 [ProfileScreen] Value type:', typeof newAvatarUrl);
+        console.log('🔍 [ProfileScreen] Is it an ID or URL?', newAvatarUrl.startsWith('http') ? 'URL' : 'ID');
+        
+        try {
+            // Prepare update data with the new avatar
+            const updateData: UpdateProfileData = {
+                nick: userProfile!.nick,
+                email: userProfile!.email,
+                birth: userProfile!.birth,
+                country: userProfile!.country,
+                lang: userProfile!.lang,
+                avatarUrl: newAvatarUrl
+            };
+    
+            console.log('🔍 [ProfileScreen] STEP 4: Prepared updateData:');
+            console.log(JSON.stringify(updateData, null, 2));
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+            const result = await updateMyProfile(updateData);
+    
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('🔍 [ProfileScreen] STEP 5: Backend response:');
+            console.log('🔍 [ProfileScreen] Result.ok:', result.ok);
+            console.log('🔍 [ProfileScreen] Result.msg:', result.msg);
+            console.log('🔍 [ProfileScreen] Full result:', result);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+            if (result.ok) {
+                console.log('✅ [ProfileScreen] STEP 6: Update successful!');
+                console.log('🔍 [ProfileScreen] Updating local state with:', newAvatarUrl);
+                
+                setUserProfile(prev => {
+                    const updated = prev ? { ...prev, avatarUrl: newAvatarUrl } : null;
+                    console.log('🔍 [ProfileScreen] New userProfile state:', updated);
+                    return updated;
+                });
+                
+                console.log('🔍 [ProfileScreen] STEP 7: Closing modal');
+                setIsSelectingAvatar(false);
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            } else {
+                console.error('❌ [ProfileScreen] STEP 6: Update FAILED!');
+                console.error('❌ [ProfileScreen] Error message:', result.msg);
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                
+                showModal({
+                    title: "Error",
+                    message: result.msg || "No se pudo actualizar el avatar",
+                    type: "alert"
+                });
+            }
+        } catch (error) {
+            console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.error('❌ [ProfileScreen] STEP 6: Exception caught!');
+            console.error('❌ [ProfileScreen] Error:', error);
+            console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            showModal({
+                title: "Error",
+                message: "Error al actualizar el avatar",
+                type: "alert"
+            });
         }
     };
 
@@ -438,15 +510,36 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
             <>
                 <h1>Perfil de usuario</h1>
 
-                {/* Avatar */}
-                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    <Avatar 
-                        src={userProfile.avatarUrl}
-                        userId={userProfile.id}
-                        size={150}
-                        alt={userProfile.nick}
-                    />
-                </div>
+                {/* Avatar with Edit Button */}
+                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        <Avatar 
+                            src={userProfile.avatarUrl}
+                            userId={userProfile.id}
+                            size={150}
+                            alt={userProfile.nick}
+                        />
+                        
+                        <div style={{ marginTop: '15px' }}>
+                            <button
+                                onClick={() => {
+                                    console.log("🖼️ [ProfileScreen] Opening avatar selector");
+                                    setIsSelectingAvatar(true);
+                                }}
+                                style={{
+                                    padding: '8px 20px',
+                                    fontSize: '14px',
+                                    borderRadius: '5px',
+                                    border: '1px solid #4CAF50',
+                                    backgroundColor: 'white',
+                                    color: '#4CAF50',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {t('prof.edit_image')}
+                            </button>
+                        </div>
+                    </div>
 
                 {!isEditing ? (
                     // MODO VISUALIZACIÓN
@@ -752,6 +845,17 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                     {activeTab === 'stats' && renderStatScreen()}
                 </div>
             </section>
+            {/* Avatar Selector Modal */}
+            {isSelectingAvatar && (
+                <AvatarSelector
+                    currentAvatarUrl={userProfile?.avatarUrl}
+                    onSelect={handleAvatarSelect}
+                    onCancel={() => {
+                        console.log("❌ [ProfileScreen] Avatar selection cancelled");
+                        setIsSelectingAvatar(false);
+                    }}
+                />
+            )}
         </main>
     );
 };
