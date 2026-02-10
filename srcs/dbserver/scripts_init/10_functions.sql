@@ -106,7 +106,6 @@ $$ LANGUAGE plpgsql;
 -- Function to count the number of victories for a given player/team
 CREATE OR REPLACE FUNCTION get_victories_count(p_pk INTEGER)
 RETURNS INTEGER
-l
 AS $$
 DECLARE
     v_victories INTEGER;
@@ -118,7 +117,7 @@ BEGIN
     
     RETURN v_victories;
 END;
-$$ LANGUAGE plpgsq;
+$$ LANGUAGE plpgsql;
 
 -- Example usage:
 -- SELECT get_victories_count(1);
@@ -134,7 +133,7 @@ DECLARE
 BEGIN
     SELECT COUNT(DISTINCT mcm_match_fk)
     INTO v_matches_played
-    FROM match_player_metrics  -- Replace with your actual table name
+    FROM competitormetric  -- Replace with your actual table name
     WHERE mcm_player_fk = p_player_id;
     
     RETURN v_matches_played;

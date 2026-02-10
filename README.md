@@ -101,7 +101,43 @@ The 'Half-Man's' Tenacity: The Spanish commander gains an increasing bonus to th
 
 # Feature list
 
+🏛️ Access & Authentication
+
+To engage in the noble sport of Transcendence Pong, players must first establish their identity within our hallowed digital halls. We offer three distinct avenues for registration and entry, ensuring both convenience and the utmost security for our patrons.
+1. Traditional Credentials
+
+The foundational method of entry. A player may secure their account by designating a unique Username and a robust Password. This classic approach offers immediate access to the arena with minimal fuss.
+2. Enhanced Security (Two-Factor Authentication)
+
+For the discerning player who values the sanctity of their profile, we offer 2FA. Upon providing a standard username and password, one must further verify their identity via a secondary time-based token. It is the digital equivalent of a double-bolted vault.
+3. Federated Identity (OAuth)
+
+Should you wish to bypass the manual creation of credentials, you may utilize our OAuth integration. By delegating authentication to the esteemed houses of Google or the 42 Intranet, you may gain entry with a single click, leveraging their existing security infrastructure.
+
+```Mermaid
+
+graph TD
+    Start([Player Arrives]) --> Choice{Select Method}
+    
+    %% Option 1
+    Choice -->|Standard| Creds[Enter Username & Password]
+    Creds --> Success([Access Granted])
+    
+    %% Option 2
+    Choice -->|2FA| Creds2[Enter Username & Password]
+    Creds2 --> Challenge[Prompt for 2FA Token]
+    Challenge --> Success
+    
+    %% Option 3
+    Choice -->|OAuth| Providers{Google or 42?}
+    Providers -->|Authorize| Success
+
+```
+
+
 # Technical Choices
+
+
 
 # Team Information
 
