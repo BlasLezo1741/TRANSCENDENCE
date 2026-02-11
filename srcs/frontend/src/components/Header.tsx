@@ -1,19 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import avatarUrl from '../assets/react.svg';
 import noAvatarUrl from '../assets/nouser_chatgpt.png';
 import homeIcon from '../assets/Home_chatgpt.png';
 import { useTranslation } from 'react-i18next';
 import { StatusBadge } from './StatusBadge'; // Importamos el nuevo badge
+import { Avatar } from './Avatar';
 import '../css/Header.css';
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;
     userName: string;
+    userId?: number;
+    userAvatarUrl?: string | null;
+    profileSynced: boolean;
     onLogout: () => void; // <--- NUEVO: Recibimos la función de limpieza desde el padre
 };
 
-const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
+const Header = ({dispatch, userName, userId, userAvatarUrl, profileSynced, onLogout}: HeaderProps) =>
 {
 
     const [signed, setSigned] = useState(true);
@@ -91,7 +94,19 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
                     {isLogged && (
                         <div className="login" ref={dropdownRef} onClick={() => setOpen(!open)}>
                             
-                            <img className="avatarIcon" src={avatarUrl} alt={userName} />
+                            {profileSynced
+                                ? <Avatar
+                                    src={userAvatarUrl}
+                                    userId={userId ?? 0}
+                                    size={36}
+                                    alt={userName}
+                                  />
+                                : <div style={{
+                                    width: 36, height: 36,
+                                    borderRadius: '50%',
+                                    backgroundColor: '#d1d5db'
+                                  }} />
+                            }
                             <p className="letters"><strong>{userName}</strong></p>
 
                             {/* Dropdown */}

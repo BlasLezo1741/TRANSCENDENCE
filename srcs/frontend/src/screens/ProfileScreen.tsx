@@ -28,9 +28,11 @@ import "../css/ProfileScreen.css";
 // To update header if user changes the nick
 interface ProfileScreenProps {
     setGlobalUser: (nick: string) => void;
+    setGlobalUserId: (id: number) => void;
+    setGlobalAvatarUrl: (url: string | null) => void;
 }
 
-const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
+const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: ProfileScreenProps) => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'info' | 'friends' | 'requests' | 'stats'>('info');
     
@@ -85,6 +87,10 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
             console.log("✅ [ProfileScreen] Profile loaded:", profile);
             setUserProfile(profile);
+            
+            // Sync header with the real profile data from the DB
+            setGlobalUserId(profile.id);
+            setGlobalAvatarUrl(profile.avatarUrl ?? null);
             
             // Inicializar formulario de edición con datos actuales
             setEditForm({
@@ -194,6 +200,9 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                     console.log('🔍 [ProfileScreen] New userProfile state:', updated);
                     return updated;
                 });
+                
+                // Sync the new avatar to the Header immediately
+                setGlobalAvatarUrl(newAvatarUrl);
                 
                 console.log('🔍 [ProfileScreen] STEP 7: Closing modal');
                 setIsSelectingAvatar(false);
@@ -316,7 +325,10 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                 email: editForm.email,
                 birth: editForm.birth,
                 country: editForm.country,
-                lang: editForm.lang
+                lang: editForm.lang,
+                // Always carry the current avatarUrl forward so saving text fields
+                // never accidentally clears the avatar that was set separately.
+                avatarUrl: userProfile!.avatarUrl ?? undefined
             };
 
             // Solo incluir contraseñas si se está intentando cambiar
