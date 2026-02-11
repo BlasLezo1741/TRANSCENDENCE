@@ -1,18 +1,6 @@
 import type { ScreenProps } from '../ts/screenConf/screenProps';
 import '../css/Footer.css';
 
-/* 
-
-Footer
-
-    - Privacy Policy
-    - Terms of service
-    - Informacion
-    - Politica de cookies
-    - Soporte/Contacto
-
-*/
-
 type FooterProps = {
     dispatch: React.Dispatch<any>;
     setOption: React.Dispatch<React.SetStateAction<string>>;
@@ -28,16 +16,28 @@ const FooterCont = ({dispatch, setOption}: FooterProps) =>
 
     return (
         <div className="foot-cont">
-            <a href="#" onClick={() => changeScreen("1")}>
-                Opcion 1
+            <a href="#" onClick={() => changeScreen("a")}>
+                Politica de privacidad
             </a>
             <hr />
-            <a href="#" onClick={() => changeScreen("2")}>
-                Opcion 2
+            <a href="#" onClick={() => changeScreen("b")}>
+                Terminos de servicio
             </a>
             <hr />
-            <a href="#" onClick={() => changeScreen("3")}>
-                Opcion 3
+            <a href="#" onClick={() => changeScreen("c")}>
+                Sobre el proyecto
+            </a>
+            <hr />
+            <a href="#" onClick={() => changeScreen("d")}>
+                Contacto
+            </a>
+            <hr />
+            <a href="#" onClick={() => changeScreen("e")}>
+                Creditos
+            </a>
+            <hr />
+            <a href="https://github.com/BlasLezo1741/TRANSCENDENCE" target="new">
+                Github
             </a>
         </div>
     );

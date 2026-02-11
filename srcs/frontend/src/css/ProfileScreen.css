@@ -19,7 +19,7 @@
 
 .profile nav ul li
 {
-    margin: 10px;
+    margin: 10px 5px;
     text-align: center;
     list-style: none;
     cursor: pointer;

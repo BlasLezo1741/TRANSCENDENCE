@@ -1,5 +1,6 @@
 //backend/src/app.module.ts
 import { Module } from '@nestjs/common';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { ConfigModule } from '@nestjs/config'; // <--- Imported to load .env
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -23,6 +24,12 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    PrometheusModule.register({
+      path: '/metrics', // Esto crea la ruta http://localhost:3000/metrics
+      defaultMetrics: {
+        enabled: true, // Activa métricas básicas (CPU, RAM, Node.js)
+      },
+    }),
     ConfigModule.forRoot({ isGlobal: true }), // Loads .env file globally
     DatabaseModule,
     CountriesModule,

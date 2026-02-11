@@ -73,7 +73,6 @@ const Header = ({dispatch, userName, onLogout}: HeaderProps) =>
                 
                 <div>
                      <LanguageSwitcher />
-
                 </div>
 
                 <div className="signin">

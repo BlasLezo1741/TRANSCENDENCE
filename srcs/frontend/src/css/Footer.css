@@ -11,7 +11,10 @@ footer
 
 .foot-cont
 {
+    width: 70%;
     display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
 }
 
 .foot-cont a
