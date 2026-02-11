@@ -102,7 +102,6 @@ END;
 
 $$ LANGUAGE plpgsql;
 
-
 -- Function to count the number of victories for a given player/team
 CREATE OR REPLACE FUNCTION get_victories_count(p_pk INTEGER)
 RETURNS INTEGER
