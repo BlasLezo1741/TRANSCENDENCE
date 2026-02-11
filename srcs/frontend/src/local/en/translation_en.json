@@ -43,6 +43,7 @@
     "veri_backup": "Backup",
     "placeholder": "6 digits or backup code",
     "error": "Error",
+    
     "prof": {
         "prof_no_load": "Could not load profile",
         "del_friend": "Remove Friend",
@@ -51,6 +52,66 @@
         "edit_image": "Edit image",
         "select": "Select",
         "cancel": "Cancel",
-        "no_avatars": "No avatars found in the gallery"
+        "no_avatars": "No avatars found in the gallery",
+        "tab_info": "Info",
+        "tab_friends": "Friends ({{count}})",
+        "tab_requests": "Requests",
+        "tab_stats": "Stats",
+
+        "title": "User Profile",
+        "loading": "Loading profile...",
+        "load_error": "Could not load profile",
+        "field_id": "ID",
+        "field_id_readonly": "(not editable)",
+        "field_email": "Email",
+        "field_birth": "Date of birth",
+        "field_country": "Country",
+        "field_lang": "Language",
+        "field_oauth": "OAuth Provider",
+        "edit_btn": "Edit Profile",
+
+        "loading_countries": "Loading countries...",
+        "sel_country": "-- Select a country --",
+        "sel_lang": "-- Select language --",
+
+        "change_pass": "Change Password (optional)",
+        "current_pass": "Current Password",
+        "current_pass_ph": "Only if you want to change your password",
+        "new_pass": "New Password",
+        "new_pass_ph": "Minimum 6 characters",
+        "confirm_pass": "Confirm New Password",
+        "confirm_pass_ph": "Repeat new password",
+        "save_btn": "Save Changes",
+
+        "avatar_update_error": "Could not update avatar",
+        "avatar_update_error2": "Error updating avatar",
+        "fields_required": "Username and email are required",
+        "need_current_pass": "You must enter your current password to change it",
+        "pass_mismatch": "New passwords do not match",
+        "pass_too_short": "New password must be at least 6 characters",
+        "update_success_title": "Profile Updated",
+        "update_success_msg": "Your profile has been updated successfully",
+        "update_error": "Could not update your profile",
+
+        "friends_title": "Friends List",
+        "friends_h3": "Friends",
+        "invite_label": "Invite:",
+        "loading_users": "Loading users...",
+        "sel_player": "-- Select Player --",
+        "send_request_btn": "Send",
+        "no_friends": "You have no friends yet.",
+        "remove_btn": "Remove",
+        "friend_added": "New friend added!",
+        "request_sent": "Request sent",
+        "friend_removed_msg": "You have removed {{name}}",
+
+        "requests_title": "Requests",
+        "requests_h3": "Pending Requests",
+        "no_requests": "No requests.",
+        "wants_friend": "wants to be your friend",
+        "accept_btn": "Accept",
+
+        "stats_title": "Statistics",
+        "stats_placeholder": "This is the stats page"
     }
 }

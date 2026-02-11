@@ -204,8 +204,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 
                 showModal({
-                    title: "Error",
-                    message: result.msg || "No se pudo actualizar el avatar",
+                    title: t('error'), // Added Translation key
+                    message: result.msg || t('prof.avatar_update_error'), // Added Translation key
                     type: "alert"
                 });
             }
@@ -216,8 +216,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
             console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             
             showModal({
-                title: "Error",
-                message: "Error al actualizar el avatar",
+                title: t('error'), // Added Translation key
+                message: t('prof.avatar_update_error2'), // Added Translation key
                 type: "alert"
             });
         }
@@ -240,7 +240,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                     
                     if (res.ok) {
                         console.log("✅ [ProfileScreen] Friend removed successfully");
-                        setStatusMsg(`Has eliminado a ${friendName}`);
+                        setStatusMsg(t('prof.friend_removed_msg', { name: friendName })); // Added Translation key
                     } else {
                         console.error("❌ [ProfileScreen] Failed to remove friend, reloading...");
                         loadSocialData(); 
@@ -262,8 +262,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
         if (!editForm.nick || !editForm.email) {
             console.warn("⚠️ [ProfileScreen] Validation failed: Missing required fields");
             showModal({
-                title: "Error",
-                message: "El nombre de usuario y el email son obligatorios",
+                title: t('error'), // Added Translation key
+                message: t('prof.fields_required'), // Added Translation key
                 type: "alert"
             });
             return;
@@ -284,8 +284,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
             if (!editForm.currentPassword) {
                 console.warn("⚠️ [ProfileScreen] Validation failed: Missing current password");
                 showModal({
-                    title: "Error",
-                    message: "Debes introducir tu contraseña actual para cambiarla",
+                    title: t('error'), // Added Translation key
+                    message: t('prof.need_current_pass'), // Added Translation key
                     type: "alert"
                 });
                 return;
@@ -293,8 +293,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
             if (editForm.newPassword !== editForm.confirmPassword) {
                 console.warn("⚠️ [ProfileScreen] Validation failed: Passwords don't match");
                 showModal({
-                    title: "Error",
-                    message: "Las contraseñas nuevas no coinciden",
+                    title: t('error'), // Added Translation key
+                    message: t('prof.pass_mismatch'), // Added Translation key
                     type: "alert"
                 });
                 return;
@@ -302,8 +302,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
             if (editForm.newPassword.length < 6) {
                 console.warn("⚠️ [ProfileScreen] Validation failed: Password too short");
                 showModal({
-                    title: "Error",
-                    message: "La nueva contraseña debe tener al menos 6 caracteres",
+                    title: t('error'), // Added Translation key
+                    message: t('prof.pass_too_short'), // Added Translation key
                     type: "alert"
                 });
                 return;
@@ -331,7 +331,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
             if (!result.ok) {
                 console.error("❌ [ProfileScreen] Update failed:", result.msg);
-                throw new Error(result.msg || 'Error actualizando perfil');
+                throw new Error(result.msg || t('prof.update_error')); // Added Translation key
             }
 
             console.log("✅ [ProfileScreen] Profile updated successfully");
@@ -343,8 +343,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
             }
 
             showModal({
-                title: "✅ Perfil Actualizado",
-                message: "Tu perfil se ha actualizado correctamente",
+                title: t('prof.update_success_title'), // Added Translation key
+                message: t('prof.update_success_msg'), // Added Translation key
                 type: "alert"
             });
 
@@ -365,8 +365,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
         } catch (error: any) {
             console.error('❌ [ProfileScreen] Error updating profile:', error);
             showModal({
-                title: "Error",
-                message: error.message || "No se pudo actualizar tu perfil",
+                title: t('error'), // Added Translation key
+                message: error.message || t('prof.update_error'), // Added Translation key
                 type: "alert"
             });
         }
@@ -411,7 +411,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
             console.log("🤝 [SOCKET] Amistad aceptada");
             setTimeout(() => {
                 loadSocialData();
-                setStatusMsg("¡Nuevo amigo añadido!");
+                setStatusMsg(t('prof.friend_added')); // Added Translation key
             }, 300);
         };
 
@@ -471,7 +471,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
         
         setIsLoadingCandidates(true);
         const res = await sendFriendRequest(parseInt(targetIdInput));
-        setStatusMsg(res.msg || (res.ok ? "Solicitud enviada" : "Error"));
+        setStatusMsg(res.msg || (res.ok ? t('prof.request_sent') : t('error'))); // Added Translation key
         
         console.log("📬 [ProfileScreen] Friend request result:", res);
         
@@ -495,12 +495,12 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
     const renderInfoScreen = () => {
         if (isLoadingProfile) {
             console.log("⏳ [InfoScreen] Loading profile...");
-            return <p>Cargando perfil...</p>;
+            return <p>{t('prof.loading')}</p>; // Added Translation key
         }
 
         if (!userProfile) {
             console.error("❌ [InfoScreen] No profile data available");
-            return <p>No se pudo cargar el perfil</p>;
+            return <p>{t('prof.load_error')}</p>; // Added Translation key
         }
 
         const isOAuthUser = !!userProfile.oauthProvider;
@@ -508,7 +508,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
         return (
             <>
-                <h1>Perfil de usuario</h1>
+                <h1>{t('prof.title')}</h1> {/* Added Translation key */}
 
                 {/* Avatar with Edit Button */}
                     <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -545,7 +545,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                     // MODO VISUALIZACIÓN
                     <>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>ID:</strong> {userProfile.id}
+                            <strong>{t('prof.field_id')}:</strong> {userProfile.id} {/* Added Translation key */}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
                             <strong>{t('user')}:</strong> {userProfile.nick}
@@ -555,18 +555,18 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                         </div>
                         {userProfile.birth && (
                             <div style={{ marginBottom: '10px' }}>
-                                <strong>Fecha de Nacimiento:</strong> {userProfile.birth}
+                                <strong>{t('cumple')}:</strong> {userProfile.birth} {/* Added Translation key */}
                             </div>
                         )}
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>País:</strong> {userProfile.country}
+                            <strong>{t('prof.field_country')}:</strong> {userProfile.country} {/* Added Translation key */}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>Idioma:</strong> {userProfile.lang}
+                            <strong>{t('lang')}:</strong> {userProfile.lang} {/* Added Translation key */}
                         </div>
                         {isOAuthUser && (
                             <div style={{ marginBottom: '10px' }}>
-                                <strong>Proveedor OAuth:</strong> {userProfile.oauthProvider}
+                                <strong>{t('prof.field_oauth')}:</strong> {userProfile.oauthProvider} {/* Added Translation key */}
                             </div>
                         )}
 
@@ -576,14 +576,14 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                                 setIsEditing(true);
                             }}
                             style={{ marginTop: '20px' }}>
-                            ✏️ Editar Perfil
+                            {t('prof.edit_btn')} {/* Added Translation key */}
                         </button>
                     </>
                 ) : (
                     // MODO EDICIÓN
                     <>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>ID:</strong> {userProfile.id} <em>(no editable)</em>
+                            <strong>{t('prof.field_id')}:</strong> {userProfile.id} <em>({t('prof.field_id_readonly')})</em> {/* Added Translation key */}
                         </div>
 
                         <div style={{ marginBottom: '15px' }}>
@@ -612,7 +612,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>
-                                <strong>Fecha de Nacimiento:</strong>
+                                <strong>{t('cumple')}:</strong> {/* Added Translation key */}
                                 <input
                                     type="date"
                                     value={editForm.birth}
@@ -624,14 +624,14 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>
-                                <strong>País:</strong>
+                                <strong>{t('prof.field_country')}:</strong> {/* Added Translation key */}
                                 <select
                                     value={editForm.country}
                                     onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
                                     style={{ width: '100%', marginTop: '5px' }}
                                     disabled={isLoadingCountries}>
                                     <option value="">
-                                        {isLoadingCountries ? "Cargando países..." : "-- Selecciona un país --"}
+                                        {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')} {/* Added Translation key */}
                                     </option>
                                     {countries.map((c) => (
                                         <option key={c.coun2_pk} value={c.coun2_pk}>
@@ -644,12 +644,12 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>
-                                <strong>Idioma:</strong>
+                                <strong>{t('lang')}:</strong> {/* Added Translation key */}
                                 <select
                                     value={editForm.lang}
                                     onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
                                     style={{ width: '100%', marginTop: '5px' }}>
-                                    <option value="">-- Selecciona idioma --</option>
+                                    <option value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
                                     <option value="es">Español</option>
                                     <option value="ca">Català</option>
                                     <option value="en">English</option>
@@ -662,43 +662,43 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                         {!isOAuthUser && (
                             <>
                                 <hr style={{ margin: '20px 0' }} />
-                                <h3>Cambiar Contraseña (opcional)</h3>
+                                <h3>{t('prof.change_pass')}</h3> {/* Added Translation key */}
 
                                 <div style={{ marginBottom: '15px' }}>
                                     <label>
-                                        <strong>Contraseña Actual:</strong>
+                                        <strong>{t('prof.current_pass')}:</strong> {/* Added Translation key */}
                                         <input
                                             type="password"
                                             value={editForm.currentPassword}
                                             onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
                                             style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder="Solo si quieres cambiar la contraseña"
+                                            placeholder={t('prof.current_pass_ph')} // Added Translation key
                                         />
                                     </label>
                                 </div>
 
                                 <div style={{ marginBottom: '15px' }}>
                                     <label>
-                                        <strong>Nueva Contraseña:</strong>
+                                        <strong>{t('prof.new_pass')}:</strong> {/* Added Translation key */}
                                         <input
                                             type="password"
                                             value={editForm.newPassword}
                                             onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
                                             style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder="Mínimo 6 caracteres"
+                                            placeholder={t('prof.new_pass_ph')} // Added Translation key
                                         />
                                     </label>
                                 </div>
 
                                 <div style={{ marginBottom: '15px' }}>
                                     <label>
-                                        <strong>Confirmar Nueva Contraseña:</strong>
+                                        <strong>{t('prof.confirm_pass')}:</strong> {/* Added Translation key */}
                                         <input
                                             type="password"
                                             value={editForm.confirmPassword}
                                             onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
                                             style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder="Repite la nueva contraseña"
+                                            placeholder={t('prof.confirm_pass_ph')} // Added Translation key
                                         />
                                     </label>
                                 </div>
@@ -707,10 +707,10 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
                         <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
                             <button onClick={handleUpdateProfile}>
-                                💾 Guardar Cambios
+                                {t('prof.save_btn')} {/* Added Translation key */}
                             </button>
                             <button onClick={handleCancelEdit}>
-                                ❌ Cancelar
+                                {t('prof.cancel')} {/* Added Translation key */}
                             </button>
                         </div>
                     </>
@@ -721,16 +721,16 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
     const renderFriendScreen = () => (
         <>
-            <h1>Lista de amigos</h1>
+            <h1>{t('prof.friends_title')}</h1> {/* Added Translation key */}
 
             <div>
-                <label>Invitar:</label>
+                <label>{t('prof.invite_label')}</label> {/* Added Translation key */}
                 <select
                     value={targetIdInput}
                     onChange={(e) => setTargetIdInput(e.target.value)}
                     disabled={isLoadingCandidates}>
                     <option value="">
-                        {isLoadingCandidates ? "Cargando usuarios..." : "-- Selecciona Jugador --"}
+                        {isLoadingCandidates ? t('prof.loading_users') : t('prof.sel_player')} {/* Added Translation key */}
                     </option>
                     {candidates.map((user) => (
                         <option key={user.id} value={user.id}>
@@ -741,15 +741,15 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                 <button
                     onClick={handleSendRequest}
                     disabled={!targetIdInput || isLoadingCandidates}>
-                    Enviar
+                    {t('prof.send_request_btn')} {/* Added Translation key */}
                 </button>
             </div>
 
             {statusMsg && <p>{statusMsg}</p>}
 
-            <h3>Lista de Amigos</h3>
+            <h3>{t('prof.friends_h3')}</h3> {/* Added Translation key */}
             {friends.length === 0 ? (
-                <p>No tienes amigos aún.</p>
+                <p>{t('prof.no_friends')}</p> // Added Translation key
             ) : (
                 <ul className="list-friend">
                     {friends.map((f, i) => (
@@ -764,7 +764,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                                 <span>{f.friend_nick}</span>
                             </div>
                             <button onClick={() => handleRemoveFriend(f.id, f.friend_nick)}>
-                                Eliminar
+                                {t('prof.remove_btn')} {/* Added Translation key */}
                             </button>
                         </li>
                     ))}
@@ -775,22 +775,22 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
     const renderRequestScreen = () => (
         <>
-            <h1>Solicitudes</h1>
+            <h1>{t('prof.requests_title')}</h1> {/* Added Translation key */}
 
-            <h3>Solicitudes Pendientes</h3>
+            <h3>{t('prof.requests_h3')}</h3> {/* Added Translation key */}
 
-            {requests.length === 0 && <p>No hay solicitudes.</p>}
+            {requests.length === 0 && <p>{t('prof.no_requests')}</p>} {/* Added Translation key */}
 
             {requests.length > 0 && (
                 <ul>
                     {requests.map((r) => (
                         <li key={r.id}>
                             <span>
-                                <strong>{r.nick}</strong> quiere ser tu amigo
+                                <strong>{r.nick}</strong> {t('prof.wants_friend')} {/* Added Translation key */}
                             </span>
                             <div>
                                 <button onClick={() => handleAccept(r.id)}>
-                                    Aceptar
+                                    {t('prof.accept_btn')} {/* Added Translation key */}
                                 </button>
                             </div>
                         </li>
@@ -802,8 +802,8 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
 
     const renderStatScreen = () => (
         <>
-            <h1>Estadísticas</h1>
-            <p>Esta es la página de stats</p>
+            <h1>{t('prof.stats_title')}</h1> {/* Added Translation key */}
+            <p>{t('prof.stats_placeholder')}</p> {/* Added Translation key */}
         </>
     );
 
@@ -814,17 +814,18 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                     <li
                         onClick={() => setActiveTab("info")}
                         className={activeTab === "info" ? "selected" : ""}>
-                        Datos
+                        {t('prof.tab_info')} {/* Added Translation key */}
                     </li>
                     <li
                         onClick={() => setActiveTab("friends")}
                         className={activeTab === "friends" ? "selected" : ""}>
-                        Amigos ({friends.length})
+                        {t('prof.tab_friends', { count: friends.length })} {/* Added Translation key */}
                     </li>
                     <li
                         onClick={() => setActiveTab("requests")}
                         className={activeTab === "requests" ? "selected" : ""}>
-                        Solicitudes {requests.length > 0 && 
+                        {t('prof.tab_requests')} {/* Added Translation key */}
+                        {requests.length > 0 &&
                             <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 ({requests.length})
                             </span>}
@@ -832,7 +833,7 @@ const ProfileScreen = ({ setGlobalUser }: ProfileScreenProps) => {
                     <li
                         onClick={() => setActiveTab("stats")}
                         className={activeTab === "stats" ? "selected" : ""}>
-                        Stats
+                        {t('prof.tab_stats')} {/* Added Translation key */}
                     </li>
                 </ul>
             </nav>
