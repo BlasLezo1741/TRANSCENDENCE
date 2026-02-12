@@ -1,0 +1,86 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: Project Alerts
+    folder: Transcendence
+    interval: 10s
+    rules:
+      - uid: new_user_alert
+        title: Detector de Nuevos Usuarios
+        # 👇 IMPORTANTE: La condición final es C (el resultado matemático)
+        condition: C
+        data:
+          # --- PASO A: La Consulta a Prometheus ---
+          - refId: A
+            relativeTimeRange:
+              from: 60
+              to: 0
+            datasourceUid: prometheus_001
+            model:
+              editorMode: code
+              expr: increase(transcendence_users_total[1m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+
+          # --- PASO B: Reducir (Convertir gráfico a número) ---
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: []
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: last
+              refId: B
+              type: reduce
+
+          # --- PASO C: Matemáticas (¿Es mayor que 0?) ---
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: $B > 0  # <--- Si B es mayor que 0, dispara.
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: math
+
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        annotations:
+          summary: "¡Nuevo usuario registrado!"
+        labels:
+          severity: critical
+        isPaused: false

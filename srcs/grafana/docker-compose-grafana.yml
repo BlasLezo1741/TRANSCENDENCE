@@ -20,7 +20,10 @@ services:
     volumes:
       - ./provisioning/datasources:/etc/grafana/provisioning/datasources/
       - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards/   
+      # ALERTAS (Nueva línea) 👇
+      - ./provisioning/alerting:/etc/grafana/provisioning/alerting/
       - grafana_data:/var/lib/grafana
+  
     ports:
       - ${GF_CONTAINER_PORT}:${GF_SERVER_HTTP_PORT}
     networks:
