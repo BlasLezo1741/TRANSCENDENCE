@@ -43,6 +43,11 @@
     "veri_backup": "Respaldo",
     "placeholder": "6 dígits o codi respaldo",
     "error": "Error",
+    "chat": {
+        "my_friends": "els meus amics",
+        "with": "chat amb {{name}}",
+        "write": "escriu un missatge"
+    },
     "prof": {
         "prof_no_load": "No s'ha pogut carregar el perfil",
         "del_friend": "Eliminar Amic",
@@ -92,8 +97,7 @@
         "update_success_msg": "El teu perfil s'ha actualitzat correctament",
         "update_error": "No s'ha pogut actualitzar el teu perfil",
 
-        "friends_title": "Llista d'amics",
-        "friends_h3": "Llista d'Amics",
+        "friends_title": "llista d'amics",
         "invite_label": "Convidar:",
         "loading_users": "Carregant usuaris...",
         "sel_player": "-- Selecciona Jugador --",

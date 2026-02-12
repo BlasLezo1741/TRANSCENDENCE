@@ -43,6 +43,11 @@
     "veri_backup": "Secours",
     "placeholder": "6 chiffres ou code de secours",
     "error": "Erreur",
+    "chat": {
+        "my_friends": "mes amis",
+        "with": "chat avec {{name}}",
+        "write": "écrire un message"
+    },
     "prof": {
         "prof_no_load": "Impossible de charger le profil",
         "del_friend": "Supprimer l'ami",
@@ -93,7 +98,6 @@
         "update_error": "Impossible de mettre à jour votre profil",
 
         "friends_title": "Liste d'amis",
-        "friends_h3": "Amis",
         "invite_label": "Inviter :",
         "loading_users": "Chargement des utilisateurs...",
         "sel_player": "-- Sélectionnez un joueur --",

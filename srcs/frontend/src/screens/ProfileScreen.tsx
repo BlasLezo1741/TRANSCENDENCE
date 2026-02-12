@@ -23,6 +23,8 @@ import {
 import { useModal } from '../context/ModalContext';
 import { Avatar } from '../components/Avatar';
 import { AvatarSelector } from '../components/AvatarSelector';
+import { firstcap } from '../ts/utils/string';
+import { sentence } from '../ts/utils/string';
 import "../css/ProfileScreen.css";
 
 // To update header if user changes the nick
@@ -733,7 +735,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
     const renderFriendScreen = () => (
         <>
-            <h1>{t('prof.friends_title')}</h1> {/* Added Translation key */}
+            <h1>{firstcap(t('prof.friends_title'))}</h1> {/* Added Translation key */}
 
             <div>
                 <label>{t('prof.invite_label')}</label> {/* Added Translation key */}
@@ -759,7 +761,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
             {statusMsg && <p>{statusMsg}</p>}
 
-            <h3>{t('prof.friends_h3')}</h3> {/* Added Translation key */}
+            <h3>{sentence(t('prof.friends_title'))}</h3> {/* Added Translation key */}
             {friends.length === 0 ? (
                 <p>{t('prof.no_friends')}</p> // Added Translation key
             ) : (

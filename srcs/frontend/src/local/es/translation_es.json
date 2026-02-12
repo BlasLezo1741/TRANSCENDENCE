@@ -43,6 +43,11 @@
     "veri_backup": "Respaldo",
     "placeholder": "6 dígitos o código respaldo",
     "error": "Error",
+    "chat": {
+        "my_friends": "mis amigos",
+        "with": "chat con {{name}}",
+        "write": "escribe un mensaje"
+    },
     "prof": {
         "prof_no_load": "No se pudo cargar el perfil",
         "del_friend": "Eliminar Amigo",
@@ -93,7 +98,6 @@
         "update_error": "No se pudo actualizar tu perfil",
 
         "friends_title": "Lista de amigos",
-        "friends_h3": "Lista de Amigos",
         "invite_label": "Invitar:",
         "loading_users": "Cargando usuarios...",
         "sel_player": "-- Selecciona Jugador --",

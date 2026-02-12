@@ -34,6 +34,7 @@ i18n
 
     interpolation: {
       escapeValue: false, // React already escapes by default
+      
     }
   });
 

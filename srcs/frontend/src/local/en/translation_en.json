@@ -43,7 +43,11 @@
     "veri_backup": "Backup",
     "placeholder": "6 digits or backup code",
     "error": "Error",
-    
+    "chat": {
+        "my_friends": "my friends",
+        "with": "chat with {{name}}",
+        "write": "write a message"
+    },
     "prof": {
         "prof_no_load": "Could not load profile",
         "del_friend": "Remove Friend",
@@ -94,7 +98,6 @@
         "update_error": "Could not update your profile",
 
         "friends_title": "Friends List",
-        "friends_h3": "Friends",
         "invite_label": "Invite:",
         "loading_users": "Loading users...",
         "sel_player": "-- Select Player --",
