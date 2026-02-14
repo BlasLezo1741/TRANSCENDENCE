@@ -540,6 +540,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                     setIsSelectingAvatar(true);
                                 }}
                                 style={{
+                                    width: '200px',
                                     padding: '8px 20px',
                                     fontSize: '14px',
                                     borderRadius: '5px',
@@ -584,13 +585,44 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             </div>
                         )}
 
-                        <button 
-                            onClick={() => {
+                        <button
+                                onClick={() => {
                                 console.log("✏️ [InfoScreen] Entering edit mode");
                                 setIsEditing(true);
-                            }}
-                            style={{ marginTop: '20px' }}>
+                                }}
+                                style={{
+                                    width: '200px',
+                                    padding: '8px 20px',
+                                    marginTop: '20px',
+                                    fontSize: '14px',
+                                    borderRadius: '5px',
+                                    border: '1px solid #4CAF50',
+                                    backgroundColor: 'white',
+                                    color: '#4CAF50',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold'
+                                }}
+                            >
                             {t('prof.edit_btn')} {/* Added Translation key */}
+                        </button>
+                        <button
+                                onClick={() => {
+                                    // Aqui la funcion de eliminar perfil
+                                }}
+                                style={{
+                                    width: '200px',
+                                    padding: '8px 20px',
+                                    marginLeft: '5px',
+                                    fontSize: '14px',
+                                    borderRadius: '5px',
+                                    border: '1px solid #4CAF50',
+                                    backgroundColor: 'white',
+                                    color: '#4CAF50',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                BORRAR PERFIL {/* Added Translation key */}
                         </button>
                     </>
                 ) : (
@@ -661,7 +693,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 <strong>{t('lang')}:</strong> {/* Added Translation key */}
                                 <select
                                     value={editForm.lang}
-                                    onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
+                                    onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}    
                                     style={{ width: '100%', marginTop: '5px' }}>
                                     <option value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
                                     <option value="es">Español</option>
