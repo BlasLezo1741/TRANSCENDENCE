@@ -57,7 +57,8 @@ update-env:
 		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
 		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
 		echo "✅ IP Local (Linux) configurada: $$LINUX_IP"; \
-		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env; \
+		#sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env; \
+		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://localhost:3000|" srcs/.env; \		
 	fi
 	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)"	
 
