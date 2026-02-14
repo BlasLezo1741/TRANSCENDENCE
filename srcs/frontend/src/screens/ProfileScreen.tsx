@@ -820,6 +820,38 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             <p>{t('prof.stats_placeholder')}</p> {/* Added Translation key */}
         </>
     );
+/* const StatScreen = () => {
+        // Configuramos la URL de Grafana con el UID transcendence_001
+        // kiosk=tv: elimina toda la interfaz de Grafana para que parezca parte de tu web
+        const grafanaUrl = "http://localhost:4000/d/transcendence_001?orgId=1&kiosk=tv";
+        //const grafanaUrl = "http://localhost:4000/d/transcendence_001?orgId=1&from=now-6h&to=now&timezone=browser&refresh=5s";
+
+        return (
+            <>
+                <h1>Estadísticas Globales</h1>
+                <div style={{ 
+                    width: '100%', 
+                    height: '500px', 
+                    borderRadius: '8px', 
+                    overflow: 'hidden',
+                    border: '1px solid #ccc',
+                    marginTop: '20px',
+                    backgroundColor: '#161719' // Fondo oscuro similar al de Grafana
+                }}>
+                    <iframe
+                        src={grafanaUrl}
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                        title="Grafana Dashboard"
+                    ></iframe>
+                </div>
+                <p style={{ marginTop: '10px', fontSize: '0.8rem', color: '#666' }}>
+                    * Datos obtenidos en tiempo real de la base de datos transcendence.
+                </p>
+            </>
+        );
+    }; */
 
     return (
         <main className="profile">
