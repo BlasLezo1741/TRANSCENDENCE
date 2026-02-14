@@ -11,7 +11,7 @@
       "presentation": {
         "reveal": "never"
       },
-      "dependsOrder": "parallel", // Cambiado a paralelo para que arranquen todos a la vez
+      "dependsOrder": "parallel",
       "dependsOn": [
         "Backend",
         "Frontend",
@@ -26,49 +26,79 @@
       "label": "Backend",
       "type": "shell",
       "command": "until [ \"$(docker ps -q -f name=backend)\" ]; do sleep 1; done && docker logs -f backend",
-      "presentation": { "panel": "shared" }
+      "presentation": {
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        "$eslint-compact"
+      ]
     },
     {
       "label": "Frontend",
       "type": "shell",
       "command": "until [ \"$(docker ps -q -f name=frontend)\" ]; do sleep 1; done && docker logs -f frontend",
-      "presentation": { "panel": "shared" }
+      "presentation": {
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        "$gulp-tsc"
+      ]
     },
     {
       "label": "Database",
       "type": "shell",
       "command": "until [ \"$(docker ps -q -f name=debserver)\" ]; do sleep 1; done && docker logs -f dbserver",
-      "presentation": { "panel": "shared" }
+      "presentation": {
+        "panel": "shared"
+      }
     },
     {
       "label": "Totp_server",
       "type": "shell",
       "command": "until [ \"$(docker ps -q -f name=totp_server)\" ]; do sleep 1; done && docker logs -f totp_server",
-      "presentation": { "panel": "shared" }
+      "presentation": {
+        "panel": "shared"
+      }
     },
     {
       "label": "Grafana",
       "type": "shell",
       "command": "until [ \"$(docker ps -q -f name=grafana)\" ]; do sleep 1; done && docker logs -f grafana",
-      "presentation": { "panel": "shared" }
+      "presentation": {
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        "$go"
+      ]
     },
     {
       "label": "Prometheus",
       "type": "shell",
       "command": "until [ \"$(docker ps -q -f name=prometheus)\" ]; do sleep 1; done && docker logs -f prometheus",
-      "presentation": { "panel": "shared" }
+      "presentation": {
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        "$gulp-tsc"
+      ]
     },
     {
       "label": "Adminer",
       "type": "shell",
       "command": "until [ \"$(docker ps | grep adminer)\" ]; do sleep 1; done && docker logs -f adminer",
-      "presentation": { "panel": "shared" }
+      "presentation": {
+        "panel": "shared"
+      }
     },
     {
-      "label": "Bash", // La llamamos igual que la de defecto para no confundir
+      "label": "Bash",
       "type": "shell",
       "command": "clear && echo 'Listo para trabajar en TRANSCENDENCE'",
-      "presentation": { "panel": "dedicated", "focus": true, "reveal": "always" }    
+      "presentation": {
+        "panel": "dedicated",
+        "focus": true,
+        "reveal": "always"
+      }
     }
   ]
 }

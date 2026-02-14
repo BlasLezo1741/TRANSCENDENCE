@@ -273,7 +273,7 @@ def get_totp_token(secret):
     try:
         # Decode the secret from Base32. If padding is missing, try to handle it.
         # 'map01' maps '0' to 'O' and '1' to 'L' to fix common typos in Base32.
-        print(f"type(secret) = {type(secret)} - secret = {secret}")
+        #print(f"type(secret) = {type(secret)} - secret = {secret}")
         #secret_b32 = base64.b32decode(secret.decode(), True, map01='l')
         secret_b32 = secret
         secret_b32 = base64.b32decode(secret.encode('utf-8'), True, map01='l')
@@ -281,7 +281,7 @@ def get_totp_token(secret):
     except binascii.Error:
         # Fallback to Base64 if Base32 fails
         secret_b32 = base64.b64decode(secret.decode())
-        print("secret b32 = ", secret_b32)
+        #print("secret b32 = ", secret_b32)
 
     # --- Step 1: Calculate the Counter (T) ---
     # Get current UTC time in seconds
@@ -371,13 +371,13 @@ def generate_backup_codes(num_codes=10, length=8):
     """
     codes = []
     alphabet = string.ascii_uppercase + string.digits
+    alphabet = alphabet.replace('O', '').replace('I', '').replace('0', '')  # Remove confusing chars
     #alphabet = string.digits
     
     for _ in range(num_codes):
         # secrets.choice es criptográficamente seguro (mejor que random)
         code = ''.join(secrets.choice(alphabet) for _ in range(length))
         codes.append(code)
-    print("Backup Codes Generated: ", codes)
     return codes    
 
 if __name__ == "__main__":
