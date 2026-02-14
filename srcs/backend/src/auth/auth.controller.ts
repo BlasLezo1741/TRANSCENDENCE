@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { Response } from 'express';
+import { ChatGateway } from '../chat/chat.gateway';
 
 
 @Controller('auth')
@@ -26,6 +27,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly chatGateway: ChatGateway
   ) {}
 
   // ==================== TRADITIONAL AUTHENTICATION ====================
@@ -280,6 +282,23 @@ export class AuthController {
 
     this.logger.log(`✅ [updateProfile] Profile updated for user: ${result.user.nick}`);
     
+    //Bloque para actualizar el avatar
+    try {
+      this.logger.log(`📢 [SOCKET] Emitting friend_update for user ${result.user.nick}`);
+      
+      // Usamos el chatGateway que ya tienes inyectado
+      this.chatGateway.server.emit('friend_update', {
+        id: userId,
+        name: result.user.nick,
+        avatar: result.user.avatarUrl, // El frontend espera este dato para actualizar la foto
+        status: 'online'
+      });
+    } catch (error) {
+      // Protegemos con try-catch para que si falla el socket, el perfil se guarde igual
+      this.logger.warn(`⚠️ [SOCKET] Failed to emit update: ${error.message}`);
+    }
+
+
     return {
       ok: true,
       message: 'Perfil actualizado correctamente',

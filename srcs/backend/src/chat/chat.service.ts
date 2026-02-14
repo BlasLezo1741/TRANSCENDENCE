@@ -51,7 +51,7 @@ export class ChatService {
         sender: {
             columns: {
                 pNick: true,
-                // pAvatar: true (descomenta si tienes avatar en Player)
+                pAvatarUrl: true// (descomenta si tienes avatar en Player)
             }
         }
       }
@@ -116,7 +116,8 @@ export class ChatService {
         ...friend,
         // Drizzle devuelve count como string en un array, lo convertimos
         unread: Number(unreadCountResult[0].count),
-        status: isOnline ? 'online' : 'offline' 
+        status: isOnline ? 'online' : 'offline',
+        avatar: friend.pAvatarUrl // Mapeamos la columna de DB al campo 'avatar' del JSON 
     };  
   }));
 
