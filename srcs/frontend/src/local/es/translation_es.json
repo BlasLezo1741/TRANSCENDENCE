@@ -116,5 +116,13 @@
 
         "stats_title": "Estadísticas",
         "stats_placeholder": "Esta es la página de stats"
+    },
+    "info":
+    {
+        "privacy_policy": "Política de privacidad",
+        "terms_of_service": "Términos de servicio",
+        "about_project": "Sobre el proyecto",
+        "contact": "Contacto",
+        "credits": "Créditos"
     }
 }

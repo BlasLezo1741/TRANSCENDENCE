@@ -1,4 +1,5 @@
 import type { ScreenProps } from '../ts/screenConf/screenProps';
+import { useTranslation } from 'react-i18next';
 import '../css/Footer.css';
 
 type FooterProps = {
@@ -8,6 +9,7 @@ type FooterProps = {
 
 const FooterCont = ({dispatch, setOption}: FooterProps) =>
 {
+    const { t } = useTranslation();
     const changeScreen = (option: string) =>
     {
         setOption(option);
@@ -17,23 +19,23 @@ const FooterCont = ({dispatch, setOption}: FooterProps) =>
     return (
         <div className="foot-cont">
             <a href="#" onClick={() => changeScreen("a")}>
-                Politica de privacidad
+                {t('info.privacy_policy')}
             </a>
             <hr />
             <a href="#" onClick={() => changeScreen("b")}>
-                Terminos de servicio
+                {t('info.terms_of_service')}
             </a>
             <hr />
             <a href="#" onClick={() => changeScreen("c")}>
-                Sobre el proyecto
+                {t('info.about_project')}
             </a>
             <hr />
             <a href="#" onClick={() => changeScreen("d")}>
-                Contacto
+                {t('info.contact')}
             </a>
             <hr />
             <a href="#" onClick={() => changeScreen("e")}>
-                Creditos
+                {t('info.credits')}
             </a>
             <hr />
             <a href="https://github.com/BlasLezo1741/TRANSCENDENCE" target="new">
