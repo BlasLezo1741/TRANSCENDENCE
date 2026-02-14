@@ -16,6 +16,7 @@ import Header from './components/Header.tsx'
 import Footer from './components/Footer.tsx'
 import { socket, connectSocket, setMatchData } from './services/socketService';
 import { ChatSidebar } from './components/ChatSidebar';
+import { getMyProfile } from './services/user.service';
 
 import "./css/App.css";
 
@@ -23,6 +24,7 @@ function App()
 {
   // 1. LEER EL USUARIO DEL STORAGE ANTES DE INICIALIZAR EL REDUCER
   const savedUserNick = localStorage.getItem("pong_user_nick") || "";
+  const savedUserId   = Number(localStorage.getItem("pong_user_id")) || undefined;
   
   ////const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
   //const [screen, dispatch] = useReducer(screenReducer, "login" as Screen); // Iniciamos en LOGIN por defecto
@@ -33,6 +35,12 @@ function App()
 
   // // --- GESTIÓN DE USUARIO REAL,GESTIÓN DE ESTADOS GLOBALES ---
   const [currentUser, setCurrentUser] = useState<string>(savedUserNick);
+  const [currentUserId, setCurrentUserId] = useState<number | undefined>(savedUserId);
+  const [currentUserAvatarUrl, setCurrentUserAvatarUrl] = useState<string | null>(null);
+  // True once syncProfile has resolved at least once for the current session.
+  // Prevents Header from flashing the wrong bank-fallback avatar before the
+  // real avatarUrl has been fetched from the API.
+  const [profileSynced, setProfileSynced] = useState<boolean>(!savedUserNick);
   const [mode, setMode] = useState<GameMode>("ia");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
@@ -77,7 +85,10 @@ function App()
         localStorage.setItem("pong_user_id", payload.sub.toString());
 
         // 2. Update Global State (this will trigger the app to show user as logged in)
+        // NOTE: avatarUrl is NOT in the JWT — syncProfile useEffect will fetch it from
+        // the API automatically when currentUser becomes truthy, so we don't set it here.
         setCurrentUser(payload.nick);
+        setCurrentUserId(Number(payload.sub));
         console.log("🔓 OAuth Login successful:", payload.nick);
 
         // 3. Clean URL (remove token from address bar)
@@ -116,6 +127,37 @@ function App()
     }
   }, [currentUser]);
 
+  // -----------------------------------------------------------
+  // 2. FETCH AVATAR + USER ID ON LOGIN / REFRESH
+  // Runs whenever currentUser becomes truthy (login, OAuth, page refresh).
+  // This is the single source of truth for avatarUrl — the JWT and
+  // localStorage never carry it, so we always fetch it from the API.
+  // -----------------------------------------------------------
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const syncProfile = async () => {
+      try {
+        const profile = await getMyProfile();
+        if (profile) {
+          setCurrentUserId(profile.id);
+          setCurrentUserAvatarUrl(profile.avatarUrl ?? null);
+          // Also keep localStorage id in sync (matters after normal login)
+          localStorage.setItem("pong_user_id", String(profile.id));
+          console.log("✅ [App] Profile synced — avatarUrl:", profile.avatarUrl);
+        }
+      } catch (err) {
+        // Non-fatal: avatar just won't show until profile is visited
+        console.warn("⚠️ [App] Could not sync profile on login:", err);
+      } finally {
+        // Always mark as synced so Header stops showing the loading placeholder
+        setProfileSynced(true);
+      }
+    };
+
+    syncProfile();
+  }, [currentUser]);
+
   // FUNCIÓN DE LOGOUT EXPLÍCITA
   // Pasa esta función a tu Header o donde tengas el botón de salir
   const handleLogout = () => {
@@ -127,6 +169,9 @@ function App()
       socket.disconnect();
       // 3. Limpiar Estado
       setCurrentUser("");
+      setCurrentUserId(undefined);
+      setCurrentUserAvatarUrl(null);
+      setProfileSynced(false);
       // 4. Cambiar Pantalla
       dispatch({ type: "LOGOUT" }); // O "LOGIN"
   };
@@ -244,7 +289,11 @@ function renderScreen()
           roomId={roomId} 
         />;
         case "profile":
-          return <ProfileScreen setGlobalUser={setCurrentUser}/>; // added to update the Header instantly in case of change of nick
+          return <ProfileScreen
+            setGlobalUser={setCurrentUser}
+            setGlobalUserId={setCurrentUserId}
+            setGlobalAvatarUrl={setCurrentUserAvatarUrl}
+          />; // added to update the Header instantly in case of change of nick/avatar
         case "stats":
           return <StatsScreen />;
         case "settings":
@@ -299,7 +348,7 @@ function renderScreen()
           </div>
       )}
 
-      <Header dispatch={dispatch} userName={currentUser} onLogout={handleLogout} />
+      <Header dispatch={dispatch} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
       <main>{renderScreen()}</main>
       <Footer dispatch={dispatch} setOption={setOption}/>
     </div>

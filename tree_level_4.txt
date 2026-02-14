@@ -1,5 +1,16 @@
 .
 ├── auth-service.logs
+├── AVATAR_SYSTEM_DOCUMENTATION.md
+├── data
+│   └── prometheus
+│       ├── chunks_head
+│       │   └── 000001
+│       ├── lock
+│       ├── queries.active
+│       └── wal
+│           ├── 00000000
+│           ├── 00000001
+│           └── 00000002
 ├── docs
 │   ├── Branches_estrategy.md
 │   ├── commit_manual.md
@@ -691,6 +702,9 @@
 │   │   └── provisioning
 │   │       ├── dashboards
 │   │       └── datasources
+│   ├── prometheus
+│   │   ├── docker-compose-prometheus.yml
+│   │   └── prometheus.yml
 │   └── totp
 │       ├── app.py
 │       ├── docker-compose-totp.yml
@@ -702,4 +716,4 @@
 ├── test_listeners.sh
 └── tree_level_4.txt
 
-594 directories, 108 files
+599 directories, 117 files

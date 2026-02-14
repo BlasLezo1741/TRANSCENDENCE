@@ -1,0 +1,20 @@
+
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: Discord-Alerts
+    receivers:
+      - uid: discord-receiver-1
+        type: discord
+        settings:
+          url: https://discord.com/api/webhooks/1471520267733041387/1yStjwFL9xrsAB4ThDRE-9r0is4sNp2flRp1tbIjFUUvKtzShJ-ReXXqphlQfmpMMC2r  # <--- ¡CAMBIA ESTO!
+        disableResolveMessage: false
+
+policies:
+  - orgId: 1
+    receiver: Discord-Alerts  # Esto lo pone como canal por defecto
+    group_by: ['grafana_folder', 'alertname']
+    group_wait: 5s       # Espera solo 5s antes de mandar la primera alerta
+    group_interval: 10s  # Espera solo 10s entre actualizaciones
+    repeat_interval: 1h  # Si el fuego NO se apaga, recuérdamelo cada 1h

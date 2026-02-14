@@ -22,8 +22,14 @@ import { ChatModule } from './chat/chat.module';
 // --- AUTH MODULE ---
 import { AuthModule } from './auth/auth.module';
 
+// --- METRICS DBSERVER ---
+import { ScheduleModule } from '@nestjs/schedule';
+import { MetricsModule } from './metrics/metrics.module';
+
 @Module({
   imports: [
+    // Activar el sistema de Cron Jobs (Tareas programadas)
+    ScheduleModule.forRoot(),
     PrometheusModule.register({
       path: '/metrics', // Esto crea la ruta http://localhost:3000/metrics
       defaultMetrics: {
@@ -31,6 +37,7 @@ import { AuthModule } from './auth/auth.module';
       },
     }),
     ConfigModule.forRoot({ isGlobal: true }), // Loads .env file globally
+    MetricsModule,
     DatabaseModule,
     CountriesModule,
     FriendsModule,

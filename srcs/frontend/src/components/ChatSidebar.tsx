@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { socket, sendDirectMessage } from '../services/socketService';
 import '../css/ChatSidebar.css'; 
 import { useModal } from '../context/ModalContext';
+import { useTranslation } from 'react-i18next';
+import { firstcap } from '../ts/utils/string';
+import { sentence } from '../ts/utils/string';
 
 // --- INTERFACES ---
 interface ChatContact {
@@ -21,6 +24,7 @@ interface ChatMessage {
 export const ChatSidebar = () => {
     
     const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const { t } = useTranslation();
     // --- ESTADOS ---
     const [isOpen, setIsOpen] = useState(false);
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
@@ -66,7 +70,7 @@ export const ChatSidebar = () => {
 
                         return {
                             id: uId, 
-                            name: user.name || user.pNick || user.friend_nick || "Usuario",
+                            name: user.name || user.pNick || user.friend_nick || t('user'),
                             status: user.status || 'offline',
                             unread: finalUnread 
                         };
@@ -235,7 +239,9 @@ export const ChatSidebar = () => {
         <div className="chat-sidebar">
             {/* CABECERA SIMPLE (Solo título) */}
             <div className="chat-header">
-                <h2>{selectedChatId ? `CHAT CON ${contacts.find(c => c.id === selectedChatId)?.name || '...'}` : "MIS AMIGOS"}</h2>
+                <h2>{selectedChatId 
+                    ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
+                    : firstcap(t('chat.my_friends'))}</h2>
                 <button className="chat-close-btn" onClick={() => setIsOpen(false)}>✕</button>
             </div>
 
@@ -297,7 +303,7 @@ export const ChatSidebar = () => {
                         
                         <div className="chat-subheader">
                             <button onClick={() => setSelectedChatId(null)} className="chat-back-btn">
-                                ⬅ VOLVER
+                                ⬅ {t('volver')}
                             </button>
                             
                             {/* 1. INFORMACIÓN DEL CONTACTO (Nombre y Estado) */}
@@ -367,7 +373,7 @@ export const ChatSidebar = () => {
                             <form className="chat-form" onSubmit={handleSendSubmit}>
                                 <input 
                                     className="chat-input"
-                                    placeholder="Escribe un mensaje..."
+                                    placeholder={sentence(t('chat.write'))+'...'}
                                     value={msgInput}
                                     onChange={e => setMsgInput(e.target.value)}
                                 />

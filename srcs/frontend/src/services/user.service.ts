@@ -4,16 +4,16 @@ export interface UserProfile {
     id: number;
     nick: string;
     email: string;
-    birth?: string; // YYYY-MM-DD (optional)
-    country: string; // 2-letter code, e.g., 'ES'
-    lang: string; // 'es', 'en', 'ca', 'fr'
-    avatarUrl?: string; // URL from backend
-    oauthProvider?: string; // '42', 'google', or null for traditional users
+    birth?: string;
+    country: string;
+    lang: string;
+    avatarUrl?: string;
+    oauthProvider?: string;
 }
 
 export interface Country {
-    coun2_pk: string; // 2-letter code
-    coun_name: string; // Full country name
+    coun2_pk: string;
+    coun_name: string;
 }
 
 export interface UpdateProfileData {
@@ -35,6 +35,25 @@ const getToken = (): string | null => {
     console.log("🔑 [user.service] Token retrieved:", token ? "✅ Found" : "❌ Not found");
     return token;
 };
+
+// 🔥 NEW: Handle 401 errors by clearing stale auth data and redirecting
+function handle401Unauthorized() {
+    console.error("════════════════════════════════════════════════════════");
+    console.error("🚨 [user.service] 401 UNAUTHORIZED - Token is invalid or expired");
+    console.error("   This usually happens after 'make re' wipes the database");
+    console.error("   Clearing localStorage and redirecting to login...");
+    console.error("════════════════════════════════════════════════════════");
+    
+    // Clear all pong-related localStorage
+    localStorage.removeItem("pong_token");
+    localStorage.removeItem("pong_user_nick");
+    localStorage.removeItem("pong_user_id");
+    
+    // Redirect to home/login after a short delay to show console message
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 1000);
+}
 
 // 1. Get full profile details
 export const getMyProfile = async (): Promise<UserProfile | null> => {
@@ -59,6 +78,12 @@ export const getMyProfile = async (): Promise<UserProfile | null> => {
         });
 
         console.log("📡 [user.service] Response status:", response.status);
+
+        // 🔥 CRITICAL: Handle 401 by auto-logout
+        if (response.status === 401) {
+            handle401Unauthorized();
+            return null;
+        }
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
@@ -106,6 +131,12 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
         console.log("🔍 [user.service] STEP 10: Response received");
         console.log("🔍 [user.service] Response status:", response.status);
         console.log("🔍 [user.service] Response ok:", response.ok);
+
+        // 🔥 CRITICAL: Handle 401 by auto-logout
+        if (response.status === 401) {
+            handle401Unauthorized();
+            return { ok: false, msg: "Session expired" };
+        }
 
         const data = await response.json();
         console.log("🔍 [user.service] STEP 11: Response data:");
