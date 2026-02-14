@@ -20,48 +20,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
     const [showTotpInput, setShowTotpInput] = useState(false);
     const [userId, setUserId] = useState<number | null>(null);
 
-/*     // ==================== 1. HANDLE OAUTH REDIRECT ====================
-       //==================== OAuth is now handled in App.tsx ====================
-    useEffect(() => {
-        // Check URL for ?token=...
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
-
-        if (token) {
-            try {
-                // Manually decode JWT payload to get user info
-                // (This avoids installing 'jwt-decode' library for now)
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-
-                const payload = JSON.parse(jsonPayload); // { sub: 1, nick: 'foo', ... }
-
-                // 1. Save data
-                localStorage.setItem("jwt_token", token);
-                localStorage.setItem("pong_user_nick", payload.nick);
-                localStorage.setItem("pong_user_id", payload.sub.toString());
-
-                // 2. Update Global State
-                setGlobalUser(payload.nick);
-                console.log("🔓 OAuth Login successful:", payload.nick);
-
-                // 3. Clean URL (remove token)
-                window.history.replaceState({}, document.title, window.location.pathname);
-
-                // 4. Redirect to Menu
-                dispatch({ type: "MENU" });
-
-            } catch (err) {
-                console.error("Error processing token:", err);
-                setError("Error validando el inicio de sesión OAuth");
-            }
-        }
-    }, [dispatch, setGlobalUser]);
- */
-    // ==================== 2. HANDLE FORM LOGIN ====================
+     // ==================== 2. HANDLE FORM LOGIN ====================
     const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -70,21 +29,13 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
         try 
         {
             if (showTotpInput) {
-                // Aquí deberías llamar a una función que verifique el código TOTP
-                // Por ejemplo: const result = await verifyTOTP(userId, totpCode);
-                
-                // Por ahora, simulamos la verificación
-                // TODO: Implementar verifyTOTP
                 const result = await send2FACode(userId, totpCode);
-
-                
                 if (!result.ok) {
                     setError("Código 2FA incorrecto");
                     setTotpCode("");
                     return;
-                } else {    
-                
-                // Si la verificación es exitosa:
+                } else {
+                // If verification is successful
                 localStorage.setItem("pong_user_nick", user);
                 localStorage.setItem("pong_user_id", userId!.toString());
                 localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
@@ -99,17 +50,17 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     setPassword("");
                 } else {
                     if (result.user.totp) {
-                        // 2FA enabled, mostrar input de TOTP
+                        // 2FA enabled, show TOTP input
                         setShowTotpInput(true);
                         setUserId(result.user.id);
-                        setPassword(""); // Limpiar contraseña por seguridad
+                        setPassword(""); // Clear password for security
                     } else {
-                        // 1. Guardamos en LocalStorage para que persista al refrescar
+                        // 1. We save in LocalStorage so it persists on refresh
                         localStorage.setItem("pong_user_nick", result.user.name);
                         localStorage.setItem("pong_user_id", result.user.id.toString());
                         localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
 
-                        // 2. Actualizamos el estado global en App.tsx
+                        // 2. We update the global state in App.tsx
                         setGlobalUser(result.user.name);
                         
                         // 3. Wait a tiny bit to ensure localStorage is flushed, then go to menu
@@ -262,8 +213,8 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                                 const filtered = value.replace(/[^A-Z0-9]/g, '');
                                 setTotpCode(filtered);
                             }}
-                            maxLength={8} // Permitir hasta 8 caracteres para códigos de respaldo Alfanumericos (6 para TOTP numérico)
-                            pattern="(\d{6}|[A-Z0-9]{8})" // 6 dígitos O 8 alfanuméricos
+                            maxLength={8} // Allow up to 8 characters for Alphanumeric backup codes (6 for numeric TOTP)
+                            pattern="(\d{6}|[A-Z0-9]{8})" // 6 digits OR 8 alphanumeric
                             placeholder={(t('placeholder') || '123456 o ABCD1234')}
                             title={t('qr_setup1') ?? 'Ingresa 6 dígitos numéricos o 8 caracteres alfanuméricos'}                                    
                             required

@@ -32,12 +32,10 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: any) {
-    this.logger.log(`📡 [login] Login attempt for username: ${body.username}`);
     
     const result = await this.authService.loginUser(body.username, body.password);
     
     if (result.ok && result.user) {
-      this.logger.log(`✅ [login] Successful login for: ${body.username}`);
       
       // Generate JWT token for successful login
       const user = result.user;
@@ -53,25 +51,14 @@ export class AuthController {
         token: accessToken
       };
       
-      this.logger.log(`🔑 [login] Token generated for user: ${user.name}`);
       return response;
     } else {
-      this.logger.warn(`⚠️ [login] Failed login for: ${body.username} - ${result.msg}`);
       return result;
     }
   }
 
   @Post('register')
   async register(@Body() body: any) {
-    this.logger.log(`📡 [register] Registration attempt for username: ${body.username}`);
-    this.logger.debug(`📝 [register] Registration data:`, {
-      username: body.username,
-      email: body.email,
-      country: body.country,
-      lang: body.lang,
-      enabled2FA: body.enabled2FA || false
-    });
-
     const result = await this.authService.registerUser(
       body.username, 
       body.password, 
@@ -81,25 +68,16 @@ export class AuthController {
       body.lang,
       body.enabled2FA || false
     );
-
-    if (result.ok) {
-      this.logger.log(`✅ [register] User registered successfully: ${body.username}`);
-    } else {
-      this.logger.warn(`⚠️ [register] Registration failed: ${result.msg}`);
-    }
-
     return result;
   }
 
   @Post('verify-totp')
   async verifyTotp(@Body() body: any) {
-    this.logger.log(`📡 [verify-totp] TOTP verification for user ID: ${body.userId}`);
     
     const { userId, totpCode } = body;
     const result = await this.authService.verifyTOTP(userId, totpCode);
 
     if (result.ok) {
-      this.logger.log(`✅ [verify-totp] TOTP verified for user: ${userId}`);
       
       // Generate JWT token for successful 2FA verification
       const user = await this.authService.findUserById(userId);
@@ -109,11 +87,9 @@ export class AuthController {
           ...result,
           token: accessToken
         };
-        this.logger.log(`🔑 [verify-totp] Token generated for user: ${user.pNick}`);
         return response;
       }
     } else {
-      this.logger.warn(`⚠️ [verify-totp] TOTP verification failed for user: ${userId}`);
     }
 
     return result;
@@ -121,29 +97,9 @@ export class AuthController {
 
   @Post('verify-backup')
   async verifyBackup(@Body() body: any) {
-    this.logger.log(`📡 [verify-backup] Backup code verification for user ID: ${body.userId}`);
     
     const { userId, totpCode } = body;
     const result = await this.authService.verifyBackupCode(userId, totpCode);
-
-    if (result.ok) {
-      this.logger.log(`✅ [verify-backup] Backup code verified for user: ${userId}`);
-      
-      // Generate JWT token for successful backup code verification
-      const user = await this.authService.findUserById(userId);
-      if (user) {
-        const { accessToken } = this.authService.generateJwtToken(user);
-        const response = {
-          ...result,
-          token: accessToken
-        };
-        this.logger.log(`🔑 [verify-backup] Token generated for user: ${user.pNick}`);
-        return response;
-      }
-    } else {
-      this.logger.warn(`⚠️ [verify-backup] Backup code verification failed for user: ${userId}`);
-    }
-
     return result;
   }
 
@@ -152,24 +108,19 @@ export class AuthController {
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req) {
-    this.logger.log('📡 [google] Redirecting to Google OAuth...');
+
     // Passport automatically redirects to Google login page
   }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res: Response) {
-    this.logger.log('📡 [google/callback] Google OAuth callback received');
     
-    const user = await this.authService.findOrCreateOAuthUser(req.user);
-    this.logger.log(`✅ [google/callback] User authenticated: ${user.pNick}`);
-    
+    const user = await this.authService.findOrCreateOAuthUser(req.user);  
     const { accessToken } = this.authService.generateJwtToken(user);
 
     // Get frontend URL from env, fallback to localhost for dev
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
-
-    this.logger.log(`🔄 [google/callback] Redirecting to: ${frontendUrl}/?token=${accessToken}`);
     res.redirect(`${frontendUrl}/?token=${accessToken}`);
   }
 
@@ -178,23 +129,19 @@ export class AuthController {
   @Get('42')
   @UseGuards(AuthGuard('42'))
   async fortyTwoAuth(@Req() req) {
-    this.logger.log('📡 [42] Redirecting to 42 School OAuth...');
     // Passport automatically redirects to 42 login page
   }
 
   @Get('42/callback')
   @UseGuards(AuthGuard('42'))
   async fortyTwoAuthRedirect(@Req() req, @Res() res: Response) {
-    this.logger.log('📡 [42/callback] 42 School OAuth callback received');
     
     const user = await this.authService.findOrCreateOAuthUser(req.user);
-    this.logger.log(`✅ [42/callback] User authenticated: ${user.pNick}`);
     
     const { accessToken } = this.authService.generateJwtToken(user);
 
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
 
-    this.logger.log(`🔄 [42/callback] Redirecting to: ${frontendUrl}/?token=${accessToken}`);
     res.redirect(`${frontendUrl}/?token=${accessToken}`);
   }
 
@@ -253,32 +200,18 @@ export class AuthController {
       newPassword?: string;
     }
   ) {
-    this.logger.log(`📡 [updateProfile] Request from user ID: ${req.user.sub}`);
-    this.logger.debug(`📝 [updateProfile] Update data:`, {
-      nick: updateData.nick,
-      email: updateData.email,
-      birth: updateData.birth,
-      country: updateData.country,
-      lang: updateData.lang,
-      avatarUrl: updateData.avatarUrl,
-      passwordChange: !!updateData.newPassword
-    });
-    
+   
     const userId = req.user.sub;
     
     const result = await this.authService.updateUserProfile(userId, updateData);
     
     if (!result.ok) {
-      this.logger.error(`❌ [updateProfile] Update failed: ${result.msg}`);
       throw new BadRequestException(result.msg);
     }
 
     if (!result.user) {
-      this.logger.error(`❌ [updateProfile] No user data returned`);
       throw new BadRequestException('Error al actualizar el perfil');
     }
-
-    this.logger.log(`✅ [updateProfile] Profile updated for user: ${result.user.nick}`);
     
     return {
       ok: true,
@@ -294,11 +227,9 @@ export class AuthController {
    */
   @Get('countries')
   async getCountries() {
-    this.logger.log('📡 [getCountries] Request received');
     
     const countries = await this.authService.getCountries();
     
-    this.logger.log(`✅ [getCountries] Returning ${countries.length} countries`);
     return countries;
   }
 }

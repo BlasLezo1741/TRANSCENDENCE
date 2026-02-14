@@ -66,7 +66,7 @@ export async function checkLogin(user: string, pass: string) {
 
 export async function send2FACode(userId: number, totpCode: string) {
     try {
-        // Determinar el endpoint según la longitud del código
+        // Determine the endpoint based on code length
         const endpoint = totpCode.length === 6 
             ? `${API_URL}/auth/verify-totp`
             : `${API_URL}/auth/verify-backup`;

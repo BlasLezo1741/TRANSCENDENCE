@@ -1,7 +1,7 @@
 // backend/src/auth/auth.service.ts
 
 import { eq, or , and, sql, arrayContains } from 'drizzle-orm';
-// bcrypt - Librería para encriptar contraseñas de forma segura.
+// bcrypt - Library to encrypt passwords securely
 
 import { Injectable, Inject, Logger , ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -13,29 +13,27 @@ import { country } from '../schema';
 import * as schema from '../schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DRIZZLE } from '../database.module';
-// Importa un DTO (Data Transfer Object). Es básicamente un objeto que define 
-// qué datos esperas recibir del frontend (user, email, password).
+// Import a DTO (Data Transfer Object). It's basically an object that defines 
+// what data you expect to receive from the frontend(user, email, password).
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { JwtPayload } from './strategies/jwt.strategy';
 import { CompleteProfileDto } from './dto/complete-profile.dto';
 
-// HttpService - Para hacer peticiones HTTP a otros servicios (en este caso, 
-// al microservicio Python)
-// firstValueFrom - Convierte un Observable de RxJS en una Promise 
-// (para usar await)
+// HttpService - To make HTTP requests to other services (Python Microservice)
+// firstValueFrom - Converts an RxJS Observable to a Promise (para usar await)
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
-// @Injectable() - Decorador dice "el servicio puede ser usado en otros lugares"
-// Es una clase que contiene la lógica de autenticación
+// @Injectable() - Decorator says 'the service can be used in other places'
+// It's a class that contains the authentication logic
 @Injectable()
 export class AuthService {
-  // El constructor recibe las "herramientas" que necesita:
+  // The constructor receives the 'tools' it needs
 
   private readonly logger = new Logger(AuthService.name);
 
-  // db - La conexión a la base de datos (inyectada con el nombre 'DRIZZLE_CONNECTION')
-  // httpService - Para hacer peticiones HTTP
+  // db - The database connection (inyectada con el nombre 'DRIZZLE_CONNECTION')
+
 
   constructor(
     @Inject(DRIZZLE) 
@@ -64,26 +62,26 @@ export class AuthService {
     const user = result[0];
     
     if (!user) {
-      return { ok: false, msg: "Usuario no encontrado" };
+      return { ok: false, msg: "User not found" };
     }
 
     // Check if user is OAuth user (no password)
     if (!user.pPass) {
-      return { ok: false, msg: "Por favor inicia sesión con tu proveedor OAuth (42 o Google)" };
+      return { ok: false, msg: "Please log in with your OAuth provider (42 or Google)" };
     }
 
     const match = await bcrypt.compare(plainPassword, user.pPass);
     if (!match) {
-      return { ok: false, msg: "Contraseña incorrecta" };
+      return { ok: false, msg: "Incorrect password" };
     }
 
        if (user.pStatus === 0) {
-      return { ok: false, msg: "Cuenta inactiva" };
+      return { ok: false, msg: "Inactive account" };
     }
 
     return { 
       ok: true, 
-      msg: "Login correcto", 
+      msg: "Correct login", 
       user: { 
         id: user.pPk, 
         name: user.pNick,
@@ -113,32 +111,30 @@ export class AuthService {
       .limit(1);
     
     if (existing.length > 0) {
-      return { ok: false, msg: "Usuario o correo ya existe" };
+      return { ok: false, msg: "User or email already exists" };
     }
 
     // 2. Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    // 3. Si el usarios quiere 2fa lo creamos
-    let totpsecret; // ← Declaración fuera del try
+    // 3. If the user wants 2FA we create it
+    let totpsecret;
     if (enable2FA)
     {
-      const pythonUrlrandom = 'http://totp:8070/random'; 
-      this.logger.debug('4. Llamando al servicio TOTP en Python...');         
+      const pythonUrlrandom = 'http://totp:8070/random';       
       const { data } = await firstValueFrom(
         this.httpService.get(pythonUrlrandom)
       );
-      this.logger.debug(`2d. Clave aleatoria ${data.totpkey}`);  
       totpsecret = data.totpkey;
     }
     let now = new Date().toISOString();
     let enabled2FAat = enable2FA ? now : null;
-    // 4. Insertamos en la base de datos (incluyendo pCountry)
+    // 4. We insert into the database (including pCountry)
     const [newUser] =await this.db.insert(player).values({
       pNick:       username,
       pMail:       email,
       pPass:       hashedPassword,
       pBir:        birth,
-      pCountry:    country, // <--- Importante: Guardamos el país
+      pCountry:    country, // Important: We save the country
       pLang:       lang,
       pReg:        now,
       pRole:       1,
@@ -149,14 +145,11 @@ export class AuthService {
       pProfileComplete: true, // Traditional registration completes profile immediately
     }).returning();
 
-    //    return { ok: true, msg: "Usuario registrado correctamente" };
-
-    this.logger.log(`3. Usuario insertado con ID: ${newUser.pPk}`);
-    let totpqr; // ← Declaración fuera del try
-    let backupCodesArray: string[] = []; // Inicializamos el array vacío
+    let totpqr;
+    let backupCodesArray: string[] = []; // We initialize the empty array
     if (enable2FA)
     {
-      // 5. Llamamos al microservicio TOTP para generar el QR
+      // 5. We call the TOTP microservice to generate the QR
       const pythonqr = 'http://totp:8070/qrtext';
       this.logger.debug('4. Llamando al servicio TOTP en Python...');
       try{
@@ -169,29 +162,24 @@ export class AuthService {
         );
         totpqr = data ? data : null;
       } catch (error) {
-        this.logger.error('Error al obtener el QR de TOTP:', error);
-        return { ok: false, msg: "Error al generar el código 2FA" };
+        return { ok: false, msg: "Error generating the 2FA code" };
       }
-      this.logger.log(`5. Respuesta recibida de Python con éxito ${totpqr.qr_text[0]}`);
-      this.logger.log(`5. Códigos de respaldo generados: ${totpqr.qr_text[1]}`);
-      // 6. Convertir el string de códigos separados por comas en un array
+      // 6. Convert the comma-separated codes string into an array
       backupCodesArray = String(totpqr.qr_text[1])
         .split(',')
-        .map((code: string) => code.trim()); // trim() elimina espacios en blanco
+        .map((code: string) => code.trim()); // trim() removes whitespace
   
-      // 7. Actualizar el usuario con los backup codes
+      // 7. Update the user with the backup codes
       await this.db
         .update(player)
         .set({ pTotpBackupCodes: backupCodesArray })
         .where(eq(player.pNick, newUser.pNick));
-  
-      this.logger.log(`6. Backup codes guardados en la base de datos`);
     } // if enable2FA
 
-    // 6. Devolvemos al frontend los datos necesarios
+    // 8. We return the necessary data to the frontend
     return { 
   ok: true, 
-  msg: "Usuario registrado correctamente",
+  msg: "User registered correctly",
   qrCode: totpqr?.qr_text[0] || null,
   backupCodes: backupCodesArray  // ["200513", "589663", "815166", ...]  
     }
@@ -201,15 +189,15 @@ async verifyTOTP(
   userId: number, 
   totpCode: string) 
 {
-    // 1. Obtenemos el usuario
+    // 1. We get the user
     const result = await this.db.select().from(users).where(eq(users.pPk, userId)).limit(1);
     const user = result[0];
-    this.logger.debug(`la base de datos nos ha dado ${user.pTotpSecret}`);
-    if (!user) return { ok: false, msg: "Usuario no encontrado" };
-    if (!user.pTotpEnabled || !user.pTotpSecret) 
-      return { ok: false, msg: "2FA no está habilitado para este usuario" };
 
-    // 2. Convertir Buffer a string (es un string Base32)
+    if (!user) return { ok: false, msg: "User not found" };
+    if (!user.pTotpEnabled || !user.pTotpSecret) 
+      return { ok: false, msg: "2FA is not enabled for this user" };
+
+    // 2. Convert Buffer to string (it's a Base32 string)
     let totpSecret: string;
     if (Buffer.isBuffer(user.pTotpSecret)) {
       totpSecret = user.pTotpSecret.toString('utf-8');
@@ -217,12 +205,9 @@ async verifyTOTP(
       totpSecret = user.pTotpSecret;
     }
 
-    this.logger.log(`Secret TOTP: ${totpSecret}`);
-
-    this.logger.log(`Verificando TOTP - Secret en base64: ${totpSecret}, Código recibido: ${totpCode}`);
-    // 2. Llamamos al microservicio TOTP para verificar el código
+    // 2. Calling the TOTP service in Python to verify code...
     const pythonVerifyUrl = 'http://totp:8070/verify';
-    this.logger.debug('Llamando al servicio TOTP en Python para verificar código...');         
+       
     try {
       const { data } = await firstValueFrom(
         this.httpService.post(pythonVerifyUrl, {
@@ -230,17 +215,14 @@ async verifyTOTP(
           totp_code: totpCode
         })
       );
-      this.logger.debug(`Respuesta de verificación TOTP: ${data.status}`);
       if (data.status === 'ok') {
         return { ok: true, msg: "Correcta validación del código 2FA" };
       } else {
         return { ok: false, msg: "Código 2FA inválido" };
       }
-      //this.logger.debug('Respuesta de verificación TOTP: ${data.valid}');
-      }   catch (error) { 
-      this.logger.error('Error al verificar el código TOTP:', error);
-      return { ok: false, msg: "Error al verificar el código 2FA" };
-      }
+    }catch (error) { 
+      return { ok: false, msg: "Error verifying the 2FA code" };
+    }
   }
 
 async verifyBackupCode(
@@ -249,13 +231,13 @@ async verifyBackupCode(
 {
      const result = await this.db.update(player)
     .set({
-      // Eliminamos el código del array
+      // We remove the code from the array
       pTotpBackupCodes: sql`array_remove(${player.pTotpBackupCodes}, ${totpCode})`,
     })
     .where(
       and(
         eq(player.pPk, userId),
-        // Solo procedemos si el código está presente en el array
+        // We only proceed if the code is present in the array
         sql`${player.pTotpBackupCodes} @> ARRAY[${totpCode}]`
       )
     )
@@ -263,20 +245,16 @@ async verifyBackupCode(
       updatedNick: player.pNick,
     });
 
-  if (result.length === 0) {
-    this.logger.debug('back code incorrecto...');       
-    return { ok: false, msg: "Código de respaldo inválido o ya utilizado" };
+  if (result.length === 0) {     
+    return { ok: false, msg: "Invalid or already used backup code" };
   } else {
       const result = await this.db.select({
-      // Usamos sql<number> para decirle a TS que el resultado es un número
+      // We use sql<number> to tell TS that the result is a number
       codesLeft: sql<number>`cardinality(${player.pTotpBackupCodes})`,
     })
     .from(player)
     .where(eq(player.pPk, userId));
-
-    this.logger.debug(`Al usuario le quedan ${result[0].codesLeft} códigos.`);       
-    return { ok: true, msg: `Al usuario le quedan ${result[0].codesLeft} códigos tras la Correcta validación del código de respaldo` };
-
+    return { ok: true, msg: `The user has ${result[0].codesLeft} codes remaining after correct backup code validation` };
   }
 
 
