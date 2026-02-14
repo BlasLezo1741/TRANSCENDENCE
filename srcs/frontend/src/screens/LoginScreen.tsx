@@ -75,7 +75,6 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 
                 // Por ahora, simulamos la verificación
                 // TODO: Implementar verifyTOTP
-                console.log("Verificando TOTP:", totpCode, "para usuario:", userId);
                 const result = await send2FACode(userId, totpCode);
 
                 
@@ -90,14 +89,11 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 localStorage.setItem("pong_user_id", userId!.toString());
                 localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
                 setGlobalUser(user);
-                console.log("🔓 Login con 2FA exitoso. Usuario global actualizado:", user);
-                console.log("Usuario ", user, " le quedan ", result.msg.split(' ')[4], " códigos de respaldo.");
                 dispatch({ type: "MENU" });
                 }
             } else {
                 // AWAIT the backend response
-                const result = await checkLogin(user, password);
-                console.log("🔓 Este usuario tiene totp:", result.user.totp);                
+                const result = await checkLogin(user, password);   
                 if (!result.ok) {
                     setError(result.msg || "Error desconocido");
                     setPassword("");
@@ -115,7 +111,6 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
 
                         // 2. Actualizamos el estado global en App.tsx
                         setGlobalUser(result.user.name);
-                        console.log("🔓 Login exitoso. Usuario global actualizado:", result.user.name);
                         
                         // 3. Wait a tiny bit to ensure localStorage is flushed, then go to menu
                         await new Promise(resolve => setTimeout(resolve, 10));

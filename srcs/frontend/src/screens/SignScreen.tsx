@@ -85,7 +85,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setShowOAuthButtons(true); // Show OAuth buttons on form submission
 
         // 1. Check local password syntax
-        console.error('Verifico el Password');
         const passResult = checkPassword(password, repeat);
         if (!passResult.ok) {
             setError(passResult.msg);
@@ -93,13 +92,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
             setRepeat("");
             return;
         }
-        console.error('El Password se ha validado');
         setIsLoading(true);
 
         try {
             // 2. Check backend registration
             // We now pass BOTH country and language separately
-            console.error('Intento de registro');
             const result = await registUser(user, password, email, birth, country, language, enabled2FA);
             
             if (!result.ok) {
@@ -107,14 +104,12 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 setPassword("");
                 setRepeat("");
             } else {
-                setSuccess(result.msg || "¡Registro completado con éxito!");
-                console.log(`los codigos son${result}`);                
+                setSuccess(result.msg || "¡Registro completado con éxito!");            
                 // If 2FA is enabled, set the QR code
                 if (enabled2FA && result.qrCode) {
                     setQrCode(result.qrCode);
                     setBackupCodes(result.backupCodes);
                     setShowOAuthButtons(false); // Show OAuth buttons on form submission
-
                 }
                 //setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
             }
