@@ -5,6 +5,7 @@ import { useModal } from '../context/ModalContext';
 import { useTranslation } from 'react-i18next';
 import { firstcap } from '../ts/utils/string';
 import { sentence } from '../ts/utils/string';
+import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 
 // --- INTERFACES ---
 interface ChatContact {
@@ -12,6 +13,7 @@ interface ChatContact {
     name: string;
     status: 'online' | 'offline' | 'ingame';
     unread: number;
+    avatarId?: string;
 }
 
 interface ChatMessage {
@@ -53,6 +55,7 @@ export const ChatSidebar = () => {
         fetch(`${API_URL}/chat/users?current=${CURRENT_USER_ID}`)
             .then(res => res.json())
             .then(data => {
+                console.log("📦 Datos RAW de amigos recibidos:", data);
                 setContacts((prev: ChatContact[]) => {
                     const localUnreadMap = new Map(prev.map(c => [c.id, c.unread || 0]));
                     
@@ -72,7 +75,8 @@ export const ChatSidebar = () => {
                             id: uId, 
                             name: user.name || user.pNick || user.friend_nick || t('user'),
                             status: user.status || 'offline',
-                            unread: finalUnread 
+                            unread: finalUnread, 
+                            avatarId: user.avatar || user.avatarId || null // avatar
                         };
                     });
                 });
@@ -91,7 +95,7 @@ export const ChatSidebar = () => {
         socket.on('friend_accepted', loadFriends);
         socket.on('friend_removed', loadFriends);
 
-        // 🔥 NUEVO EVENTO: Cambio de estado (Actualizar solo un usuario)
+        // Cambio de estado (Actualizar solo un usuario)
         // No llamamos a loadFriends() porque sería muy pesado recargar todo.
         // Solo actualizamos el array localmente.
         const handleStatusChange = (data: { userId: number, status: 'online' | 'offline' | 'ingame' }) => {
@@ -116,6 +120,34 @@ export const ChatSidebar = () => {
         };
     }, [loadFriends]);
 
+    // ---------------------------------------------------------
+    // LÓGICA 2.5: ACTUALIZACIÓN DE PERFIL EN TIEMPO REAL
+    // ---------------------------------------------------------
+    useEffect(() => {
+        const handleFriendUpdate = (payload: any) => {
+            setContacts((prevContacts) => prevContacts.map(contact => {
+                // Comparamos IDs (asegurando que sean números)
+                if (Number(contact.id) === Number(payload.id)) {
+                    console.log(`🔄 Actualizando visualmente a ${contact.name}`);
+                    return {
+                        ...contact,
+                        name: payload.name || contact.name,       
+                        // Actualizamos el ID del avatar
+                        avatarId: payload.avatar || payload.avatarId || contact.avatarId, 
+                    };
+                }
+                return contact;
+            }));
+        };
+
+        socket.on('friend_update', handleFriendUpdate);
+
+        return () => {
+            socket.off('friend_update', handleFriendUpdate);
+        };
+    }, []);
+
+
     useEffect(() => {
         if (!selectedChatId) return;
 
@@ -130,7 +162,6 @@ export const ChatSidebar = () => {
                 if (!Array.isArray(data)) return;
 
                 const historyFormatted: ChatMessage[] = data.map((msg: any) => {
-                    // 🔥 CORRECCIÓN: Intentar leer createdAt O created_at
                     const dateRaw = msg.createdAt || msg.created_at || new Date().toISOString();
                     
                     return {
@@ -148,7 +179,7 @@ export const ChatSidebar = () => {
     }, [selectedChatId, CURRENT_USER_ID, API_URL]); // Añadido API_URL a dependencias
 
     // ---------------------------------------------------------
-    // 📩 LÓGICA 3: RECEPCIÓN SOCKET
+    // LÓGICA 3: RECEPCIÓN SOCKET
     // ---------------------------------------------------------
     useEffect(() => {
         const handleReceiveMessage = (newMessage: any) => {
@@ -185,7 +216,7 @@ export const ChatSidebar = () => {
     }, [selectedChatId, CURRENT_USER_ID]);
 
     // ---------------------------------------------------------
-    // 🚀 LÓGICA 4: ENVÍO
+    // LÓGICA 4: ENVÍO
     // ---------------------------------------------------------
     const handleSendSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -235,6 +266,24 @@ export const ChatSidebar = () => {
         });
     };
 
+    // Función inteligente para decidir qué avatar mostrar
+    const getDisplayAvatar = (contactId: number, avatarId?: string | null) => {
+        // 1. Si no hay avatar, devolvemos el generado por defecto
+        if (!avatarId) return getDefaultAvatar(contactId);
+
+        // 2. 🔥 CASO 42 OAUTH: Si empieza por http, es una URL externa, úsala tal cual
+        if (avatarId.startsWith('http') || avatarId.startsWith('/')) {
+            return avatarId;
+        }
+
+        // 3. CASO LOCAL: Si es un ID (ej: "dragon-egg"), busca la imagen importada
+        const customUrl = getAvatarUrlById(avatarId);
+        if (customUrl) return customUrl;
+
+        // 4. Fallback final
+        return getDefaultAvatar(contactId);
+    };
+
     return (
         <div className="chat-sidebar">
             {/* CABECERA SIMPLE (Solo título) */}
@@ -278,8 +327,15 @@ export const ChatSidebar = () => {
                                     }}
                                     className="chat-contact-row"
                                 >
-                                    <div className="chat-avatar">
+                                    {/* <div className="chat-avatar">
                                         {chat.name.charAt(0)}
+                                    </div> */}
+                                    <div className="chat-avatar">
+                                        <img 
+                                            src={getDisplayAvatar(chat.id, chat.avatarId)} // <--- USO DE LA NUEVA FUNCIÓN
+                                            alt={chat.name}
+                                            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                                        />
                                     </div>
                                     <div className="chat-info">
                                         <div className="chat-name-row">
@@ -305,6 +361,18 @@ export const ChatSidebar = () => {
                             <button onClick={() => setSelectedChatId(null)} className="chat-back-btn">
                                 ⬅ {t('volver')}
                             </button>
+
+                            {/* 👇👇👇 AQUI INSERTAMOS EL AVATAR EN LA CABECERA 👇👇👇 */}
+                            <div style={{ width: '35px', height: '35px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, marginLeft: '10px' }}>
+                                <img 
+                                    src={(() => {
+                                        const contact = contacts.find(c => c.id === selectedChatId);
+                                        return contact ? getDisplayAvatar(contact.id, contact.avatarId) : '';
+                                    })()}
+                                    alt="Avatar"
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            </div>
                             
                             {/* 1. INFORMACIÓN DEL CONTACTO (Nombre y Estado) */}
                             <div style={{flex: 1, marginLeft: '10px'}}>
@@ -339,7 +407,7 @@ export const ChatSidebar = () => {
                             )}
                         </div>
 
-                        {/* 🔥 ESTA ES LA PARTE QUE FALTABA: LISTA DE MENSAJES 🔥 */}
+                        {/* LISTA DE MENSAJES */}
                         <div className="chat-messages-area" style={{ flex: 1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             {messages.map((msg) => {
                                 const isMine = msg.senderId === Number(CURRENT_USER_ID);

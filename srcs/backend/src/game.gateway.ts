@@ -290,7 +290,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           matchId: tempMatchId,
           side: 'left',
           // CORRECCIÓN: El rival de P1 es P2 (client)
-          opponent: { name: client.data.user.pNick, avatar: 'default.png' },
+          opponent: { id: p1Db.pPk, name: client.data.user.pNick, avatar: p1Db.pAvatarUrl },
           ballInit: { x: 0.5, y: 0.5 } 
         };
 
@@ -299,7 +299,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           matchId: tempMatchId,
           side: 'right',
           // CORRECCIÓN: El rival de P2 es P1 (opponent)
-          opponent: { name: opponent.data.user.pNick, avatar: 'default.png' }, 
+          opponent: { id: p2Db.pPk, name: opponent.data.user.pNick, avatar: p2Db.pAvatarUrl }, 
           ballInit: { x: 0.5, y: 0.5 }
         };
 
@@ -684,26 +684,33 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
 
       console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
 
-      // 2. Variables para los nombres (Valores por defecto)
+      // 2. Variables (Ahora guardamos el OBJETO entero, no solo el nombre)
+      // Inicializamos en null para evitar errores de "variable no definida"
+      let p1Data: any = null;
+      let p2Data: any = null;
+      
       let challengerName = "Jugador 1";
       let acceptorName = "Jugador 2";
 
-      // 🔥 3. CONSULTA A BASE DE DATOS (LA SOLUCIÓN REAL)
-      // Usamos await para asegurar que tenemos los nombres antes de seguir
+      // 🔥 3. CONSULTA A BASE DE DATOS
       try {
           // Buscamos al Desafiante (P1)
-          const p1Data = await this.findPlayerById(challengerDbId);
+          // NOTA: Si this.findPlayerById devuelve el objeto completo de la DB (incluyendo pAvatarUrl), esto funciona.
+          // Si no, deberías cambiarlo por: await this.db.query.player.findFirst({ where: eq(schema.player.pPk, challengerDbId) });
+          p1Data = await this.findPlayerById(challengerDbId);
+          
           if (p1Data && p1Data.pNick) {
               challengerName = p1Data.pNick;
           }
 
           // Buscamos al Aceptador (P2)
-          const p2Data = await this.findPlayerById(acceptorDbId);
+          p2Data = await this.findPlayerById(acceptorDbId);
+          
           if (p2Data && p2Data.pNick) {
               acceptorName = p2Data.pNick;
           }
       } catch (error) {
-          console.error("❌ Error recuperando nombres de la DB:", error);
+          console.error("❌ Error recuperando nombres/avatares de la DB:", error);
       }
 
       console.log(`🔎 [MATCH] Nombres confirmados: ${challengerName} vs ${acceptorName}`);
@@ -722,21 +729,31 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
       if (challengerSocket) challengerSocket.join(roomId);
       client.join(roomId);
 
-      // 6. Notificar al Frontend (Con los Nombres de la DB)
+      // 6. Notificar al Frontend (Con Nombres y Avatares)
       
-      // A) Para el Desafiante (P1 - Izquierda)
+      // A) Para el Desafiante (P1 - Izquierda) -> Su rival es P2 (Aceptador)
       this.server.to(challengerSocketId).emit('match_found', {
           roomId: roomId,
           side: 'left',
-          opponent: { name: acceptorName, avatar: 'default.png' }, // Nombre REAL de DB
+          opponent: { 
+              id: acceptorDbId,
+              name: acceptorName, 
+              // Usamos pAvatarUrl si existe, si no null
+              avatar: p2Data?.pAvatarUrl || null 
+          }, 
           matchId: 0 
       });
 
-      // B) Para el Aceptador (P2 - Derecha)
+      // B) Para el Aceptador (P2 - Derecha) -> Su rival es P1 (Desafiante)
       this.server.to(client.id).emit('match_found', {
           roomId: roomId,
           side: 'right',
-          opponent: { name: challengerName, avatar: 'default.png' }, // Nombre REAL de DB
+          opponent: { 
+              id: challengerDbId,
+              name: challengerName, 
+              // Usamos pAvatarUrl si existe, si no null
+              avatar: p1Data?.pAvatarUrl || null 
+          },
           matchId: 0
       });
 
@@ -749,5 +766,6 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
           acceptorDbId
       );
   }
+
 
 }

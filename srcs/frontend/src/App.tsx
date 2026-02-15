@@ -20,6 +20,8 @@ import { getMyProfile } from './services/user.service';
 
 import "./css/App.css";
 
+import { getDefaultAvatar } from './assets/avatars';
+
 function App()
 {
   // 1. LEER EL USUARIO DEL STORAGE ANTES DE INICIALIZAR EL REDUCER
@@ -44,6 +46,10 @@ function App()
   const [mode, setMode] = useState<GameMode>("ia");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
+  //AVATAR
+  const [opponentAvatar, setOpponentAvatar] = useState<string | null>(null);
+  const [opponentId, setOpponentId] = useState<number | null>(null);
+  
   const [ballInit, setBallInit] = useState<{x: number, y: number} | null>(null);
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
   const [option, setOption] = useState<string>("");
@@ -182,6 +188,7 @@ function App()
   useEffect(() => {
   const handleMatchFound = (payload: any) => {
           console.log("🔔 [App.tsx] Evento match_found recibido:", payload);
+          console.log("🕵️ [App.tsx] Datos del oponente:", payload.opponent);
 
           if (payload.roomId) { 
               
@@ -194,6 +201,23 @@ function App()
                   setOpponentName(payload.opponent.name);
               } else {
                   setOpponentName("Oponente Online");
+              }
+
+              // Guardar ID Rival
+              if (payload.opponent && payload.opponent.id) {
+                  console.log("✅ ID del oponente:", payload.opponent.id);
+                  setOpponentId(payload.opponent.id);
+              } else {
+                  console.error("❌ ID NO ENCONTRADO en el payload. Opponent es:", payload.opponent)
+                  setOpponentId(null);
+              }
+
+              // Guardar Avatar Rival
+              if (payload.opponent && payload.opponent.avatar) {
+                  console.log("📸 Avatar del oponente recibido:", payload.opponent.avatar);
+                  setOpponentAvatar(payload.opponent.avatar);
+              } else {
+                  setOpponentAvatar(null); // Por si viene vacío
               }
 
               // Guardar Física (si viene del backend)
@@ -271,6 +295,8 @@ function renderScreen()
           userName={currentUser} 
           setOpponentName={setOpponentName} // <--- NUEVO
           setPlayerSide={setPlayerSide}     // <--- NUEVO
+          //userAvatar={currentUserAvatarUrl}  // Tu avatar (Estado global)
+          //opponentAvatar={opponentAvatar}    // Avatar del rival (Estado nuevo)
         />;
       case "sign":
         return <SignScreen dispatch={dispatch} />;
@@ -279,11 +305,22 @@ function renderScreen()
         // Pasamos 'setCurrentUser' para que el Login pueda actualizar el estado de App
         return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} />;
       case "pong":
-        return <PongScreen
+        // 1. Calcular MI avatar (Si soy null)
+        const finalUserAvatar = currentUserAvatarUrl || (currentUserId ? getDefaultAvatar(currentUserId) : null);
+
+        // 2. Calcular AVATAR RIVAL (si es null, usando SU id)
+        const finalOpponentAvatar = opponentAvatar || (opponentId ? getDefaultAvatar(opponentId) : null);
+        
+        // Usamos 'as any' para evitar líos de tipos si TypeScript se queja
+        const PongScreenComp = PongScreen as any;
+        
+        return <PongScreenComp
           dispatch={dispatch}
           mode={mode}
           userName={currentUser}
           opponentName={opponentName}
+          userAvatar={finalUserAvatar} 
+          opponentAvatar={finalOpponentAvatar}
           ballInit={ballInit}
           playerSide={playerSide}
           roomId={roomId} 

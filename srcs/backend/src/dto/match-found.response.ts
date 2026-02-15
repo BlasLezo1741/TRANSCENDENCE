@@ -3,8 +3,9 @@ export interface MatchFoundResponse {
   matchId: number;
   side: 'left' | 'right';
   opponent: {
+    id: number;
     name: string;
-    avatar: string;
+    avatar: string | null;
   };
   ballInit?: {
       x: number;

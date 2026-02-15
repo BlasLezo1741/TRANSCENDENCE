@@ -18,6 +18,8 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { Response } from 'express';
+//import { ChatGateway } from '../chat/chat.gateway';
+import { GameGateway } from '../game.gateway';
 
 
 @Controller('auth')
@@ -27,6 +29,8 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    //private readonly chatGateway: ChatGateway
+    private readonly gameGateway: GameGateway
   ) {}
 
   // ==================== TRADITIONAL AUTHENTICATION ====================
@@ -277,6 +281,22 @@ export class AuthController {
     if (!result.user) {
       this.logger.error(`❌ [updateProfile] No user data returned`);
       throw new BadRequestException('Error al actualizar el perfil');
+    }
+
+    this.logger.log(`✅ [updateProfile] Profile updated for user: ${result.user.nick}`);
+    
+    //Bloque para actualizar el avatar
+    try {
+      this.logger.log(`📢 [SOCKET] Emitting friend_update for user ${result.user.nick}`);
+      
+      this.gameGateway.server.emit('friend_update', {
+        id: userId,
+        name: result.user.nick,
+        avatar: result.user.avatarUrl,
+        status: 'online'
+      });
+    } catch (error: any) {
+      this.logger.warn(`⚠️ [SOCKET] Failed to emit update: ${error.message}`);
     }
 
     this.logger.log(`✅ [updateProfile] Profile updated for user: ${result.user.nick}`);
