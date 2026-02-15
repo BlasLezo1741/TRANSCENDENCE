@@ -26,6 +26,7 @@ import { AvatarSelector } from '../components/AvatarSelector';
 import { firstcap } from '../ts/utils/string';
 import { sentence } from '../ts/utils/string';
 import "../css/ProfileScreen.css";
+import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 
 // To update header if user changes the nick
 interface ProfileScreenProps {
@@ -460,6 +461,23 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             
             loadSocialData();
         };
+        //para el avatar
+        const handleFriendUpdate = (payload: any) => {
+            console.log("♻️ [SOCKET] Evento friend_update recibido en Perfil:", payload);
+
+            setFriends((prevFriends) => prevFriends.map((f) => {
+                // Comparamos IDs (asegurando tipo número)
+                if (Number(f.id) === Number(payload.id)) {
+                    console.log(`🔄 Actualizando datos de amigo: ${f.friend_nick} -> ${payload.name}`);
+                    return {
+                        ...f,
+                        friend_nick: payload.name || f.friend_nick, // Actualizar Nick
+                        avatar: payload.avatar // 🔥 Actualizar Avatar (URL o ID)
+                    } as any; // 'as any' para evitar quejas si la interfaz Friend no tiene 'avatar' explícito aún
+                }
+                return f;
+            }));
+        };
 
         // --- SUSCRIPCIONES ---
         console.log("🎧 Suscribiéndose a eventos del socket...");
@@ -467,6 +485,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         socket.on('friend_accepted', handleFriendAccepted);
         socket.on('user_status', handleStatusChange);
         socket.on('friend_removed', handleFriendRemoved);
+        socket.on('friend_update', handleFriendUpdate);
 
         // --- CLEANUP ---
         return () => {
@@ -475,6 +494,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             socket.off('friend_accepted', handleFriendAccepted);
             socket.off('user_status', handleStatusChange);
             socket.off('friend_removed', handleFriendRemoved);
+            socket.off('friend_update', handleFriendUpdate);
         };
     }, []);
 
@@ -504,6 +524,19 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         }, 300);
     };
 
+    // Función auxiliar para resolver la imagen (igual que en ChatSidebar)
+    const getDisplayAvatar = (userId: number, avatarId?: string | null) => {
+        if (!avatarId) return getDefaultAvatar(userId);
+        // Si es URL externa (42/Google)
+        if (avatarId.startsWith('http') || avatarId.startsWith('/')) return avatarId;
+        // Si es un ID local (ej: dragon-egg)
+        const customUrl = getAvatarUrlById(avatarId);
+        if (customUrl) return customUrl;
+        // Fallback
+        return getDefaultAvatar(userId);
+    };
+
+
     // --- COMPONENTES DE PANTALLA ---
 
     const renderInfoScreen = () => {
@@ -519,6 +552,9 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
         const isOAuthUser = !!userProfile.oauthProvider;
         console.log("👤 [InfoScreen] Rendering profile. OAuth user:", isOAuthUser);
+
+        
+
 
         return (
             <>
@@ -733,59 +769,118 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         );
     };
 
-    const renderFriendScreen = () => (
-        <>
-            <h1>{firstcap(t('prof.friends_title'))}</h1> {/* Added Translation key */}
+    const renderFriendScreen = () => {
+        // Buscamos el usuario seleccionado en el desplegable para mostrar su avatar
+        const selectedCandidate = candidates.find(c => String(c.id) === String(targetIdInput));
 
-            <div>
-                <label>{t('prof.invite_label')}</label> {/* Added Translation key */}
-                <select
-                    value={targetIdInput}
-                    onChange={(e) => setTargetIdInput(e.target.value)}
-                    disabled={isLoadingCandidates}>
-                    <option value="">
-                        {isLoadingCandidates ? t('prof.loading_users') : t('prof.sel_player')} {/* Added Translation key */}
-                    </option>
-                    {candidates.map((user) => (
-                        <option key={user.id} value={user.id}>
-                            {user.nick}
-                        </option>
-                    ))}
-                </select>
-                <button
-                    onClick={handleSendRequest}
-                    disabled={!targetIdInput || isLoadingCandidates}>
-                    {t('prof.send_request_btn')} {/* Added Translation key */}
-                </button>
-            </div>
+        return (
+            <>
+                <h1>{firstcap(t('prof.friends_title'))}</h1>
 
-            {statusMsg && <p>{statusMsg}</p>}
+                <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+                    <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+                        {t('prof.invite_label')}
+                    </label>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        {/* Selector */}
+                        <select
+                            value={targetIdInput}
+                            onChange={(e) => setTargetIdInput(e.target.value)}
+                            disabled={isLoadingCandidates}
+                            style={{ flex: 1, padding: '8px' }}>
+                            <option value="">
+                                {isLoadingCandidates ? t('prof.loading_users') : t('prof.sel_player')}
+                            </option>
+                            {candidates.map((user) => (
+                                <option key={user.id} value={user.id}>
+                                    {user.nick}
+                                </option>
+                            ))}
+                        </select>
 
-            <h3>{sentence(t('prof.friends_title'))}</h3> {/* Added Translation key */}
-            {friends.length === 0 ? (
-                <p>{t('prof.no_friends')}</p> // Added Translation key
-            ) : (
-                <ul className="list-friend">
-                    {friends.map((f, i) => (
-                        <li key={i} className="amigo">
-                            <div>
-                                <div className="semaforo"
-                                    style={{
-                                        backgroundColor: f.status === 'online' ? '#22c55e' : '#6b7280',
-                                        boxShadow: f.status === 'online' ? '0 0 8px #22c55e' : 'none'
-                                    }}>
-                                </div>
-                                <span>{f.friend_nick}</span>
+                        {/* Previsualización del Avatar Seleccionado */}
+                        {selectedCandidate && (
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #ddd' }}>
+                                <img 
+                                    src={getDisplayAvatar(selectedCandidate.id, (selectedCandidate as any).avatar)} 
+                                    alt="Preview"
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
                             </div>
-                            <button onClick={() => handleRemoveFriend(f.id, f.friend_nick)}>
-                                {t('prof.remove_btn')} {/* Added Translation key */}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </>
-    );
+                        )}
+
+                        <button
+                            onClick={handleSendRequest}
+                            disabled={!targetIdInput || isLoadingCandidates}
+                            style={{ padding: '8px 16px' }}>
+                            {t('prof.send_request_btn')}
+                        </button>
+                    </div>
+                </div>
+
+                {statusMsg && <p style={{ marginBottom: '15px', color: '#22c55e' }}>{statusMsg}</p>}
+
+                <h3>{sentence(t('prof.friends_title'))}</h3>
+                
+                {friends.length === 0 ? (
+                    <p>{t('prof.no_friends')}</p>
+                ) : (
+                    <ul className="list-friend" style={{ listStyle: 'none', padding: 0 }}>
+                        {friends.map((f, i) => (
+                            <li key={i} className="amigo" style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center', 
+                                padding: '10px', 
+                                borderBottom: '1px solid #eee' 
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    {/* 1. Semáforo */}
+                                    <div className="semaforo"
+                                        style={{
+                                            width: '10px', height: '10px', borderRadius: '50%',
+                                            backgroundColor: f.status === 'online' ? '#22c55e' : '#6b7280',
+                                            boxShadow: f.status === 'online' ? '0 0 8px #22c55e' : 'none'
+                                        }}>
+                                    </div>
+
+                                    {/* 2. Avatar (NUEVO) */}
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden' }}>
+                                        <img 
+                                            // Asumimos que f tiene la propiedad 'avatar' gracias a nuestro arreglo en el backend
+                                            src={getDisplayAvatar(f.id, (f as any).avatar)} 
+                                            alt={f.friend_nick}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    </div>
+
+                                    {/* 3. Nombre */}
+                                    <span style={{ fontWeight: '500', fontSize: '1.1rem' }}>
+                                        {f.friend_nick}
+                                    </span>
+                                </div>
+
+                                <button 
+                                    onClick={() => handleRemoveFriend(f.id, f.friend_nick)}
+                                    style={{ 
+                                        backgroundColor: '#ef4444', 
+                                        color: 'white', 
+                                        border: 'none', 
+                                        padding: '5px 10px', 
+                                        borderRadius: '4px',
+                                        cursor: 'pointer' 
+                                    }}
+                                >
+                                    {t('prof.remove_btn')}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </>
+        );
+    };   
 
     const renderRequestScreen = () => (
         <>
@@ -820,38 +915,6 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             <p>{t('prof.stats_placeholder')}</p> {/* Added Translation key */}
         </>
     );
-/* const StatScreen = () => {
-        // Configuramos la URL de Grafana con el UID transcendence_001
-        // kiosk=tv: elimina toda la interfaz de Grafana para que parezca parte de tu web
-        const grafanaUrl = "http://localhost:4000/d/transcendence_001?orgId=1&kiosk=tv";
-        //const grafanaUrl = "http://localhost:4000/d/transcendence_001?orgId=1&from=now-6h&to=now&timezone=browser&refresh=5s";
-
-        return (
-            <>
-                <h1>Estadísticas Globales</h1>
-                <div style={{ 
-                    width: '100%', 
-                    height: '500px', 
-                    borderRadius: '8px', 
-                    overflow: 'hidden',
-                    border: '1px solid #ccc',
-                    marginTop: '20px',
-                    backgroundColor: '#161719' // Fondo oscuro similar al de Grafana
-                }}>
-                    <iframe
-                        src={grafanaUrl}
-                        width="100%"
-                        height="100%"
-                        frameBorder="0"
-                        title="Grafana Dashboard"
-                    ></iframe>
-                </div>
-                <p style={{ marginTop: '10px', fontSize: '0.8rem', color: '#666' }}>
-                    * Datos obtenidos en tiempo real de la base de datos transcendence.
-                </p>
-            </>
-        );
-    }; */
 
     return (
         <main className="profile">

@@ -109,6 +109,7 @@ export class FriendsService {
             SELECT 
                 p.p_pk as friend_id, 
                 p.p_nick as friend_nick,
+                p.p_avatar_url as friend_avatar,
                 -- Traemos el nombre del idioma (si existe)
                 l.lang_name as friend_lang,
                 pf.f_date as friendship_since
@@ -134,7 +135,8 @@ export class FriendsService {
             friend_nick: friend.friend_nick,
             friend_lang: friend.friend_lang || 'Unknown', // Fallback por si no tiene idioma
             friendship_since: friend.friendship_since,
-            status: this.gateway.isUserOnline(Number(friend.friend_id)) ? 'online' : 'offline'
+            status: this.gateway.isUserOnline(Number(friend.friend_id)) ? 'online' : 'offline',
+            avatar: friend.friend_avatar // Pasamos el valor de la DB (URL o ID)
         }));
 
         console.log(`✅ [FRIENDS] Encontrados ${enrichedResult.length} amigos.`);
@@ -148,7 +150,8 @@ export class FriendsService {
         const pending = await this.db.execute(sql`
             SELECT 
                 p.p_pk as id, 
-                p.p_nick as nick
+                p.p_nick as nick,
+                p.p_avatar_url as avatar
             FROM PLAYER_FRIEND pf
             JOIN PLAYER p ON p.p_pk = pf.f_1
             WHERE pf.f_2 = ${userId} 
@@ -162,7 +165,10 @@ export class FriendsService {
     // 6. Obtener candidatos para invitar (Dropdown)
     async getUsersToInvite(userId: number) {
         const result = await this.db.execute(sql`
-            SELECT p.p_pk as id, p.p_nick as nick
+            SELECT
+                p.p_pk as id,
+                p.p_nick as nick,
+                p.p_avatar_url as avatar
             FROM PLAYER p
             WHERE p.p_pk != ${userId} -- No mostrarme a mí mismo
             AND NOT EXISTS (
