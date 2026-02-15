@@ -93,36 +93,78 @@ export class ChatService {
   });
   const uniqueFriends = Array.from(uniqueMap.values());
 
-  // 🔥 6. NUEVO: AGREGAR CONTADOR DE NO LEÍDOS A CADA AMIGO
-  const friendsWithUnread = await Promise.all(uniqueFriends.map(async (friend: any) => {
+  // // 🔥 6. NUEVO: AGREGAR CONTADOR DE NO LEÍDOS A CADA AMIGO
+  // const friendsWithUnread = await Promise.all(uniqueFriends.map(async (friend: any) => {
         
-    // Contamos mensajes donde: Sender = Amigo, Receiver = Yo, isRead = False
-    const unreadCountResult = await this.db
-        .select({ count: sql<number>`count(*)` })
-        .from(schema.directMessage)
-        .where(and(
-            eq(schema.directMessage.senderId, friend.pPk),
-            eq(schema.directMessage.receiverId, currentUserId),
-            eq(schema.directMessage.isRead, false)
-        ));
-    // Preguntamos al Gateway si este usuario está conectado
-    const isOnline = this.gateway.isUserOnline(Number(friend.pPk));
+  //   // Contamos mensajes donde: Sender = Amigo, Receiver = Yo, isRead = False
+  //   const unreadCountResult = await this.db
+  //       .select({ count: sql<number>`count(*)` })
+  //       .from(schema.directMessage)
+  //       .where(and(
+  //           eq(schema.directMessage.senderId, friend.pPk),
+  //           eq(schema.directMessage.receiverId, currentUserId),
+  //           eq(schema.directMessage.isRead, false)
+  //       ));
+  //   // Preguntamos al Gateway si este usuario está conectado
+  //   const isOnline = this.gateway.isUserOnline(Number(friend.pPk));
     
-    // (Opcional) Log para ver si funciona
-    console.log(`🕵️ [CHAT] Amigo ${friend.pNick} (ID: ${friend.pPk}) -> Online: ${isOnline}`);
+  //   // (Opcional) Log para ver si funciona
+  //   console.log(`🕵️ [CHAT] Amigo ${friend.pNick} (ID: ${friend.pPk}) -> Online: ${isOnline}`);
 
-    // C. Devolvemos el objeto completo   
-    return {
-        ...friend,
-        // Drizzle devuelve count como string en un array, lo convertimos
-        unread: Number(unreadCountResult[0].count),
-        status: isOnline ? 'online' : 'offline',
-        avatar: friend.pAvatarUrl // Mapeamos la columna de DB al campo 'avatar' del JSON 
-    };  
-  }));
+  //   // C. Devolvemos el objeto completo   
+  //   return {
+  //       ...friend,
+  //       // Drizzle devuelve count como string en un array, lo convertimos
+  //       unread: Number(unreadCountResult[0].count),
+  //       status: isOnline ? 'online' : 'offline',
+  //       avatar: friend.pAvatarUrl // Mapeamos la columna de DB al campo 'avatar' del JSON 
+  //   };  
+  // }));
 
-  return friendsWithUnread;
+  // return friendsWithUnread;
+  // }
+
+  // 🔥 6. NUEVO: AGREGAR CONTADOR DE NO LEÍDOS A CADA AMIGO
+    const friendsWithUnread = await Promise.all(uniqueFriends.map(async (friend: any) => {
+          
+      // Contamos mensajes donde: Sender = Amigo, Receiver = Yo, isRead = False
+      const unreadCountResult = await this.db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.directMessage)
+          .where(and(
+              eq(schema.directMessage.senderId, friend.pPk),
+              eq(schema.directMessage.receiverId, currentUserId),
+              eq(schema.directMessage.isRead, false)
+          ));
+
+      // Preguntamos al Gateway si este usuario está conectado
+      const isOnline = this.gateway.isUserOnline(Number(friend.pPk));
+      
+      // 👇👇👇 DEBUG CLAVE: Mira esto en "docker logs backend" 👇👇👇
+      if (friend.pAvatarUrl || friend.avatarUrl) {
+          console.log(`✅ [AVATAR] Encontrado para ${friend.pNick}: ${friend.pAvatarUrl || friend.avatarUrl}`);
+      } else {
+          console.log(`⚠️ [AVATAR] ${friend.pNick} (ID: ${friend.pPk}) no tiene avatar en la DB.`);
+      }
+      // 👆👆👆 FIN DEBUG 👆👆👆
+
+      // C. Devolvemos el objeto completo    
+      return {
+          ...friend,
+          // Drizzle devuelve count como string en un array, lo convertimos
+          unread: Number(unreadCountResult[0].count),
+          status: isOnline ? 'online' : 'offline',
+          
+          // 👇 ASIGNACIÓN ROBUSTA: Probamos varios nombres por si acaso
+          avatar: friend.pAvatarUrl || friend.avatarUrl || friend.pAvatar || null,
+          // Enviamos también avatarId por si el frontend lo prefiere
+          avatarId: friend.pAvatarUrl || friend.avatarUrl || friend.pAvatar || null
+      };   
+    }));
+  
+    return friendsWithUnread;
   }
+
   // 🔥 7. NUEVO MÉTODO: MARCAR COMO LEÍDOS
   async markAsRead(senderId: number, receiverId: number) {
     console.log(`🧹 [DB] Marcando como leídos mensajes de ${senderId} para ${receiverId}`);

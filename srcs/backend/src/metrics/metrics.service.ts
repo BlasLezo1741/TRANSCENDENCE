@@ -44,33 +44,27 @@ export class MetricsService {
  @Cron(CronExpression.EVERY_10_SECONDS)
   async updateMetrics() {
     try {
-      console.log('🔄 [METRICS] Iniciando actualización...'); // <--- CHIVATO 1
-
       // 1. Usuarios
       const users = await this.db.execute(sql`SELECT COUNT(*) as count FROM player`);
       const userCount = Number(users[0].count);
       this.usersGauge.set(userCount);
-      console.log(`   - Usuarios en DB: ${userCount}`); // <--- CHIVATO 2
 
       // 2. Partidas
       try {
         const matches = await this.db.execute(sql`SELECT COUNT(*) as count FROM "match"`);
         const matchCount = Number(matches[0].count);
         this.matchesGauge.set(matchCount);
-        console.log(`   - Partidas en DB: ${matchCount}`);
       } catch (e) { console.log('   - Tabla match no encontrada aún'); }
 
       // 3. Amigos
       const friends = await this.db.execute(sql`SELECT COUNT(*) as count FROM player_friend WHERE f_status_fk = 2`);
       const friendCount = Number(friends[0].count);
       this.friendsGauge.set(friendCount);
-      console.log(`   - Amigos en DB: ${friendCount}`);
 
       // 4. Mensajes
       const messages = await this.db.execute(sql`SELECT COUNT(*) as count FROM direct_message`);
       const msgCount = Number(messages[0].count);
       this.messagesGauge.set(msgCount);
-      console.log(`   - Mensajes en DB: ${msgCount}`);
 
     } catch (error) {
       console.error('❌ Error CRITICAL en métricas:', error);

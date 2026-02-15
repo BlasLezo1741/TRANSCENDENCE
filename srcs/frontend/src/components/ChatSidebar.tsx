@@ -270,13 +270,29 @@ export const ChatSidebar = () => {
     };
 
     // Función inteligente para decidir qué avatar mostrar
+    // const getDisplayAvatar = (contactId: number, avatarId?: string | null) => {
+    //     // 1. Si hay un ID de avatar válido en la base de datos, intentamos obtener su URL
+    //     if (avatarId) {
+    //         const customUrl = getAvatarUrlById(avatarId);
+    //         if (customUrl) return customUrl;
+    //     }
+    //     // 2. Si no tiene avatar o el ID no es válido, usamos el generado por defecto
+    //     return getDefaultAvatar(contactId);
+    // };
     const getDisplayAvatar = (contactId: number, avatarId?: string | null) => {
-        // 1. Si hay un ID de avatar válido en la base de datos, intentamos obtener su URL
-        if (avatarId) {
-            const customUrl = getAvatarUrlById(avatarId);
-            if (customUrl) return customUrl;
+        // 1. Si no hay avatar, devolvemos el generado por defecto
+        if (!avatarId) return getDefaultAvatar(contactId);
+
+        // 2. 🔥 CASO 42 OAUTH: Si empieza por http, es una URL externa, úsala tal cual
+        if (avatarId.startsWith('http') || avatarId.startsWith('/')) {
+            return avatarId;
         }
-        // 2. Si no tiene avatar o el ID no es válido, usamos el generado por defecto
+
+        // 3. CASO LOCAL: Si es un ID (ej: "dragon-egg"), busca la imagen importada
+        const customUrl = getAvatarUrlById(avatarId);
+        if (customUrl) return customUrl;
+
+        // 4. Fallback final
         return getDefaultAvatar(contactId);
     };
 
