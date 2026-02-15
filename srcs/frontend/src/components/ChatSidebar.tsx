@@ -95,7 +95,7 @@ export const ChatSidebar = () => {
         socket.on('friend_accepted', loadFriends);
         socket.on('friend_removed', loadFriends);
 
-        // 🔥 NUEVO EVENTO: Cambio de estado (Actualizar solo un usuario)
+        // Cambio de estado (Actualizar solo un usuario)
         // No llamamos a loadFriends() porque sería muy pesado recargar todo.
         // Solo actualizamos el array localmente.
         const handleStatusChange = (data: { userId: number, status: 'online' | 'offline' | 'ingame' }) => {
@@ -121,12 +121,10 @@ export const ChatSidebar = () => {
     }, [loadFriends]);
 
     // ---------------------------------------------------------
-    // ♻️ LÓGICA 2.5: ACTUALIZACIÓN DE PERFIL EN TIEMPO REAL
+    // LÓGICA 2.5: ACTUALIZACIÓN DE PERFIL EN TIEMPO REAL
     // ---------------------------------------------------------
     useEffect(() => {
         const handleFriendUpdate = (payload: any) => {
-            console.log("♻️ [SOCKET] Evento friend_update recibido:", payload);
-
             setContacts((prevContacts) => prevContacts.map(contact => {
                 // Comparamos IDs (asegurando que sean números)
                 if (Number(contact.id) === Number(payload.id)) {
@@ -134,7 +132,7 @@ export const ChatSidebar = () => {
                     return {
                         ...contact,
                         name: payload.name || contact.name,       
-                        // 🔥 AQUÍ ESTÁ LA MAGIA: Actualizamos el ID del avatar
+                        // Actualizamos el ID del avatar
                         avatarId: payload.avatar || payload.avatarId || contact.avatarId, 
                     };
                 }
@@ -164,7 +162,6 @@ export const ChatSidebar = () => {
                 if (!Array.isArray(data)) return;
 
                 const historyFormatted: ChatMessage[] = data.map((msg: any) => {
-                    // 🔥 CORRECCIÓN: Intentar leer createdAt O created_at
                     const dateRaw = msg.createdAt || msg.created_at || new Date().toISOString();
                     
                     return {
@@ -182,7 +179,7 @@ export const ChatSidebar = () => {
     }, [selectedChatId, CURRENT_USER_ID, API_URL]); // Añadido API_URL a dependencias
 
     // ---------------------------------------------------------
-    // 📩 LÓGICA 3: RECEPCIÓN SOCKET
+    // LÓGICA 3: RECEPCIÓN SOCKET
     // ---------------------------------------------------------
     useEffect(() => {
         const handleReceiveMessage = (newMessage: any) => {
@@ -219,7 +216,7 @@ export const ChatSidebar = () => {
     }, [selectedChatId, CURRENT_USER_ID]);
 
     // ---------------------------------------------------------
-    // 🚀 LÓGICA 4: ENVÍO
+    // LÓGICA 4: ENVÍO
     // ---------------------------------------------------------
     const handleSendSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -270,15 +267,6 @@ export const ChatSidebar = () => {
     };
 
     // Función inteligente para decidir qué avatar mostrar
-    // const getDisplayAvatar = (contactId: number, avatarId?: string | null) => {
-    //     // 1. Si hay un ID de avatar válido en la base de datos, intentamos obtener su URL
-    //     if (avatarId) {
-    //         const customUrl = getAvatarUrlById(avatarId);
-    //         if (customUrl) return customUrl;
-    //     }
-    //     // 2. Si no tiene avatar o el ID no es válido, usamos el generado por defecto
-    //     return getDefaultAvatar(contactId);
-    // };
     const getDisplayAvatar = (contactId: number, avatarId?: string | null) => {
         // 1. Si no hay avatar, devolvemos el generado por defecto
         if (!avatarId) return getDefaultAvatar(contactId);
@@ -419,7 +407,7 @@ export const ChatSidebar = () => {
                             )}
                         </div>
 
-                        {/* 🔥 ESTA ES LA PARTE QUE FALTABA: LISTA DE MENSAJES 🔥 */}
+                        {/* LISTA DE MENSAJES */}
                         <div className="chat-messages-area" style={{ flex: 1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             {messages.map((msg) => {
                                 const isMine = msg.senderId === Number(CURRENT_USER_ID);

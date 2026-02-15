@@ -160,10 +160,10 @@ export class Pong
         // Puntuación P2
         this.ctx.fillText(this.score[1].toString(), this.c.width * 0.75, 20);
         
-        // Nombres (Opcional)
-        this.ctx.font = "20px Arial";
-        this.ctx.fillText(this.player1.getName(), this.c.width * 0.25, 70);
-        this.ctx.fillText(this.player2.getName(), this.c.width * 0.75, 70);
+        // // Nombres (Opcional)
+        // this.ctx.font = "20px Arial";
+        // this.ctx.fillText(this.player1.getName(), this.c.width * 0.25, 70);
+        // this.ctx.fillText(this.player2.getName(), this.c.width * 0.75, 70);
     }
 
     private drawPause() {
