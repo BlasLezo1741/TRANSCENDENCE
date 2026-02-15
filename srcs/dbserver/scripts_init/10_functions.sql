@@ -151,6 +151,7 @@ DROP TYPE IF EXISTS player_record CASCADE;
 CREATE TYPE player_record AS (
     wins INTEGER,
     losses INTEGER,
+    draws INTEGER,
     total_matches INTEGER
 );
 
