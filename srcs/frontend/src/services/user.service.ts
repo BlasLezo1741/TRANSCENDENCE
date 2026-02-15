@@ -199,3 +199,46 @@ export const getCountries = async (): Promise<Country[]> => {
         return [];
     }
 };
+
+// 4. Delete (anonymize) my account
+export const deleteMyAccount = async (): Promise<{ ok: boolean; msg: string }> => {
+    console.log("🗑️ [user.service] deleteMyAccount() - Starting...");
+
+    try {
+        const token = getToken();
+        if (!token) {
+            return { ok: false, msg: "No authentication token" };
+        }
+
+        const url = `${API_URL}/auth/profile`;
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            handle401Unauthorized();
+            return { ok: false, msg: "Session expired" };
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return { ok: false, msg: data.message || "Delete failed" };
+        }
+
+        // Clear local auth data
+        localStorage.removeItem("pong_token");
+        localStorage.removeItem("pong_user_nick");
+        localStorage.removeItem("pong_user_id");
+
+        console.log("✅ [user.service] Account deleted successfully");
+        return { ok: true, msg: "Account deleted" };
+    } catch (error) {
+        console.error("❌ [user.service] Error in deleteMyAccount():", error);
+        return { ok: false, msg: "Connection error" };
+    }
+};

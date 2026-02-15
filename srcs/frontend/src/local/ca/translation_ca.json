@@ -66,13 +66,16 @@
         "loading": "Carregant perfil...",
         "load_error": "No s'ha pogut carregar el perfil",
         "field_id": "ID",
-        "field_id_readonly": "(no editable)",
+        "field_id_readonly": "no editable",
         "field_email": "Correu electrònic",
         "field_birth": "Data de naixement",
         "field_country": "País",
         "field_lang": "Idioma",
         "field_oauth": "Proveïdor OAuth",
-        "edit_btn": "✏️ Editar Perfil",
+        "edit_btn": "Editar Perfil",
+        "delete_btn": "eliminar el compte",
+        "delete_account_confirm": "N'estàs segur? Totes les teves dades personals seran anonimitzades permanentment. Aquesta acció no es pot desfer.",
+        "delete_account_error": "Error en eliminar el compte",
 
         "loading_countries": "Carregant països...",
         "sel_country": "-- Selecciona un país --",
@@ -124,5 +127,10 @@
         "about_project": "Sobre el projecte",
         "contact": "Contacte",
         "credits": "Crèdits"
+    },
+    "modal":
+    {
+        "accept_btn": "acceptar",
+        "cancel_btn": "cancel·lar"
     }
 }

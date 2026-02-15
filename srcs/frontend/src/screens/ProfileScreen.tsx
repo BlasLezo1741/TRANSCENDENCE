@@ -16,6 +16,7 @@ import {
     getMyProfile, 
     updateMyProfile, 
     getCountries,
+    deleteMyAccount,
     type UserProfile,
     type Country,
     type UpdateProfileData
@@ -24,7 +25,7 @@ import { useModal } from '../context/ModalContext';
 import { Avatar } from '../components/Avatar';
 import { AvatarSelector } from '../components/AvatarSelector';
 import { firstcap } from '../ts/utils/string';
-import { sentence } from '../ts/utils/string';
+import { sentence  } from '../ts/utils/string';
 import "../css/ProfileScreen.css";
 
 // To update header if user changes the nick
@@ -275,7 +276,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             showModal({
                 title: t('error'), // Added Translation key
                 message: t('prof.fields_required'), // Added Translation key
-                type: "alert"
+                type: "confirm"
             });
             return;
         }
@@ -297,7 +298,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 showModal({
                     title: t('error'), // Added Translation key
                     message: t('prof.need_current_pass'), // Added Translation key
-                    type: "alert"
+                    type: "confirm"
                 });
                 return;
             }
@@ -306,7 +307,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 showModal({
                     title: t('error'), // Added Translation key
                     message: t('prof.pass_mismatch'), // Added Translation key
-                    type: "alert"
+                    type: "confirm"
                 });
                 return;
             }
@@ -315,7 +316,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 showModal({
                     title: t('error'), // Added Translation key
                     message: t('prof.pass_too_short'), // Added Translation key
-                    type: "alert"
+                    type: "confirm"
                 });
                 return;
             }
@@ -359,7 +360,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             showModal({
                 title: t('prof.update_success_title'), // Added Translation key
                 message: t('prof.update_success_msg'), // Added Translation key
-                type: "alert"
+                type: "confirm"
             });
 
             // Recargar perfil y salir del modo edición
@@ -381,7 +382,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             showModal({
                 title: t('error'), // Added Translation key
                 message: error.message || t('prof.update_error'), // Added Translation key
-                type: "alert"
+                type: "confirm"
             });
         }
     };
@@ -405,6 +406,29 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         setIsEditing(false);
         
         console.log("✅ [ProfileScreen] Form reset to original values");
+    };
+    
+    const handleDeleteAccount = () => {
+        showModal({
+            title: sentence(t('prof.delete_btn')),
+            message: t('prof.delete_account_confirm'),
+            type: "confirm",
+            onConfirm: async () => {
+                console.log("🗑️ [ProfileScreen] User confirmed account deletion");
+
+                const result = await deleteMyAccount();
+
+                if (result.ok) {
+                    window.location.href = '/';
+                } else {
+                    showModal({
+                        title: t('error'),
+                        message: result.msg || t('prof.delete_account_error'),
+                        type: "alert"
+                    });
+                }
+            }
+        });
     };
 
     // Cargar datos al montar
@@ -607,7 +631,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         </button>
                         <button
                                 onClick={() => {
-                                    // Aqui la funcion de eliminar perfil
+                                    handleDeleteAccount();
                                 }}
                                 style={{
                                     width: '200px',
@@ -615,14 +639,14 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                     marginLeft: '5px',
                                     fontSize: '14px',
                                     borderRadius: '5px',
-                                    border: '1px solid #4CAF50',
+                                    border: '1px solid #D93814',
                                     backgroundColor: 'white',
-                                    color: '#4CAF50',
+                                    color: '#D93814',
                                     cursor: 'pointer',
                                     fontWeight: 'bold'
                                 }}
                             >
-                                BORRAR PERFIL {/* Added Translation key */}
+                                {sentence(t('prof.delete_btn'))} {/* Added Translation key */}
                         </button>
                     </>
                 ) : (

@@ -66,13 +66,17 @@
         "loading": "Loading profile...",
         "load_error": "Could not load profile",
         "field_id": "ID",
-        "field_id_readonly": "(not editable)",
+        "field_id_readonly": "not editable",
         "field_email": "Email",
         "field_birth": "Date of birth",
         "field_country": "Country",
         "field_lang": "Language",
         "field_oauth": "OAuth Provider",
         "edit_btn": "Edit Profile",
+        "delete_btn": "delete account",
+        "delete_account_confirm": "Are you sure? This will permanently anonymize all your personal data. This action cannot be undone.",
+        "delete_account_error": "Failed to delete account",
+
 
         "loading_countries": "Loading countries...",
         "sel_country": "-- Select a country --",
@@ -124,5 +128,10 @@
         "about_project": "About the Project",
         "contact": "Contact",
         "credits": "Credits"
+    },
+    "modal":
+    {
+        "accept_btn": "accept",
+        "cancel_btn": "cancel"
     }
 }

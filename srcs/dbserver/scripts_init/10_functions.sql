@@ -268,5 +268,7 @@ BEGIN
         p_role = 1,
         p_status = 1
     WHERE p_pk = player_id;
+    DELETE FROM player_friend WHERE f_1 = player_id;
+    DELETE FROM player_friend WHERE f_2 = player_id;
 END;
 $$ LANGUAGE plpgsql;

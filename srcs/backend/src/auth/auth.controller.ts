@@ -3,6 +3,7 @@ import {
   Post, 
   Get, 
   Put,
+  Delete,
   Body, 
   Req, 
   Res, 
@@ -284,6 +285,32 @@ export class AuthController {
       ok: true,
       message: 'Perfil actualizado correctamente',
       user: result.user
+    };
+  }
+  /**
+   * DELETE /auth/profile
+   * Anonymize (soft-delete) current user's account
+   * Requires JWT authentication
+   */
+  @Delete('profile')
+  @UseGuards(JwtAuthGuard)
+  async deleteAccount(@Request() req) {
+    this.logger.log(`🗑️ [deleteAccount] Request from user ID: ${req.user.sub}`);
+    
+    const userId = req.user.sub;
+    
+    const result = await this.authService.anonymizeUser(userId);
+    
+    if (!result.ok) {
+      this.logger.error(`❌ [deleteAccount] Anonymization failed: ${result.msg}`);
+      throw new BadRequestException(result.msg);
+    }
+
+    this.logger.log(`✅ [deleteAccount] Account anonymized for user ID: ${userId}`);
+    
+    return {
+      ok: true,
+      message: 'Account deleted successfully'
     };
   }
 

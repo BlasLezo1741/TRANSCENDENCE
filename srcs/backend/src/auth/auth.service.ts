@@ -663,4 +663,33 @@ async verifyBackupCode(
     }
   }
 
+  // ==================== ACCOUNT DELETION (ANONYMIZATION) ====================
+
+  /**
+   * Anonymize a user account by calling the PostgreSQL function
+   */
+  async anonymizeUser(userId: number): Promise<{ ok: boolean; msg: string }> {
+    this.logger.log(`🗑️ [anonymizeUser] Anonymizing user ${userId}...`);
+
+    try {
+      // Verify user exists first
+      const currentUser = await this.findUserById(userId);
+      if (!currentUser) {
+        this.logger.error(`❌ [anonymizeUser] User not found: ${userId}`);
+        return { ok: false, msg: 'Usuario no encontrado' };
+      }
+
+      this.logger.log(`🗑️ [anonymizeUser] Found user: ${currentUser.pNick}, proceeding...`);
+
+      // Call the PostgreSQL function
+      await this.db.execute(sql`SELECT anonymize_player_by_id(${userId})`);
+
+      this.logger.log(`✅ [anonymizeUser] User ${userId} anonymized successfully`);
+      return { ok: true, msg: 'Account deleted successfully' };
+    } catch (error) {
+      this.logger.error('❌ [anonymizeUser] Error anonymizing user:', error);
+      return { ok: false, msg: 'Error al eliminar la cuenta' };
+    }
+  }
+
 } // class AuthService

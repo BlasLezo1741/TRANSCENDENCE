@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+
 
 // Tipos de datos para nuestro modal
 interface ModalOptions {
@@ -27,8 +29,30 @@ export const useModal = () => {
 
 // Componente Proveedor que envolverá la App
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [modalConfig, setModalConfig] = useState<ModalOptions>({ title: '', message: '' });
+
+    // Close on Escape key
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                if (modalConfig.type === 'confirm') {
+                    handleCancel();
+                } else {
+                    hideModal();
+                }
+            }
+            if (e.key == 'Enter') {
+                handleConfirm();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, modalConfig]);
 
     const showModal = (options: ModalOptions) => {
         setModalConfig(options);
@@ -96,7 +120,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
                                 onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                                 onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             >
-                                {modalConfig.type === 'confirm' ? 'ACEPTAR' : 'ENTENDIDO'}
+                                {modalConfig.type === 'confirm' ? t('modal.accept_btn').toUpperCase() : 'ENTENDIDO'}
                             </button>
 
                             {/* BOTÓN CANCELAR (Solo si es tipo confirm) */}
@@ -109,7 +133,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
                                         fontWeight: 'bold', fontSize: '14px'
                                     }}
                                 >
-                                    CANCELAR
+                                    {t('modal.cancel_btn').toUpperCase()}
                                 </button>
                             )}
                         </div>

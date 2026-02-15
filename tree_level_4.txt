@@ -1,17 +1,48 @@
 .
 ├── auth-service.logs
+├── AVATAR_SYNC_TECHNICAL_DOCUMENTATION.md
 ├── AVATAR_SYSTEM_DOCUMENTATION.md
 ├── data
 │   └── prometheus
+│       ├── 01KHDCH9ZDANZ07N5N8TC68D3F
+│       │   ├── chunks
+│       │   ├── index
+│       │   ├── meta.json
+│       │   └── tombstones
+│       ├── 01KHDCHA2SYVKQK9FWS2S7KG9D
+│       │   ├── chunks
+│       │   ├── index
+│       │   ├── meta.json
+│       │   └── tombstones
+│       ├── 01KHDCHA9DKS1RK18453E2VD9B
+│       │   ├── chunks
+│       │   ├── index
+│       │   ├── meta.json
+│       │   └── tombstones
+│       ├── 01KHDPYYM0450ZRMFWJB1PNKE7
+│       │   ├── chunks
+│       │   ├── index
+│       │   ├── meta.json
+│       │   └── tombstones
 │       ├── chunks_head
-│       │   └── 000001
+│       │   ├── 000001
+│       │   ├── 000002
+│       │   ├── 000003
+│       │   └── 000004
 │       ├── lock
 │       ├── queries.active
 │       └── wal
-│           ├── 00000000
-│           ├── 00000001
-│           └── 00000002
+│           ├── 00000016
+│           ├── 00000017
+│           ├── 00000018
+│           ├── 00000019
+│           ├── 00000020
+│           ├── 00000021
+│           ├── 00000022
+│           ├── 00000023
+│           └── checkpoint.00000015
 ├── docs
+│   ├── 2FA_LOGIN_FLOW_ACTUAL_IMPLEMENTATION.md
 │   ├── Branches_estrategy.md
 │   ├── commit_manual.md
 │   ├── en.subject_v19.pdf
@@ -24,14 +55,21 @@
 │   ├── MOOC_9.2.GDPR-1.pdf
 │   ├── privacy_policy.txt
 │   ├── reparto tareas.xlsx
-│   └── terms_of_service.txt
+│   ├── screenshots
+│   │   ├── user_reg_01.png
+│   │   ├── user_reg_02.png
+│   │   ├── user_reg_03.png
+│   │   ├── user_reg_04.png
+│   │   └── user_reg_05.png
+│   ├── terms_of_service.txt
+│   ├── TWO_FACTOR_AUTHENTICATION_DOCUMENTATION.md
+│   └── user_authentication.md
 ├── Makefile
 ├── README.md
 ├── srcs
 │   ├── adminer
 │   │   └── docker-compose-adminer.yml
 │   ├── auth-frontend
-│   │   └── node_modules
 │   ├── auth-service
 │   │   ├── dist
 │   │   │   ├── app.module.d.ts
@@ -640,6 +678,7 @@
 │   │   │   ├── game.gateway.ts
 │   │   │   ├── gateway.module.ts
 │   │   │   ├── main.ts
+│   │   │   ├── metrics
 │   │   │   ├── relations.ts
 │   │   │   ├── schema_OLD.ts
 │   │   │   └── schema.ts
@@ -666,6 +705,141 @@
 │   │   ├── ft_transcendence.code-workspace
 │   │   ├── index.html
 │   │   ├── node_modules
+│   │   │   ├── acorn
+│   │   │   ├── acorn-jsx
+│   │   │   ├── ajv
+│   │   │   ├── ansi-styles
+│   │   │   ├── argparse
+│   │   │   ├── @babel
+│   │   │   ├── balanced-match
+│   │   │   ├── baseline-browser-mapping
+│   │   │   ├── brace-expansion
+│   │   │   ├── browserslist
+│   │   │   ├── callsites
+│   │   │   ├── caniuse-lite
+│   │   │   ├── chalk
+│   │   │   ├── color-convert
+│   │   │   ├── color-name
+│   │   │   ├── concat-map
+│   │   │   ├── convert-source-map
+│   │   │   ├── cross-spawn
+│   │   │   ├── csstype
+│   │   │   ├── debug
+│   │   │   ├── deep-is
+│   │   │   ├── electron-to-chromium
+│   │   │   ├── engine.io-client
+│   │   │   ├── engine.io-parser
+│   │   │   ├── @esbuild
+│   │   │   ├── esbuild
+│   │   │   ├── escalade
+│   │   │   ├── escape-string-regexp
+│   │   │   ├── @eslint
+│   │   │   ├── eslint
+│   │   │   ├── @eslint-community
+│   │   │   ├── eslint-plugin-react-hooks
+│   │   │   ├── eslint-plugin-react-refresh
+│   │   │   ├── eslint-scope
+│   │   │   ├── eslint-visitor-keys
+│   │   │   ├── espree
+│   │   │   ├── esquery
+│   │   │   ├── esrecurse
+│   │   │   ├── estraverse
+│   │   │   ├── esutils
+│   │   │   ├── fast-deep-equal
+│   │   │   ├── fast-json-stable-stringify
+│   │   │   ├── fast-levenshtein
+│   │   │   ├── fdir
+│   │   │   ├── file-entry-cache
+│   │   │   ├── find-up
+│   │   │   ├── flat-cache
+│   │   │   ├── flatted
+│   │   │   ├── gensync
+│   │   │   ├── globals
+│   │   │   ├── glob-parent
+│   │   │   ├── has-flag
+│   │   │   ├── hermes-estree
+│   │   │   ├── hermes-parser
+│   │   │   ├── html-parse-stringify
+│   │   │   ├── @humanfs
+│   │   │   ├── @humanwhocodes
+│   │   │   ├── i18next
+│   │   │   ├── i18next-browser-languagedetector
+│   │   │   ├── ignore
+│   │   │   ├── import-fresh
+│   │   │   ├── imurmurhash
+│   │   │   ├── isexe
+│   │   │   ├── is-extglob
+│   │   │   ├── is-glob
+│   │   │   ├── @jridgewell
+│   │   │   ├── jsesc
+│   │   │   ├── json5
+│   │   │   ├── json-buffer
+│   │   │   ├── json-schema-traverse
+│   │   │   ├── json-stable-stringify-without-jsonify
+│   │   │   ├── js-tokens
+│   │   │   ├── js-yaml
+│   │   │   ├── keyv
+│   │   │   ├── levn
+│   │   │   ├── locate-path
+│   │   │   ├── lodash.merge
+│   │   │   ├── lru-cache
+│   │   │   ├── minimatch
+│   │   │   ├── ms
+│   │   │   ├── nanoid
+│   │   │   ├── natural-compare
+│   │   │   ├── node-releases
+│   │   │   ├── optionator
+│   │   │   ├── parent-module
+│   │   │   ├── path-exists
+│   │   │   ├── path-key
+│   │   │   ├── picocolors
+│   │   │   ├── picomatch
+│   │   │   ├── p-limit
+│   │   │   ├── p-locate
+│   │   │   ├── postcss
+│   │   │   ├── prelude-ls
+│   │   │   ├── punycode
+│   │   │   ├── qrcode.react
+│   │   │   ├── react
+│   │   │   ├── react-dom
+│   │   │   ├── react-i18next
+│   │   │   ├── react-refresh
+│   │   │   ├── resolve-from
+│   │   │   ├── @rolldown
+│   │   │   ├── @rollup
+│   │   │   ├── rollup
+│   │   │   ├── scheduler
+│   │   │   ├── semver
+│   │   │   ├── shebang-command
+│   │   │   ├── shebang-regex
+│   │   │   ├── @socket.io
+│   │   │   ├── socket.io-client
+│   │   │   ├── socket.io-parser
+│   │   │   ├── source-map-js
+│   │   │   ├── strip-json-comments
+│   │   │   ├── supports-color
+│   │   │   ├── tinyglobby
+│   │   │   ├── ts-api-utils
+│   │   │   ├── type-check
+│   │   │   ├── @types
+│   │   │   ├── typescript
+│   │   │   ├── @typescript-eslint
+│   │   │   ├── typescript-eslint
+│   │   │   ├── undici-types
+│   │   │   ├── update-browserslist-db
+│   │   │   ├── uri-js
+│   │   │   ├── use-sync-external-store
+│   │   │   ├── vite
+│   │   │   ├── @vitejs
+│   │   │   ├── void-elements
+│   │   │   ├── which
+│   │   │   ├── word-wrap
+│   │   │   ├── ws
+│   │   │   ├── xmlhttprequest-ssl
+│   │   │   ├── yallist
+│   │   │   ├── yocto-queue
+│   │   │   ├── zod
+│   │   │   └── zod-validation-error
 │   │   ├── package.json
 │   │   ├── package-lock.json
 │   │   ├── public
@@ -700,20 +874,22 @@
 │   ├── grafana
 │   │   ├── docker-compose-grafana.yml
 │   │   └── provisioning
+│   │       ├── alerting
 │   │       ├── dashboards
 │   │       └── datasources
 │   ├── prometheus
 │   │   ├── docker-compose-prometheus.yml
 │   │   └── prometheus.yml
-│   └── totp
-│       ├── app.py
-│       ├── docker-compose-totp.yml
-│       ├── Dockerfile
-│       ├── generate_encrypt_key.py
-│       ├── README.md
-│       ├── requirements.txt
-│       └── totp.py
+│   ├── totp
+│   │   ├── app.py
+│   │   ├── docker-compose-totp.yml
+│   │   ├── Dockerfile
+│   │   ├── generate_encrypt_key.py
+│   │   ├── README_totp.md
+│   │   ├── requirements.txt
+│   │   └── totp.py
+│   └── tree_L5.txt
 ├── test_listeners.sh
 └── tree_level_4.txt
 
-599 directories, 117 files
+745 directories, 147 files
