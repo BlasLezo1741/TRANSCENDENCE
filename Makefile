@@ -67,9 +67,9 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-
 # Now, $$BE_PORT is visible everywhere.
 
 update-env:
-	@FE_PORT=$$(grep FE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2); \
-	BE_PORT=$$(grep BE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2); \
-	echo "✅ Ports extracted: FE: $$FE_PORT, BE: $$BE_PORT"; \
+	@FE_PORT=$$(grep "^FE_CONTAINER_PORT=" $(ENV_FILE) | cut -d '=' -f2 | tr -d '\r'); \
+	BE_PORT=$$(grep "^BE_CONTAINER_PORT=" $(ENV_FILE) | cut -d '=' -f2 | tr -d '\r'); \
+	echo "✅ Ports extracted: FE: >$$FE_PORT<, BE: >$$BE_PORT<"; \
 	if [ -n "$(CODESPACE_NAME)" ]; then \
 		echo "🌍 Modo: Codespaces detected"; \
 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-$$BE_PORT.app.github.dev|" srcs/.env; \
@@ -89,7 +89,7 @@ update-env:
 
 
 #sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env;
-	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)"	
+	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)";
 
 # Create postgres data directory if does not exists
 $(DB_DATA_DIR):
