@@ -30,7 +30,7 @@ export class Player
         const center = this.y + this.height / 2;
         const diff = ballPosition - center;
 
-        // Zona muerta de 10px para evitar que la IA vibre si la bola está en el centro
+        // 10px dead zone to prevent the AI from vibrating if the ball is in the center
         if (Math.abs(diff) < 10) return;
 
         if (Math.abs(diff) > this.speedIA)
@@ -67,9 +67,9 @@ export class Player
     }
 
     // --- GETTERS & SETTERS ---
-    // ---  Envia posición absoluta al server (0.0 a 1.0) ---
+    // ---  Sends absolute position to server (0.0 to 1.0)
     getNormalizedY(): number {
-        // Posición visual (Top) + Mitad de altura = Centro
+        // Visual position (Top) + Half height = Center
         const centerY = this.y + (this.height / 2);
         
         // Normalizamos (0.0 a 1.0)

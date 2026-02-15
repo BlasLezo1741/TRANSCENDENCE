@@ -73,22 +73,22 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer()
   server: Server;
 
-  //Mapa para gestionar colas por modo de juego (ej: '1v1_remote' -> [Socket])
+  //Map to manage queues by game mode (e.g.: '1v1_remote' -> [Socket])
   private queues: Map<string, Socket[]> = new Map();
 
-  // ALMACÉN DE PARTIDAS ACTIVAS
+  // ACTIVE GAMES STORAGE
   private games: Map<string, GameState> = new Map();
 
-  // NUEVO: MAPA DE USUARIOS CONECTADOS (UserId -> SocketId)
-  // Esto nos permite saber qué socket pertenece a qué usuario para enviarle notificaciones
+  // NEW: CONNECTED USERS MAP (UserId -> SocketId)
+  // This allows us to know which socket belongs to which user to send them notifications
   private userSockets = new Map<number, string>();
 
-  // Constantes de física del servidor (Ajustables)
-  private readonly SERVER_WIDTH = 1.0; // Normalizado
-  private readonly SERVER_HEIGHT = 1.0; // Normalizado
-  private readonly PADDLE_HEIGHT = 0.2; // 20% de la pantalla (ajusta a tu gusto)
-  private readonly INITIAL_SPEED = 0.01; // Velocidad inicial por frame
-  private readonly SPEED_INCREMENT = 1.02; // 5% más rápido cada golpe
+  // Server physics constants (Adjustable)
+  private readonly SERVER_WIDTH = 1.0; // Normalized
+  private readonly SERVER_HEIGHT = 1.0; // Normalized
+  private readonly PADDLE_HEIGHT = 0.2; // 20% of the screen (adjust to your liking)
+  private readonly INITIAL_SPEED = 0.01; // Initial speed per frame
+  private readonly SPEED_INCREMENT = 1.02; // 5% faster each hit
   private readonly MAX_SCORE = 5;
 
   constructor(
@@ -109,51 +109,48 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   handleConnection(client: Socket) {
     //console.log(`✅ Cliente conectado: ${client.id}`);
-    // NUEVO: LÓGICA DE IDENTIFICACIÓN DE USUARIO
-    // El frontend nos envía ?userId=123 en la conexión
+    // NEW: USER IDENTIFICATION LOGIC
+    // The frontend sends us ?userId=123 in the connection 
     const userId = client.handshake.query.userId;
 
     if (userId) {
         const idNum = parseInt(userId as string, 10);
         
-        // 1. Guardamos en el mapa
+        // 1. We save it in the map
         this.userSockets.set(idNum, client.id);
         
-        // 2. Unimos al usuario a una sala con su propio nombre (útil para multitarjeta)
+        // 2. We join the user to a room with their own name (Useful for multi-tab)
         client.join(`user_${idNum}`);
         
-        // 3. Guardamos el ID en el objeto data del socket para usarlo luego
+        // 3. We save the ID in the socket's data object to use it later
         client.data.userId = idNum;
 
-        console.log(`✅ Cliente conectado: ${client.id} | Usuario ID: ${idNum}`);
-        // NUEVO: AVISAR A TODOS QUE ESTE USUARIO ESTÁ ONLINE
-        // (El frontend filtrará si le importa o no este usuario)
+        // NEW: NOTIFY EVERYONE THAT THIS USER IS ONLINE
+        // (The frontend will filter whether this user matters to them or not) 
         this.server.emit('user_status', { userId: idNum, status: 'online' });
 
     } else {
-        console.log(`⚠️ Cliente conectado sin UserID: ${client.id}`);
+
     }
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`❌ Cliente desconectado: ${client.id}`);
 
-    // --- CORRECCIÓN DEL BUG DE "VISIBILIDAD UNILATERAL" ---
+    // --- FIX FOR "UNILATERAL VISIBILITY" BUG ---
     if (client.data.userId) {
         const userId = client.data.userId;
         
-        // 1. Verificamos si el usuario tiene un socket registrado
+        // 1. We verify if the user has a registered socket
         const currentSocketId = this.userSockets.get(userId);
 
-        // 2. IMPORTANTE: Solo borramos y notificamos si el socket que se va
-        // es EL MISMO que tenemos registrado como activo.
-        // Esto evita que una pestaña vieja cerrándose desconecte a la nueva.
+        // 2. IMPORTANT: We only delete and notify if the socket that's leaving
+        // is THE SAME one we have registered as active. 
+        // This prevents an old tab closing from disconnecting the new one.
         if (currentSocketId === client.id) {
             this.userSockets.delete(userId);
-            console.log(`👋 Usuario ${userId} eliminado del registro online.`);
             this.server.emit('user_status', { userId: userId, status: 'offline' });
         } else {
-            console.log(`ℹ️ Usuario ${userId} se desconectó (socket viejo), pero sigue conectado en otro socket.`);
+ 
         }
     }
 
@@ -161,14 +158,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const index = queue.findIndex(s => s.id === client.id);
       if (index !== -1) {
         queue.splice(index, 1);
-        console.log(`🗑️ Jugador ${client.id} eliminado de la cola de espera de ${mode}`);
       }
     });
 
-    // Limpiar partida activa
+    // Clean up active game 
     for (const [roomId, game] of this.games.entries()) {
         if (game.playerLeftId === client.id || game.playerRightId === client.id) {
-             console.log(`⚠️ Jugador desconectado en partida ${roomId}. Terminando...`);
              this.stopGameLoop(roomId); 
              this.server.to(roomId).emit('opponent_disconnected');
         }
@@ -194,96 +189,77 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @MessageBody() payload: JoinQueueDto 
   ) {
     const { mode, nickname } = payload;
-    console.log(`🔍 [STEP 1] Inicio join_queue. Nick: ${nickname}, Mode: ${mode}`);
+    // English: Starting join_queue
 
-    // --- PROTECCIÓN CONTRA CRASH (client.data) ---
+    //  --- CRASH PROTECTION (client.data) ---
     if (!client.data) {
-        console.log("⚠️ [DEBUG] client.data era undefined. Inicializando...");
         client.data = {};
     }
     
-    // Simulación de usuario
+    // User simulation
     if (!client.data.user) {
-        console.log(`👤 [STEP 2] Asignando usuario temporal: ${nickname}`);
         client.data.user = { pNick: nickname || 'Anon' };
     }
 
-    // 1. Obtener la cola
-    console.log(`📂 [STEP 3] Buscando cola para modo: ${mode}`);
+    // 1. Get the queue
     let queue = this.queues.get(mode);
     
     if (!queue) {
-      console.log(`✨ [STEP 3.1] Cola nueva creada.`);
       queue = [];
       this.queues.set(mode, queue);
     }
     
-    console.log(`📊 [STEP 4] Estado de la cola actual: ${queue.length} jugadores esperando.`);
-
-    // --- ESCENARIO 1: Hay alguien esperando (MATCH ENCONTRADO) ---
-    if (queue.length > 0) {
-      console.log(`🤝 [STEP 5] Intentando emparejar...`);
-      
+    // SCENARIO 1: Someone is waiting (MATCH FOUND) ---
+    if (queue.length > 0) {    
       const opponent = queue.shift(); 
 
-      // Validación estricta
+      // Strict validation
       if (!opponent) {
-          console.error("❌ [ERROR] opponent era undefined tras shift().");
           return;
       }
 
-      console.log(`🆚 [STEP 6] Oponente encontrado: ${opponent.id}`);
-
-      // Evitar jugar contra uno mismo
+    // Avoid playing against yourself
       if (opponent.id === client.id) {
-        console.log("⚠️ [WARN] El jugador intentó jugar contra sí mismo. Devolviendo a cola.");
         queue.push(client);
         return;
       }
 
-      console.log(`⚔️ MATCH ENCONTRADO: ${client.id} vs ${opponent.id}`);
-
       try {
         
-        // Validar modo
-        console.log(`💽 [STEP 7] Consultando DB para modo: ${mode}`);
+      // Validate mode
         const modeResult = await this.db.query.matchMode.findFirst({
           where: eq(schema.matchMode.mmodName, mode)
         });
 
         if (!modeResult) {
-          console.error(`❌ Error: El modo '${mode}' no existe en DB.`);
           queue.unshift(opponent);
           return;
         }
 
-        // Obtener IDs de DB (necesarios para el Guardado Final)
-        console.log(`📝 [STEP 8] Guardando datos para DB...`);
+      // Get DB IDs (necessary for Final Save)
         const p1Db = await this.findPlayerByNick(client.data.user.pNick);
         const p2Db = await this.findPlayerByNick(opponent.data.user.pNick);
 
         if (!p1Db || !p2Db) {
-            console.error("❌ No se encontraron los usuarios en DB");
             return;
         }
-        // Generar Room ID temporal (NO insertamos en DB todavía)
+      // Generate temporary Room ID (we do NOT insert in DB yet)
         const roomId = `room_${uuidv4()}`; 
         
-        // MatchId temporal (0) porque aún no existe en DB
+      // Temporary MatchId (0) because it doesn't exist in DB yet
         const tempMatchId = 0;
 
-        // Unir a sala
-        console.log(`🚪 [STEP 9] Uniendo sockets a sala ${roomId}`);
+      // Join room
         await client.join(roomId);    
         await opponent.join(roomId);   
 
-        // --- INICIAR EL BUCLE DE SERVIDOR ---
+      // --- START SERVER LOOP ---
         this.startGameLoop(
             roomId, 
-            opponent.id,  // El que esperaba va a la IZQUIERDA (Player 1)
-            client.id,    // El que llega va a la DERECHA (Player 2)
-            p2Db.pPk,     // Asegúrate que este DB ID corresponda al opponent (ajusta si es necesario)
-            p1Db.pPk      // Asegúrate que este DB ID corresponda al client
+            opponent.id,  // The one who was waiting goes to the LEFT (Player 1)
+            client.id,    // The one who arrives goes to the RIGHT (Player 2)
+            p2Db.pPk,     // Make sure this DB ID corresponds to the opponent (adjust if necessary)
+            p1Db.pPk      // Make sure this DB ID corresponds to the client
         );
         const responseP1: MatchFoundResponse = {
           roomId,
@@ -336,7 +312,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       ball: { x: 0.5, y: 0.5, vx: 0, vy: 0, speed: this.INITIAL_SPEED },
       paddles: { left: 0.5, right: 0.5 },
       score: [0, 0],
-      // INICIALIZACIÓN DE ESTADÍSTICAS
+      // STATISTICS INITIALIZATION
       stats: {
           totalHits: 0,
           maxRally: 0,
@@ -347,23 +323,23 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.resetBall(state);
     this.games.set(roomId, state);
 
-    // CALCULAMOS LA HORA DE INICIO REAL (Ahora + 3500ms)
-    // 3000ms de cuenta atrás + 500ms del cartel "GO!"
+    // WE CALCULATE THE REAL START TIME (Now + 3500ms)
+    // 3000ms countdown + 500ms of "GO!" sign
     const physicsStartTime = Date.now() + 3500;
 
-  // Bucle a 60 FPS (aprox 16ms)
+    // Loop at 60 FPS (approx 16ms)
     const interval = setInterval(() => {
-      // Protección Zombie: Si la sala se borró, parar.
+      // Zombie Protection: If the room was deleted, stop.
       if (!this.games.has(roomId)) {
           clearInterval(interval);
           return;
       }
 
-      // BLOQUEO TEMPORAL
-      // Si aún no ha pasado el tiempo de espera, NO calculamos física.
+      // TEMPORARY BLOCK
+      // If the waiting time hasn't passed yet, we do NOT calculate physics.
       if (Date.now() < physicsStartTime) {
-          // Opcional: Podríamos emitir posiciones estáticas para asegurar
-          // que el cliente tenga la bola centrada, pero el cliente ya lo hace.
+          // Optional: We could emit static positions to ensure
+          // that the client has the ball centered, but the client already does this.
           return; 
       }
 
@@ -380,51 +356,51 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   private updateGamePhysics(state: GameState) {
-    // 1. Guardar posición ANTERIOR (Clave para evitar efecto túnel)
+    // 1. Save PREVIOUS position (Key to avoid tunnel effect)
     const prevX = state.ball.x;
     const prevY = state.ball.y;
 
-    // 2. Mover la bola
+    // 2. Move the ball
     state.ball.x += state.ball.vx;
     state.ball.y += state.ball.vy;
 
-    // 3. Rebotes en paredes superior/inferior
+    // 3. Bounces on top/bottom walls
     if (state.ball.y <= 0 || state.ball.y >= 1) {
         state.ball.vy *= -1;
-        // Corrección de posición para que no se quede pegada
+        // Position correction so it doesn't get stuck
         state.ball.y = state.ball.y <= 0 ? 0.001 : 0.999;
     }
 
     const paddleHalf = this.PADDLE_HEIGHT / 2;
-    // Definimos dónde está la "cara" de la pala (zona de impacto)
-    const PADDLE_MARGIN = 0.035; // El mismo valor que usabas en tus pruebas
+    // We define where the "face" of the paddle is (impact zone)
+    const PADDLE_MARGIN = 0.035; // The same value you were using in your tests
 
-    // --- COLISIÓN PALA IZQUIERDA (P1) ---
-    // Detectamos si la bola CRUZÓ la línea de la pala (estaba a la derecha y ahora está a la izquierda)
+    // --- LEFT PADDLE COLLISION (P1) ---
+    // We detect if the ball CROSSED the paddle line (it was on the right and now it's on the left)
     if (prevX >= PADDLE_MARGIN && state.ball.x <= PADDLE_MARGIN) {
         
-        // Calcular en qué punto exacto de Y cruzó la línea X = PADDLE_MARGIN
-        // Fórmula de interpolación lineal
+        // Calculate at what exact Y point it crossed the line X = PADDLE_MARGIN
+        // Linear interpolation formula
         const t = (PADDLE_MARGIN - prevX) / (state.ball.x - prevX);
         const intersectY = prevY + t * (state.ball.y - prevY);
 
-        // Comprobar si ese punto Y está dentro de la pala (con un pequeño margen de error '0.01' para bordes)
+        // Check if that Y point is inside the paddle (with a small error margin '0.01' for edges)
         if (intersectY >= state.paddles.left - paddleHalf - 0.01 && 
             intersectY <= state.paddles.left + paddleHalf + 0.01) {
             
-            // ¡COLISIÓN CONFIRMADA!
-            state.ball.x = PADDLE_MARGIN + 0.01; // Sacar la bola
-            state.ball.vx = Math.abs(state.ball.vx); // Forzar dirección derecha
+            // COLLISION CONFIRMED!
+            state.ball.x = PADDLE_MARGIN + 0.01; // Take the ball out
+            state.ball.vx = Math.abs(state.ball.vx); // FForce right direction
             
-            // Lógica de juego
+            // Game logic
             state.stats.totalHits++;
             state.ball.speed *= this.SPEED_INCREMENT;
             this.adjustAngle(state, state.paddles.left);
         }
     }
 
-    // --- COLISIÓN PALA DERECHA (P2) ---
-    // Detectamos si la bola CRUZÓ la línea (estaba a la izquierda y ahora está a la derecha)
+    // ---  RIGHT PADDLE COLLISION (P2) ---
+    // We detect if the ball CROSSED the line (it was on the left and now it's on the right)
     const RIGHT_PADDLE_X = 1 - PADDLE_MARGIN;
     
     if (prevX <= RIGHT_PADDLE_X && state.ball.x >= RIGHT_PADDLE_X) {
@@ -435,8 +411,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         if (intersectY >= state.paddles.right - paddleHalf - 0.01 && 
             intersectY <= state.paddles.right + paddleHalf + 0.01) {
             
-            state.ball.x = RIGHT_PADDLE_X - 0.01; // Sacar la bola
-            state.ball.vx = -Math.abs(state.ball.vx); // Forzar dirección izquierda
+            state.ball.x = RIGHT_PADDLE_X - 0.01; // Take the ball out
+            state.ball.vx = -Math.abs(state.ball.vx); // Force left direction
             
             state.stats.totalHits++;
             state.ball.speed *= this.SPEED_INCREMENT;
@@ -444,17 +420,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         }
     }
 
-  // DETECCIÓN DE GOLES
+  // GOAL DETECTION
     if (state.ball.x < -0.05) {
-        state.score[1]++; // Punto P2
+        state.score[1]++; // Point P2
         this.handleGoal(state);
     } else if (state.ball.x > 1.05) {
-        state.score[0]++; // Punto P1
+        state.score[0]++;  // Point P1
         this.handleGoal(state);
     }
   }
 
-  // Refactorización para no repetir código en goles
+// Refactoring to not repeat code in goals
   private handleGoal(state: GameState) {
       this.server.to(state.roomId).emit('score_updated', { score: state.score });
       this.resetBall(state);
@@ -463,31 +439,28 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   private checkWinner(state: GameState) {
       if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
-          this.server.to(state.roomId).emit('score_updated', { score: state.score });
-        // // 1. Obtener el NICKNAME real del ganador usando los IDs guardados
-        //   const winnerNick = state.score[0] >= this.MAX_SCORE 
-        //       ? (state.playerLeftId === state.playerLeftId ? "User_Left" : "Unknown") // Simplificación temporal, mejor usar DB
-        //       : (state.playerRightId === state.playerRightId ? "User_Right" : "Unknown");
+        this.server.to(state.roomId).emit('score_updated', { score: state.score });
+        // 1. Get the REAL NICKNAME of the winner using the saved IDs
 
-          // TRUCO: Como no tenemos los nicks a mano en 'state' fácil (solo en DB), 
-          // vamos a enviar "Left" o "Right" y que el Frontend ponga el nombre.
-          const winnerSide = state.score[0] >= this.MAX_SCORE ? "left" : "right";
-          //Inscripcion en la base de datos antes de parar el loop
-          //this.saveMatchToDb(state, winnerSide);
-          this.saveMatchToDb(state);
+
+        // TRICK: Since we don't have the nicks handy in 'state' easily (only in DB),
+        // we're going to send "Left" or "Right" and let the Frontend put the name.
+        const winnerSide = state.score[0] >= this.MAX_SCORE ? "left" : "right";
+        //Registration in the database before stopping the loop
+        this.saveMatchToDb(state);
           
-          // Llamamos a finish game logic
-          this.stopGameLoop(state.roomId);
+        // We call finish game logic
+        this.stopGameLoop(state.roomId);
  
 
-          // 3. Enviamos quién ganó (left o right)
-          // TRUCO DEL DELAY: Esperamos 500ms antes de mandar el Game Over
-            // Esto permite que el Frontend reciba el score, React renderice el 5, 
-            // el usuario lo vea, y LUEGO salte el final.
-            setTimeout(() => {
+        // 3. We send who won (left or right)
+        // DELAY TRICK: We wait 500ms before sending Game Over
+        // This allows the Frontend to receive the score, React renders the 5,
+        // the user sees it, and THEN the ending jumps.
+        setTimeout(() => {
                 this.server.to(state.roomId).emit('game_over', { winner: winnerSide });
                 console.log("🏁 Evento game_over enviado.");
-            }, 500); // 500 milisegundos (medio segundo)
+            }, 500); // 500 milliseconds (half a second)
       }
   }
 
@@ -522,18 +495,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   ) {
     const game = this.games.get(payload.roomId);
     
-    // 1. Si la partida no existe, no hacemos nada.
+    // 1. If the game doesn't exist, we do nothing.
     if (!game) return;
 
-    // 2. Validación defensiva: Si 'y' no viene, salimos.
-    // (Aunque el DTO ayuda, esto evita errores lógicos si el frontend falla)
+    // 2. Defensive validation: If 'y' doesn't come, we exit.
+    // (Although the DTO helps, this avoids logical errors if the frontend fails)
     if (payload.y === undefined || payload.y === null) return;
 
-    // 3. Sanitización (Clamp): Convertir a número y forzar rango 0.0 - 1.0
+    // 3. Sanitization (Clamp): Convert to number and force range 0.0 - 1.0
     let newY = Number(payload.y); 
     newY = Math.max(0, Math.min(1, newY)); 
 
-    // 4. Asignación directa según quién sea el cliente
+    // 4. Direct assignment according to who the client is
     if (client.id === game.playerLeftId) {
         game.paddles.left = newY;
     } else if (client.id === game.playerRightId) {
@@ -574,34 +547,31 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
   //MÉTODO INSCRIPCION EN LA BASE DE DATOS EXTRAÍDO CORRECTAMENTE
   //private async saveMatchToDb(state: GameState, winnerSide: string) {
   private async saveMatchToDb(state: GameState) {
-    console.log(`💾 Guardando partida en DB (Estructura Relacional)...`);
-
     const durationMs = Date.now() - state.stats.startTime.getTime();
     
-    // 1. Determinar ID del ganador
+    // 1. Determine winner ID
     let winnerPk: number; 
     if (state.score[0] > state.score[1]) {
         winnerPk = state.playerLeftDbId;
     } else if (state.score[1] > state.score[0]) {
         winnerPk = state.playerRightDbId;
     } else {
-        // CASO 2: Empate (Raro, posible si hubo desconexión simultánea)
-        // Decisión: Si es 0-0 no guardamos. Si hay puntos, fallback al Left.
+        // CASE 2: Tie (Rare, possible if there was simultaneous disconnection)
+        // Decision: If it's 0-0 we don't save. If there are points, fallback to Left.
         if (state.score[0] === 0 && state.score[1] === 0) {
-            console.log("⚠️ Partida terminada 0-0, no se guarda en historial.");
             return;
         }
-        winnerPk = state.playerLeftDbId; // Fallback empate
+        winnerPk = state.playerLeftDbId; // Tie Fallback
     }
 
-    // 2. Determinar el Modo de Juego (ID)
-    // Según tu 01_data.sql: 1='1v1_local', 2='1v1_remote', 3='1v1_ia'
-    // Como este Gateway es el websocket remoto, asumiremos que es REMOTE (ID 2)
-    // Si tienes lógica de torneo, ajusta esto.
+    // 2. Determine the Game Mode (ID)
+    // According to your 01_data.sql: 1='1v1_local', 2='1v1_remote', 3='1v1_ia'
+    // Since this Gateway is the remote websocket, we will assume it's REMOTE (ID 2)
+    // If you have tournament logic, adjust this.
     const MODE_REMOTE_ID = 2; 
 
     try {
-        // 3. Llamada a la función SQL 'insert_full_match_result'
+        // . Call to SQL function 'insert_full_match_result'
         await this.db.execute(sql`
             SELECT insert_full_match_result(
                 ${MODE_REMOTE_ID}::smallint,        -- p_mode_id
@@ -615,10 +585,8 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
                 ${state.stats.totalHits}::float     -- p_total_hits
             )
         `);
-        
-        console.log("✅ Partida guardada correctamente en MATCH, COMPETITOR y METRICS.");
     } catch (error) {
-        console.error("❌ Error guardando partida en DB:", error);
+      console.error("❌ Error saving game in DB", error);
     }
   }
 
@@ -644,66 +612,67 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
       });
   }
 
-  // --- INVITACIONES DE JUEGO (PONG) ---
+// --- GAME INVITATIONS (PONG) ---
 
-  // 1. Enviar Invitación
+// 1. Send Invitation
   @SubscribeMessage('send_game_invite')
   handleSendInvite(client: Socket, payload: { targetId: number }) {
-      const senderId = client.data.userId; // O como obtengas el ID del remitente
+      const senderId = client.data.userId; // Or however you get the sender's ID
       const targetId = Number(payload.targetId);
 
-      console.log(`📨 [GATEWAY] Usuario ${senderId} invita a jugar a ${targetId}`);
 
-      // A. Buscamos si el objetivo está conectado
+    // A. We look if the target is connected
       const targetSocketId = this.userSockets.get(targetId);
 
       if (!targetSocketId) {
-          // Si no está, avisamos al remitente
-          client.emit('invite_error', { msg: "El usuario no está conectado." });
+        // If they're not, we notify the sender
+        client.emit('invite_error', { msg: "The user is not connected." });
           return;
       }
 
-      // B. Comprobar si ya están en juego (Opcional, pero recomendado)
-      // ... FALTA (Lógica para ver si targetId ya está jugando) ...
+    // B. Check if they are already in game (Optional, but recommended)
+    // ... MISSING (Logic to see if targetId is already playing) ...
 
-      // C. Enviamos la invitación al objetivo
-      // Incluimos el senderId y senderName (si lo tienes en client.data o lo buscas)
+    // C. We send the invitation to the target
+    // We include the senderId and senderName (if you have it in client.data or you look it up)
       this.server.to(targetSocketId).emit('incoming_game_invite', {
           fromUserId: senderId,
-          fromUserName: client.data.user?.pNick || "Un amigo", // Asegúrate de tener el nick
-          mode: 'classic' // O 'custom', si implementas modos
+          fromUserName: client.data.user?.pNick || "Un amigo", // Make sure you have the nick // or "A friend"
+          mode: 'classic' // Or 'custom', if you implement modes
       });
   }
 
-  // 2. Aceptar Invitación
+// 2. Accept Invitation
   @SubscribeMessage('accept_game_invite')
   async handleAcceptInvite(client: Socket, payload: { challengerId: number }) {
-      // 1. Obtener IDs
+    // 1. Get IDs
       const acceptorDbId = client.data.userId; 
       const challengerDbId = Number(payload.challengerId);
 
       console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
 
-      // 2. Variables (Ahora guardamos el OBJETO entero, no solo el nombre)
-      // Inicializamos en null para evitar errores de "variable no definida"
+      // 2. Variables for names (Default values)
+      // Initializes to null: avoids error "undefined varaible"
       let p1Data: any = null;
       let p2Data: any = null;
       
       let challengerName = "Jugador 1";
       let acceptorName = "Jugador 2";
 
-      // 🔥 3. CONSULTA A BASE DE DATOS
+      // 🔥 3. DATABASE QUERY (THE REAL SOLUTION)
+      // We use await to ensure we have the names before continuing
       try {
-          // Buscamos al Desafiante (P1)
-          // NOTA: Si this.findPlayerById devuelve el objeto completo de la DB (incluyendo pAvatarUrl), esto funciona.
-          // Si no, deberías cambiarlo por: await this.db.query.player.findFirst({ where: eq(schema.player.pPk, challengerDbId) });
+          // We look for the Challenger (P1)
+          // NOTE: If `this.findPlayerById` returns the entire object from the database (including `pAvatarUrl`), this works.
+          // Otherwise, you should change it to: `await this.db.query.player.findFirst({ where: eq(schema.player.pPk, challengerDbId) });`
           p1Data = await this.findPlayerById(challengerDbId);
           
           if (p1Data && p1Data.pNick) {
               challengerName = p1Data.pNick;
           }
+          
 
-          // Buscamos al Aceptador (P2)
+          // We look for the Acceptor (P2)
           p2Data = await this.findPlayerById(acceptorDbId);
           
           if (p2Data && p2Data.pNick) {
@@ -713,25 +682,23 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
           console.error("❌ Error recuperando nombres/avatares de la DB:", error);
       }
 
-      console.log(`🔎 [MATCH] Nombres confirmados: ${challengerName} vs ${acceptorName}`);
-
-      // 4. Validar socket del rival
+    // 4. Validate rival's socket
       const challengerSocketId = this.userSockets.get(challengerDbId);
       if (!challengerSocketId) {
-          client.emit('invite_error', { msg: "El desafiante se ha desconectado." });
+        client.emit('invite_error', { msg: "The challenger has disconnected." });
           return;
       }
       const challengerSocket = this.server.sockets.sockets.get(challengerSocketId);
 
-      // 5. Crear Sala
+    // 5. Create Room
       const roomId = `private_${challengerDbId}_${acceptorDbId}_${Date.now()}`;
       
       if (challengerSocket) challengerSocket.join(roomId);
       client.join(roomId);
 
-      // 6. Notificar al Frontend (Con Nombres y Avatares)
+      //6. Notify the Frontend (With the Names from the DB adn avatars)
       
-      // A) Para el Desafiante (P1 - Izquierda) -> Su rival es P2 (Aceptador)
+      // //A) For the Challenger (P1 - Left) -> Su rival es P2 (Aceptador)
       this.server.to(challengerSocketId).emit('match_found', {
           roomId: roomId,
           side: 'left',
@@ -744,7 +711,7 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
           matchId: 0 
       });
 
-      // B) Para el Aceptador (P2 - Derecha) -> Su rival es P1 (Desafiante)
+      // B) For the Acceptor (P2 - Right) -> Su rival es P1 (Desafiante)
       this.server.to(client.id).emit('match_found', {
           roomId: roomId,
           side: 'right',
@@ -757,7 +724,7 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
           matchId: 0
       });
 
-      // 7. Iniciar Juego
+    // 7. Start Game
       this.startGameLoop(
           roomId,
           challengerSocketId,

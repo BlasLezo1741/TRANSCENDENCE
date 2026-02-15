@@ -2,7 +2,7 @@ import { Player } from "./Player";
 
 export class Ball
 {
-    // --- PROPIEDADES (Fusión de A y B) ---
+    // --- PROPERTIES (A & B Fusion) ---
     x: number;
     y: number;
     radious: number;
@@ -18,7 +18,7 @@ export class Ball
     vx: number;
     vy: number;
     
-    // Estado
+    // State
     firstHit: boolean;
     waiting: boolean;
     maxAngle: number;
@@ -32,15 +32,15 @@ export class Ball
         this.canvasWidth = c.width;
         this.canvasHeight = c.height;
         
-        // Configuración inicial
+        // Initial configuration 
         this.spawnX = c.width / 2;
         this.spawnY = c.height / 2;
         this.x = this.spawnX;
         this.y = this.spawnY;
 
-        this.radious = c.width * 0.008; // Tu ajuste visual relativo
+        this.radious = c.width * 0.008; //  Your relative visual adjustment 
 
-        // Valores de física (Restaurados de tu versión A)
+        // Physics values (Restored from your version A)
         this.vx = 0;
         this.vy = 0;
         this.score = [0, 0];
@@ -49,13 +49,13 @@ export class Ball
         this.speed = this.initialSpeed;
         this.baseSpeed = 10;
         this.maxSpeed = 20;
-        this.increaseSpeed = 0.4; // Aceleración por golpe
+        this.increaseSpeed = 0.4; // cceleration per hit
 
         this.waiting = false;
         this.firstHit = true;
-        this.maxAngle = Math.PI / 4; // 45 grados
+        this.maxAngle = Math.PI / 4; // 45 degrees
 
-        // Solo iniciamos dirección si no estamos esperando sync del server
+    // We only initialize direction if we're not waiting for server sync
         this.setLocalDirection(); 
     }
 
@@ -81,12 +81,12 @@ export class Ball
     // --- MÉTODOS DE FÍSICA LOCAL (Modo Local / IA) ---
     
     /**
-     * Este update SOLO se llama si el modo es 'local'.
-     * Contiene la lógica Anti-Túnel (Raycasting) adaptada a Pixeles.
+     * This update is ONLY called if the mode is 'local'.
+     * It contains Anti-Tunnel logic (Raycasting) adapted to Pixels.
      */
     update(players: Player[] | Player, p2?: Player) {
         if (this.waiting) return;
-        //Adicion codigo par integrar ia y local
+        //Added code to integrate AI and local modes
         let player1: Player;
         let player2: Player;
 
@@ -98,71 +98,70 @@ export class Ball
             player2 = p2!;
         }
 
-        // 1. Guardar posición previa (CRUCIAL para evitar túnel)
+        // 1. Save previous position (CRUCIAL to avoid tunneling)
         const prevX = this.x;
         const prevY = this.y;
 
-        // 2. Mover bola temporalmente
+        // 2. Move ball temporarily 
         this.x += this.vx;
         this.y += this.vy;
 
-        // 3. Chequear colisión con paredes (Arriba/Abajo)
+        // 3. Check collision with walls (Top/Bottom)
         this.wallCollision();
 
-        // 4. Chequear colisión con Palas usando TRAYECTORIA (No solo posición)
-        //this.checkPaddleCollision(p1, p2, prevX, prevY);
+        // 4. Check collision with Paddles using TRAJECTORY (Not just position)
         this.checkPaddleCollision(player1, player2, prevX, prevY);
         // 5. Goles
         this.goal();
     }
 
     private checkPaddleCollision(p1: Player, p2: Player, prevX: number, prevY: number) {
-        // Determinamos qué pala comprobar según en qué lado del campo esté la bola
+        // We determine which paddle to check based on which side of the field the ball is on
         let player = (this.x < this.canvasWidth / 2) ? p1 : p2;
         
-        // Coordenadas de la PALA
+        // PADDLE coordinates
         const pTop = player.getY();
         const pBottom = player.getY() + player.getHeight();
         const pLeft = player.getX();
         const pRight = player.getX() + player.getWidth();
 
-        // Coordenadas de la BOLA (Caja cuadrada alrededor del radio)
+        // BALL coordinates (Square box around the radius)
         const bTop = this.y - this.radious;
         const bBottom = this.y + this.radious;
         const bLeft = this.x - this.radious;
         const bRight = this.x + this.radious;
 
-        // ¿HAY COLISIÓN? (Se superponen las cajas)
+        // IS THERE COLLISION? (The boxes overlap)
         if (bRight > pLeft && bLeft < pRight && bBottom > pTop && bTop < pBottom) {
             
-            // --- CORRECCIÓN DE POSICIÓN Y REBOTE ---
+        // --- POSITION CORRECTION AND BOUNCE ---
             
-            // Caso: Pala Izquierda (P1)
+        // Case: Left Paddle (P1)
             if (player === p1) {
-                // Empujamos la bola a la derecha para que no se quede enganchada
+            // We push the ball to the right so it doesn't get stuck
                 this.x = pRight + this.radious + 1;
-                this.handlePaddleHit(player, this.y, 1); // 1 = rebote a la derecha
+                this.handlePaddleHit(player, this.y, 1); // 1 = bounce to the right
             }
-            // Caso: Pala Derecha (P2)
+        // Case: Right Paddle (P2) 
             else {
-                // Empujamos la bola a la izquierda
+                // We push the ball to the left
                 this.x = pLeft - this.radious - 1;
-                this.handlePaddleHit(player, this.y, -1); // -1 = rebote a la izquierda
+                this.handlePaddleHit(player, this.y, -1); // -1 = bounce to the left 
             }
         }
     }
 
     private handlePaddleHit(player: Player, hitY: number, direction: number) {
-        // Lógica original de cambio de ángulo basada en dónde golpeó
+        // Original angle change logic based on where it hit
         const paddleCenterY = player.getY() + player.getHeight() / 2;
         
-        // Normalizamos el impacto (-1 arriba, 0 centro, 1 abajo)
+        // We normalize the impact (-1 top, 0 center, 1 bottom)
         const normalizedIntersect = (hitY - paddleCenterY) / (player.getHeight() / 2);
         
-        // Limitamos ángulo
+        // We limit the angle 
         const angle = normalizedIntersect * this.maxAngle;
 
-        // Aumentar velocidad
+        //  Increase speed 
         if (this.firstHit) {
             this.speed = this.baseSpeed;
             this.firstHit = false;
@@ -170,7 +169,7 @@ export class Ball
             this.speed = Math.min(this.speed + this.increaseSpeed, this.maxSpeed);
         }
 
-        // Calcular nueva velocidad
+        // Calculate new velocity
         this.vx = direction * this.speed * Math.cos(angle);
         this.vy = this.speed * Math.sin(angle);
     }
@@ -213,7 +212,7 @@ export class Ball
         this.resetLocal();
     }
     
-    // Reseteo para juego local
+    // Reset for local game
     public async resetLocal(): Promise<void> {
         this.waiting = true;
         this.firstHit = true;
@@ -221,7 +220,7 @@ export class Ball
         this.y = this.spawnY;
         this.speed = this.initialSpeed;
         
-        // Pausa breve antes de sacar
+        // Brief pause before serving
         await new Promise(r => setTimeout(r, 1000));
         
         this.setLocalDirection();

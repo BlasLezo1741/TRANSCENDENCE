@@ -58,34 +58,34 @@ export class Pong
     {
         if (this.pause) return;
 
-        // 1. MODO IA (Jugar contra Bot)
+        // 1. AI MODE (Play against Bot)
         if (this.mode === 'ia') {
-            this.handleLocalInput(this.player1, 'w', 's'); // Humano (Izq)
-            this.handleLocalInput(this.player1, 'ArrowUp', 'ArrowDown'); // Alternativa
+            this.handleLocalInput(this.player1, 'w', 's'); // Human (Left)
+            this.handleLocalInput(this.player1, 'ArrowUp', 'ArrowDown'); // Alternative
             
-            // IA del Bot (Derecha) - Asumiendo que Player tiene método moveIA
+            // Bot AI (Right) - Assuming Player has moveIA method
             // Si no lo tiene, avísame para dártelo.
             this.player2.moveIA(this.ball.y); 
 
-            // Física Local
+            // Local Physics
             this.ball.update([this.player1, this.player2]); 
             this.checkLocalWin();
         }
         
-        // 2. MODO LOCAL (1 PC, 2 Humanos)
+        // 2. LOCAL MODE (1 PC, 2 Humans) 
         else if (this.mode === 'local') {
             this.handleLocalInput(this.player1, 'w', 's'); // P1: WASD
-            this.handleLocalInput(this.player2, 'ArrowUp', 'ArrowDown'); // P2: Flechas
+            this.handleLocalInput(this.player2, 'ArrowUp', 'ArrowDown'); // P2: Arrows
             
-            // Física Local
+            // Local Physics
             this.ball.update([this.player1, this.player2]);
             this.checkLocalWin();
         }
 
-        // 3. MODO REMOTO / TORNEO (Online)
+        // 3. REMOTE MODE / TOURNAMENT (Online
         else {
-            // Solo gestionamos NUESTRO input para predicción del cliente.
-            // La física de la bola y del rival viene del servidor (Canvas.tsx).
+            // We only manage OUR input for client prediction.
+            // The ball physics and rival come from the server (Canvas.tsx).
             const myPlayer = this.playerNumber === 1 ? this.player1 : this.player2;
             this.handleLocalInput(myPlayer); 
         }
@@ -94,18 +94,18 @@ export class Pong
     // --- UTILS ---
 
     private handleLocalInput(p: Player, upKey: string = 'ArrowUp', downKey: string = 'ArrowDown') {
-        // En modo online (sin args), aceptamos ambas teclas para el jugador activo
+        // In online mode (without args), we accept both keys for the active player
         const wKey = 'w';
         const sKey = 's';
         const uKey = 'ArrowUp';
         const dKey = 'ArrowDown';
 
-        // Si se especifican teclas (modo local 1v1), somos estrictos
+        // If keys are specified (local 1v1 mode), we are strict
         if (arguments.length > 1) {
              if (this.keysPressed[upKey]) p.moveUp();
              if (this.keysPressed[downKey]) p.moveDown();
         } 
-        // Si no (modo online o IA P1), aceptamos todo
+        // If not (online mode or IA P1), we accept everything
         else {
              if (this.keysPressed[uKey] || this.keysPressed[wKey]) p.moveUp();
              if (this.keysPressed[dKey] || this.keysPressed[sKey]) p.moveDown();
@@ -155,12 +155,12 @@ export class Pong
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "top";
         
-        // Puntuación P1
+        // P1 Score
         this.ctx.fillText(this.score[0].toString(), this.c.width * 0.25, 20);
-        // Puntuación P2
+        // P2 Score
         this.ctx.fillText(this.score[1].toString(), this.c.width * 0.75, 20);
         
-        // // Nombres (Opcional)
+        // Names (Optional) 
         // this.ctx.font = "20px Arial";
         // this.ctx.fillText(this.player1.getName(), this.c.width * 0.25, 70);
         // this.ctx.fillText(this.player2.getName(), this.c.width * 0.75, 70);

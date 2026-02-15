@@ -1,0 +1,314 @@
+d666781 Merge branch 'feb_11_doc' adds 2fa documentation
+2d30598 merge codespace with campus
+86b9570 feat(2fa): Documentation and log clean
+2fff280 Added: Scroll bar in Profile Screen
+372450b feat(2fa):documentation
+06f80a5 Merged feb_11 & prometheus_2
+fe33eb3 Fixed: Problem with new users after make re
+930f0e8 Added: Display of translated files from the footer
+fead2f1 FEAT(alerts): configuradas las alertas con discord
+f2dda09 Translation of ChatSidebar + translation utils (capitalize and sentence)
+2cb5231 nada
+52631cc Added: Avatar synchronized and uploaded at header
+f2168fe Modified: Translations of ProfileScreen
+665d186 Merged fusion and feb_02 into feb_11
+066ace2 chore: Document User Authentication
+78b3f64 Merge branch 'feb_07' of https://github.com/BlasLezo1741/TRANSCENDENCE into feb_07
+a08cddb chore:Document User registration
+4b7333f feat(dbserver): feix sql typpos
+2d3818e feat(dbserver) amends sql typpos
+4522cb0 FEAT(prometheus-db): conectada la base de datos
+d0f8488 Merge branch 'feb_07' of https://github.com/BlasLezo1741/TRANSCENDENCE into feb_07
+5682731 feat(dbserver): define function for player Anonimation
+886e4b4 Merge branch 'feb_02' into feb_07
+04e366f Fusing css with feb02
+29b599a Made css of login and signin screens
+f0f7d8a Added: avatar selection from slider. Changed: json translation strategy
+b28f70d feat(2fa):documentation
+2b30dfc Added avatar library. New feature: avatar piture based on user id. Refined picture from Google
+8ba0624 Merge Xavi's changes with Luis codespace stup
+9a79525 Merge branch xavi's 'feb_02' with Luis'
+b7f27fb chore:sets up codespace enviroment with a terminal per container
+fcdef3e Started, not finished: transaltions of the profile screen
+26f77cc Modifies DinD deployment
+4654cf8 chore: add common-utils feature for Docker-in-Docker setup
+4f39a66 Added: header updated when user changes nick
+c61d408 Added: modification of profile. No avatar yet
+af42b0a feat(grafana): Embbeds stats iframe, but requests login. WIP
+1d496f1 Made the menu image and the languages responsives
+664e904 Merge branch 'fusion_footer' into css
+1414c34 Added max-width
+1a2e870 Merge remote-tracking branch 'origin/fusion_footer' into feb_07
+ebdc92e Made the footer with standard info
+1d56694 chore: rm unused auth-frontend & auth-service
+33eea1f chore:ignore promethus files.
+13ab241 Merge branch 'feb_02' into feb_07
+8601852 Fix recover country and language from 42
+83bad79 feat(2fa): burns backup codes when are correct
+5c176ba feat(2fa): defines backup codes translations
+ddb749a FEAT(prometheus): configurado y funcionando con grafana
+99ad7c0 Merge xavi changes with Luis Changes
+cae8053 feat(2fa): totp validates Google Authenticator totp token
+744d91a Fix recovery of 42 picture; added: console logs of profile json of 42 and Google + translation of log in button
+8f2e88a feat(2fa): get token totp WIP
+92625d2 feat(2fa): adds translation
+d9278a3 Merge branch 'feb_02' of https://github.com/BlasLezo1741/TRANSCENDENCE into feb_02
+0a20525 fix(auth): resolve OAuth login requiring double-click
+069acaf Merge local with codespace changes
+fca3b5b secure: restrict select fields to retrieve
+de416e1 Changed the name of thenet to thenet_v2 to build the project
+aaf4ae1 feat(2fa): fix missing translatiosn
+001554e chore: enrich .ignore with rules form .ignore in frontend
+4054578 chore:removes auxiliary  containers used to test 2fa
+c94a310 FEAT(todo): Fusionado funcionando
+a5a0ac4 After merge, realtions failed
+a56c8e6 Merge done, env deleted, fingers crossed
+122a007 Oauth + 2FA
+0ff8f73 Started footer
+84b8d94 feat(2fa): WIP totp code verification with secrets
+059fc09 pre_merge(authenti_2fa): WIP after backend compilation
+964344d Fixeado
+34f1226 pong
+82be8be Put .css in the css directory
+a2370fa arreglado login en login.css
+9fc7325 Fixed conflict
+9726383 merge oath &2fa
+8b5ff46 feat(2fa): WIP totp code verification
+5caf669 feat(2fa): renders html form requesting totp code
+3a5d77a FEAT(ports-mejoras): Cambios docker's,makefile y game
+3254ebb feat(2fa): change totpenable by totpenabled
+e82d979 feat(2fa): translates messages
+d177bd0 feat(2fa): removes backend's local variable that shadowed a global one
+328fc04 CHORE: actualizacion de puertos IP para acceso externo
+a0771da feat(2fa): saves backup codes in database
+ee89e78 FEAT(SOCKETSERVER): Arreglada la conexion remota.
+c9ad49f Started login css
+be1be4f feat(2fa) shows qr in the frontend and waits for usert to scan it
+806a1fb chore: configures vscode to have more terminals
+f7e098a chore: do not build containers auth-frontend & auth-service
+6a3bd23 fix(dbserver): changes totp_enable_at bu totp_enabled_at
+bb0e7f0 feat(2FA): add back codes generator
+5de3a18 FEAT(chat-amigos): FUNCIONANDO E INSCRIBIENDO EN BD.
+5b5940d FEAT(chat-amigos):Arreglado desincronizacion online/offline. Proceso invitacion a partida
+de9b0cc WIP: 2fa integration in auth service
+312f32a css of the app, profile, header, canvas. Deleted old screens. Added images from chatgpt
+d34f9da elimino canales, falta online /offline
+6bf2074 mejoras en amigos-chat, ineterrelacion sincronizada
+25134f9 mejoras en el chat de amigos
+bbb7e20 FEAT(chat-friends): Arreglado el descuadre entre amigos y chat. Los amigos se comunican entre ellos y cargan sus respectivos amigos por igual.  Changes to be committed: 	modified:   srcs/backend/src/chat/chat.service.ts 	modified:   srcs/backend/src/friends/friends.service.ts 	modified:   srcs/frontend/src/components/ChatSidebar.tsx
+231ec2c Merge local changes 'nat_ami_2fa' with upstream changes from codespaces
+f8c5514 feat(dbserver): add oath fields to player table
+e3b057c docs: document friend_status table
+2dbdd0b docs: Document oath fields in player
+692967a Subject v20 vs v19 Basado en el análisis de los documentos proporcionados, las diferencias clave entre la versión 19.0 y la versión 20.0 del proyecto Transcendence son mínimas en cuanto a requisitos técnicos, pero incluyen una sección crítica completamente nueva.
+f4df1aa Subject version 20
+cb4a715 fix(dbserver): escapes " in health check
+55c0e54 fix(dbserver): define PGPASSWORD for healthcheck
+e2d1241 me siento perdido con esta M
+831fdc0 FEAT(chat): En proceso. Configurado el enlace entre amigos.
+9545510 OAuth Google & 42 en login & sign in
+2064b43 profile css, butons css
+8fa497e Fixed not able to login after OAuth prepared
+03fb952 mas de lo mismo
+02d24f1 FEAT(chat): En proceso conexion del socket. ya escribe en la base de datos.
+fd9a8f7 feat(2fa): WIP to solve registration compatibility wiht Xavi previous work
+055bcc4 feat(2fa):show 2fa check button in frontend
+df7c12c Chore: order VITE variables
+0f16c27 Chore: Uses port defined in .env to configure back & fron urls
+d06173a feat(2fa): add frontend translations
+3f3214c conflicts resolved
+a35a80a ajustes barra lateral
+984bf3c Added srcs/.env.example to protect srcs/.env
+862c30f Oauth sin .env
+60777d2 Oauth sin .env
+ad5689a Oauth sin .env
+927f91f OAuth: Database schema and drizzle schema updated Secrets eliminated
+fc80627 merge natalia amigos with 2fa
+202c862 Instalads dependencias Oauth
+f93d35b Merge remote-tracking branch 'origin/natalia_amigos' into nat_amic_xav_42 Update last changes from natalia_amigos
+9d7afb1 fix(2fa): QR uri compatible with Microsfot and ggogle Authenticator.
+cebdda7 FEAT(chat): en proceso d conexion
+b89c915 FEAT(Chat): metido el chat visual, falta socket de conexion  Changes to be committed: 	modified:   srcs/frontend/src/App.tsx 	new file:   srcs/frontend/src/components/ChatSidebar.tsx 	modified:   srcs/frontend/src/components/Header/Header.tsx
+8f567cb feat(2fa): shows qr in the frontend
+b6f5a0b FEAT(friends): Ya elimina amigos. Los elimina de la lista de amigos y de la base de datos.  Changes to be committed: 	modified:   srcs/backend/src/friends/friends.controller.ts 	modified:   srcs/backend/src/friends/friends.service.ts 	modified:   srcs/frontend/src/screens/ProfileScreen.tsx 	modified:   srcs/frontend/src/services/friend.service.ts
+58a4901 FEAT(friends): Finalizado. Funcionando. No detecto errores. Proximo paso pensar el chat  Changes to be committed: 	modified:   srcs/backend/src/app.module.ts 	modified:   srcs/backend/src/friends/friends.controller.ts 	modified:   srcs/backend/src/friends/friends.service.ts 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/frontend/src/App.tsx 	new file:   srcs/frontend/src/assets/Imagen_pong_CA.png 	new file:   srcs/frontend/src/assets/Imagen_pong_EN.png 	new file:   srcs/frontend/src/assets/Imagen_pong_FR.png 	modified:   srcs/frontend/src/components/Header/Header.tsx 	modified:   srcs/frontend/src/screens/ProfileScreen.tsx 	modified:   srcs/frontend/src/services/friend.service.ts
+c8d0e5f FEAT(friends): mejorando la lista de usuarios disponibles
+c15d77d Para salir
+2340007 FEAT(friends): implementado con semaforos de senyalizacion. Proximo paso poder enviar mensajes. decidir metodo.  Changes to be committed: 	modified:   srcs/backend/src/friends/friends.service.ts 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/dbserver/scripts_init/10_functions.sql 	modified:   srcs/frontend/src/screens/ProfileScreen.tsx 	modified:   srcs/frontend/src/services/friend.service.ts
+9bee8e9 feat(2fa): test qr_text api at totp
+fd630ba FEAT(friends): funcionando la comunicacion de amigos . Falta adicionar los estados de los amigos y mejorar formato  Changes to be committed: 	modified:   srcs/backend/src/app.module.ts 	modified:   srcs/backend/src/friends/friends.service.ts 	modified:   srcs/backend/src/game.gateway.ts 	new file:   srcs/backend/src/gateway.module.ts 	modified:   srcs/frontend/src/App.tsx 	modified:   srcs/frontend/src/components/Header/Header.tsx 	modified:   srcs/frontend/src/screens/ProfileScreen.tsx 	modified:   srcs/frontend/src/services/socketService.ts
+5df52c4 FEAT(friends) funcionamiento basico falta la notificacion a tiempo real y otras propiedades
+b228d1c integro nueva imagen de bienvenida al PONG
+26b7e45 feat(2fa): change module bcrypt
+7acbd67 feat(2fa): refactorize frontend form
+c69f567 feat(frontend): provides favicon
+2497181 merge con fronted resuelto
+07c9793 nada
+51835e0 Esta OFFLINE
+71fa6b9 feat(frontend) add favicon
+45635eb feat(2fa): wip
+3a8b916 feat(2fa): move schema from drizzle folder to src. Node prefers it
+049b99f Recover from Adria
+8afbc3c profile add
+3349dad Merge pull request #70 from BlasLezo1741/natalia_5
+8348f7d limpieza
+735c1fd FEAT(match): Inscripcion de las partidas en dbserver funcionando  Changes to be committed: 	modified:   srcs/backend/src/game.gateway.ts
+4740d96 Sign out implementado
+373f2e4 Merge pull request #69 from BlasLezo1741/frontend_login
+fbb0c90 Sign in incorpora tabla de países
+5cfd44d feat(2fa): solve some compilation error in auth-service
+715f460 feat(2fa): change ports
+9c3b5e6 FEAT(conexion dbserver -match): En procesa la funcion de conexion  Changes to be committed: 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/dbserver/scripts_init/01_data.sql 	modified:   srcs/dbserver/scripts_init/10_functions.sql
+a1aa33f Traducida pantalla login. Logout pendiente
+9b0b2eb Merge pull request #68 from BlasLezo1741/natalia_4
+e57af80 Hashed passwords of synthetic users solved
+4fbb9d9 FEAT(login-juego): conectado el juego con el login  Changes to be committed: 	modified:   srcs/.env 	modified:   srcs/frontend/src/App.tsx 	modified:   srcs/frontend/src/screens/LoginScreen.tsx 	modified:   srcs/frontend/src/screens/MenuScreen.tsx 	modified:   srcs/frontend/src/screens/PongScreen.tsx 	modified:   srcs/frontend/src/services/socketService.ts
+b8d67bb feat(2fa) fix stale volume
+7459a54 Merge pull request #67 from BlasLezo1741/natalia-3
+a32e9c1 Merge branch 'frontend_login' into natalia-3
+384da80 Cambios parciales en login signin
+eacbf8b feat(2fa): documentation and auth module and conteoller
+37510cf FEAT(SERVER-DBSERVER): Inicio de inscripci'on de datos ok con una unica lectura. Falta saber que mas datos sacamos.  Changes to be committed: 	modified:   srcs/backend/src/game.gateway.ts
+b266237 ajustes de tiempo y limpieza de codigo
+909c072 FEAT(Modos juego): Arreglados y funcionando; online,IA y local. Falta la conexion con la base de datos para online.  Changes to be committed: 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/ts/models/Ball.ts 	modified:   srcs/frontend/src/ts/models/Player.ts 	modified:   srcs/frontend/src/ts/models/Pong.ts
+c5d5485 Login y registro de usuario OK
+6fcf88b Solucionado problema del servidor offline
+0eb0d6a Version 1.0 de login & signin
+df6b6ce feat(2fa): documentation auth.service.ts
+431a096 FEAT(remoto): funcionando remoto. Se puede mejorar la experiencia. Los otros modos los he fastidiado a cambiar la logica de calculo al servidor  Changes to be committed: 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/frontend/src/App.tsx 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/screens/PongScreen.tsx 	modified:   srcs/frontend/src/ts/models/Pong.ts
+76413a1 feat(2fa): drizzle-kit created schema.ts
+339a384 feat(2fa): documentation and App.tsx comments
+c79b710 FEAT(remoto): NO DOY CON EL ARREGLO DE LA SINCRONIA Sigo trabajando  Changes to be committed: 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/ts/models/Ball.ts 	modified:   srcs/frontend/src/ts/models/Player.ts 	modified:   srcs/frontend/src/ts/models/Pong.ts
+351a8c7 feat(2fa): documentation and code comments
+3eabafe feat(2fa): create login form
+ce5847d FEAT(remoto): Sincronizacion conseguida, falta mejorar pala del contrincante. Se ha llevado la fisica del movimiento al backend Falta comprobar datos que se meten en la base de datos. Se ha modificado la tabla match de la base de datos Changes to be committed: 	modified:   srcs/backend/drizzle.config.ts 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/frontend/src/App.tsx 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/screens/PongScreen.tsx 	modified:   srcs/frontend/src/ts/models/Ball.ts 	modified:   srcs/frontend/src/ts/models/Player.ts 	modified:   srcs/frontend/src/ts/models/Pong.ts
+398b766 deleted style.css, made it css, addded countdown to local play and searching to online
+a093912 Added profile and settings screen
+6dc1f5d Deleted old screens
+65e6fc8 FEAT(remoto): cambiando la logica de calculo al backend. Cambio de acceso a la base de datos unicamente al finalizar el partido. Todo en proceso.  Changes to be committed: 	modified:   srcs/backend/package-lock.json 	modified:   srcs/backend/package.json 	modified:   srcs/backend/src/dto/paddle-move.dto.ts 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/backend/src/schema.ts 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/ts/models/Ball.ts 	modified:   srcs/frontend/src/ts/models/Pong.ts
+32a9bc8 Login and signin: added and first links to database
+cbbed4e feat(2fa): Create random entry point
+38c457e feat(dberver): defines nick and email as unique in table player
+5f7f25b feat(2fa): configure listen port from .env
+4f6c679 feat(2fa): rename rule form 2faserver to totp
+1c0b518 FEAT(sincronizacion remoto): he mejorado pero no esta solucionado El problema esta en las pantallas y resoluciones de cada jugador. Es un tema a estudiar.  Changes to be committed: 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/ts/models/Ball.ts 	modified:   srcs/frontend/src/ts/models/Pong.ts
+77f798f Started css, added css to header, footer, and commented previous css
+7ee1de5 chore: create enviroment variables for container's IPs
+df5d29e chore: rename 2faserver to totp
+e8ed167 fix(dbserver): generate syntetic 2fa data in player table
+52e170a fusion
+a362515 Signin and login finished except connection with backend, changed name of check.ts to auth.ts
+13c646a Merge pull request #64 from BlasLezo1741/natalia2
+d7412c5 Corregido la asignacion de campos para jugar en diferentes pantalla en el mismo lado. El jugador que invita siempre juega a la izquierda y el jugador invitado a la derecha. Falta arreglar marcadores. Changes to be committed:     modified:   srcs/frontend/src/App.tsx     modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/screens/MenuScreen.tsx 	modified:   srcs/frontend/src/screens/PongScreen.tsx 	modified:   srcs/frontend/src/ts/models/Pong.ts
+7b0ef37 DOC(2fa): redefine mermaid schema
+473d5f4 FEAT(2fa): create folder structure to test it
+a93af5c FEAT(2fa): add totp fields in user table
+13bb569 basura eliminada
+5d789f9 error en canvas corregido
+d53c8c0 FEAT(Ball):sincronia de las bolas en remoto
+52deb20 cambios para jugar desde 2 ordenadores
+4cd464e FEAT(2fa): initial setup
+fb65b06 FEAT(DTO's): Enlazadas las partidas remotas y con la base de datos. Todos los eventos implementados y funcionando. Faltan los torneos.  Changes to be committed: 	modified:   srcs/backend/src/dto/game-update.response.ts 	modified:   srcs/backend/src/dto/join-queue.dto.ts 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/frontend/src/App.tsx 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/screens/MenuScreen.tsx 	modified:   srcs/frontend/src/screens/PongScreen.tsx 	modified:   srcs/frontend/src/services/socketService.ts 	modified:   srcs/frontend/src/ts/models/Ball.ts 	modified:   srcs/frontend/src/ts/models/Pong.ts 	modified:   srcs/frontend/src/ts/types.ts
+ed4e140 FEAT(DTO'S): Mejorando lo anterior. Frontend: Detecta la victoria y envía el nombre dinámico (user_1). Socket: Recibe el evento y busca en la base de datos. Drizzle/Postgres: Traduce el nombre a un ID (1) y guarda la partida. Pendiente mejorar el "truco": en App.tsx esta puesto const currentUser = "user_1". Hay que conextarlo con el login real.  Changes to be committed: 	modified:   srcs/frontend/src/App.tsx 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/screens/PongScreen.tsx 	modified:   srcs/frontend/src/ts/models/Pong.ts
+f632f25 FEAT(DTO's): Configurado el DTO finish-game Changes to be committed: 	modified:   srcs/backend/src/dto/finish-game.dto.ts 	modified:   srcs/backend/src/dto/match-found.response.ts 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/backend/src/relations.ts 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/services/socketService.ts 	modified:   srcs/frontend/src/ts/models/Pong.ts
+6883695 FEAT(DTO'S): Se ha configurado paddle_move, parece. Changes to be committed: 	modified:   srcs/backend/src/dto/paddle-move.dto.ts 	modified:   srcs/backend/src/game.gateway.ts 	modified:   srcs/frontend/src/components/Canvas.tsx 	modified:   srcs/frontend/src/services/socketService.ts 	modified:   srcs/frontend/src/ts/models/Pong.ts
+8b02bd6 FEAT(DTO'S): adaptado joinqueue a la nueva estructura de la base de datos
+8b30cf6 Merge frontend in main
+5041288 Moved old screens, Added sign screen accesibility
+4c0055d fix errors
+6912ca8 Added the screen sign but is alone
+20f0f11 Changing pages, added and finished login page without backend
+17542d0 fix(dbserver): add MATCH_MODE table & foreign key in MATCH table
+e85ba6c Deleted utils.ts and direction.ts from frontend
+61db411 FEAT(main): Nueva base
+adeabbc Merge branch '53_game_nata' of https://github.com/BlasLezo1741/TRANSCENDENCE into 53_game_nata Introduccion de banderas
+3a644ba FEAT(natalia): Hemos integrado el ORM DRIZZLE, funcionando la comunicacion
+e233d43 fix(frontend): define VITE_BACK_END according to execution enviroment
+730249e 53_game_nata: Banderas en Language Swticher
+3e3bf77 Added flags to language switcher
+4defc8e FEAT(natalia): conexion entre el fronted y el backend, base de datos, probada para join_queue
+35bcd26 FEAT(54): Integrado el boton de check y el primer comunicador joinQueue en proceso
+0646f2b Modified: makefile, version of Node and webgame
+677e8c6 make fclean: removed residual Alpine image
+376076a Errors in makefile solved. Volumes successfuly deleted
+ca43e54 chore: test-db when pushed to 53_game_nata
+fc53271 fix(frontend): update VITE_BACKEND_URL  in Makefile
+a6ee2a9 Merge branch '53_game' into 53_game_nata
+8f3cfcf chore: merge game & 53_docker
+94440a6 fix(grafana) listen in 4000 avoid colision backend
+6139670 chore: merge natalia & 53_docker
+e1aea05 feat(grafana): show 3 tables count
+72a6009 FEAT: implemntados los DTO's, funcionando el web socket y validado un evento, en proceso
+8047cd2 feat(grafana): work provisioning but nos autenticates wiht db transcendence
+5fbf117 chore(cd/ci): remove mysql legacy call
+105d184 fix(grafana): spell correctly datasource
+83534a3 feat(grafana): test provisioning technique
+0384a9c chore(cd/ci):force dbserver data_dir creation in test rule
+8d2973b feat(db): define data directory wiht .env DB_POSTGRES_VERSION
+76cd96b feat(db): split init script
+7fa9b21 chore:add grafana and adminer rules
+81437ad chore(cd/ci): add this branch to test before push
+f9503ed feat(grafana): add container to learn about
+75b7933 chore:separate adminer from postgres docker-compose
+3d4fc98 Added game selection page
+3bd8bd1 Added collisions into paddles, set a maxscore, fixed wallcollision, added names into players
+ea1ecc1 feat(db) define competitor metrics and friens systecid data
+028c120 fix(chore): test workflow
+4b60224 feat(db) uses JSONB for i18n translations
+5ec82a6 Started ball collision with player
+f819c7a fixed pause
+8ffcf40 Added pause in local games and score
+42b33f9 Added delay into the ball after scoring
+67f0697 chore: Translate en,es,fr,pt i18n of metrics and metric categories
+18117a8 Added header and footer, recreated pong, added ia, added game modes, added options screen
+6f603b0 FEAT(#56):Instalado las librerias de comunicacion de DTO, paso 1
+0e43a15 FEAT: Integrado el juego y funcionando
+14bdc04 FEAT: trabajando en el erge de game
+0a4aea9 FEAT: merge en proceso con game
+5825006 FEAT: Merge completado con game , en prueba
+e6e68d0 chore: translate metric cateogry
+e2f804e Doc: Diagram ER add category to metric
+8c3aa2a Chore: dbserver test
+ee45b1c Guardas cambios y .env
+7e0cb09 ball random
+237d207 fix(dbserver) player syntetic atrributes randonized
+350b73c DOC: explain  metrics
+98b242d feat(dbserver): change tables names and structure
+e7ab416 doc(howto): dry-check sql syntax
+c5fdbe6 chore: remove db if exists
+8152719 feat(dbserver): add volumes with country and languaga tables
+45eef15 feat(dbserver): add country and language data
+84d65d4 DOC:Sources of contry and language data
+588f722 pelota
+e7202fb feat(postgres) adminer conects to backend
+5f58416 Solve persistance format compatibility
+5eefa84 Added pong game, only the players with movement, into React
+1a27856 FEAT:creo .env.example para que se tenga de refferencia de lo que que se neesita en el fichero .env a crear
+d8e488a FEAT:Adiciono .env en fronted para introducir el puerto 3000 en el que trabaja codespace
+6df12ae chore: add volume to dbserver #3
+101b4ee chore: ADD README to services
+ccbee10 Chore: Commit text rules
+30884c7 Merge pull request #52 from BlasLezo1741/46-define-messages-protocols
+33ea0c9 FEAT(WebSocket): Implementa conectividad entre fronted y backend.
+7748ee6 chore: modify .gitignore allow env files art development stage
+8418b16 docs(db): add competitor metric relationship #3
+57845ca docs(PM): Define commit-message rules
+edb82e0 docs: Create one empty README by container
+c6f3c03 Merge pull request #49 from BlasLezo1741/48-create-makefile-and-main-docker-compose
+87569b6 Merge branch 'main' into 48-create-makefile-and-main-docker-compose
+d508f7c PM:Makefile and docelr-compoese more strucutured
+736334c inicio el websocket: cambio Docker-compose,cambio fronted-backend/package.json. Inicio cambios de comunicacion : creo backend/src/game.gateway.ts y frontend/src/services/socketService.ts, modifico backend/src/app.module.ts y frontend/src/App.tsx. Falta revisarar problemas que me indica vs
+60dcbfe SETUP: give more granularity to docker compose
+c3f4519 Clarify temporary branch naming conventions
+1989973 added: codespace
+c2a4e5f Image of Blas
+210eaeb DOC: mandatory text 's drafts
+3ca30cc Setup: initial repo template for kick-off
+d0066fe first dockers
+3e43e05 again
+8283330 second try
+2f85f39 test of commit
+adc81fe Initial commit
+83ddf28 feat(DB): Scheme
+5c9db10 SETUP: Readme Draft & subject v19
+2e85772 Update README with project details and features

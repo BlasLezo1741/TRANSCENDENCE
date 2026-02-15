@@ -39,27 +39,57 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
 #Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces CAMBIO A http://localhost:3000
+
+# update-env:
+# 	@ \
+# 	FE_PORT=$$(grep FE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2); \
+# 	BE_PORT=$$(grep BE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2); \
+# 	echo "Ports extracted: $$FE_PORT and $$BE_PORT";
+# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
+# 		echo "🌍 Modo: Codespaces detected"; \
+# 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+# 	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
+# 		echo "🪟 Modo: WSL (Windows) detectado"; \
+# 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
+# 		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
+# 		echo "✅ IP Local (Windows) configurada: $$WIN_IP"; \
+# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
+# 	else \
+# 		echo "🐧 Modo: Linux Nativo / Mac detectado"; \
+# 		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
+# 		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
+# 		echo "✅ IP Local (Linux) configurada: $$LINUX_IP"; \
+# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://localhost:3000|" srcs/.env; \
+# 	fi
+# Unified Block: Notice there is no @ before the if. 
+# By removing the @ there and ensuring the previous line ends with ; \, 
+# the entire script runs in one shell execution. 
+# Now, $$BE_PORT is visible everywhere.
+
 update-env:
-	@echo "Leyendo puertos desde $(ENV_FILE)..."
-	$(eval FE_PORT=$(shell grep FE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2))
-	$(eval BE_PORT=$(shell grep BE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2))
-	@if [ -n "$(CODESPACE_NAME)" ]; then \
+	@FE_PORT=$$(grep "^FE_CONTAINER_PORT=" $(ENV_FILE) | cut -d '=' -f2 | tr -d '\r'); \
+	BE_PORT=$$(grep "^BE_CONTAINER_PORT=" $(ENV_FILE) | cut -d '=' -f2 | tr -d '\r'); \
+	echo "✅ Ports extracted: FE: >$$FE_PORT<, BE: >$$BE_PORT<"; \
+	if [ -n "$(CODESPACE_NAME)" ]; then \
 		echo "🌍 Modo: Codespaces detected"; \
-		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-$$BE_PORT.app.github.dev|" srcs/.env; \
 	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
 		echo "🪟 Modo: WSL (Windows) detectado"; \
 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
-		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
-		echo "✅ IP Local (Windows) configurada: $$WIN_IP"; \
-		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
+		[ -z "$$WIN_IP" ] && WIN_IP="localhost"; \
+		echo "✅ IP Local (Windows): $$WIN_IP"; \
+		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:$$BE_PORT|" srcs/.env; \
 	else \
 		echo "🐧 Modo: Linux Nativo / Mac detectado"; \
-		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
-		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
-		echo "✅ IP Local (Linux) configurada: $$LINUX_IP"; \
-		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env; \
+		LINUX_IP=$$(hostname -I | awk '{print $$1}' || echo "localhost"); \
+		[ -z "$$LINUX_IP" ] && LINUX_IP="localhost"; \
+		echo "✅ IP Local (Linux): $$LINUX_IP"; \
+		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:$$BE_PORT|" srcs/.env; \
 	fi
-	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)"	
+
+
+#sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env;
+	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)";
 
 # Create postgres data directory if does not exists
 $(DB_DATA_DIR):
@@ -167,7 +197,7 @@ test-db: srcs/.env $(DB_DATA_DIR)
 
 # Ejecutar docker compose up
 up:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d
+	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d --build
 
 build:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d --build

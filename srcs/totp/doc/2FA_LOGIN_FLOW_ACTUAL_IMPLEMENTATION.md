@@ -35,21 +35,14 @@ const handleForm = async (e: React.FormEvent) => {
         try 
         {
             if (showTotpInput) {
-                // Aquí deberías llamar a una función que verifique el código TOTP
-                // Por ejemplo: const result = await verifyTOTP(userId, totpCode);
-                
-                // Por ahora, simulamos la verificación
-                // TODO: Implementar verifyTOTP
-                const result = await send2FACode(userId, totpCode);
-
-                
+                const result = await send2FACode(userId, totpCode);               
                 if (!result.ok) {
                     setError("Código 2FA incorrecto");
                     setTotpCode("");
                     return;
                 } else {    
                 
-                // Si la verificación es exitosa:
+                // If verification is successful
                 localStorage.setItem("pong_user_nick", user);
                 localStorage.setItem("pong_user_id", userId!.toString());
                 localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
@@ -64,17 +57,17 @@ const handleForm = async (e: React.FormEvent) => {
                     setPassword("");
                 } else {
                     if (result.user.totp) {
-                        // 2FA enabled, mostrar input de TOTP
+                        // 2FA enabled, show TOTP input
                         setShowTotpInput(true);
                         setUserId(result.user.id);
-                        setPassword(""); // Limpiar contraseña por seguridad
+                        setPassword(""); // Clear password for security
                     } else {
-                        // 1. Guardamos en LocalStorage para que persista al refrescar
+                        // 1. We save in LocalStorage so it persists on refresh
                         localStorage.setItem("pong_user_nick", result.user.name);
                         localStorage.setItem("pong_user_id", result.user.id.toString());
                         localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
 
-                        // 2. Actualizamos el estado global en App.tsx
+                        // 2. We update the global state in App.tsx
                         setGlobalUser(result.user.name);
                         
                         // 3. Wait a tiny bit to ensure localStorage is flushed, then go to menu
@@ -93,24 +86,8 @@ const handleForm = async (e: React.FormEvent) => {
 ```
 
 **Spanish Comments Translation:**
-- "Aquí deberías llamar a una función que verifique el código TOTP" = Here you should call a function that verifies the TOTP code
-- "Por ejemplo:" = For example:
-- "Por ahora, simulamos la verificación" = For now, we simulate the verification
-- "TODO: Implementar verifyTOTP" = TODO: Implement verifyTOTP
-- "Verificando TOTP:" = Verifying TOTP:
-- "para usuario:" = for user:
 - "Código 2FA incorrecto" = Incorrect 2FA code
-- "Si la verificación es exitosa:" = If verification is successful:
-- "Login con 2FA exitoso. Usuario global actualizado:" = Successful 2FA login. Global user updated:
-- "Usuario X le quedan Y códigos de respaldo" = User X has Y backup codes remaining
-- "Este usuario tiene totp:" = This user has totp:
 - "Error desconocido" = Unknown error
-- "mostrar input de TOTP" = show TOTP input
-- "Limpiar contraseña por seguridad" = Clear password for security
-- "Guardamos en LocalStorage para que persista al refrescar" = We save in LocalStorage so it persists on refresh
-- "Actualizamos el estado global en App.tsx" = We update the global state in App.tsx
-- "Login exitoso. Usuario global actualizado:" = Successful login. Global user updated:
-- "else no 2FA" = else no 2FA
 - "Error de conexión" = Connection error
 
 ---
@@ -172,7 +149,7 @@ export async function checkLogin(user: string, pass: string) {
 ```typescript
 export async function send2FACode(userId: number, totpCode: string) {
     try {
-        // Determinar el endpoint según la longitud del código
+        // Determine the endpoint based on code length
         const endpoint = totpCode.length === 6 
             ? `${API_URL}/auth/verify-totp`
             : `${API_URL}/auth/verify-backup`;
@@ -189,9 +166,6 @@ export async function send2FACode(userId: number, totpCode: string) {
     }
 }
 ```
-
-**Spanish Comment:**
-- "Determinar el endpoint según la longitud del código" = Determine the endpoint based on code length
 
 **Key Feature:** Automatic endpoint selection!
 - 6 characters → `/auth/verify-totp`
@@ -217,8 +191,8 @@ export async function send2FACode(userId: number, totpCode: string) {
             setTotpCode(filtered);
         }}
         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest"
-        maxLength={8} // Permitir hasta 8 caracteres para códigos de respaldo Alfanumericos (6 para TOTP numérico)
-        pattern="(\d{6}|[A-Z0-9]{8})" // 6 dígitos O 8 alfanuméricos
+        maxLength={8} // Allow up to 8 characters for Alphanumeric backup codes (6 for numeric TOTP)
+        pattern="(\d{6}|[A-Z0-9]{8})" // 6 digits OR 8 alphanumeric
         placeholder={(t('placeholder') || '123456 o ABCD1234')}
         title={t('qr_setup1') ?? 'Ingresa 6 dígitos numéricos o 8 caracteres alfanuméricos'}                                    
         required
@@ -229,8 +203,6 @@ export async function send2FACode(userId: number, totpCode: string) {
 
 **Spanish Comments:**
 - "Código de autenticación" = Authentication code
-- "Permitir hasta 8 caracteres para códigos de respaldo Alfanumericos (6 para TOTP numérico)" = Allow up to 8 characters for Alphanumeric backup codes (6 for numeric TOTP)
-- "6 dígitos O 8 alfanuméricos" = 6 digits OR 8 alphanumeric
 - "123456 o ABCD1234" = 123456 or ABCD1234
 - "Ingresa 6 dígitos numéricos o 8 caracteres alfanuméricos" = Enter 6 numeric digits or 8 alphanumeric characters
 
@@ -344,14 +316,14 @@ dispatch({ type: "MENU" });
 
 Upon your inaugural visit to the application, you shall be presented with the primary gateway. Here, one may choose to either Sign In to an existing account or Register a new identity.
 
-![alt text](./screenshots/user_reg_01.png)
+![alt text](../../../docs/screenshots/user_reg_01.png)
 
 
 
 ### State 2: 2FA Verification
 
 
-![alt text](./screenshots/user_reg_05.png)
+![alt text](../../../docs/screenshots/user_reg_05.png)
 
 **Note:** Single input accepts both formats!
 

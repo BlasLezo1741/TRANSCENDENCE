@@ -49,7 +49,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         canvas.width = 800;
         canvas.height = 600;
 
-        // --- 1. LÓGICA DE POSICIONAMIENTO ---
+        // --- 1. POSITIONING LOGIC  ---
         let finalPlayerNumber = 1; 
         let leftName = "P1";
         let rightName = "P2";
@@ -74,8 +74,6 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             rightName = "Invitado";
         }
 
-        console.log(`🎮 INICIANDO JUEGO [${mode}] | Soy: ${finalPlayerNumber} (${playerSide})`);
-        console.log(`⚔️ MATCH: ${leftName} (Izda) vs ${rightName} (Dcha)`);
 
         // --- 2. INSTANCIAR JUEGO ---
         const game = new Pong(
@@ -90,54 +88,54 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
         // --- 3. EVENTOS DEL SOCKET ---
 
-        // --- FÍSICA DEL SERVIDOR ---
-        // Este evento ocurre 60 veces por segundo
+        // --- SERVER PHYSICS ---
+        //  This event occurs 60 times per second 
         socket.on('game_update_physics', (data: any) => {
             if (!game) return;
 
             if (!activeRef.current) return;
 
-            // 1. SINCRONIZAR BOLA
+            // 1. SYNCHRONIZE BALL
             if (game.ball && data.ball) {
-                // Multiplicamos AQUÍ por width/height
+                // We multiply HERE by width/height
                 const pixelX = data.ball.x * canvas.width;
                 const pixelY = data.ball.y * canvas.height;
                 
-                // Pasamos píxeles ya calculados
+                // We pass already calculated pixels
                 game.ball.sync(pixelX, pixelY);
             }
             
-            //(Estrategia: Trust Local + Interpolación Rival)
+            //(Strategy: Trust Local + Rival Interpolation)
             if (data.paddles) {
                 const p1Height = game.player1.getHeight();
                 const p2Height = game.player2.getHeight();
 
-                // Posiciones objetivo según el servidor
+                //  Target positions according to the server
                 const targetY_P1 = (data.paddles.left * canvas.height) - (p1Height / 2);
                 const targetY_P2 = (data.paddles.right * canvas.height) - (p2Height / 2);
 
-                // Factor de suavizado (0.3 es equilibrado)
+                // Smoothing factor (0.3 is balanced)
                 const LERP = 0.3;
 
                 if (game.playerNumber === 1) {
-                    // --- SOY JUGADOR 1 (Izquierda) ---
+                    // --- I AM PLAYER 1 (Left)---
                     
-                    // MI PALA (P1): NO LA TOCAMOS. 
-                    // Mi teclado la mueve en el renderLoop. Si la toco aquí, vibrará.
+                    // MY PADDLE (P1): WE DON'T TOUCH IT.
+                    // My keyboard moves it in the renderLoop. If I touch it here, it will vibrate.
                     
-                    // RIVAL (P2): Lo interpolamos suavemente hacia su destino
+                    // RIVAL (P2): We smoothly interpolate it towards its destination
                     game.player2.y = game.player2.y + (targetY_P2 - game.player2.y) * LERP;
                 } 
                 else if (game.playerNumber === 2) {
-                    // --- SOY JUGADOR 2 (Derecha) ---
+                    // --- I AM PLAYER 2 (Right) ---
 
-                    // MI PALA (P2): NO LA TOCAMOS.
+                    //  MY PADDLE (P2): WE DON'T TOUCH IT.
                     
-                    // RIVAL (P1): Lo interpolamos suavemente
+                    // RIVAL (P1): We smoothly interpolate it
                     game.player1.y = game.player1.y + (targetY_P1 - game.player1.y) * LERP;
                 }
             }
-            // 3. Sincronizar MARCADOR
+            // 3. Synchronize SCOREBOARD
             if (game.score && data.score) {
                  game.score = data.score;
             }
@@ -206,38 +204,38 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
         const renderLoop = () => {
             
-            // BLOQUEO BUCLE PRINCIPAL En CUENTA ATRAS
+            // MAIN LOOP BLOCKING During COUNTDOWN 
             if (!activeRef.current) {
-                // Si estamos en cuenta atrás:
-                // DIBUJAMOS (para ver el tablero estático de fondo)
+                // If we are in countdown:
+                // WE DRAW (to see the static board in the background)
                 game.draw(); 
-                // Pero NO ACTUALIZAMOS (game.update() no se llama)
+                // But WE DON'T UPDATE (game.update() is not called)
                 
-                // Pedimos siguiente frame y SALIMOS
+                // We request next frame and EXIT
                 animationId = requestAnimationFrame(renderLoop);
                 return; 
             }
             
-            // 1.Si activeRef.current es TRUE. Mover pala localmente (Tu teclado actualiza game.player1.y aquí)
+            // 1. If activeRef.current is TRUE. Move paddle locally (Your keyboard updates game.player1.y here)
             game.update(); 
             game.draw(); 
 
-            // --- NUEVO BLOQUE: CONTROL DE VICTORIA LOCAL / IA ---
-            // Solo entra aquí si NO estamos en modo online
+            // --- NEW BLOCK: LOCAL / IA VICTORY CONTROL  ---
+            // Only enters here if we are NOT in online mode
             if (!mode.includes('remote') && mode !== 'tournament') {
                 if (game.hasWinner()) {
                     const winnerName = game.getWinner();
                     
-                    // Paramos el bucle inmediatamente
+                    // We stop the loop immediately 
                     cancelAnimationFrame(animationId);
                     
-                    // Avisamos y salimos con delay para dar tiempo a meter el ultimo tanto en el marcador
+                    // We notify and exit with delay to give time to enter the last point on the scoreboard
                     setTimeout(() => {
                         // alert(`¡Juego Terminado! Ganador: ${winnerName}`);
                         // dispatch({ type: "MENU" });
                         showModal({
-                            title: "🏆 ¡PARTIDA FINALIZADA!",
-                            message: `Ganador: ${winnerName}`,
+                            title: "🏆 ¡GAME OVER!",
+                            message: `Winner: ${winnerName}`,
                             type: "success",
                             onConfirm: () => {
                                 dispatch({ type: "MENU" });
@@ -248,24 +246,24 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                 }
             }
             
-            // 2. ENVIAR POSICIÓN AL SERVIDOR
+            // 2. SEND POSITION TO SERVER
             if (mode.includes('remote') || mode === 'tournament') {
                 const myPlayer = game.playerNumber === 1 ? game.player1 : game.player2;
                 
-                // --- CÁLCULO DE COORDENADA ABSOLUTA ---
-                // Obtenemos el centro de la pala en píxeles
+                // --- ABSOLUTE COORDINATE CALCULATION --- 
+                // We get the paddle center in pixels 
                 const myCenterPixel = myPlayer.y + (myPlayer.height / 2);
                 
-                // Lo convertimos a porcentaje (0.0 a 1.0)
+                // We convert it to percentage (0.0 to 1.0) 
                 const myNormalizedY = myCenterPixel / canvas.height;
 
-                // 3. Enviar solo si ha cambiado (para no saturar)
-                // Usamos roomIdRef.current para asegurar que tenemos la ID
+                // 3. Send only if it has changed (to not saturate)
+                // We use roomIdRef.current to ensure we have the ID
                 if (roomIdRef.current && Math.abs(myNormalizedY - lastSentY.current) > 0.001) {
                     
                     socket.emit('paddle_move', { 
                         roomId: roomIdRef.current, 
-                        y: myNormalizedY // <--- Enviamos el dato exacto, NO 'up' o 'down'
+                        y: myNormalizedY // <--- We send the exact data, NOT 'up' or 'down'
                     });
                     lastSentY.current = myNormalizedY;
                 }
