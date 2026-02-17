@@ -20,9 +20,7 @@ export class FriendsService {
 
     // 1. Enviar Solicitud (Yo -> Tú : Pendiente)
     async sendRequest(userId: number, targetId: number) {
-        if (userId === targetId) return { ok: false, msg: "No puedes agregarte a ti mismo" };
-        
-        console.log(`🔄 [SERVICE] Procesando: ${userId} -> ${targetId}`);
+        if (userId === targetId) return { ok: false, msg: "You can not aggregate yourself" };
 
         try {
             // 1. Limpieza de zombis
@@ -42,13 +40,13 @@ export class FriendsService {
             // 3. Notificar
             this.gateway.sendNotification(targetId, 'friend_request', { 
                 from: userId,
-                msg: "Tienes una nueva solicitud" 
+                msg: "You have a new friendship request" 
             });
 
-            return { ok: true, msg: "Solicitud enviada" };
+            return { ok: true, msg: "Request Sent" };
         } catch (error) {
             console.error("💥 Error SQL en sendRequest:", error);
-            return { ok: false, msg: "Error en base de datos" };
+            return { ok: false, msg: "Database error" };
         }
     }
 
@@ -70,21 +68,21 @@ export class FriendsService {
         });
         // NOTIFICACIÓN DE ACEPTACIÓN
         // Esto es lo que le dice a User 1 "¡Eh! Ya somos amigos, recarga tu lista"
-        console.log(`📤 Enviando notificación 'friend_accepted' a User ${targetId}`);
+
         
         this.gateway.sendNotification(targetId, 'friend_accepted', {
             friendId: userId,
-            msg: "Tu solicitud ha sido aceptada"
+            msg: "Your request has been accepted"
         });
 
         // 🔔 NOTIFICACIÓN 2 (NUEVA): Al que acepta (User 2 - Tú mismo)
         // Esto obliga a TU ChatSidebar a recargar la lista inmediatamente
         this.gateway.sendNotification(userId, 'friend_accepted', {
             friendId: targetId,
-            msg: "Has aceptado la solicitud"
+            msg: "You have accepted request"
         });
 
-        return { ok: true, msg: "Solicitud aceptada" };
+        return { ok: true, msg: "Request accepted" };
     }
 
     // 3. Bloquear Usuario (Yo -> Tú : Bloqueado)
@@ -94,13 +92,11 @@ export class FriendsService {
             f2: targetId,
             fStatusFk: this.STATUS_BLOCKED
         });
-        return { ok: true, msg: "Usuario bloqueado" };
+        return { ok: true, msg: "User blocked" };
     }
 
     // 4. Obtener Lista de Amigos (VERSIÓN DEFINITIVA: Igual que el Chat)
     async getFriends(userId: number) {
-        
-        console.log(`🔍 [FRIENDS] Buscando amigos para ID: ${userId} (Lógica directa)`);
 
         // Usamos STATUS_ACCEPTED que definiste arriba (valor 2)
         // Nota: Asegúrate de que this.STATUS_ACCEPTED vale 2
@@ -139,7 +135,6 @@ export class FriendsService {
             avatar: friend.friend_avatar // Pasamos el valor de la DB (URL o ID)
         }));
 
-        console.log(`✅ [FRIENDS] Encontrados ${enrichedResult.length} amigos.`);
         return enrichedResult;
     }
 
@@ -158,7 +153,6 @@ export class FriendsService {
             AND pf.f_status_fk = 1
         `);
         
-        console.log(`🔍 [DB] Buscando pendientes para User ${userId}. Encontradas: ${pending.length}`);
         return pending;
     }
 
@@ -195,23 +189,20 @@ export class FriendsService {
                OR (f_1 = ${targetId} AND f_2 = ${userId})
         `);
 
-        console.log(`🗑️ [DB] Amistad eliminada: ${userId} - ${targetId}`);
-        // Log para ver en la terminal del backend
-        console.log(`🗑️ [DB] Delete ejecutado. Notificando a User ${targetId} que User ${userId} lo borró.`);
         // NOTIFICACIÓN: Avisar al ex-amigo para que se le actualice la lista
         this.gateway.sendNotification(targetId, 'friend_removed', { 
             from: userId,
-            msg: "Un usuario te ha eliminado de amigos" 
+            msg: "A user removed his friendship with you" 
         });
 
         // 🔔 NOTIFICACIÓN 2 (NUEVA): A ti mismo (Actor)
         // Para que él desaparezca de TU chat inmediatamente sin recargar
         this.gateway.sendNotification(userId, 'friend_removed', { 
             from: targetId,
-            msg: "Has eliminado a un amigo" 
+            msg: "You have removed a friend" 
         });
 
-        return { ok: true, msg: "Amigo eliminado correctamente" };
+        return { ok: true, msg: "Friend removed correctly" };
     }
     
 }
