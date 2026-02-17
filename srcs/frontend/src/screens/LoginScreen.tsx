@@ -89,60 +89,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
         // Ensure this matches your backend port (usually 3000)
         window.location.href = `http://localhost:3000/auth/${provider}`;
     };
-/*
-    return (
-        <div className="registro">
-            <h1>{t('bienvenido')}</h1>
 
-            <form onSubmit={handleForm} className="login">
-                
-                <label htmlFor="user">{t('user')}</label>
-                <input
-                    type="text"
-                    id="user"
-                    name="user"
-                    value={user}
-                    onChange={(e) => setUser(e.target.value)}
-                    pattern="[\x21-\x7E]+"
-                    required
-                    autoFocus
-                />
-
-                
-                <label htmlFor="pass">
-                    {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
-                </label>
-                <input
-                    type="password"
-                    id="pass"
-                    name="pass"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-
-                <button type="submit" disabled={isLoading}>
-                    {isLoading ? t('enviando') : t('enviar')}
-                </button>
-
-                
-                { error && ( <span className="error-msg">{error}</span> )}
-            </form>
-
-            <div className="no-login">
-                <p>
-                    {t('cuenta?')}{" "}
-                </p>
-                <button onClick={(e) => {
-                        e.preventDefault();
-                        dispatch({ type: "SIGN" });
-                    }}>
-                    {t('crear_cuenta')}
-                </button>
-            </div>
-        </div>
-    );
-*/
      return (
         <div>
             <div>

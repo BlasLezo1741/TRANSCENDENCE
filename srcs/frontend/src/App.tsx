@@ -70,7 +70,6 @@ function App()
 
     if (token) {
       try {
-        console.log("🔐 OAuth token detected in URL, processing...");
         
         // Decode JWT payload to get user info
         const base64Url = token.split('.')[1];
@@ -150,7 +149,6 @@ function App()
           setCurrentUserAvatarUrl(profile.avatarUrl ?? null);
           // Also keep localStorage id in sync (matters after normal login)
           localStorage.setItem("pong_user_id", String(profile.id));
-          console.log("✅ [App] Profile synced — avatarUrl:", profile.avatarUrl);
         }
       } catch (err) {
         // Non-fatal: avatar just won't show until profile is visited

@@ -11,7 +11,7 @@ async function bootstrap() {
   // Puertos y URLs desde el entorno
   const port = process.env.BE_CONTAINER_PORT || 3000;
   const frontendUrl = process.env.VITE_FRONTEND_URL;
-  logger.log(`Permitiendo CORS para: ${frontendUrl}`);
+
 
 // 1. Habilitamos CORS para peticiones HTTP normales
   app.enableCors({
@@ -40,6 +40,6 @@ async function bootstrap() {
   // Esto permite que el contenedor acepte conexiones de fuera de sí mismo
   await app.listen(port, '0.0.0.0');
   
-  console.log(`🚀 Servidor corriendo en puerto: ${port}`);
+  console.log(`🚀 Server running on port: ${port}`);
 }
 bootstrap();

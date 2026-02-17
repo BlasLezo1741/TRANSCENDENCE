@@ -237,7 +237,6 @@ The sign-up screen provides OAuth authentication options alongside traditional r
 ```typescript
 // OAuth handler function
 const handleOAuth = (provider: 'google' | '42') => {
-    console.log(`Redirigiendo a OAuth con ${provider}`);
     window.location.href = `http://localhost:3000/auth/${provider}`;
 };
 
@@ -327,7 +326,6 @@ useEffect(() => {
 
     if (token) {
       try {
-        console.log("🔐 OAuth token detected in URL, processing...");
         
         // Decode JWT payload to get user info
         const base64Url = token.split('.')[1];
@@ -381,7 +379,6 @@ useEffect(() => {
           setCurrentUserId(profile.id);
           setCurrentUserAvatarUrl(profile.avatarUrl ?? null);
           localStorage.setItem("pong_user_id", String(profile.id));
-          console.log("✅ [App] Profile synced – avatarUrl:", profile.avatarUrl);
         }
       } catch (err) {
         console.warn("⚠️ [App] Could not sync profile on login:", err);
@@ -478,7 +475,6 @@ The controller defines the OAuth routes and handles the authentication flow.
 @Get('google')
 @UseGuards(AuthGuard('google'))
 async googleAuth(@Req() req) {
-    this.logger.log('🔗 [google] Redirecting to Google OAuth...');
     // Passport automatically redirects to Google login page
 }
 
@@ -486,11 +482,9 @@ async googleAuth(@Req() req) {
 @Get('google/callback')
 @UseGuards(AuthGuard('google'))
 async googleAuthRedirect(@Req() req, @Res() res: Response) {
-    this.logger.log('📡 [google/callback] Google OAuth callback received');
     
     // 1. Find or create user from OAuth profile
     const user = await this.authService.findOrCreateOAuthUser(req.user);
-    this.logger.log(`✅ [google/callback] User authenticated: ${user.pNick}`);
     
     // 2. Generate JWT token
     const { accessToken } = this.authService.generateJwtToken(user);
@@ -498,7 +492,6 @@ async googleAuthRedirect(@Req() req, @Res() res: Response) {
     // 3. Redirect to frontend with token
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 
                         'http://localhost:5173';
-    this.logger.log(`🔄 [google/callback] Redirecting to: ${frontendUrl}/?token=${accessToken}`);
     res.redirect(`${frontendUrl}/?token=${accessToken}`);
 }
 ```
@@ -510,23 +503,19 @@ async googleAuthRedirect(@Req() req, @Res() res: Response) {
 @Get('42')
 @UseGuards(AuthGuard('42'))
 async fortyTwoAuth(@Req() req) {
-    this.logger.log('🔗 [42] Redirecting to 42 School OAuth...');
 }
 
 // Handles 42 School OAuth callback
 @Get('42/callback')
 @UseGuards(AuthGuard('42'))
 async fortyTwoAuthRedirect(@Req() req, @Res() res: Response) {
-    this.logger.log('📡 [42/callback] 42 School OAuth callback received');
-    
+     
     const user = await this.authService.findOrCreateOAuthUser(req.user);
-    this.logger.log(`✅ [42/callback] User authenticated: ${user.pNick}`);
     
     const { accessToken } = this.authService.generateJwtToken(user);
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 
                         'http://localhost:5173';
     
-    this.logger.log(`🔄 [42/callback] Redirecting to: ${frontendUrl}/?token=${accessToken}`);
     res.redirect(`${frontendUrl}/?token=${accessToken}`);
 }
 ```
@@ -554,8 +543,6 @@ async findOrCreateOAuthUser(oauthProfile: any) {
     const provider = oauthProfile.provider;  // 'google' or '42'
     const oauthId = oauthProfile.id;
 
-    this.logger.log(`🔍 [findOrCreateOAuthUser] Looking for ${provider} user: ${oauthId}`);
-
     // 1. Try to find existing user
     const existingUser = await this.db
         .select()
@@ -569,12 +556,10 @@ async findOrCreateOAuthUser(oauthProfile: any) {
         .limit(1);
 
     if (existingUser.length > 0) {
-        this.logger.log(`✅ [findOrCreateOAuthUser] Existing ${provider} user found`);
         return existingUser[0];
     }
 
     // 2. User doesn't exist, create new OAuth user
-    this.logger.log(`➕ [findOrCreateOAuthUser] Creating new ${provider} user`);
 
     const username = oauthProfile.username || 
                      oauthProfile.email?.split('@')[0] || 
@@ -608,7 +593,6 @@ async findOrCreateOAuthUser(oauthProfile: any) {
         pTotpBackupCodes: null,
     }).returning();
 
-    this.logger.log(`✅ [findOrCreateOAuthUser] New ${provider} user created: ${newUser.pNick}`);
 
     return newUser;
 }
@@ -748,8 +732,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       if (parts.length > 1) country = parts[1].toUpperCase();
     }
 
-    // Log full profile for debugging
-    console.log("Google Profile _json:", JSON.stringify(profile._json, null, 2));
     
     // Extract avatar URL and remove size parameter for full resolution
     const photoUrl = photos?.[0]?.value;
@@ -812,8 +794,6 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
   ): Promise<any> {
     const { id, username, emails } = profile;
     
-    // Log full profile for debugging
-    console.log("42 Profile _json:", JSON.stringify(profile._json, null, 2));
     
     // Extract avatar URL from nested JSON structure with fallback chain
     const avatarUrl = profile._json?.image?.versions?.medium 
@@ -953,7 +933,6 @@ async function bootstrap() {
   // Ports and URLs from environment
   const port = process.env.BE_CONTAINER_PORT || 3000;
   const frontendUrl = process.env.VITE_FRONTEND_URL;
-  logger.log(`Permitiendo CORS para: ${frontendUrl}`);
 
   // Enable CORS for HTTP requests
   app.enableCors({
@@ -970,7 +949,7 @@ async function bootstrap() {
   // This allows the container to accept connections from outside itself
   await app.listen(port, '0.0.0.0');
   
-  console.log(`🚀 Servidor corriendo en puerto: ${port}`);
+  console.log(`🚀 Server running on port: ${port}`);
 }
 bootstrap();
 ```

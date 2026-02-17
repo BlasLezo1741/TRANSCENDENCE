@@ -30,14 +30,13 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     const { id, username, emails } = profile;
     //let lang = 'ca'; // Default
     //let country = 'FR'; // Default for Unkonwn
-    console.log("42 Profile _json:", JSON.stringify(profile._json, null, 2)); // Show in the logs the full data recovered from the profile
+    
     const avatarUrl = profile._json?.image?.versions?.medium 
                    || profile._json?.image?.link 
                    || null;
     const languageIdentifier = profile._json?.campus?.[0]?.language?.identifier || 'ca';
     const campusCountry = profile._json?.campus?.[0]?.country || null;
     const countryCode = await this.authService.getCountryCode(campusCountry);
-    console.log(`Campus country: ${campusCountry} -> Country code: ${countryCode}`);
   
     
     const user = {

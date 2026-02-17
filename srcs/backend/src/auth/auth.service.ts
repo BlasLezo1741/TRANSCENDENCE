@@ -300,7 +300,7 @@ async verifyBackupCode(
       .limit(1);
 
     if (emailExists.length > 0) {
-      throw new ConflictException('Email ya registrado con otra cuenta');
+      throw new ConflictException('Email already registered in other account');
     }
 
     // Check if nick is already used, if so, append random number
