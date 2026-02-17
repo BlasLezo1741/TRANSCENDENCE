@@ -136,7 +136,7 @@ export async function checkLogin(user: string, pass: string) {
     "avatarUrl": "dragon-egg",
     "totp": true
   },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "......."
 }
 ```
 
@@ -337,7 +337,7 @@ Upon your inaugural visit to the application, you shall be presented with the pr
 {
   "ok": true,
   "msg": "Correcta validación del código 2FA",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "......"
 }
 ```
 
