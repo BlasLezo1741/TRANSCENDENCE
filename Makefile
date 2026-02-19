@@ -38,28 +38,56 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-
 	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
-#Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces CAMBIO A http://localhost:3000
+# #Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces CAMBIO A http://localhost:3000
+# update-env:
+# 	@echo "Leyendo puertos desde $(ENV_FILE)..."
+# 	$(eval FE_PORT=$(shell grep FE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2))
+# 	$(eval BE_PORT=$(shell grep BE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2))
+# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
+# 		echo "🌍 Modo: Codespaces detected"; \
+# 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
+# 	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
+# 		echo "🪟 Modo: WSL (Windows) detectado"; \
+# 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
+# 		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
+# 		echo "✅ IP Local (Windows) configurada: $$WIN_IP"; \
+# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
+# 	else \
+# 		echo "🐧 Modo: Linux Nativo / Mac detectado"; \
+# 		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
+# 		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
+# 		echo "✅ IP Local (Linux) configurada: $$LINUX_IP"; \
+# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env; \
+# 	fi
+# 	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)"	
+
+# Actualizar URLs en .env para la nueva arquitectura Nginx (HTTPS)
 update-env:
-	@echo "Leyendo puertos desde $(ENV_FILE)..."
-	$(eval FE_PORT=$(shell grep FE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2))
-	$(eval BE_PORT=$(shell grep BE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2))
-	@if [ -n "$(CODESPACE_NAME)" ]; then \
-		echo "🌍 Modo: Codespaces detected"; \
-		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
-	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
-		echo "🪟 Modo: WSL (Windows) detectado"; \
-		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
-		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
-		echo "✅ IP Local (Windows) configurada: $$WIN_IP"; \
-		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
-	else \
-		echo "🐧 Modo: Linux Nativo / Mac detectado"; \
-		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
-		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
-		echo "✅ IP Local (Linux) configurada: $$LINUX_IP"; \
-		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env; \
-	fi
-	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)"	
+	echo "Skip update"
+# 	@echo "Leyendo entorno y configurando Proxy Nginx..."
+# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
+# 		echo " Modo: Codespaces detectado"; \
+# 		BASE_URL="https://$(CODESPACE_NAME)-443.app.github.dev"; \
+# 	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
+# 		echo "🪟 Modo: WSL (Windows) detectado"; \
+# 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
+# 		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
+# 		echo " IP Local (Windows): $$WIN_IP"; \
+# 		BASE_URL="https://$$WIN_IP"; \
+# 	else \
+# 		echo " Modo: Linux Nativo / Mac detectado"; \
+# 		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
+# 		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
+# 		echo " IP Local (Linux): $$LINUX_IP"; \
+# 		BASE_URL="https://$$LINUX_IP"; \
+# 	fi; \
+# 	echo " Nginx Entrypoint configurado en: $$BASE_URL"; \
+# 	sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=$$BASE_URL|" $(ENV_FILE); \
+# 	sed -i "s|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=$$BASE_URL|" $(ENV_FILE); \
+# 	sed -i "s|^VITE_AUF_API_URL=.*|VITE_AUF_API_URL=$$BASE_URL|" $(ENV_FILE); \
+# 	sed -i "s|^VITE_AUS_API_URL=.*|VITE_AUS_API_URL=$$BASE_URL|" $(ENV_FILE); \
+# 	sed -i "s|^OAUTH_42_CALLBACK_URL=.*|OAUTH_42_CALLBACK_URL=$$BASE_URL/auth/42/callback|" $(ENV_FILE); \
+# 	sed -i "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" $(ENV_FILE)
 
 # Create postgres data directory if does not exists
 $(DB_DATA_DIR):
