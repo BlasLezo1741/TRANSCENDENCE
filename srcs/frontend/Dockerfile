@@ -4,12 +4,19 @@ FROM node:24-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN --mount=type=cache,target=/root/.npm  npm ci
 
 COPY . .
 
 # Expose the Vite port
-EXPOSE 5173
+ARG FE_CONTAINER_PORT=5173
+ENV PORT=${FE_CONTAINER_PORT}
+
+EXPOSE ${PORT}
 
 # Start Vite with --host to allow external access
 CMD ["npm", "run", "dev", "--", "--host"]
+
+
+
+
