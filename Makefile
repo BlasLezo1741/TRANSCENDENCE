@@ -3,6 +3,17 @@ TRANSCENDENCE_HOME = $(shell echo $$HOME)
 CODESPACE_NAME = $(shell echo $$CODESPACE_NAME)
 export TRANSCENDENCE_HOME
 
+# ─── BUILDKIT ────────────────────────────────────────────────────────────────
+# Habilita BuildKit: necesario para --mount=type=cache en los Dockerfiles
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+# ──
+#Activan BuildKit explícitamente, que es el requisito para que funcionen los 
+#--mount=type=cache de los Dockerfiles. En versiones modernas de Docker ya viene 
+#activo por defecto, pero declararlo en el Makefile te garantiza que funciona en 
+#cualquier entorno del equipo.
+
+
 # Nombre del archivo env
 ENV_FILE = srcs/.env
 # En tu terminal de Codespaces
@@ -33,7 +44,7 @@ PROMETHEUS_DATA_DIR = $(TRANSCENDENCE_HOME)/data/prometheus
 # --hints about .env location.
 # --also saves space. Deletes all images not used by any containers, even tagged ones.
 # docker --env-file srcs/.env compose -f srcs/docker-compose.yml config   <<-helped
-all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-env
+all: $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-env
 	echo $(TRANSCENDENCE_HOME)
 	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
@@ -67,6 +78,16 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-
 # Now, $$BE_PORT is visible everywhere.
 
 update-env:
+	cp srcs/.env.example srcs/.env
+	@printf "POSTGRES_USER: ";             read POSTGRES_USER; \
+	printf "POSTGRES_PASSWORD: ";          stty -echo; read POSTGRES_PASSWORD;          stty echo; echo ""; \
+	printf "OAUTH_GOOGLE_CLIENT_SECRET: "; stty -echo; read OAUTH_GOOGLE_CLIENT_SECRET; stty echo; echo ""; \
+	printf "OAUTH_42_CLIENT_SECRET: ";     stty -echo; read OAUTH_42_CLIENT_SECRET;     stty echo; echo ""; \
+	sed -i "s|^POSTGRES_USER=.*|POSTGRES_USER=$$POSTGRES_USER|"                         srcs/.env; \
+	sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$$POSTGRES_PASSWORD|"             srcs/.env; \
+	sed -i "s|^OAUTH_GOOGLE_CLIENT_SECRET=.*|OAUTH_GOOGLE_CLIENT_SECRET=$$OAUTH_GOOGLE_CLIENT_SECRET|" srcs/.env; \
+	sed -i "s|^OAUTH_42_CLIENT_SECRET=.*|OAUTH_42_CLIENT_SECRET=$$OAUTH_42_CLIENT_SECRET|"             srcs/.env; \
+	echo "✔  .env actualizado correctamente."
 	@FE_PORT=$$(grep "^FE_CONTAINER_PORT=" $(ENV_FILE) | cut -d '=' -f2 | tr -d '\r'); \
 	BE_PORT=$$(grep "^BE_CONTAINER_PORT=" $(ENV_FILE) | cut -d '=' -f2 | tr -d '\r'); \
 	echo "✅ Ports extracted: FE: >$$FE_PORT<, BE: >$$BE_PORT<"; \
@@ -227,8 +248,18 @@ fclean: clean
 	docker compose --project-directory srcs -f srcs/docker-compose.yml down -v
 
 # 3. Prune any remaining unused docker system data
+# docker system prune -a es un comando que lo borra todo, incluyendo la 
+# BuildKit cache donde Docker guarda los paquetes npm y pip descargados. 
+# Por eso cada make re tardaba 130s+ aunque package.json no hubiera cambiado.
+# Los 4 comandos de reemplazo limpian exactamente lo mismo 
+# (contenedores parados, imágenes sin usar, volúmenes y redes huérfanos) 
+# pero respetan la BuildKit cache.
 # (This now includes the 'alpine' image since it is no longer in use)
-	docker system prune -a --volumes -f
+	docker container prune -f
+	docker image prune -a -f
+	docker volume prune -f
+	docker network prune -f
+
 
 re: fclean all
 
