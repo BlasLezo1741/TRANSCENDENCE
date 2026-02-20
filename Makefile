@@ -62,32 +62,26 @@ all: srcs/.env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-
 # 	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)"	
 
 # Actualizar URLs en .env para la nueva arquitectura Nginx (HTTPS)
+# update-env:
+# 	echo "Skip update"
+# Actualizar URLs en .env para la nueva arquitectura Nginx (HTTPS en puerto 8443)
 update-env:
-	echo "Skip update"
-# 	@echo "Leyendo entorno y configurando Proxy Nginx..."
-# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
-# 		echo " Modo: Codespaces detectado"; \
-# 		BASE_URL="https://$(CODESPACE_NAME)-443.app.github.dev"; \
-# 	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
-# 		echo "🪟 Modo: WSL (Windows) detectado"; \
-# 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
-# 		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
-# 		echo " IP Local (Windows): $$WIN_IP"; \
-# 		BASE_URL="https://$$WIN_IP"; \
-# 	else \
-# 		echo " Modo: Linux Nativo / Mac detectado"; \
-# 		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
-# 		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
-# 		echo " IP Local (Linux): $$LINUX_IP"; \
-# 		BASE_URL="https://$$LINUX_IP"; \
-# 	fi; \
-# 	echo " Nginx Entrypoint configurado en: $$BASE_URL"; \
-# 	sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=$$BASE_URL|" $(ENV_FILE); \
-# 	sed -i "s|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=$$BASE_URL|" $(ENV_FILE); \
-# 	sed -i "s|^VITE_AUF_API_URL=.*|VITE_AUF_API_URL=$$BASE_URL|" $(ENV_FILE); \
-# 	sed -i "s|^VITE_AUS_API_URL=.*|VITE_AUS_API_URL=$$BASE_URL|" $(ENV_FILE); \
-# 	sed -i "s|^OAUTH_42_CALLBACK_URL=.*|OAUTH_42_CALLBACK_URL=$$BASE_URL/auth/42/callback|" $(ENV_FILE); \
-# 	sed -i "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" $(ENV_FILE)
+	@echo "Leyendo entorno y configurando Proxy Nginx en puerto 8443..."
+	@if [ -n "$$(CODESPACE_NAME)" ]; then \
+		echo " Modo: Codespaces detectado"; \
+		BASE_URL="https://$$(CODESPACE_NAME)-8443.app.github.dev"; \
+	else \
+		echo " Modo: Local (Mac/Linux/WSL) detectado"; \
+		BASE_URL="https://localhost:8443"; \
+	fi; \
+	echo " Nginx Entrypoint configurado en: $$BASE_URL"; \
+	sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=$$BASE_URL|" $(ENV_FILE); \
+	sed -i "s|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=$$BASE_URL|" $(ENV_FILE); \
+	sed -i "s|^VITE_AUF_API_URL=.*|VITE_AUF_API_URL=$$BASE_URL|" $(ENV_FILE); \
+	sed -i "s|^VITE_AUS_API_URL=.*|VITE_AUS_API_URL=$$BASE_URL|" $(ENV_FILE); \
+	sed -i "s|^GF_SERVER_ROOT_URL=.*|GF_SERVER_ROOT_URL=$$BASE_URL/grafana/|" $(ENV_FILE); \
+	sed -i "s|^OAUTH_42_CALLBACK_URL=.*|OAUTH_42_CALLBACK_URL=$$BASE_URL/auth/42/callback|" $(ENV_FILE); \
+	sed -i "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" $(ENV_FILE)
 
 # Create postgres data directory if does not exists
 $(DB_DATA_DIR):
