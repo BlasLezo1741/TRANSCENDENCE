@@ -1,3 +1,7 @@
+# syntax=docker/dockerfile:1
+# Mandatory to use  --mount=type=cache. 
+
+
 # --- ETAPA 1: Builder ---
 FROM python:3.11-slim AS builder
 
@@ -18,10 +22,30 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Actualizamos pip ANTES de instalar nada
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
-
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements.txt
+
+#The --mount=type=cache instruction ensures that the ~/.cache/pip directory 
+#persists between builds, thereby preventing the unnecessary re-downloading 
+#of packages.
+
+#The --no-cache-dir flag has been omitted, as we now intend for pip to 
+#utilise its internal cache effectively.
+
+#The two layers have been consolidated into a single entity to reduce the 
+#overall layer count.
+
+#The COPY requirements.txt command is positioned immediately prior to the 
+#RUN pip instruction.
+
+#Note on Layer Caching: In the original configuration, this structure was 
+#largely present; however, placing COPY requirements.txt directly before 
+#the RUN pip command maximises layer caching. Should the requirements.txt 
+#remain unaltered, Docker will reuse the entire layer without the need 
+#to re-execute the installation process.
+
 # Seguridad: Usuario no-root
 RUN useradd -m totp && chown -R totp:totp /app
 USER totp
