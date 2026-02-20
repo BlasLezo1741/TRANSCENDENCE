@@ -136,7 +136,8 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
     const handleOAuth = (provider: 'google' | '42') => {
         // Redirect browser to Backend Auth Endpoint
         // Ensure this matches your backend port (usually 3000)
-        window.location.href = `http://localhost:3000/auth/${provider}`;
+       // window.location.href = `http://localhost:3000/auth/${provider}`;
+       window.location.href = `/auth/${provider}`; //para nginx
     };
 /*
     return (

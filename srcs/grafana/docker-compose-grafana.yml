@@ -15,12 +15,15 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}  
       - GF_SECURITY_COOKIE_SAMESITE=${GF_SECURITY_COOKIE_SAMESITE}
       - GF_SECURITY_COOKIE_SECURE=${GF_SECURITY_COOKIE_SECURE}
+      # Para nginx
+      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+      - GF_SERVER_SERVE_FROM_SUB_PATH=${GF_SERVER_SERVE_FROM_SUB_PATH}
     depends_on:
       - ${DB_CONTAINER_NAME}
     volumes:
       - ./provisioning/datasources:/etc/grafana/provisioning/datasources/
       - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards/   
-      # ALERTAS (Nueva línea) 👇
+      # ALERTAS (Nueva línea)
       - ./provisioning/alerting:/etc/grafana/provisioning/alerting/
       - grafana_data:/var/lib/grafana
     # Elimino para no exponer el puerto

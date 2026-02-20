@@ -140,7 +140,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         // Redirect browser to Backend Auth Endpoint
         // Ensure this matches your backend port (usually 3000)
         console.log(`Redirigiendo a OAuth con ${provider}`);
-        window.location.href = `http://localhost:3000/auth/${provider}`;
+        //window.location.href = `http://localhost:3000/auth/${provider}`;
+        window.location.href = `/auth/${provider}`; //para nginx
     };
 
     return (
