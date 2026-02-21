@@ -30,6 +30,7 @@
     "backup_codes": "Backup codes",
     "copy_codes": "Save these codes in a safe place:",
     "2fa_code": "2FA Code",
+    "2fa_setup": "123456 or ABCD1234",
     "verify": "Verify",
     "resend": "Resend code",
     "ya_escaneado": "I have already scanned the code",
@@ -39,7 +40,7 @@
     "enviar_codigo": "Send code",
     "cod_2fa": "Authentication code",
     "registro_exitoso":"2FA setup completed!",
-    "verificar": "Authenticator",
+    "verificar": "Accept",
     "veri_backup": "Backup",
     "placeholder": "6 digits or backup code",
     "error": "Error",
@@ -78,7 +79,6 @@
         "delete_btn": "delete account",
         "delete_account_confirm": "Are you sure? This will permanently anonymize all your personal data. This action cannot be undone.",
         "delete_account_error": "Failed to delete account",
-
 
         "loading_countries": "Loading countries...",
         "sel_country": "-- Select a country --",
@@ -135,5 +135,45 @@
     {
         "accept_btn": "accept",
         "cancel_btn": "cancel"
+    },
+    "errors": 
+    {
+        "userNotFound": "User not found",
+        "invalidEmail": "Invalid e-mail format",
+        "incorrectPassword": "Incorrect password",
+        "noLowercasePassword": "Password must contain at least one lowercase letter",
+        "noUppercasePassword": "Password must contain at least one uppercase letter",
+        "noNumPassword": "Password must contain at least one number",
+        "badLengthPassword": "Password must be between 8 and 100 characters",
+        "noMatchPassword": "Passwords do not match",
+        "inactiveAccount": "This account is inactive",
+        "userOrEmailExists": "Username or em-ail already exists",
+        "useOAuthProvider": "Please log in with your OAuth provider (42 or Google)",
+        "useOAuthProviderShort": "Please log in with your OAuth provider",
+        "2faNotEnabled": "2FA is not enabled for this user",
+        "2faGenerationError": "Error generating the 2FA code",
+        "2faVerificationError": "Error verifying the 2FA code",
+        "invalid2faCode": "Invalid 2FA code",
+        "invalidOrUsedBackupCode": "Invalid or already used backup code",
+        "emailAlreadyRegistered": "This email is already registered to another account",
+        "nickAlreadyInUse": "This username is already taken",
+        "emailAlreadyInUse": "This e-mail is already in use",
+        "oauthCannotChangePassword": "You cannot change the password of an OAuth account",
+        "currentPasswordIncorrect": "Current password is incorrect",
+        "invalidCredentials": "Invalid credentials",
+        "profileUpdateError": "Error updating the profile",
+        "accountDeleteError": "Error deleting the account",
+        "connectionError": "Connection error",
+        "unknownError": "Unknown error"
+    },
+    "success": 
+    {
+        "login": "Login successful",
+        "password": "Valid password",
+        "userRegistered": "User registered successfully",
+        "2faValidated": "2FA code validated successfully",
+        "backupCodeValidated": "Backup code validated. You have {{count}} codes remaining",
+        "profileUpdated": "Profile updated successfully",
+        "accountDeleted": "Account deleted successfully"
     }
 }

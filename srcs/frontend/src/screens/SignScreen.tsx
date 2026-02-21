@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { checkPassword, registUser } from "../ts/utils/auth";
+import { checkForm,  registUser } from "../ts/utils/auth";//checkPassword,
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
@@ -78,18 +78,18 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     // ===========================================================================
     // FUNCIONES (handlers)
     // ===========================================================================
+    
     const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setSuccess("");
         setQrCode(null);
         setBackupCodes(null);
-        setShowOAuthButtons(true); // Show OAuth buttons on form submission
-
-        // 1. Check local password syntax
-        const passResult = checkPassword(password, repeat);
-        if (!passResult.ok) {
-            setError(passResult.msg);
+        setShowOAuthButtons(true); // Show OAuth buttons on form submission    
+        // 2. Check local password syntax
+        const formResult = checkForm(email, password, repeat);
+        if (!formResult.ok) {
+            setError(t(formResult.msg));
             setPassword("");
             setRepeat("");
             return;
@@ -102,11 +102,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
             const result = await registUser(user, password, email, birth, country, language, enabled2FA);
             
             if (!result.ok) {
-                setError(result.msg || "Error en el registro");
+                setError(t(result.msg));
                 setPassword("");
                 setRepeat("");
             } else {
-                setSuccess(result.msg || "¡Registro completado con éxito!");            
+                setSuccess(t(result.msg));            
                 // If 2FA is enabled, set the QR code
                 if (enabled2FA && result.qrCode) {
                     setQrCode(result.qrCode);
@@ -116,7 +116,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 //setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
             }
         } catch (err) {
-            setError("Error de conexión");
+            setError(t('errors.connectionError'));
         } finally {
             setIsLoading(false);
         }
@@ -241,7 +241,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         required
                         disabled={isLoadingCountries}>
                         <option value="">
-                            {isLoadingCountries ? 'Loading...' : t('sel_pais') || 'Select a country...'}
+                            {isLoadingCountries ? 'Loading...' : t('sel_pais')}
                         </option>
                         {countries.map((c) => (
                             <option key={c.code} value={c.code}>
@@ -333,7 +333,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                                 type="button"
                                 onClick={() => {
                                     // 1. Opcional: Mostrar un pequeño feedback visual de éxito
-                                    setSuccess(t('registro_exitoso') || "¡Configuración de 2FA completada!");
+                                    setSuccess(t('registro_exitoso'));
                                     
                                     // 2. Esperar 2 segundos antes de cambiar al menú
                                     setTimeout(() => {
@@ -341,7 +341,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                                     }, 2000);
                                 }}
                             >
-                                ✅ {t('ya_escaneado') || "Ya lo he escaneado, ir al menú"}
+                                ✅ {t('ya_escaneado')}
                             </button>
                         </div>
                     </div>
@@ -358,12 +358,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 </div>
                 )}
                 {/* Mensajes de Feedback */}
-                {error && (
-                    <span style={{color: "red"}}>Error: {error}</span>
-                )}
+                {/* {error && (
+                    <span style={{color: "red"}}>{t('error')}: {error}</span>
+                )} */}
                 {success && (
                     <div>
-                        <p>¡Logrado!</p>
                         <p>{success}</p>
                     </div>
                 )}

@@ -5,18 +5,21 @@
 // Recuperamos la URL del entorno (igual que en socketService)
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
-export function checkPassword(password: string, repeat: string) {
-    // ... (Tu código de validación igual que antes) ...
+export function checkForm(email: string, password: string, repeat: string) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email))
+        return { ok: false, msg: 'errors.invalidEmail' };
+
     const lower = /[a-z]/;
     const upper = /[A-Z]/;
     const digit = /[0-9]/;
     const min = /^.{8,100}$/;
-    if (!lower.test(password)) return { ok: false, msg: "La contraseña no tiene minusculas" };
-    if (!upper.test(password)) return { ok: false, msg: "La contraseña no tiene mayusculas" };
-    if (!digit.test(password)) return { ok: false, msg: "La contraseña no tiene numeros" };
-    if (!min.test(password)) return { ok: false, msg: "La contraseña ha de tener de 8 a 100 caracteres" };
-    if (password !== repeat) return { ok: false, msg: "Las contraseñas son diferentes" };
-    return { ok: true, msg: "Contraseña válida" };
+    if (!lower.test(password)) return { ok: false, msg: "errors.noLowercasePassword" };
+    if (!upper.test(password)) return { ok: false, msg: "errors.noUppercasePassword" };
+    if (!digit.test(password)) return { ok: false, msg: "errors.noNumPassword" };
+    if (!min.test(password)) return { ok: false, msg: "errors.badLengthPassword" };
+    if (password !== repeat) return { ok: false, msg: "errors.noMatchPassword" };
+    return { ok: true, msg: "success.password" };
 }
 
 export async function registUser(

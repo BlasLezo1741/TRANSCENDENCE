@@ -30,6 +30,7 @@
     "backup_codes": "Codis de respaldo",
     "copy_codes": "Guarda aquests codis en un lloc segur:",
     "2fa_code": "Codi 2FA",
+    "2fa_setup": "123456 o ABCD1234",
     "verify": "Verificar",
     "resend": "Reenviar codi",
     "ya_escaneado": "Ja he escanejat el codi",
@@ -39,16 +40,18 @@
     "enviar_codigo": "Enviar codi",
     "cod_2fa": "Codi d'autenticació",
     "registro_exitoso":"Configuració de 2FA completada!",
-    "verificar": "Authenticator",
+    "verificar": "Acceptar",
     "veri_backup": "Respaldo",
     "placeholder": "6 dígits o codi respaldo",
     "error": "Error",
-    "chat": {
+    "chat": 
+    {
         "my_friends": "els meus amics",
         "with": "chat amb {{name}}",
         "write": "escriu un missatge"
     },
-    "prof": {
+    "prof": 
+    {
         "prof_no_load": "No s'ha pogut carregar el perfil",
         "del_friend": "Eliminar Amic",
         "conf_del_friend": "Estàs segur que vols eliminar a {{name}}?",
@@ -132,5 +135,45 @@
     {
         "accept_btn": "acceptar",
         "cancel_btn": "cancel·lar"
+    },
+    "errors": 
+    {
+        "userNotFound": "Usuari no trobat",
+        "invalidEmail": "Format d'e-mail no vàlid",
+        "incorrectPassword": "Contrasenya incorrecta",
+        "noLowercasePassword": "La contrasenya ha de contenir almenys una lletra minúscula",
+        "noUppercasePassword": "La contrasenya ha de contenir almenys una lletra majúscula",
+        "noNumPassword": "La contrasenya ha de contenir almenys un número",
+        "badLengthPassword": "La contrasenya ha de tenir entre 8 i 100 caràcters",
+        "noMatchPassword": "Les contrasenyes no coincideixen",
+        "inactiveAccount": "Aquest compte està inactiu",
+        "userOrEmailExists": "L'usuari o el correu electrònic ja existeix",
+        "useOAuthProvider": "Si us plau, inicia sessió amb el teu proveïdor OAuth (42 o Google)",
+        "useOAuthProviderShort": "Si us plau, inicia sessió amb el teu proveïdor OAuth",
+        "2faNotEnabled": "El 2FA no està activat per a aquest usuari",
+        "2faGenerationError": "Error en generar el codi 2FA",
+        "2faVerificationError": "Error en verificar el codi 2FA",
+        "invalid2faCode": "Codi 2FA no vàlid",
+        "invalidOrUsedBackupCode": "Codi de seguretat no vàlid o ja utilitzat",
+        "emailAlreadyRegistered": "Aquest correu electrònic ja està registrat en un altre compte",
+        "nickAlreadyInUse": "Aquest nom d'usuari ja està en ús",
+        "emailAlreadyInUse": "Aquest correu electrònic ja està en ús",
+        "oauthCannotChangePassword": "No pots canviar la contrasenya d'un compte OAuth",
+        "currentPasswordIncorrect": "La contrasenya actual és incorrecta",
+        "invalidCredentials": "Credencials no vàlides",
+        "profileUpdateError": "Error en actualitzar el perfil",
+        "accountDeleteError": "Error en eliminar el compte",
+        "connectionError": "Error de connexió",
+        "unknownError": "Error desconegut"
+    },
+    "success": 
+    {
+        "login": "Inici de sessió correcte",
+        "password": "Contrasenya vàlida",
+        "userRegistered": "Usuari registrat correctament",
+        "2faValidated": "Codi 2FA validat correctament",
+        "backupCodeValidated": "Codi de seguretat validat. Et queden {{count}} codis",
+        "profileUpdated": "Perfil actualitzat correctament",
+        "accountDeleted": "Compte eliminat correctament"
     }
 }

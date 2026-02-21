@@ -30,6 +30,7 @@
     "backup_codes": "Códigos de respaldo",
     "copy_codes": "Guarda estos códigos en un lugar seguro:",
     "2fa_code": "Código 2FA",
+    "2fa_setup": "123456 o ABCD1234",
     "verify": "Verificar",
     "resend": "Reenviar código",
     "ya_escaneado": "Ya he escaneado el código",
@@ -39,16 +40,18 @@
     "enviar_codigo": "Enviar código",
     "cod_2fa": "Código de autenticación",
     "registro_exitoso":"¡Configuración de 2FA completada!",
-    "verificar": "Authenticator",
+    "verificar": "Aceptar",
     "veri_backup": "Respaldo",
     "placeholder": "6 dígitos o código respaldo",
     "error": "Error",
-    "chat": {
+    "chat": 
+    {
         "my_friends": "mis amigos",
         "with": "chat con {{name}}",
         "write": "escribe un mensaje"
     },
-    "prof": {
+    "prof": 
+    {
         "prof_no_load": "No se pudo cargar el perfil",
         "del_friend": "Eliminar Amigo",
         "conf_del_friend": "¿Seguro que quieres eliminar a {{name}}?",
@@ -132,5 +135,45 @@
     {
         "accept_btn": "aceptar",
         "cancel_btn": "cancelar"
+    },
+    "errors": 
+    {
+        "userNotFound": "Usuario no encontrado",
+        "invalidEmail": "Formato de e-mail incorrecto",
+        "incorrectPassword": "Contraseña incorrecta",
+        "noLowercasePassword": "La contraseña debe contener al menos una letra minúscula",
+        "noUppercasePassword": "La contraseña debe contener al menos una letra mayúscula",
+        "noNumPassword": "La contraseña debe contener al menos un número",
+        "badLengthPassword": "La contraseña debe tener entre 8 y 100 caracteres",
+        "noMatchPassword": "Las contraseñas no coinciden",
+        "inactiveAccount": "Esta cuenta está inactiva",
+        "userOrEmailExists": "El usuario o el correo electrónico ya existe",
+        "useOAuthProvider": "Por favor, inicia sesión con tu proveedor OAuth (42 o Google)",
+        "useOAuthProviderShort": "Por favor, inicia sesión con tu proveedor OAuth",
+        "2faNotEnabled": "El 2FA no está activado para este usuario",
+        "2faGenerationError": "Error al generar el código 2FA",
+        "2faVerificationError": "Error al verificar el código 2FA",
+        "invalid2faCode": "Código 2FA inválido",
+        "invalidOrUsedBackupCode": "Código de respaldo inválido o ya utilizado",
+        "emailAlreadyRegistered": "Este correo electrónico ya está registrado en otra cuenta",
+        "nickAlreadyInUse": "Este nombre de usuario ya está en uso",
+        "emailAlreadyInUse": "Este correo electrónico ya está en uso",
+        "oauthCannotChangePassword": "No puedes cambiar la contraseña de una cuenta OAuth",
+        "currentPasswordIncorrect": "La contraseña actual es incorrecta",
+        "invalidCredentials": "Credenciales inválidas",
+        "profileUpdateError": "Error al actualizar el perfil",
+        "accountDeleteError": "Error al eliminar la cuenta",
+        "connectionError": "Error de conexión",
+        "unknownError": "Error desconocido"
+    },
+    "success": 
+    {
+        "login": "Inicio de sesión correcto",
+        "password": "Contraseña válida",
+        "userRegistered": "Usuario registrado correctamente",
+        "2faValidated": "Código 2FA validado correctamente",
+        "backupCodeValidated": "Código de respaldo validado. Te quedan {{count}} códigos",
+        "profileUpdated": "Perfil actualizado correctamente",
+        "accountDeleted": "Cuenta eliminada correctamente"
     }
 }
