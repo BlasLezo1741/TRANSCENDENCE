@@ -439,7 +439,7 @@ This structure supports a comprehensive competitive gaming platform with social 
 
 |Member|Individual contributions|
 |------|------------------------|
-|Adria||
+|Adria| Frontend, Pong|
 |Natalia||
 |Xavi||
 |Luis| Readme|
