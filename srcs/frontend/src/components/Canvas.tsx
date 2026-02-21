@@ -54,7 +54,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         let leftName = "P1";
         let rightName = "P2";
 
-        if (mode.includes('remote') || mode === 'tournament') {
+        if (mode.includes('remote')) {
             if (playerSide === 'left') {
                 finalPlayerNumber = 1;
                 leftName = userName;
@@ -184,7 +184,8 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
         // --- 4. CONTROLES DE TECLADO ---
 
-        const handleKeyUp = (e: KeyboardEvent) => {
+        const handleKeyUp = (e: KeyboardEvent) =>
+        {
             game.keysPressed[e.key] = false;       
         };
 
@@ -196,8 +197,57 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                 game.setPause();  
         };
 
+        const handlePointerDown = (e: PointerEvent) =>
+        {
+            if (!activeRef.current) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const touchX = e.clientX - rect.left;
+            const touchY = e.clientY - rect.top;
+            
+            /* 
+                Si es local, mirar x,y para las dos palas 
+                Si es ia, mirar y de la pala izquierda
+                Si es remoto, mirar y, para la pala correspondiente
+            */
+
+            /* const isLocal = mode === "local";
+            const isRemoteOrIA = mode === "ia" || mode.includes("remote");
+
+            let targetPlayer;
+
+            // 🎮 MODO LOCAL (dos jugadores en la misma pantalla)
+            if (isLocal) {
+                if (touchX < canvas.width / 2) {
+                    targetPlayer = game.player1; // izquierda
+                } else {
+                    targetPlayer = game.player2; // derecha
+                }
+            }
+
+            // 🌐 REMOTO o 🤖 IA (solo controlo mi pala)
+            if (isRemoteOrIA) {
+                targetPlayer = game.playerNumber === 1
+                    ? game.player1
+                    : game.player2;
+            }
+
+            if (!targetPlayer) return;
+
+            const paddleCenter = targetPlayer.y + (targetPlayer.height / 2);
+
+            if (touchY < paddleCenter) {
+                targetPlayer.keysUp = true;
+                targetPlayer.keysDown = false;
+            } else {
+                targetPlayer.keysUp = false;
+                targetPlayer.keysDown = true;
+            } */
+        };
+
         window.addEventListener("keyup", handleKeyUp);
         window.addEventListener("keydown", handleKeyDown);
+        canvas.addEventListener("pointerdown", handlePointerDown);
 
         // --- BUCLE DE RENDERIZADO (NO FÍSICA) ---
         let animationId: number;
@@ -222,7 +272,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
             // --- NEW BLOCK: LOCAL / IA VICTORY CONTROL  ---
             // Only enters here if we are NOT in online mode
-            if (!mode.includes('remote') && mode !== 'tournament') {
+            if (!mode.includes('remote')) {
                 if (game.hasWinner()) {
                     const winnerName = game.getWinner();
                     
@@ -247,7 +297,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             }
             
             // 2. SEND POSITION TO SERVER
-            if (mode.includes('remote') || mode === 'tournament') {
+            if (mode.includes('remote')) {
                 const myPlayer = game.playerNumber === 1 ? game.player1 : game.player2;
                 
                 // --- ABSOLUTE COORDINATE CALCULATION --- 
