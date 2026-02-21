@@ -64,22 +64,6 @@ update-env:
 	sed -i "s|^OAUTH_GOOGLE_CLIENT_SECRET=.*|OAUTH_GOOGLE_CLIENT_SECRET=$$OAUTH_GOOGLE_CLIENT_SECRET|" srcs/.env; \
 	sed -i "s|^OAUTH_42_CLIENT_SECRET=.*|OAUTH_42_CLIENT_SECRET=$$OAUTH_42_CLIENT_SECRET|"             srcs/.env; \
 	echo "✔  .env actualizado correctamente."
-	# @echo "Leyendo entorno y configurando Proxy Nginx en puerto 8443..."
-	# @if [ -n "$$(CODESPACE_NAME)" ]; then \
-	# 	echo " Modo: Codespaces detectado"; \
-	# 	BASE_URL="https://$$(CODESPACE_NAME)-8443.app.github.dev"; \
-	# else \
-	# 	echo " Modo: Local (Mac/Linux/WSL) detectado"; \
-	# 	BASE_URL="https://localhost:8443"; \
-	# fi; \
-	# echo " Nginx Entrypoint configurado en: $$BASE_URL"; \
-	# sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=$$BASE_URL|" $(ENV_FILE); \
-	# sed -i "s|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=$$BASE_URL|" $(ENV_FILE); \
-	# sed -i "s|^VITE_AUF_API_URL=.*|VITE_AUF_API_URL=$$BASE_URL|" $(ENV_FILE); \
-	# sed -i "s|^VITE_AUS_API_URL=.*|VITE_AUS_API_URL=$$BASE_URL|" $(ENV_FILE); \
-	# sed -i "s|^GF_SERVER_ROOT_URL=.*|GF_SERVER_ROOT_URL=$$BASE_URL/grafana/|" $(ENV_FILE); \
-	# sed -i "s|^OAUTH_42_CALLBACK_URL=.*|OAUTH_42_CALLBACK_URL=$$BASE_URL/auth/42/callback|" $(ENV_FILE); \
-	# sed -i "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" $(ENV_FILE)
 	@echo "Leyendo entorno y configurando Proxy Nginx en puerto 8443..."
 	@if [ -n "$$(CODESPACE_NAME)" ]; then \
 		echo " Modo: Codespaces detectado"; \
