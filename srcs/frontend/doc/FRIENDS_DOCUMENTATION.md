@@ -545,3 +545,5 @@ Both users receive WebSocket events → friends disappear from lists immediately
 - **Authorization checks** — backend validation that user is authorized for each action (currently frontend-dependent)
 - **Pagination** — for users with large friends lists
 - **Search/filter** — search friends by name, filter by online status
+
+[Return to Main modules table](../../../README.md#modules)

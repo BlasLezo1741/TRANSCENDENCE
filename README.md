@@ -1,451 +1,340 @@
-# TRANSCENDENCE
-
-This project has been created as part of the 42 curriculum by adrmarqu, fcatala-, luicasad, maria-nm
+*This project has been created as part of the 42 curriculum by adrmarqu, fcatala-, luicasad, maria-nm.*
 
 # ft_transcendence
-Its purpose is to reveal your ability to become acquainted with and complete a complex task using an unfamiliar technology.
 
-# Description
+## Description
 
-🇬🇧 The Unyielding Citadel: A Grand Siegebattle
-Inspired by the monumental Battle of Cartagena de Indias in 1741, this particular engagement elevates the classic naval duel into a full-scale siege, demanding not merely luck, but the strategic genius and unyielding resolve of a commander such as Admiral Don Blas de Lezo.
+**ft_transcendence** is a full-stack, real-time multiplayer Pong platform built for the 42 curriculum. It transforms the classic 1972 Atari arcade game into a modern web application where players can compete locally or remotely, manage social connections, and track their performance through a rich statistics system.
 
-The game transforms into a desperate defence of a vital colonial stronghold against an overwhelmingly superior invasion force, mirroring the historical disparity where the Spanish, led by the 'Half-Man'—a title earned through the loss of an eye, a leg, and an arm in service—faced a formidable British Armada under Admiral Vernon.
+The platform is designed around three core pillars: **play**, **community**, and **observability**. Players authenticate securely via standard login or OAuth providers (42 intra and Google), customize their profiles and avatars, challenge friends to live matches, and communicate through an integrated real-time chat. Every match is recorded and contributes to a persistent statistics history.
 
-📜 The Commander's Briefing: 'Lezo's Legacy'
-In this variant, the playing field is asymmetrical, consisting of two distinct sections: the Defensive Citadel Grid and the Open Sea Grid.
+Key features at a glance:
 
-The Defensive Citadel (Spanish Player): The defending player, embodying the spirit of Don Blas de Lezo, controls a smaller, highly fortified grid representing the Bocachica Channel and the Castillo San Felipe de Barajas. Your 'ships' are no longer mere vessels but fixed fortifications, strategically sunk hulks, and concealed gun batteries. Their placement is fixed and known to both players, for your advantage lies in the terrain, not secrecy.
+- Real-time Pong — local (same keyboard) and remote (two separate browsers/machines)
+- Secure authentication with optional Two-Factor Authentication (TOTP)
+- OAuth 2.0 login via 42 School and Google
+- Friend system with online status
+- Persistent match history and performance metrics
+- Real-time chat with public channels and direct messages
+- Multi-language interface (English, Spanish, French,  Catalan)
+- Monitoring stack (Prometheus + Grafana)
+- Internationalized avatar and profile system
 
-### Goal: 
+---
 
-To withstand a set number of rounds or destroy a critical mass of the attacking fleet before your own key fortifications are neutralised.
+## Instructions
 
-The Open Sea (British Player): The attacking player, representing Admiral Vernon, commands the overwhelming Grand Armada. Their ships are numerous and varied (ships-of-the-line, frigates, transports), placed upon the large Open Sea Grid in secret.
+### Prerequisites
 
-Goal: To successfully land a significant quota of 'Troop Transports' by navigating the defensive channel and destroying the fixed fortifications, culminating in a successful 'Assault on the Castle'.
+- **Docker** ≥ 24 and **Docker Compose** v2
+- **Make**
+- A configured `.env` file at the project root (see `.env.example` for the required variables — API keys, DB credentials, OAuth client IDs/secrets, JWT secret, and encryption keys)
 
-The Attrition Mechanic: Rather than simple 'Hit or Miss,' a successful attack against a vessel on the Open Sea Grid also triggers a Disease/Sickness Check for the attacker, reflecting the debilitating tropical conditions that ravaged the British forces. This introduces an element of long-term attrition, a key to Lezo's victory.
+### Step-by-step
 
-The Grand Assault: If the attacker succeeds in breaching the channel defences, a final, fixed-coordinate assault is launched against the central fortress (Castillo San Felipe). Here, success depends not only on fire-power but also on the successful landing of ground forces, a nod to the disastrous, confused night attack by the British on the fortress.
+1. **Clone the repository:**
+   ```bash
+   git clone <repo-url> ft_transcendence
+   cd ft_transcendence
+   ```
 
-### 📝 Strategic Features: A Lesson in Command
-This revised framework captures the spirit of the 1741 siege:
+2. **Configure environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env and fill in all required values
+   ```
 
-Asymmetrical Warfare: The British possess overwhelming force (quantity of ships), but the Spanish possess superior position and tenacity (fixed, powerful defences and terrain advantage). This rewards strategic, rather than brute-force, play.
+3. **Build and launch with Make:**
+   ```bash
+   make
+   ```
+   The Makefile populates the `.env` file with defaults where applicable and calls `docker compose up --build`. All services (frontend, backend, database, Prometheus, Grafana, TOTP, Adminer) start automatically.
 
-The Power of Fortification: The Spanish 'ships' are forts and batteries, which take a vastly greater number of hits to disable, forcing the British player into a costly, protracted engagement, a direct reflection of the tenacious defence of Bocachica.
+4. **Access the application:**
+   - Main app: `https://localhost`
+   - Grafana dashboards: `http://localhost:3100`
+   - Adminer (DB admin): `http://localhost:8080`
+   - Prometheus: `http://localhost:9090`
 
-The Disease Factor: A card or dice roll following a 'Hit' by the Spanish forces can randomly reduce the attacking player's available moves or hit capacity on subsequent turns. This is an elegant mechanism to represent the calamitous impact of sickness and low morale that ultimately defeated Vernon.
+5. **Stop the project:**
+   ```bash
+   make down
+   ```
 
-Victory Coins of Hubris: An optional feature allows the British player to claim victory prematurely and mint a token upon conquering the first minor fort. This is a direct, witty reference to Admiral Vernon’s infamous commemorative medals struck before the Spanish defeat, which had to be hastily recalled after his utter humiliation.
+---
 
-The 'Half-Man's' Tenacity: The Spanish commander gains an increasing bonus to their defensive die rolls as their fortifications fall, embodying Blas de Lezo's indomitable will and determination when his forces were at their lowest ebb.
+## Resources
 
+### References
 
-### Game metrics 
-#### 1. Competitor Stats (Individual Performance)
+- [NestJS Documentation](https://docs.nestjs.com)
+- [Drizzle ORM Documentation](https://orm.drizzle.team)
+- [React Documentation](https://react.dev)
+- [Socket.IO Documentation](https://socket.io/docs/v4/)
+- [Passport.js Documentation](https://www.passportjs.org)
+- [Prometheus Documentation](https://prometheus.io/docs/)
+- [Grafana Documentation](https://grafana.com/docs/)
+- [RFC 6238 — TOTP Standard](https://datatracker.ietf.org/doc/html/rfc6238)
+- [WCAG 2.1 Accessibility Guidelines](https://www.w3.org/TR/WCAG21/)
+- [Language codes dataset](https://github.com/datasets/language-codes/tree/main)
+- [ISO 3166 Country codes](https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv)
 
-+ **Points Scored**: The total number of times you successfully put the ball past your opponent. This is your primary measure of victory.
+### AI Usage
 
-+ **Paddle Hits**: Every time you make contact with the ball. A high number shows active gameplay and defensive skill.
+AI tools were used continuously throughout the project. Their primary contributions were:
 
-+ **Service Aces**: Points won directly from your serve without the opponent ever touching the ball. Measures the power and precision of your opening move.
+- **Debugging and error detection** — AI was systematically used to review code, catch logic errors, identify type mismatches, and suggest fixes during development.
+- **Documentation** — All technical documentation artifacts (backend, frontend, monitoring, authentication) were generated with AI assistance based on the implemented code.
 
-+ **Misses**: The number of times the ball passed your paddle. Lowering this number is the fastest way to improve your win rate.
+AI tools were not used to produce architectural decisions or core game logic autonomously; those remained driven by team design sessions and peer review.
 
-+ **Winning Streak**: The number of consecutive matches won without a loss. A true mark of dominance on the platform.
+---
 
-#### 2. Match Stats (Game Dynamics)
+## Team Information
 
-+ **Peak Ball Speed**: The fastest recorded speed of the ball during a single volley. Higher speeds test your reflexes to the limit.
+| 42 Login | Name | Role(s) | Responsibilities |
+|----------|------|---------|-----------------|
+| luicasad | Luis | Project Manager, Developer | Project coordination and task distribution (supported by the full team). Database design and synthetic data population. 2FA / TOTP container. Grafana and Adminer setup. README. |
+| fcatala- | Xavi | Product Owner, Developer | Product vision and feature prioritization (with Natalia). Login system, OAuth integration (42 & Google), avatar system, user profile. |
+| maria-nm | Natalia | Product Owner, Developer | Product vision and feature prioritization (with Xavi). WebSockets infrastructure, real-time chat, remote Pong, Prometheus monitoring, friends system. |
+| adrmarqu | Adria | Developer | Local Pong game, AI opponent, full CSS and visual design across the application. |
 
-+ **Max Rally Length**: The highest number of consecutive hits between players before a point was scored. It represents the most intense moment of the match.
+---
 
-+ **Total Wall Bounces**: How many times the ball hit the top or bottom boundaries. Tracks how much "geometry" and angling players are using.
+## Project Management
 
-+ **Average Volley Duration**: The average amount of time the ball stays in play per point. High averages indicate two very evenly matched players.
+### Organization
 
-+ **Net Touches**: (In variants with a net) How often the ball grazed the center line. This often leads to unpredictable ball behavior.
+The team organized work iteratively, breaking the project into features and assigning ownership per person while maintaining shared responsibility for quality. Luis coordinated task distribution and progress tracking, with active input from all members during in-person sessions.
 
-#### 3. Organization Stats (Team/Clan Performance)
+### Tools
 
-+ **Total Org Wins**: The combined victory count of every player representing this organization. Measures the collective power of the group.
+- **GitHub Issues** — used to track tasks, bugs, and feature progress.
 
-+ **Member Participation**: The total number of matches played by all organization members. High participation shows a highly active and engaged community.
+### Communication Channels
 
-+ **Org Average Elo**: The mean skill rating of all members. This tells you the "weight class" of the organization in the global rankings.
+- **WhatsApp** — primary async communication channel for quick decisions and daily sync.
+- **In-person meetings** — used for architecture discussions, code reviews, and sprint planning.
 
-+ **Tournament Trophies**: The count of first-place finishes in official tournaments. This is the ultimate bragging right for any organization.
+---
 
-#### 4. Tournament Stats (Event Analysis)
+## Technical Stack
 
-+ **Upsets Count** : How many times a lower-ranked "underdog" defeated a higher-seeded player. High upset counts indicate a high-chaos, exciting tournament.
+### Architecture
 
-+ **Average Match Margin** : The average score gap between winners and losers (e.g., 11–2 vs 11–9). Narrower margins mean the tournament was highly competitive.
-
-+ **Total Participants**: The total number of unique players who entered the bracket. Measures the scale of the event.
-
-+ **Tournament Duration**: The total time elapsed from the first serve of Round 1 to the final point of the Championship.
-
-+ **Forfeit Count**: How many matches were decided by a player failing to show up or disconnecting. A metric used to gauge the reliability of the player pool.
-
-# Instructions
-
-## Prerequisites
-## Step-by-step instructions
-
-# Resources
-
-# Usage Examples
-
-# Feature list
-
-🏛️ Access & Authentication
-
-To engage in the noble sport of Transcendence Pong, players must first establish their identity within our hallowed digital halls. We offer three distinct avenues for registration and entry, ensuring both convenience and the utmost security for our patrons.
-1. Traditional Credentials
-
-The foundational method of entry. A player may secure their account by designating a unique Username and a robust Password. This classic approach offers immediate access to the arena with minimal fuss.
-2. Enhanced Security (Two-Factor Authentication)
-
-For the discerning player who values the sanctity of their profile, we offer 2FA. Upon providing a standard username and password, one must further verify their identity via a secondary time-based token. It is the digital equivalent of a double-bolted vault.
-3. Federated Identity (OAuth)
-
-Should you wish to bypass the manual creation of credentials, you may utilize our OAuth integration. By delegating authentication to the esteemed houses of Google or the 42 Intranet, you may gain entry with a single click, leveraging their existing security infrastructure.
-
-```mermaid
-
-graph TD
-    Start([Player Arrives]) --> Choice{Select Method}
-    
-    %% Option 1
-    Choice -->|Standard| Creds[Enter Username & Password]
-    Creds --> Success([Access Granted])
-    
-    %% Option 2
-    Choice -->|2FA| Creds2[Enter Username & Password]
-    Creds2 --> Challenge[Prompt for 2FA Token]
-    Challenge --> Success
-    
-    %% Option 3
-    Choice -->|OAuth| Providers{Google or 42?}
-    Providers -->|Authorize| Success
+The application runs entirely in Docker containers orchestrated by Docker Compose. It follows a clean frontend/backend separation with a dedicated database, a TOTP microservice, and an independent monitoring stack.
 
 ```
+[Browser] → [Nginx / React SPA]
+                  ↕ REST + WebSocket
+           [NestJS Backend]
+                  ↕
+           [PostgreSQL DB]
+                  ↕
+           [TOTP Service (Flask)]
 
-**Initial Engagement**
+[Prometheus] → [Grafana]
+[Adminer]    → [PostgreSQL DB]
+```
 
-Upon your inaugural visit to the application, you shall be presented with the primary gateway. Here, one may choose to either Sign In to an existing account or Register a new identity.
+### Frontend
 
-![alt text](./docs/screenshots/user_reg_01.png)
+- **React 19** with TypeScript — component-based SPA
+- **Vite** — build tool and dev server
+- **i18next** — internationalization (English, Spanish, Catalan)
+- **Socket.IO client** — real-time communication with the backend
 
-**Account Creation**
+### Backend
 
-To establish your presence within the arena, please provide the required particulars. Accuracy is paramount to ensure a seamless entry into our records.
+- **NestJS 11** (Node.js) — modular, decorator-driven REST + WebSocket server
+- **Passport.js** — authentication strategies (JWT, 42 OAuth, Google OAuth)
+- **Drizzle ORM** — type-safe SQL query builder
+- **Socket.IO** — WebSocket gateway for chat and game events
+- **@nestjs/jwt** — JWT token management
 
-![alt text](./docs/screenshots/user_reg_02.png)
+### Database
 
-**Confirmation of Enrollment**
+- **PostgreSQL** — chosen for its robustness, relational integrity, and support for JSONB (used for i18n fields in status tables)
 
-Once your credentials have been submitted, a formal confirmation will be displayed, signifying that your registration has been successfully processed.
+### Monitoring
 
-![alt text](./docs/screenshots/user_reg_03.png)
+- **Prometheus** — metrics collection from the NestJS backend
+- **Grafana** — dashboards and alerting
 
-**Securing the Vault (Two-Factor Authentication)**
+### Other Significant Technologies
 
-Should you elect to enable Two-Factor Authentication, the system will present a unique QR Code alongside a set of Backup Codes. It is highly advised to store these in a secure location, lest you find yourself locked out of the festivities.
+- **Flask (Python)** — TOTP microservice for Two-Factor Authentication
+- **Nginx** — reverse proxy and static file server for the SPA
+- **Adminer** — lightweight database administration UI
+- **bcryptjs** — password hashing
+- **class-validator / class-transformer** — DTO validation pipeline
+- **dotenv** — environment variable management
 
-![alt text](./docs/screenshots/user_reg_04.png)
+### Justification for Major Choices
 
-# Technical Choices
+NestJS was selected for its strong TypeScript support, built-in dependency injection, and first-class WebSocket and guard abstractions, which matched the project's need for structured, maintainable backend code. Drizzle ORM was chosen over alternatives for its lightweight, type-safe query builder that keeps SQL control without the overhead of a heavy ORM. PostgreSQL provides the relational guarantees needed for match tracking and user relationships. React was the natural frontend choice given team familiarity and the ecosystem around it.
 
+---
 
+## Database Schema
 
-# Team Information
+The full entity-relationship diagram is available at [`./docs/ER.md`](./docs/ER.md).
 
-|Member|Role|responsabilities|
-|------|----|----------------|
-|Natalia|||
-|Xavi|||
-|Luis|||
+### Core Tables
 
-# Project Management
+**USER** — central user entity. Key fields: `p_pk` (PK), `p_nick`, `p_mail` (unique), `p_pass`, `p_totp_secret`, `p_totp_enabled`, `p_oauth_provider`, `p_oauth_id`, `p_avatar_url`, `p_profile_complete`, `p_lang` (FK), `p_country` (FK), `p_role` (FK), `p_status` (FK).
 
-## Organization
-## Tools
-## Communications Channels
+**MATCH** — records individual games. Key fields: `m_pk` (PK), `m_date`, `m_duration`, `m_winner` (FK → USER).
 
-# Technical Stack
-## Architecture
-## Dependencies
+**METRIC** — defines trackable performance indicators. Key fields: `metric_pk` (PK), `metric_name`.
 
-### Core Framework
-- **@nestjs/common** (^11.0.1) - Core NestJS functionality including decorators, pipes, guards, and common utilities
-- **@nestjs/core** (^11.0.1) - NestJS core engine that handles dependency injection and application lifecycle
-- **@nestjs/platform-express** (^11.0.1) - Express adapter for NestJS HTTP server
-- **reflect-metadata** (^0.2.2) - Polyfill for metadata reflection API, required by NestJS decorators
+### Reference Tables
 
-### Real-time Communication
-- **@nestjs/websockets** (^11.0.0) - WebSocket support for NestJS
-- **@nestjs/platform-socket.io** (^11.0.0) - Socket.IO adapter for real-time bidirectional communication
+`COUNTRY`, `LANGUAGE`, `ROLE`, `STATUS` — lookup tables for user attributes. The `FRIEND_STATUS` table stores status labels as JSONB for i18n support.
 
-### HTTP Client & Inter-service Communication
-- **@nestjs/axios** (^3.0.0) - NestJS wrapper for Axios, enabling HTTP requests between microservices
-- **axios** (^1.6.0) - Promise-based HTTP client for inter-container communication
-- **rxjs** (^7.8.1) - Reactive programming library for handling asynchronous operations
+### Junction / Association Tables
 
-### Database & ORM
-- **drizzle-orm** (^0.45.1) - TypeScript ORM with type-safe SQL query builder
-- **pg** (^8.16.3) - PostgreSQL client for Node.js
-- **postgres** (^3.4.7) - Modern PostgreSQL client with enhanced performance
+**COMPETITOR** — links users to matches (many-to-many): `mc_match_fk`, `mc_user_fk`.
 
-### Security & Authentication
-- **bcryptjs** (^3.0.3) - Password hashing library for secure credential storage
-- **uuid** (^13.0.0) - RFC4122 UUID generation for unique identifiers
+**MATCHMETRIC** — stores aggregate metric values per match: `mm_match_fk`, `mm_code_fk`, `mm_value`.
 
-### Validation & Transformation
-- **class-validator** (^0.14.1) - Decorator-based validation for DTOs and class properties
-- **class-transformer** (^0.5.1) - Transform plain objects to class instances and apply validation rules
+**COMPETITORMETRIC** — stores per-user metric values within a match: `mcm_match_fk`, `mcm_user_fk`, `mcm_metric_fk`, `mcm_value`.
 
-### Configuration
-- **dotenv** (^16.3.1) - Environment variable management from .env files
-
-
-## Frontend
-
-### A keystone flag `-b´ in TypeScript
-
-The -b flag stands for Build Mode.
-
-This feature was introduced in TypeScript 3.0 to support Project References. 
-
-#### 1. What does it do exactly?
-
-When you run tsc -b:
-
-+ **Dependency Awareness**: TypeScript doesn’t simply compile the current project; it also locates all the projects it depends on (as defined in tsconfig.json) and compiles them in the correct order.
-
-+ **Incremental Compilation**: It only *recompiles what has changed*. If part of the code has already been compiled and its source files remain unchanged, tsc skips it to save time.
-
-+ **Creation of .tsbuildinfo**: It generates a cache file that records what was compiled and when, allowing *future builds to run significantly faster*.
-
-#### 2. Why is it in your “build” script?
-
-The line "build": "tsc -b && vite build" is both a safety measure and an optimisation:
-
-+ tsc -b (The Gatekeeper)  
-    First, TypeScript checks that there are no type errors anywhere in your project (or its dependencies). If it finds an error—for example, passing a string where a number is expected—the process stops immediately and never reaches Vite. This prevents you from producing a production bundle containing logical mistakes.
-
-+    &&  
-    This operator means: “If the first command succeeds, run the second.”
-
-+   vite build (The Packager)  
-    Once the code is confirmed to be type‑safe, Vite takes the files, minifies and optimises them, and produces the dist folder ready for your production container.
-
-In summary
-
-In your microservice, the -b flag ensures that all related modules are compiled efficiently and incrementally, guaranteeing that your code is solid before Vite transforms it into final production assets. 
-
-It is particularly useful sharing share code (such as DTOs) across multiple microservices, as -b will automatically manage those dependencies.
-
-For tsc -b to work correctly, the tsconfig.json file must have the option "composite": true
-
-
-
-### A react fragment '<>'
-
-In React, when you use a ternary operator or a function—as is the case in the login screen—you must always return a **single root** element. You cannot return two "sibling" `<div>` elements sitting side-by-side.
-
-In the code, there are two main blocks: the **User** field and the **Password** field.
-
-+ **The Problem**: If you remove the <>, React will throw a syntax error because you are trying to return two `<div>` elements at once.
-
-+ The **"Dirty"** Solution: You could wrap them in a `<div>...</div>`, but that would clutter your HTML with unnecessary divs that might ruin your design or CSS.
-
-+ The **Elegant** Solution (<>): By using a Fragment, React understands that these elements belong together, but when the page renders, the <> disappears completely, leaving the HTML clean.
-
-In short: It is a "ghost" tag that allows you to group multiple child elements without adding an extra node (like a `<div>`) to the browser's actual DOM.
-
-## Backend
-## Database system
-
-
-
-# Database Schema
-
-### Core Entities and Their Fields
-#### USER Table
-The central entity containing user account information with the following attributes:
-
-|field_name|description|
-|----------|-----------|
-|p_pk (Primary Key)|: Unique user identifier|
-|p_nick|: User's nickname or username|
-|p_mail (Unique Key)|: Email address, must be unique across the system|
-|p_pass|: Password credential|
-|p_totp_secret|:encrypted 2fa secret|
-|p_totp_enabled|: Default false|
-|p_totp_enabled_at|: TIMESTAMP|
-|p_totp_backup_codes|: códigos de respaldo|
-|p_oauth_provider|: '42' or 'google'|
-|p_oauth_id|: OAuth provider's user ID|
-|p_avatar_url|: Profile picture |
-|p_profile_complete|: BOOLEAN DEFAULT FALSE,  -- NEW: Track profile completion
-|p_reg|: Registration timestamp marking when the account was created|
-|p_bir|: Date of birth|
-|p_lang (Foreign Key)|: Reference to the user's preferred language|
-|p_country (Foreign Key)|: Reference to the user's country|
-|p_role (Foreign Key)|: Reference to the user's role within the system|
-|p_status (Foreign Key)|: Reference to the user's status|
-|unique_oauth_user|CONSTRAINT UNIQUE(p_oauth_provider, p_oauth_id) |
-
-
-
-##### Cómo funciona la constraint con valores NULL
-En PostgreSQL (y en la mayoría de sistemas SQL estándar), los valores NULL NO se consideran iguales entre sí para propósitos de constraints UNIQUE.
-Esto significa que:
-
-✅ Puedes tener múltiples registros con (NULL, NULL) en (p_oauth_provider, p_oauth_id)
-✅ La constraint UNIQUE(p_oauth_provider, p_oauth_id) solo se aplica cuando AMBOS valores NO son NULL
-✅ Usuarios con contraseña tradicional tendrán (NULL, NULL) y no violarán la constraint
-
-#### MATCH Table
-Represents individual competitive matches or games:
-
-|field_name|description|
-|----------|-----------|
-|m_pk (Primary Key)|: Unique match identifier|
-|m_date|: Timestamp indicating when the match commenced|
-|m_duration|: Length of time the match lasted|
-|m_winner|: User primary key of the victorious participant|
-
-#### METRIC Table
-Defines various performance indicators or statistics that can be tracked:
-
-|field_name|description|
-|----------|-----------|
-|metric_pk (Primary Key)|: Unique metric identifier|
-|metric_name|: Descriptive name of the metric|
-
-### Supporting Reference Tables
-#### COUNTRY Table
-
-|field_name|description|
-|----------|-----------|
-|Coun_pk (Primary Key)|: Country identifier|
-|coun_name|: Name of the country|
-
-#### LANGUAGE Table
-
-|field_name|description|
-|----------|-----------|
-|lang_pk (Primary Key)|: Language identifier|
-|lang_name|: Name of the language|
-
-#### ROLE Table
-
-|field_name|description|
-|----------|-----------|
-|role_pk (Primary Key)|: Role identifier|
-|role_name|: Name of the role (e.g., administrator, player, moderator)|
-
-#### STATUS Table
-
-|field_name|description|
-|----------|-----------|
-|status_pk (Primary Key)|: Status identifier|
-|status_name|: Name of the status (likely indicating user account state)|
-
-### Junction and Association Tables
-#### COMPETITOR Table
-Links users to the matches they participate in (many-to-many relationship):
-
-|field_name|description|
-|----------|-----------|
-|mc_match_fk (Foreign Key, part of composite Primary Key)|: Reference to the match|
-|mc_user_fk (Foreign Key, part of composite Primary Key)|: Reference to the user competing|
-
-#### MATCHMETRIC Table
-Stores metric values associated with entire matches:
-
-|field_name|description|
-|----------|-----------|
-|mm_match_fk (Foreign Key, part of composite Primary Key)|: Reference to the match|
-|mm_code_fk (Foreign Key, part of composite Primary Key)|: Reference to the metric type|
-|mm_value|: The numerical value of the metric for that match|
-
-#### COMPETITORMETRIC Table
-Tracks individual competitor performance metrics within matches:
-
-|field_name|description|
-|----------|-----------|
-|mcm_match_fk (Foreign Key, part of composite Primary Key)|: Reference to the match|
-|mcm_user_fk (Foreign Key, part of composite Primary Key)|: Reference to the user|
-|mcm_metric_fk (Primary Key)|: Reference to the metric type|
-|mcm_value|: The numerical value of that metric for the specific user in that match|
-
-#### FRIEND Table
-Manages friendship relationships between users:
-
-|field_name|description|
-|----------|-----------|
-|f_1 (Foreign Key, part of composite Primary Key)|: First user in the relationship|
-|f_2 (Foreign Key, part of composite Primary Key)|: Second user in the relationship|
-|f_date|: Date marking either the beginning or ending of the friendship|
-|f_status_fk|: Boolean flag indicating relationship status (TRUE = friendship established, FALSE = friendship terminated)|
-
-#### FRIEND_STATUS Table
-Defines friendship status
-
-|field_name|description|
-|----------|-----------|
-|fs_pk|primary key|
-|fs_i18n_name|JSONB with status translations|
+**FRIEND** — manages friendship relationships: `f_1`, `f_2`, `f_date`, `f_status_fk`.
 
 ### Key Relationships
 
-+ Users may have multiple friends and belong to multiple organizations (many-to-many)
-+ Users participate in matches as competitors (many-to-many through COMPETITOR)
-+ Each user has exactly one role, country, language, and status (one-to-one)
-+ Matches contain multiple competitors and can have various metrics tracked both at the match level and individual competitor level
-+ Metrics can be applied to both entire matches and individual competitor performances within those matches
+- Users participate in matches as competitors (many-to-many via COMPETITOR)
+- Each user has exactly one role, country, language, and status
+- Metrics are tracked both at match level (MATCHMETRIC) and individual competitor level (COMPETITORMETRIC)
+- Friendships are bidirectional and track status history
 
-This structure supports a comprehensive competitive gaming platform with social features, detailed performance tracking, and flexible metric collection at both aggregate and individual levels.
+---
 
-## [Mermaid scheme here](./docs/ER.md)
-# Features List
-# Modules
+## Features List
 
-|Module	|Range	|Description	|Points|Luis|Natalia|Xavi| Adria|
-|-------|-------|---------------|------|----|-------|----|---|
-|WEB	|Major	|Use a framework for both the frontend and backend.	|2|No|No|No|No|
-|WEB	|Major	|Implement real-time features using WebSockets or similar technology.	|2|No|No|No|No|
-|WEB	|Minor	|Use an ORM for the database.	|1|No|No|No|No|
-|Accessibility and Internationalization	|Minor	|Implement i18n (internationalization) to Support multiple languages (at least 3 languages).	|1|No|No|No|No|
-|User Management	|Minor	|Game statistics and match history (requires a game module).	|1|No|No|No|No|
-|User Management	|Minor	|Implement a complete 2FA (Two-Factor Authentication) system for the users.	|1|No|No|No|No|
-|Gamming and User Experience	|Major	|Implement a complete web-based game where users can play against each other.	|2|No|No|No|No|
-|Gamming and User Experience	|Major	|Remote players — Enable two players on separate computers to play the same game in real-time.	|2|No|No|No|No|
-|Devops	|Major	|Monitoring system with Prometheus and Grafana.	|2|No|No|No|No|
-|Data and Analytics	|Minor	|GDPR compliance features. ◦ Allow users to request their data.	|1|No|No|No|No|
-||||15|0|0|0|0|
+| Feature | Description | Team Member(s) |
+|---------|-------------|---------------|
+| User Registration | Email/password sign-up with profile completion flow | Xavi |
+| JWT Authentication | Stateless session management via JSON Web Tokens | Xavi |
+| OAuth — 42 School | Login and registration via 42 intra OAuth 2.0 | Xavi |
+| OAuth — Google | Login and registration via Google OAuth 2.0 | Xavi |
+| Two-Factor Authentication | TOTP-based 2FA with QR code setup and backup codes | Luis |
+| User Profile | View and edit personal information, stats, match history | Xavi |
+| Avatar System | Upload custom avatar or choose from defaults | Xavi |
+| Friends System | Send/accept/reject friend requests, online status | Natalia |
+| Real-time Chat | Public channels and direct messages via WebSockets | Natalia |
+| Local Pong | Two players on the same device, same keyboard | Adria |
+| Remote Pong | Two players on separate devices via WebSockets | Natalia |
+| AI Opponent | Single-player mode with a simulated AI paddle | Adria |
+| Match History & Stats | Persistent recording of match results and metrics | Luis / Natalia |
+| Internationalization | UI available in English, Spanish, and Catalan | All |
+| Prometheus Monitoring | Backend metrics exported and scraped by Prometheus | Natalia / Luis |
+| Grafana Dashboards | Visual dashboards for backend and DB metrics | Luis |
+| Database Design | Schema design, migrations, synthetic seed data | Luis |
+| CSS / Visual Design | Application-wide styling and responsive layout | Adria |
+| Privacy Policy & ToS | Accessible legal pages as required by the subject | All |
 
+---
 
-## 
+## Modules
 
-# Individual Contributions
+Modules are documented in dedicated artifacts. Each link below points to the corresponding documentation file.
 
-|Member|Individual contributions|
-|------|------------------------|
-|Adria||
-|Natalia||
-|Xavi||
-|Luis| Readme|
-# Known limitations
-# Documentation 
-# Credits
-# License
-# Data sources
-+ [language codes](https://github.com/datasets/language-codes/tree/main)
-+ [Country codes](https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv)
+**Total points: 15** (7 Major × 2pts + 1 Minor × 1pt = 15 — see table below)
+
+| Module | Category | Type | Points | Owner(s) | Documentation |
+|--------|----------|------|--------|----------|---------------|
+| Use a Framework as backend | Web | Major | 2 | All | [WEB_MAJOR_DOCUMENTATION.md](./docs/WEB_MAJOR_FRAMEWORK.md) |
+| Real-time features using WebSockets | Web | Major | 2 | Natalia | [WEBSOCKET_SYSTEM_DOCUMENTATION.md](./srcs/backend/doc/WEBSOCKET_SYSTEM_DOCUMENTATION.md) |
+| Allow users to interact with other users | Web| Major | 2 | Natalia| [CHAT_DOCUMENTATION.md](./srcs/backend/doc/CHAT_SYSTEM_DOCUMENTATION.md)<br> [PROFILE_DOCUMENTATION.md](./srcs/frontend/doc/PROFILE_DOCUMENTATION.md)<br>[FRIENDS_DOCUMENTATION.md](./srcs/frontend/doc/FRIENDS_DOCUMENTATION.md)|
+| Use an ORM for the database | Web | Minor | 1 | Luis | [ORM_DOCUMENTATION.md](./srcs/backend/doc/ORM_DOCUMENTATION.md) |
+| Standard user management and authentication | User Management | Major | 2 | Xavi / Natalia | [AVATAR_DOCUMENTATION.md](./srcs/frontend/doc/AVATAR_DOCUMENTATION.md)<br> [PROFILE_DOCUMENTATION.md](./srcs/frontend/doc/PROFILE_DOCUMENTATION.md)<br>[FRIENDS_DOCUMENTATION.md](./srcs/frontend/doc/FRIENDS_DOCUMENTATION.md)|
+| Implement remote authentication with OAuth 2.0 | User Management | Minor | 1 | Xavi | [OAUTH_DOCUMENTATION](./srcs/backend/doc/OAUTH_DOCUMENTATION.md)|
+| Implement a complete 2FA (Two-Factor Authentication) system for the users | User Management | Minor | 1 | Luis | [2FA_AUTHENTICATION_DOCUMENTATION.md](./srcs/totp/doc/2FA_DOCUMENTATION.md) <br> [2FA_LOGIN_DOCUMENTATION.md](./srcs/totp/doc/2FA_LOGIN_DOCUMENTATION.md)|
+| Web-based Pong game | Gaming & User Experience | Major | 2 | Adria / Natalia | [PONG_FRONTEND_DOCUMENTATION.md](./srcs/frontend/doc/PONG_FRONTEND_DOCUMENTATION.md) <br> [PONG_BACKEND_DOCUMENTATION.md](./srcs/backend/doc/PONG_BACKEND_DOCUMENTATION.md) |
+| Remote players (real-time multiplayer) | Gaming & User Experience | Major | 2 | Natalia | [WEBSOCKET_SYSTEM_DOCUMENTATION.md](./srcs/backend/doc/WEBSOCKET_SYSTEM_DOCUMENTATION.md) <br>[PONG_FRONTEND_DOCUMENTATION.md](./srcs/frontend/doc/PONG_FRONTEND_DOCUMENTATION.md) |
+| i18n — Support multiple languages (3+) | Accessibility & Internationalization | Minor | 1 | All | [I18N_SYSTEM_DOCUMENTATION.md](./srcs/frontend/doc/I18N_SYSTEM_DOCUMENTATION.md) |
+| Monitoring system with Prometheus and Grafana. | DevOps | Major | 2 | Natalia / Luis | [PROMETHEUS_DOCUMENTATION.md](./srcs/prometheus/doc/PROMETHEUS_DOCUMENTATION.md) <br>[GRAFANA_DOCUMENTATION.md](./srcs/grafana/doc/GRAFANA_DOCUMENTATION.md) |
+| Introduce an AI Opponent for games | IA | Major | 2 | Adria| [IA_OPPONENT_DOCUMENTATIOS.md](./srcs/frontend/doc/AI_OPPONENT_DOCUMENTATION.md)|
+| Game statistics and match history | User Management | Minor | 1 | Luis / Natalia | [PROFILE_DOCUMENTATION.md](./srcs/frontend/doc/PROFILE_DOCUMENTATION.md) |
+
+> **Module choice justification:** All modules were selected to build a coherent, production-grade platform rather than accumulate isolated points. WebSockets underpin both the game and the chat. OAuth reduces friction at registration. Prometheus + Grafana provide the observability layer needed to operate the system at scale. 2FA adds a meaningful security layer complementary to OAuth. The ORM (Drizzle) was chosen to keep the data layer type-safe and maintainable. i18n reflects the multilingual team and the international 42 network.
+
+---
+
+## Individual Contributions
+
+### Luis — `luicasad` · Project Manager & Developer
+
+- Designed the full relational database schema and managed PostgreSQL migrations
+- Populated the database with realistic synthetic seed data for development and evaluation
+- Implemented the TOTP/2FA system including the Flask microservice, secret encryption, QR code generation, backup codes, and login flow integration
+- Set up Grafana with custom dashboards and Adminer for database administration
+- Coordinated team task distribution, milestone tracking via GitHub Issues
+- Authored this README
+
+*Challenges:* Integrating the TOTP Flask container securely within the NestJS authentication flow required careful design of the inter-service HTTP communication and encryption of secrets at rest.
+
+---
+
+### Xavi — `fcatala-` · Product Owner & Developer
+
+- Co-led product vision and feature scope definition with Natalia
+- Implemented the full authentication stack: local login, JWT strategy, 42 OAuth, and Google OAuth
+- Built the avatar selection and upload system
+- Developed the user profile screen (view, edit, stats display)
+
+*Challenges:* Handling OAuth edge cases — particularly account merging when the same email exists via both a local account and an OAuth provider — required careful guard logic and session state management.
+
+---
+
+### Natalia — `maria-nm` · Product Owner & Developer
+
+- Co-led product vision and feature prioritization with Xavi
+- Architected and implemented the WebSocket infrastructure (Socket.IO gateway) used by both the chat and the game
+- Built the real-time chat system (channels, direct messages, message persistence)
+- Developed the remote multiplayer Pong game mode
+- Implemented the friends system (requests, acceptance, online status)
+- Set up Prometheus metrics exposition from the NestJS backend
+
+*Challenges:* Synchronizing game state over WebSockets with low latency required careful management of event loops and server-side authoritative game logic to prevent cheating and desync between clients.
+
+---
+
+### Adria — `adrmarqu` · Developer
+
+- Implemented the local Pong game (two players, same keyboard, same browser)
+- Developed the AI opponent mode with simulated human-like paddle behavior
+- Owned the entire CSS and visual design across all screens, ensuring a coherent and responsive UI
+
+*Challenges:* The AI opponent required tuning the paddle prediction algorithm to feel competitive but beatable — achieving a balance between deterministic optimal play and intentional imperfection.
+
+---
+
+## Known Limitations
+
+- The AI opponent uses a heuristic prediction model; it does not learn or adapt between sessions.
+- GDPR data export is partially implemented (users can request their data) but the deletion flow may not cover all edge cases in the current version.
+- No mobile touch controls are implemented for the Pong game; the game is designed for keyboard input.
+
+---
+
+## License
+
+This project was developed as part of the 42 curriculum. It is submitted for academic evaluation and is not licensed for redistribution.
+
+---
+
+## Credits
+
+- 42 School for the project subject and evaluation framework
+- The open-source communities behind NestJS, React, Drizzle ORM, Socket.IO, Prometheus, and Grafana
+- AI tools (Claude, ChatGPT) for documentation generation and debugging assistance
+
+---
+
+## Data Sources
+
+- [Language codes](https://github.com/datasets/language-codes/tree/main)
+- [Country codes — ISO 3166](https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv)

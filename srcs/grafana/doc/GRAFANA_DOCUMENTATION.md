@@ -268,3 +268,5 @@ sequenceDiagram
 ## Adding a New Alert Rule
 
 Edit `provisioning/alerting/alert_rules.yaml` and add a new rule block under an existing or new group. Reload Grafana or wait for the provisioning cycle to apply it.
+
+[Return to Main modules table](../../../README.md#modules)

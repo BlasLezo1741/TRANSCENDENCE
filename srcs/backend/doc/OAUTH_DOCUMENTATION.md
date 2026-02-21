@@ -1601,3 +1601,5 @@ transcendence/
 ## License
 
 This OAuth implementation follows the same license as the Transcendence project.
+
+[Return to Main modules table](../../../README.md#modules)

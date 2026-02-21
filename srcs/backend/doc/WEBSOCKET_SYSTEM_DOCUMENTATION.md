@@ -661,3 +661,5 @@ The WebSocket system is the real-time nervous system of the platform. A single `
 **Game loop:** ~60 FPS, server-authoritative
 
 **Result:** Production-grade real-time infrastructure powering gameplay, presence, and social interactions simultaneously. 🎮
+
+[Return to Main modules table](../../../README.md#modules)

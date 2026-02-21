@@ -329,3 +329,5 @@ To add a new translatable string:
 - `debug: true` should be set to `false` in production builds to avoid verbose console output.
 - Dynamic content (e.g., country names fetched from the API) is not translated by this system — those strings come from the database and must be handled server-side or via a separate lookup table.
 - No pluralization rules are currently configured. If plural forms are needed in the future, i18next's built-in `_plural` suffix convention or the `i18next-icu` plugin should be adopted.
+
+[Return to Main modules table](../../../README.md#modules)

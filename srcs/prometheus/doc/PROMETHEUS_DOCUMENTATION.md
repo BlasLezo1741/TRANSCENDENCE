@@ -172,3 +172,5 @@ To monitor additional services, add a new job block to `prometheus.yml` and rest
 ```
 
 No Grafana restart is required — new metrics become automatically available as Prometheus collects them.
+
+[Return to Main modules table](../../../README.md#modules)

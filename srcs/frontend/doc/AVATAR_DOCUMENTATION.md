@@ -318,3 +318,5 @@ Using `userId % avatarCount` produces a deterministic, uniform distribution with
 - [x] `null` values are accepted
 - [x] OAuth URLs are stored and returned unmodified
 - [x] Request without a valid JWT is rejected with `401`
+
+[Return to Main modules table](../../../README.md#modules)

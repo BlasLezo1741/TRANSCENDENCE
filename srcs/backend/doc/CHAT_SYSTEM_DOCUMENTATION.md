@@ -640,3 +640,5 @@ The chat system delivers real-time direct messaging through a dual-channel appro
 **Files:** 7 backend files (module, gateway, service, controller + 3 spec files)  
 **Database tables used:** `direct_message`, `player_friend`, `player`  
 **Transport layers:** WebSocket (Socket.IO) + HTTP REST
+
+[Return to Main modules table](../../../README.md#modules)
