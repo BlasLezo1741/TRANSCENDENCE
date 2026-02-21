@@ -23,9 +23,25 @@ interface ChatMessage {
     time: string;
 }
 
+//NUEVA FUNCIÓN: Helper para formatear la hora correctamente a la zona local
+const formatLocalTime = (dateString: string | undefined | null) => {
+    if (!dateString) return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Si la fecha que viene de la BD no acaba en 'Z' (indicador de UTC), se lo añadimos
+    const utcDateString = dateString.endsWith('Z') ? dateString : `${dateString}Z`;
+    const date = new Date(utcDateString);
+    
+    // Si la fecha es inválida por algún motivo, devolvemos la hora actual
+    if (isNaN(date.getTime())) {
+        return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
 export const ChatSidebar = () => {
     
-    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    //const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
     const { t } = useTranslation();
     // --- ESTADOS ---
     const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +68,7 @@ export const ChatSidebar = () => {
         if (!CURRENT_USER_ID) return;
 
         // fetch(`http://localhost:3000/chat/users?current=${CURRENT_USER_ID}`)
-        fetch(`${API_URL}/chat/users?current=${CURRENT_USER_ID}`)
+        fetch(`/chat/users?current=${CURRENT_USER_ID}`)
             .then(res => res.json())
             .then(data => {
                 console.log("📦 Datos RAW de amigos recibidos:", data);
@@ -153,7 +169,7 @@ export const ChatSidebar = () => {
 
         setMessages([]); 
 
-        fetch(`${API_URL}/chat/history?user1=${CURRENT_USER_ID}&user2=${selectedChatId}`)
+        fetch(`/chat/history?user1=${CURRENT_USER_ID}&user2=${selectedChatId}`)
             .then(res => res.json())
             .then(data => {
                 // DEBUG: Ver qué está llegando exactamente
@@ -169,14 +185,15 @@ export const ChatSidebar = () => {
                         senderId: Number(msg.senderId),
                         text: msg.content,
                         // Convertir la fecha de forma segura
-                        time: new Date(dateRaw).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        //time: new Date(dateRaw).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        time: formatLocalTime(dateRaw)
                     };
                 });
                 setMessages(historyFormatted);
             })
             .catch(err => console.error("Error cargando historial:", err));
             
-    }, [selectedChatId, CURRENT_USER_ID, API_URL]); // Añadido API_URL a dependencias
+    }, [selectedChatId, CURRENT_USER_ID]); // Añadido API_URL a dependencias
 
     // ---------------------------------------------------------
     // LÓGICA 3: RECEPCIÓN SOCKET
@@ -196,7 +213,8 @@ export const ChatSidebar = () => {
                         id: Number(newMessage.id),
                         senderId: msgSenderId,
                         text: newMessage.content,
-                        time: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        //time: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        time: formatLocalTime(newMessage.createdAt)
                     }
                 ]);
             } else {
@@ -230,6 +248,7 @@ export const ChatSidebar = () => {
             senderId: Number(CURRENT_USER_ID),
             text: textToSend,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
         };
         setMessages((prev: ChatMessage[]) => [...prev, optimisticMsg]);
         setMsgInput(""); 
@@ -316,7 +335,7 @@ export const ChatSidebar = () => {
                                             c.id === chat.id ? { ...c, unread: 0 } : c
                                         ));
                                         // 2. API: Marcar leído
-                                        fetch(`${API_URL}/chat/read`, {
+                                        fetch('/chat/read', {
                                             method: 'PATCH',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({

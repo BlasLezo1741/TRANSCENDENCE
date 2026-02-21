@@ -33,7 +33,8 @@ datasources:
   - name: Prometheus
     type: prometheus
     # Aquí usamos el alias que definimos en el docker-compose de prometheus
-    url: http://prometheus_alias:9090 
+    #url: http://prometheus_alias:9090
+    url: http://prometheus:9090/prometheus 
     access: proxy
     isDefault: false
     uid: prometheus_001

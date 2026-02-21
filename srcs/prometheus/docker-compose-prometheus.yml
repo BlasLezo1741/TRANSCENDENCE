@@ -8,13 +8,15 @@ services:
       # Montamos la configuración
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - ../../data/prometheus:/prometheus
-    ports:
-      - "${PROM_CONTAINER_PORT:-9090}:9090"
+    #Elimino. Nginx gestionará el acceso si necesitamos entrar a su interfaz
+    # ports:
+    #   - "${PROM_CONTAINER_PORT:-9090}:9090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.external-url=/prometheus/' #para nginx
     networks:
       transcendence_net:
         aliases:

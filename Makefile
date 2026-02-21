@@ -49,34 +49,10 @@ all: $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-env
 	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
-#Actualizar VITE_BACKEND_URL en .env si estamos en Codespaces CAMBIO A http://localhost:3000
-
+# Actualizar URLs en .env para la nueva arquitectura Nginx (HTTPS)
 # update-env:
-# 	@ \
-# 	FE_PORT=$$(grep FE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2); \
-# 	BE_PORT=$$(grep BE_CONTAINER_PORT $(ENV_FILE) | cut -d '=' -f2); \
-# 	echo "Ports extracted: $$FE_PORT and $$BE_PORT";
-# 	@if [ -n "$(CODESPACE_NAME)" ]; then \
-# 		echo "🌍 Modo: Codespaces detected"; \
-# 		sed -i 's|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-3000.app.github.dev|' srcs/.env; \
-# 	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
-# 		echo "🪟 Modo: WSL (Windows) detectado"; \
-# 		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
-# 		if [ -z "$$WIN_IP" ]; then WIN_IP="localhost"; fi; \
-# 		echo "✅ IP Local (Windows) configurada: $$WIN_IP"; \
-# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:3000|" srcs/.env; \
-# 	else \
-# 		echo "🐧 Modo: Linux Nativo / Mac detectado"; \
-# 		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
-# 		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
-# 		echo "✅ IP Local (Linux) configurada: $$LINUX_IP"; \
-# 		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://localhost:3000|" srcs/.env; \
-# 	fi
-# Unified Block: Notice there is no @ before the if. 
-# By removing the @ there and ensuring the previous line ends with ; \, 
-# the entire script runs in one shell execution. 
-# Now, $$BE_PORT is visible everywhere.
-
+# 	echo "Skip update"
+# Actualizar URLs en .env para la nueva arquitectura Nginx (HTTPS en puerto 8443)
 update-env:
 	cp srcs/.env.example srcs/.env
 	@printf "POSTGRES_USER: ";             read POSTGRES_USER; \
@@ -88,29 +64,50 @@ update-env:
 	sed -i "s|^OAUTH_GOOGLE_CLIENT_SECRET=.*|OAUTH_GOOGLE_CLIENT_SECRET=$$OAUTH_GOOGLE_CLIENT_SECRET|" srcs/.env; \
 	sed -i "s|^OAUTH_42_CLIENT_SECRET=.*|OAUTH_42_CLIENT_SECRET=$$OAUTH_42_CLIENT_SECRET|"             srcs/.env; \
 	echo "✔  .env actualizado correctamente."
-	@FE_PORT=$$(grep "^FE_CONTAINER_PORT=" $(ENV_FILE) | cut -d '=' -f2 | tr -d '\r'); \
-	BE_PORT=$$(grep "^BE_CONTAINER_PORT=" $(ENV_FILE) | cut -d '=' -f2 | tr -d '\r'); \
-	echo "✅ Ports extracted: FE: >$$FE_PORT<, BE: >$$BE_PORT<"; \
-	if [ -n "$(CODESPACE_NAME)" ]; then \
-		echo "🌍 Modo: Codespaces detected"; \
-		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=https://$(CODESPACE_NAME)-$$BE_PORT.app.github.dev|" srcs/.env; \
-	elif grep -q Microsoft /proc/version || [ -n "$$WSL_DISTRO_NAME" ]; then \
-		echo "🪟 Modo: WSL (Windows) detectado"; \
-		WIN_IP=$$(powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object -Property RouteMetric | Select-Object -ExpandProperty InterfaceIndex -First 1) | Select-Object -ExpandProperty IPAddress" | tr -d '\r'); \
-		[ -z "$$WIN_IP" ] && WIN_IP="localhost"; \
-		echo "✅ IP Local (Windows): $$WIN_IP"; \
-		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$WIN_IP:$$BE_PORT|" srcs/.env; \
+	# @echo "Leyendo entorno y configurando Proxy Nginx en puerto 8443..."
+	# @if [ -n "$$(CODESPACE_NAME)" ]; then \
+	# 	echo " Modo: Codespaces detectado"; \
+	# 	BASE_URL="https://$$(CODESPACE_NAME)-8443.app.github.dev"; \
+	# else \
+	# 	echo " Modo: Local (Mac/Linux/WSL) detectado"; \
+	# 	BASE_URL="https://localhost:8443"; \
+	# fi; \
+	# echo " Nginx Entrypoint configurado en: $$BASE_URL"; \
+	# sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=$$BASE_URL|" $(ENV_FILE); \
+	# sed -i "s|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=$$BASE_URL|" $(ENV_FILE); \
+	# sed -i "s|^VITE_AUF_API_URL=.*|VITE_AUF_API_URL=$$BASE_URL|" $(ENV_FILE); \
+	# sed -i "s|^VITE_AUS_API_URL=.*|VITE_AUS_API_URL=$$BASE_URL|" $(ENV_FILE); \
+	# sed -i "s|^GF_SERVER_ROOT_URL=.*|GF_SERVER_ROOT_URL=$$BASE_URL/grafana/|" $(ENV_FILE); \
+	# sed -i "s|^OAUTH_42_CALLBACK_URL=.*|OAUTH_42_CALLBACK_URL=$$BASE_URL/auth/42/callback|" $(ENV_FILE); \
+	# sed -i "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" $(ENV_FILE)
+	@echo "Leyendo entorno y configurando Proxy Nginx en puerto 8443..."
+	@if [ -n "$$(CODESPACE_NAME)" ]; then \
+		echo " Modo: Codespaces detectado"; \
+		BASE_URL="https://$$(CODESPACE_NAME)-8443.app.github.dev"; \
+	elif grep -q Microsoft /proc/version 2>/dev/null || [ -n "$$WSL_DISTRO_NAME" ]; then \
+		echo " Modo: WSL (Windows) detectado"; \
+		BASE_URL="https://localhost:8443"; \
+	elif [ "$$(uname -s)" = "Darwin" ]; then \
+		echo " Modo: Mac OS (42) detectado"; \
+		MAC_IP=$$(ipconfig getifaddr en0 || ipconfig getifaddr en1 || echo "localhost"); \
+		echo " IP Local (Mac): $$MAC_IP"; \
+		BASE_URL="https://$$MAC_IP:8443"; \
 	else \
-		echo "🐧 Modo: Linux Nativo / Mac detectado"; \
-		LINUX_IP=$$(hostname -I | awk '{print $$1}' || echo "localhost"); \
-		[ -z "$$LINUX_IP" ] && LINUX_IP="localhost"; \
-		echo "✅ IP Local (Linux): $$LINUX_IP"; \
-		sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:$$BE_PORT|" srcs/.env; \
-	fi
-
-
-#sed -i "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=http://$$LINUX_IP:3000|" srcs/.env;
-	@echo "URLs actualizadas: BE en $(BE_PORT), FE en $(FE_PORT)";
+		echo "🐧 Modo: Linux Nativo detectado"; \
+		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
+		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
+		echo " IP Local (Linux): $$LINUX_IP"; \
+		BASE_URL="https://$$LINUX_IP:8443"; \
+	fi; \
+	echo " Nginx Entrypoint configurado en: $$BASE_URL"; \
+	sed -i.bak "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=$$BASE_URL|" $(ENV_FILE); \
+	sed -i.bak "s|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=$$BASE_URL|" $(ENV_FILE); \
+	sed -i.bak "s|^VITE_AUF_API_URL=.*|VITE_AUF_API_URL=$$BASE_URL|" $(ENV_FILE); \
+	sed -i.bak "s|^VITE_AUS_API_URL=.*|VITE_AUS_API_URL=$$BASE_URL|" $(ENV_FILE); \
+	sed -i.bak "s|^GF_SERVER_ROOT_URL=.*|GF_SERVER_ROOT_URL=$$BASE_URL/grafana/|" $(ENV_FILE); \
+	sed -i.bak "s|^OAUTH_42_CALLBACK_URL=.*|OAUTH_42_CALLBACK_URL=$$BASE_URL/auth/42/callback|" $(ENV_FILE); \
+	sed -i.bak "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" $(ENV_FILE); \
+	rm -f $(ENV_FILE).bak
 
 # Create postgres data directory if does not exists
 $(DB_DATA_DIR):

@@ -46,9 +46,14 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         const fetchCountries = async () => {
             try {
                 
-                const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-                console.log(`reading  countries from ${API_URL}/countries`);
-                const response = await fetch(`${API_URL}/countries`, 
+                // const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+                // console.log(`reading  countries from ${API_URL}/countries`);
+                // const response = await fetch(`${API_URL}/countries`, 
+                // CAMBIO CLAVE: Usamos directamente la ruta relativa '/countries'
+                // El navegador le añadirá automáticamente 'https://tu-ip:8443' delante.
+                console.log(`reading countries from /countries (Ruta relativa)`);
+                
+                const response = await fetch('/countries',
                     {
                         method: 'GET',
                         mode: 'cors', // Asegura que CORS esté habilitado en el backend
@@ -139,7 +144,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     const handleOAuth = (provider: 'google' | '42') => {
         // Redirect browser to Backend Auth Endpoint
         // Ensure this matches your backend port (usually 3000)
-        window.location.href = `http://localhost:3000/auth/${provider}`;
+        console.log(`Redirigiendo a OAuth con ${provider}`);
+        //window.location.href = `http://localhost:3000/auth/${provider}`;
+        window.location.href = `/auth/${provider}`; //para nginx
     };
 
     return (

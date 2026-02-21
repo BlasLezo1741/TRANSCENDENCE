@@ -9,8 +9,9 @@ services:
     container_name: ${FE_CONTAINER_NAME}
     image: ${FE_CONTAINER_NAME}        
     restart: on-failure
-    ports:
-      - ${FE_CONTAINER_PORT}:${FE_CONTAINER_PORT} # Puerto para el frontend
+    # Elimino par no exponer el puerto
+    # ports:
+    #   - ${FE_CONTAINER_PORT}:${FE_CONTAINER_PORT} # Puerto para el frontend
     volumes:
       - .:/app
       - /app/node_modules
@@ -19,10 +20,7 @@ services:
       - ../.env
     networks:
       transcendence_net:
-        # ipv4_address: 192.168.1.4  # Fixed IP
-        # ipv4_address: 172.20.0.4 #cambio para que no haya conflictos en casa
         aliases:
-          # - in_net
           - frontend_alias
     depends_on:
       - ${BE_CONTAINER_NAME}

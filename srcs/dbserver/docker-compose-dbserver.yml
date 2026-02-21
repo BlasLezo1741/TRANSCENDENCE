@@ -4,8 +4,9 @@ services:
     image: postgres:${DB_POSTGRES_VERSION}
     restart: always
     container_name: dbserver
-    ports:
-      - "5432:5432"  # <--- ESTO ES LO QUE FALTA para acceder fuera de docker   
+    # Elimino par no exponer el puerto
+    # ports:
+    #   - "5432:5432"  # <--- ESTO ES LO QUE FALTA para acceder fuera de docker   
     env_file:
       - ../.env
     environment:
@@ -21,10 +22,7 @@ services:
       - ./scripts_init:/docker-entrypoint-initdb.d/
     networks:
       transcendence_net:
-        # ipv4_address: 192.168.1.2  # Fixed IP
-        #ipv4_address: 172.20.0.2 #cambio para que no haya conflictos en casa
         aliases:
-          #- in_net
           - dbserver_alias
 
     logging:

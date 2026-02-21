@@ -8,32 +8,26 @@ include: # Please keep alphabetic order
   - grafana/docker-compose-grafana.yml
   - prometheus/docker-compose-prometheus.yml
   - totp/docker-compose-totp.yml
+  - nginx/docker-compose-nginx.yml
 
 networks:
+  public_net:         # <--- AÑADIDA: Red pública (Solo para Nginx)
+    name: public_net
+    driver: bridge
   transcendence_net:
     name: thenet_v2
     driver: bridge
-    # ipam:
-    #   config:
-    #     # - subnet: 192.168.1.0/28  # Define the IP range
+    # internal: true   # <--- Necesita salir al exterior para Oauth y Alerts
   auth_net:
     name: auth_net
     driver: bridge    
     internal: true # Aislada del mundo exterior
-    ipam:
-      config:
-        - subnet: 192.168.2.0/28  # Define the IP range
   db_net:
     name: db_net
     driver: bridge    
-    internal: true # Solo compartida con la base de datos
-    ipam:
-      config:
-        - subnet: 192.168.3.0/28  # Define the IP range    #     - subnet: 172.20.0.0/28
-
+    internal: true # Aislada .Solo compartida con la base de datos
 
 volumes:
-  volumes:
   db_data:
     driver: local
     driver_opts:
@@ -46,9 +40,3 @@ volumes:
       type: none
       device: "${TRANSCENDENCE_HOME}/data/grafana"
       o: bind
-  # prometheus_data:
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: "${TRANSCENDENCE_HOME}/data/prometheus"
-  #     o: bind
