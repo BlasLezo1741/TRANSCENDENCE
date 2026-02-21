@@ -3,7 +3,7 @@
 // srcs/frontend/src/ts/utils/auth.ts
 
 // Recuperamos la URL del entorno (igual que en socketService)
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+//const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 export function checkPassword(password: string, repeat: string) {
     // ... (Tu código de validación igual que antes) ...
@@ -28,9 +28,9 @@ export async function registUser(
     language: string, 
     enabled2FA: boolean) {
     try {
-        console.log(`Intento de registro en ${API_URL}/auth/register`);
+        console.log(`Intento de registro en /auth/register`);
         console.log(`Datos: ${user}, ${email}, ${birth}, ${country}, ${language}, 2FA: ${enabled2FA}`);
-        const response = await fetch(`${API_URL}/auth/register`, {
+        const response = await fetch(`/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             // Enviamos nombres claros
@@ -53,7 +53,7 @@ export async function registUser(
 
 export async function checkLogin(user: string, pass: string) {
     try {
-        const response = await fetch(`${API_URL}/auth/login`, {
+        const response = await fetch(`/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: user, password: pass })
@@ -68,8 +68,8 @@ export async function send2FACode(userId: number, totpCode: string) {
     try {
         // Determinar el endpoint según la longitud del código
         const endpoint = totpCode.length === 6 
-            ? `${API_URL}/auth/verify-totp`
-            : `${API_URL}/auth/verify-backup`;
+            ? `/auth/verify-totp`
+            : `/auth/verify-backup`;
 
         const response = await fetch(endpoint, {
             method: 'POST',

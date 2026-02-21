@@ -27,7 +27,7 @@ export interface UpdateProfileData {
     avatarUrl?: string;
 }
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+//const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 // Helper to get token
 const getToken = (): string | null => {
@@ -66,7 +66,7 @@ export const getMyProfile = async (): Promise<UserProfile | null> => {
             return null;
         }
 
-        const url = `${API_URL}/auth/profile`;
+        const url = `/auth/profile`;
         console.log("📡 [user.service] Fetching from:", url);
 
         const response = await fetch(url, {
@@ -115,7 +115,7 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
             return { ok: false, msg: "No authentication token" };
         }
 
-        const url = `${API_URL}/auth/profile`;
+        const url = `/auth/profile`;
         console.log("🔍 [user.service] STEP 9: Sending PUT request to:", url);
         console.log("🔍 [user.service] Request body:", JSON.stringify(updateData));
 
@@ -173,7 +173,7 @@ export const getCountries = async (): Promise<Country[]> => {
     console.log("📡 [user.service] getCountries() - Starting request...");
 
     try {
-        const url = `${API_URL}/auth/countries`;
+        const url = `/auth/countries`;
         console.log("📡 [user.service] Fetching from:", url);
 
         const response = await fetch(url, {
@@ -210,7 +210,7 @@ export const deleteMyAccount = async (): Promise<{ ok: boolean; msg: string }> =
             return { ok: false, msg: "No authentication token" };
         }
 
-        const url = `${API_URL}/auth/profile`;
+        const url = `/auth/profile`;
         const response = await fetch(url, {
             method: 'DELETE',
             headers: {

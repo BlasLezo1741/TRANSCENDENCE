@@ -1,6 +1,6 @@
 import { socket } from './socketService';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+//const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 // --- INTERFACES ---
 export interface Friend {
@@ -27,7 +27,7 @@ export interface UserCandidate {
 export const getMyFriends = async (): Promise<Friend[]> => {
     const userId = localStorage.getItem("pong_user_id");
     
-    const response = await fetch(`${API_URL}/friends/list?userId=${userId}`);
+    const response = await fetch(`/friends/list?userId=${userId}`);
     
     if (!response.ok) throw new Error("Error fetching friends");
     return await response.json();
@@ -37,7 +37,7 @@ export const getMyFriends = async (): Promise<Friend[]> => {
 export const getPendingRequests = async (): Promise<PendingRequest[]> => {
     const userId = localStorage.getItem("pong_user_id");
     
-    const response = await fetch(`${API_URL}/friends/pending?userId=${userId}`);
+    const response = await fetch(`/friends/pending?userId=${userId}`);
     
     if (!response.ok) throw new Error("Error fetching requests");
     return await response.json();
@@ -56,7 +56,7 @@ export const sendFriendRequest = async (targetId: number) => {
 
     console.log(`📤 [FRONT] Enviando solicitud: Yo (${userId}) -> Él (${targetId})`);
 
-    const response = await fetch(`${API_URL}/friends/request`, {
+    const response = await fetch(`/friends/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, targetId }) // Clave correcta: userId
@@ -76,7 +76,7 @@ export const acceptFriendRequest = async (targetId: number) => {
     const storedId = localStorage.getItem("pong_user_id");
     const userId = storedId ? parseInt(storedId) : 0;
 
-    const response = await fetch(`${API_URL}/friends/accept`, {
+    const response = await fetch(`/friends/accept`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // 🔥 CORREGIDO: Antes enviabas myId, ahora userId para coincidir con el backend
@@ -90,7 +90,7 @@ export const blockUser = async (targetId: number) => {
     const storedId = localStorage.getItem("pong_user_id");
     const userId = storedId ? parseInt(storedId) : 0;
 
-    const response = await fetch(`${API_URL}/friends/block`, {
+    const response = await fetch(`/friends/block`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // 🔥 CORREGIDO: Antes enviabas myId, ahora userId
@@ -103,7 +103,7 @@ export const blockUser = async (targetId: number) => {
 export const getUsersToInvite = async (): Promise<UserCandidate[]> => {
     const userId = localStorage.getItem("pong_user_id");
     
-    const response = await fetch(`${API_URL}/friends/candidates?userId=${userId}`, {
+    const response = await fetch(`/friends/candidates?userId=${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ export const removeFriend = async (targetId: number) => {
     
     const userId = parseInt(storedId);
 
-    const response = await fetch(`${API_URL}/friends/remove`, {
+    const response = await fetch(`/friends/remove`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, targetId })

@@ -2,14 +2,15 @@ import { io, Socket } from 'socket.io-client';
 import type { GameUpdatePayload, ScoreUpdatePayload } from '../ts/types';
 
 // 1. Obtenemos la URL del .env
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL;
+//const SOCKET_URL = import.meta.env.VITE_BACKEND_URL;
+const SOCKET_URL = '/';
 
 // 2. Verificación de seguridad
 if (!SOCKET_URL) {
-  console.error("⚠️ ERROR: VITE_BACKEND_URL no está definida en el archivo .env");
+  console.log(" Intentando conectar al socket en ruta relativa:", SOCKET_URL);
 }
 
-console.log("🔌 Intentando conectar al socket en:", SOCKET_URL);
+console.log(" Intentando conectar al socket en:", SOCKET_URL);
 
 // Variables de estado
 let currentRoomId: string | null = null;
