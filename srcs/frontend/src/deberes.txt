@@ -1,0 +1,18 @@
+- CHAT
+
+    - Quitar espacio reservado del profile y del footer
+    - Cerrar el chat cuando vayas al PongScren
+    - En local y ia si abres el chat poner pausa
+    - En remoto el chat no se puede abrir
+
+- Meter todo el css en archivos .css
+
+- Hacer responsive la web para todos los sizes
+
+- Css QR y las otras cosas
+
+- Mirar los scrolls
+
+- Pasar a otros idiomas el infoscreen
+
+- En la IA: Hacer dificultad: cambiar texto y meter imagenes (cambiar el size del player)
