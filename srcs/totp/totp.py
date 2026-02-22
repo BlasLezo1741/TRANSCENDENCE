@@ -70,7 +70,8 @@ def create_random_key(length=40):
     random_key_b32 = base64.b32encode(random_key_b)
 
     #return random_key_b32  // postgres will save it open
-    return encrypt_secret(random_key_b32)  // postgres will save it cyphered    
+
+    return encrypt_secret(random_key_b32)  # postgres will save it cyphered    
 
 def user_correct_length(argument):
     """
@@ -305,7 +306,8 @@ def decrypt_secret(the_secret_encrypted):
     # Decrypt to get the raw secret
     the_secret = fernet.decrypt(the_secret_encrypted)
 
-    return the_secret
+    # Decode to str
+    return the_secret.decode('utf-8')
 
 
 
@@ -380,7 +382,7 @@ def get_totp_token(the_secret_encrypted):
     return str_totp
 
 
-def generate_qr(shared_secret_key, issuer, email):
+def generate_qr(encrypted_secret_key, issuer, email):
     """
     Generates a QR image with the information requested by
     public 2fA autenthicator as Microsoft, Google
@@ -392,12 +394,12 @@ def generate_qr(shared_secret_key, issuer, email):
         Image in format png
     otpauth://totp/{ISSUER}:{ACCOUNT}?secret={SECRET}&issuer={ISSUER}&algorithm={ALGORITHM}&digits={DIGITS}&period={PERIOD}
     """
-    
+    shared_secret_key=decrypt_secret(encrypted_secret_key)
     chunk1 = "otpauth://totp/"
     chunk2 = issuer.upper() + " ("
     chunk3 = email + ")?"
     #chunk4 = "secret=" + shared_secret_key.replace('=','') + "&"
-    chunk4 = "secret=" + decrypt_secret(shared_secret_key).replace('=','') + "&"
+    chunk4 = "secret=" + shared_secret_key.replace('=','') + "&"
     #chunk5 = "issuer=" + issuer.upper()
     chunk5 = "issuer=Pong Evolution"    
     qr_data = chunk1 + chunk2 + chunk3 + chunk4 + chunk5
