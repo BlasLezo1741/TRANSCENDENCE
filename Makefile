@@ -3,6 +3,10 @@ TRANSCENDENCE_HOME = $(shell echo $$HOME)
 CODESPACE_NAME = $(shell echo $$CODESPACE_NAME)
 export TRANSCENDENCE_HOME
 
+CURRENT_DIR = $(shell echo $$PWD)
+ENV_EXAMPLE_FILE = $(CURRENT_DIR)/srcs/.env.example
+DB_POSTGRES_VERSION := $(shell grep '^DB_POSTGRES_VERSION=' $(ENV_EXAMPLE_FILE) | cut -d '=' -f2)
+
 # ─── BUILDKIT ────────────────────────────────────────────────────────────────
 # Habilita BuildKit: necesario para --mount=type=cache en los Dockerfiles
 export DOCKER_BUILDKIT=1
@@ -15,7 +19,7 @@ export COMPOSE_DOCKER_CLI_BUILD=1
 
 
 # Nombre del archivo env
-ENV_FILE = srcs/.env
+ENV_FILE = $(CURRENT_DIR)/srcs/.env
 # En tu terminal de Codespaces
 
 
@@ -54,17 +58,21 @@ all: $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-env
 # 	echo "Skip update"
 # Actualizar URLs en .env para la nueva arquitectura Nginx (HTTPS en puerto 8443)
 update-env:
-	cp srcs/.env.example srcs/.env
-	@printf "POSTGRES_USER: ";             read POSTGRES_USER; \
-	printf "POSTGRES_PASSWORD: ";          stty -echo; read POSTGRES_PASSWORD;          stty echo; echo ""; \
-	printf "OAUTH_GOOGLE_CLIENT_SECRET: "; stty -echo; read OAUTH_GOOGLE_CLIENT_SECRET; stty echo; echo ""; \
-	printf "OAUTH_42_CLIENT_SECRET: ";     stty -echo; read OAUTH_42_CLIENT_SECRET;     stty echo; echo ""; \
-	sed -i "s|^POSTGRES_USER=.*|POSTGRES_USER=$$POSTGRES_USER|"                         srcs/.env; \
-	sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$$POSTGRES_PASSWORD|"             srcs/.env; \
-	sed -i "s|^OAUTH_GOOGLE_CLIENT_SECRET=.*|OAUTH_GOOGLE_CLIENT_SECRET=$$OAUTH_GOOGLE_CLIENT_SECRET|" srcs/.env; \
-	sed -i "s|^OAUTH_42_CLIENT_SECRET=.*|OAUTH_42_CLIENT_SECRET=$$OAUTH_42_CLIENT_SECRET|"             srcs/.env; \
-	echo "✔  .env actualizado correctamente."
-	@echo "Leyendo entorno y configurando Proxy Nginx en puerto 8443..."
+	@if [ -f srcs/.env ]; then \
+		echo "srcs/.env ya existe, omitiendo configuración."; \
+	else \
+		cp srcs/.env.example srcs/.env ;\
+		printf "POSTGRES_USER: ";             read POSTGRES_USER; \
+		printf "POSTGRES_PASSWORD: ";          stty -echo; read POSTGRES_PASSWORD;          stty echo; echo ""; \
+		printf "OAUTH_GOOGLE_CLIENT_SECRET: "; stty -echo; read OAUTH_GOOGLE_CLIENT_SECRET; stty echo; echo ""; \
+		printf "OAUTH_42_CLIENT_SECRET: ";     stty -echo; read OAUTH_42_CLIENT_SECRET;     stty echo; echo ""; \
+		sed -i "s|^POSTGRES_USER=.*|POSTGRES_USER=$$POSTGRES_USER|"                         srcs/.env; \
+		sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$$POSTGRES_PASSWORD|"             srcs/.env; \
+		sed -i "s|^OAUTH_GOOGLE_CLIENT_SECRET=.*|OAUTH_GOOGLE_CLIENT_SECRET=$$OAUTH_GOOGLE_CLIENT_SECRET|" srcs/.env; \
+		sed -i "s|^OAUTH_42_CLIENT_SECRET=.*|OAUTH_42_CLIENT_SECRET=$$OAUTH_42_CLIENT_SECRET|"             srcs/.env; \
+		echo "✔  .env actualizado correctamente." ; \
+	fi ; \
+	echo "Leyendo entorno y configurando Proxy Nginx en puerto 8443..."
 	@if [ -n "$$(CODESPACE_NAME)" ]; then \
 		echo " Modo: Codespaces detectado"; \
 		BASE_URL="https://$$(CODESPACE_NAME)-8443.app.github.dev"; \
@@ -98,7 +106,8 @@ $(DB_DATA_DIR):
 	@echo "Asegurando que $(SERVICE2) no está usando  $(DB_DATA_DIR)"
 	@docker compose -f srcs/docker-compose.yml down $(SERVICE2) 2>/dev/null || true
 	@if [ -d "$(DB_DATA_DIR)" ]; then \
-		sudo rm -rf $(DB_DATA_DIR)/*; \
+		echo "$(DB_DATA_DIR) ya existe. Usando contenedor auxiliar para limpiar contenido..."; \
+		docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/var/lib/postgresql/$(DB_POSTGRES_VERSION)/docker/*; \
 		echo "Contenido de $(DB_DATA_DIR) eliminado"; \
 	else \
 		mkdir -p $(DB_DATA_DIR); \
@@ -113,7 +122,8 @@ $(GRAFANA_DATA_DIR):
 	@docker compose -f srcs/docker-compose.yml down $(SERVICE8) 2>/dev/null || true
 	
 	@if [ -d "$(GRAFANA_DATA_DIR)" ]; then \
-		sudo rm -rf $(GRAFANA_DATA_DIR)/*; \
+		echo "$(GRAFANA_DATA_DIR) ya existe. Usando contenedor auxiliar para limpiar contenido..."; \
+		docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/var/grafana/*; \
 		echo "Contenido de $(GRAFANA_DATA_DIR) eliminado"; \
 	else \
 		mkdir -p $(GRAFANA_DATA_DIR); \
