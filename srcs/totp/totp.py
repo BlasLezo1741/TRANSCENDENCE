@@ -68,14 +68,9 @@ def create_random_key(length=40):
 
     # Encode the random bytes to Base32 for standard storage compatibility
     random_key_b32 = base64.b32encode(random_key_b)
-    #cwd = os.getcwd()
-    #pathfile = os.path.join(cwd, 'ft_rand.key')
 
-    # Save the generated key to a file
-    #with open(pathfile, 'wb') as f:
-    #    f.write(random_key_b32)
-    #return pathfile
-    return random_key_b32
+    #return random_key_b32  // postgres will save it open
+    return encrypt_secret(random_key_b32)  // postgres will save it cyphered    
 
 def user_correct_length(argument):
     """
@@ -263,18 +258,73 @@ def decrypt_key(path_to_key):
     return key_cyphered
 
 
-def get_totp_token(secret):
+def encrypt_secret(the_secret):
+    """
+    Encrypts a plain text secret using a master key stored in ~/.ssh/.encrypt.key.
+    This ensures the TOTP secret is not sitting clearly on the disk.
+    """
+    # Retrieve the Master Encryption Key (Symmetric)
+    # WARNING: This assumes the user has created this key previously.
+    cwd = os.getcwd()
+    cifer_key_path = os.path.join(os.environ["HOME"], ".ssh/.encrypt.key")
+    try:
+        with open(cifer_key_path, 'rb') as f:
+            cifer_key = f.read()
+
+        # Initialize Fernet (Symmetric Encryption)
+        fernet = Fernet(cifer_key)
+
+        # Encrypt the TOTP secret
+        the_secret_encrypted = fernet.encrypt(the_secret)
+
+        return the_secret_encrypted
+    except FileNotFoundError:
+        msg = "Encryption Key not found. Execute 'generate_encrypt_key.py'"
+        print(msg)
+
+
+def decrypt_secret(the_secret_encrypted):
+    """
+    Decrypts the_secret_encrypted using the master key
+    so it can be used to generate a token.
+    """
+
+    # Read the master key
+    cifer_key_path = os.path.join(os.environ["HOME"], ".ssh/.encrypt.key")
+    try:
+        with open(cifer_key_path, 'rb') as f:
+            cifer_key = f.read()
+    except FileNotFoundError:
+        msg = f"Not found {cifer_key_path}. "
+        msg = msg + "Execute 'generate_encrypt_key.py"
+        raise ValueError(msg)
+
+    # Initialize Fernet
+    fernet = Fernet(cifer_key)
+
+    # Decrypt to get the raw secret
+    the_secret = fernet.decrypt(the_secret_encrypted)
+
+    return the_secret
+
+
+
+
+
+
+def get_totp_token(the_secret_encrypted):
     """
     CORE FUNCTION: Implements the TOTP Algorithm (RFC 6238).
     Formula: TOTP = Truncate(HMAC-SHA1(K, T))
     """
-
+    secret = decrypt_secret(the_secret_encrypted)
 
     try:
         # Decode the secret from Base32. If padding is missing, try to handle it.
         # 'map01' maps '0' to 'O' and '1' to 'L' to fix common typos in Base32.
         #print(f"type(secret) = {type(secret)} - secret = {secret}")
         #secret_b32 = base64.b32decode(secret.decode(), True, map01='l')
+
         secret_b32 = secret
         secret_b32 = base64.b32decode(secret.encode('utf-8'), True, map01='l')
 
@@ -346,7 +396,8 @@ def generate_qr(shared_secret_key, issuer, email):
     chunk1 = "otpauth://totp/"
     chunk2 = issuer.upper() + " ("
     chunk3 = email + ")?"
-    chunk4 = "secret=" + shared_secret_key.replace('=','') + "&"
+    #chunk4 = "secret=" + shared_secret_key.replace('=','') + "&"
+    chunk4 = "secret=" + decrypt_secret(shared_secret_key).replace('=','') + "&"
     #chunk5 = "issuer=" + issuer.upper()
     chunk5 = "issuer=Pong Evolution"    
     qr_data = chunk1 + chunk2 + chunk3 + chunk4 + chunk5
