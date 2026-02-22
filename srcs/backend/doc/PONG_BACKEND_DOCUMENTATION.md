@@ -8,6 +8,22 @@ The architecture leverages Socket.IO for bidirectional communication, Drizzle OR
 
 ---
 
+## Evaluation Module Mapping
+This document serves as the primary technical evidence for two separate Major Modules in the project rubric:
+
+### 1. Web-based Pong game (Gaming & User Experience Module)
+*Fulfilled by the mathematical physics engine and core ruleset implementation.*
+* **Deterministic Physics:** The backend independently calculates vector math, ball velocities, and AABB (Axis-Aligned Bounding Box) paddle collisions, strictly enforcing the rules of Pong.
+* **Dynamic Gameplay:** Implements progressive difficulty (e.g., speed increasing by 2% on every hit) and dynamic reflection angles based on the exact point of paddle impact.
+
+### 2. Remote players - Real-time multiplayer (Gaming & User Experience Module)
+*Fulfilled by the server-authoritative synchronization and matchmaking queue.*
+* **Anti-Cheat Architecture:** The server acts as the absolute source of truth. Clients only send paddle intents (`paddle_move`), while the backend calculates collisions and broadcasts the true state, making client-side manipulation impossible.
+* **Fixed-Tick Simulation:** The physics loop runs at a stable 60 FPS (16ms) independent of client hardware, ensuring fair play and identical network sync across all connections.
+* **Resilience:** Safely handles edge cases like mid-game disconnections, network jitter (via client-side LERP), and concurrent room management without crashing.
+
+---
+
 ## System Architecture Overview
 
 ### Backend Component Diagram

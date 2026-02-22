@@ -12,6 +12,23 @@ The profile screen features a multi-tab interface:
 
 ---
 
+## Evaluation Module Mapping
+
+Because the Profile screen acts as the central hub for the user, its features are divided to satisfy two separate Major Modules in the project rubric:
+
+### 1. Standard User Management and Authentication
+*Fulfilled primarily by the **Info Tab** and the `auth.controller.ts` endpoints.*
+* **Identity Management:** Users can update their unique display name (nick) and email with strict backend uniqueness validation.
+* **Avatar System:** Users can select custom avatars or keep their default/OAuth pictures.
+* **Security:** Traditional users can update their passwords safely (bcrypt validation), while OAuth profiles are handled separately.
+
+### 2. Allow Users to Interact with Other Users
+*Fulfilled primarily by the **Friends Tab** and **Requests Tab**.*
+* **Social Hub:** Serves as the UI interface to view the friends list and check live online/offline status indicators.
+* **Networking Actions:** Users can initiate interactions by sending friend requests directly from the profile interface or removing existing connections.
+
+---
+
 ## System Architecture Diagram
 
 ```mermaid

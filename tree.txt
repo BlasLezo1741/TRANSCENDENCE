@@ -1,0 +1,490 @@
+.
+├── auth-service.logs
+├── data
+│   └── prometheus
+│       ├── 01KHZYSJXD3N9QBTZG27DAMA95
+│       │   ├── chunks
+│       │   │   └── 000001
+│       │   ├── index
+│       │   ├── meta.json
+│       │   └── tombstones
+│       ├── 01KJ04PD1Z4T53PX13TE1BHC1D
+│       │   ├── chunks
+│       │   │   └── 000001
+│       │   ├── index
+│       │   ├── meta.json
+│       │   └── tombstones
+│       ├── 01KJ04PD36QRQBZ0HKFTGY4SB9
+│       │   ├── chunks
+│       │   │   └── 000001
+│       │   ├── index
+│       │   ├── meta.json
+│       │   └── tombstones
+│       ├── 01KJ2842DF0D6YP7Z95N535BMG
+│       │   ├── chunks
+│       │   │   └── 000001
+│       │   ├── index
+│       │   ├── meta.json
+│       │   └── tombstones
+│       ├── chunks_head
+│       ├── queries.active
+│       └── wal
+│           ├── 00000021
+│           ├── 00000022
+│           ├── 00000023
+│           └── checkpoint.00000020
+│               └── 00000000
+├── docs
+│   ├── Branches_estrategy.md
+│   ├── commit_manual.md
+│   ├── deprecated
+│   │   ├── AVATAR_SYNC_TECHNICAL_DOCUMENTATION.md
+│   │   ├── AVATAR_SYSTEM_DOCUMENTATION.md
+│   │   └── README_BattleShip.md
+│   ├── en.subject_v19.pdf
+│   ├── en.subject_v20.pdf
+│   ├── ER.md
+│   ├── eval_guide_transcendence.pdf
+│   ├── learnings
+│   │   └── postgres.md
+│   ├── MOOC_9.1.Introducción a la privacidad en Internet.pdf
+│   ├── MOOC_9.2.GDPR-1.pdf
+│   ├── privacy_policy.txt
+│   ├── reparto tareas.xlsx
+│   ├── screenshots
+│   │   ├── user_reg_01.png
+│   │   ├── user_reg_02.png
+│   │   ├── user_reg_03.png
+│   │   ├── user_reg_04.png
+│   │   └── user_reg_05.png
+│   ├── terms_of_service.txt
+│   ├── user_authentication.md
+│   └── WEB_MAJOR_FRAMEWORK.md
+├── Makefile
+├── README.md
+├── srcs
+│   ├── adminer
+│   │   └── docker-compose-adminer.yml
+│   ├── backend
+│   │   ├── dist
+│   │   │   ├── drizzle
+│   │   │   │   ├── relations.d.ts
+│   │   │   │   ├── relations.js
+│   │   │   │   ├── relations.js.map
+│   │   │   │   ├── schema.d.ts
+│   │   │   │   ├── schema.js
+│   │   │   │   └── schema.js.map
+│   │   │   ├── drizzle.config.d.ts
+│   │   │   ├── drizzle.config.js
+│   │   │   ├── drizzle.config.js.map
+│   │   │   ├── src
+│   │   │   │   ├── app.controller.d.ts
+│   │   │   │   ├── app.controller.js
+│   │   │   │   ├── app.controller.js.map
+│   │   │   │   ├── app.module.d.ts
+│   │   │   │   ├── app.module.js
+│   │   │   │   ├── app.module.js.map
+│   │   │   │   ├── app.service.d.ts
+│   │   │   │   ├── app.service.js
+│   │   │   │   ├── app.service.js.map
+│   │   │   │   ├── auth
+│   │   │   │   │   ├── auth.controller.d.ts
+│   │   │   │   │   ├── auth.controller.js
+│   │   │   │   │   ├── auth.controller.js.map
+│   │   │   │   │   ├── auth.module.d.ts
+│   │   │   │   │   ├── auth.module.js
+│   │   │   │   │   ├── auth.module.js.map
+│   │   │   │   │   ├── auth.service.d.ts
+│   │   │   │   │   ├── auth.service.js
+│   │   │   │   │   ├── auth.service.js.map
+│   │   │   │   │   ├── dto
+│   │   │   │   │   │   ├── auth-response.dto.d.ts
+│   │   │   │   │   │   ├── auth-response.dto.js
+│   │   │   │   │   │   ├── auth-response.dto.js.map
+│   │   │   │   │   │   ├── complete-profile.dto.d.ts
+│   │   │   │   │   │   ├── complete-profile.dto.js
+│   │   │   │   │   │   └── complete-profile.dto.js.map
+│   │   │   │   │   ├── guards
+│   │   │   │   │   │   ├── jwt-auth.guard.d.ts
+│   │   │   │   │   │   ├── jwt-auth.guard.js
+│   │   │   │   │   │   └── jwt-auth.guard.js.map
+│   │   │   │   │   └── strategies
+│   │   │   │   │       ├── fortytwo.strategy.d.ts
+│   │   │   │   │       ├── fortytwo.strategy.js
+│   │   │   │   │       ├── fortytwo.strategy.js.map
+│   │   │   │   │       ├── google.strategy.d.ts
+│   │   │   │   │       ├── google.strategy.js
+│   │   │   │   │       ├── google.strategy.js.map
+│   │   │   │   │       ├── jwt.strategy.d.ts
+│   │   │   │   │       ├── jwt.strategy.js
+│   │   │   │   │       └── jwt.strategy.js.map
+│   │   │   │   ├── chat
+│   │   │   │   │   ├── chat.controller.d.ts
+│   │   │   │   │   ├── chat.controller.js
+│   │   │   │   │   ├── chat.controller.js.map
+│   │   │   │   │   ├── chat.gateway.d.ts
+│   │   │   │   │   ├── chat.gateway.js
+│   │   │   │   │   ├── chat.gateway.js.map
+│   │   │   │   │   ├── chat.module.d.ts
+│   │   │   │   │   ├── chat.module.js
+│   │   │   │   │   ├── chat.module.js.map
+│   │   │   │   │   ├── chat.service.d.ts
+│   │   │   │   │   ├── chat.service.js
+│   │   │   │   │   └── chat.service.js.map
+│   │   │   │   ├── countries
+│   │   │   │   │   ├── countries.controller.d.ts
+│   │   │   │   │   ├── countries.controller.js
+│   │   │   │   │   ├── countries.controller.js.map
+│   │   │   │   │   ├── countries.module.d.ts
+│   │   │   │   │   ├── countries.module.js
+│   │   │   │   │   ├── countries.module.js.map
+│   │   │   │   │   ├── countries.service.d.ts
+│   │   │   │   │   ├── countries.service.js
+│   │   │   │   │   └── countries.service.js.map
+│   │   │   │   ├── database.module.d.ts
+│   │   │   │   ├── database.module.js
+│   │   │   │   ├── database.module.js.map
+│   │   │   │   ├── dto
+│   │   │   │   │   ├── finish-game.dto.d.ts
+│   │   │   │   │   ├── finish-game.dto.js
+│   │   │   │   │   ├── finish-game.dto.js.map
+│   │   │   │   │   ├── game-update.response.d.ts
+│   │   │   │   │   ├── game-update.response.js
+│   │   │   │   │   ├── game-update.response.js.map
+│   │   │   │   │   ├── join-queue.dto.d.ts
+│   │   │   │   │   ├── join-queue.dto.js
+│   │   │   │   │   ├── join-queue.dto.js.map
+│   │   │   │   │   ├── match-found.interface.d.ts
+│   │   │   │   │   ├── match-found.interface.js
+│   │   │   │   │   ├── match-found.interface.js.map
+│   │   │   │   │   ├── match-found.response.d.ts
+│   │   │   │   │   ├── match-found.response.js
+│   │   │   │   │   ├── match-found.response.js.map
+│   │   │   │   │   ├── paddle-move.dto.d.ts
+│   │   │   │   │   ├── paddle-move.dto.js
+│   │   │   │   │   ├── paddle-move.dto.js.map
+│   │   │   │   │   ├── register-user.dto.d.ts
+│   │   │   │   │   ├── register-user.dto.js
+│   │   │   │   │   ├── register-user.dto.js.map
+│   │   │   │   │   ├── score-update.response.d.ts
+│   │   │   │   │   ├── score-update.response.js
+│   │   │   │   │   └── score-update.response.js.map
+│   │   │   │   ├── friends
+│   │   │   │   │   ├── friends.controller.d.ts
+│   │   │   │   │   ├── friends.controller.js
+│   │   │   │   │   ├── friends.controller.js.map
+│   │   │   │   │   ├── friends.dto.d.ts
+│   │   │   │   │   ├── friends.dto.js
+│   │   │   │   │   ├── friends.dto.js.map
+│   │   │   │   │   ├── friends.module.d.ts
+│   │   │   │   │   ├── friends.module.js
+│   │   │   │   │   ├── friends.module.js.map
+│   │   │   │   │   ├── friends.service.d.ts
+│   │   │   │   │   ├── friends.service.js
+│   │   │   │   │   └── friends.service.js.map
+│   │   │   │   ├── game.gateway.d.ts
+│   │   │   │   ├── game.gateway.js
+│   │   │   │   ├── game.gateway.js.map
+│   │   │   │   ├── gateway.module.d.ts
+│   │   │   │   ├── gateway.module.js
+│   │   │   │   ├── gateway.module.js.map
+│   │   │   │   ├── main.d.ts
+│   │   │   │   ├── main.js
+│   │   │   │   ├── main.js.map
+│   │   │   │   ├── metrics
+│   │   │   │   │   ├── metrics.module.d.ts
+│   │   │   │   │   ├── metrics.module.js
+│   │   │   │   │   ├── metrics.module.js.map
+│   │   │   │   │   ├── metrics.service.d.ts
+│   │   │   │   │   ├── metrics.service.js
+│   │   │   │   │   └── metrics.service.js.map
+│   │   │   │   ├── relations.d.ts
+│   │   │   │   ├── relations.js
+│   │   │   │   ├── relations.js.map
+│   │   │   │   ├── schema.d.ts
+│   │   │   │   ├── schema.js
+│   │   │   │   ├── schema.js.map
+│   │   │   │   ├── schema_OLD.d.ts
+│   │   │   │   ├── schema_OLD.js
+│   │   │   │   └── schema_OLD.js.map
+│   │   │   └── tsconfig.build.tsbuildinfo
+│   │   ├── doc
+│   │   │   ├── CHAT_SYSTEM_DOCUMENTATION.md
+│   │   │   ├── OAUTH_DOCUMENTATION.md
+│   │   │   ├── ORM_DOCUMENTATION.md
+│   │   │   ├── PONG_BACKEND_DOCUMENTATION.md
+│   │   │   └── WEBSOCKET_SYSTEM_DOCUMENTATION.md
+│   │   ├── docker-compose-backend.yml
+│   │   ├── Dockerfile
+│   │   ├── drizzle
+│   │   │   ├── 0000_right_wong.sql
+│   │   │   ├── meta
+│   │   │   │   ├── 0000_snapshot.json
+│   │   │   │   └── _journal.json
+│   │   │   ├── relations.ts
+│   │   │   └── schema.ts
+│   │   ├── drizzle.config.ts
+│   │   ├── eslint.config.mjs
+│   │   ├── nest-cli.json
+│   │   ├── node_modules
+│   │   ├── package copy.json
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── app.controller.spec.ts
+│   │   │   ├── app.controller.ts
+│   │   │   ├── app.module.ts
+│   │   │   ├── app.service.ts
+│   │   │   ├── auth
+│   │   │   │   ├── auth.controller.ts
+│   │   │   │   ├── auth.module.ts
+│   │   │   │   ├── auth.service.OLD
+│   │   │   │   ├── auth.service.ts
+│   │   │   │   ├── dto
+│   │   │   │   │   ├── auth-response.dto.ts
+│   │   │   │   │   └── complete-profile.dto.ts
+│   │   │   │   ├── guards
+│   │   │   │   │   └── jwt-auth.guard.ts
+│   │   │   │   └── strategies
+│   │   │   │       ├── fortytwo.strategy.ts
+│   │   │   │       ├── google.strategy.ts
+│   │   │   │       └── jwt.strategy.ts
+│   │   │   ├── chat
+│   │   │   │   ├── chat.controller.spec.ts
+│   │   │   │   ├── chat.controller.ts
+│   │   │   │   ├── chat.gateway.spec.ts
+│   │   │   │   ├── chat.gateway.ts
+│   │   │   │   ├── chat.module.ts
+│   │   │   │   ├── chat.service.spec.ts
+│   │   │   │   └── chat.service.ts
+│   │   │   ├── countries
+│   │   │   │   ├── countries.controller.ts
+│   │   │   │   ├── countries.module.ts
+│   │   │   │   └── countries.service.ts
+│   │   │   ├── database.module.ts
+│   │   │   ├── dto
+│   │   │   │   ├── finish-game.dto.ts
+│   │   │   │   ├── game-update.response.ts
+│   │   │   │   ├── join-queue.dto.ts
+│   │   │   │   ├── match-found.interface.ts
+│   │   │   │   ├── match-found.response.ts
+│   │   │   │   ├── paddle-move.dto.ts
+│   │   │   │   ├── register-user.dto.ts
+│   │   │   │   └── score-update.response.ts
+│   │   │   ├── friends
+│   │   │   │   ├── friends.controller.ts
+│   │   │   │   ├── friends.dto.ts
+│   │   │   │   ├── friends.module.ts
+│   │   │   │   └── friends.service.ts
+│   │   │   ├── game.gateway.ts
+│   │   │   ├── gateway.module.ts
+│   │   │   ├── main.ts
+│   │   │   ├── metrics
+│   │   │   │   ├── metrics.module.ts
+│   │   │   │   └── metrics.service.ts
+│   │   │   ├── relations.ts
+│   │   │   ├── schema_OLD.ts
+│   │   │   └── schema.ts
+│   │   ├── test
+│   │   │   ├── app.e2e-spec.ts
+│   │   │   └── jest-e2e.json
+│   │   ├── tsconfig.build.json
+│   │   └── tsconfig.json
+│   ├── dbserver
+│   │   ├── doc
+│   │   │   └── README_dbserver.md
+│   │   ├── docker-compose-dbserver.yml
+│   │   ├── README.md
+│   │   └── scripts_init
+│   │       ├── 00_schema.sql
+│   │       ├── 01_data.sql
+│   │       ├── 02_data_syntetic.sql
+│   │       ├── 10_functions.sql
+│   │       ├── countries.csv
+│   │       └── languages.csv
+│   ├── docker-compose.yml
+│   ├── frontend
+│   │   ├── doc
+│   │   │   ├── AI_OPPONENT_DOCUMENTATION.md
+│   │   │   ├── AVATAR_DOCUMENTATION.md
+│   │   │   ├── FRIENDS_DOCUMENTATION.md
+│   │   │   ├── I18N_SYSTEM_DOCUMENTATION.md
+│   │   │   ├── PONG_FRONTEND_DOCUMENTATION.md
+│   │   │   └── PROFILE_DOCUMENTATION.md
+│   │   ├── docker-compose-frontend.yml
+│   │   ├── Dockerfile
+│   │   ├── eslint.config.js
+│   │   ├── ft_transcendence.code-workspace
+│   │   ├── index.html
+│   │   ├── node_modules
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   ├── public
+│   │   │   ├── android-chrome-192x192.png
+│   │   │   ├── android-chrome-512x512.png
+│   │   │   ├── apple-touch-icon.png
+│   │   │   ├── favicon-16x16.png
+│   │   │   ├── favicon-32x32.png
+│   │   │   ├── favicon.ico
+│   │   │   ├── lezo.jpg
+│   │   │   └── vite.svg
+│   │   ├── README.md
+│   │   ├── site.webmanifest
+│   │   ├── src
+│   │   │   ├── App.tsx
+│   │   │   ├── assets
+│   │   │   │   ├── avatars
+│   │   │   │   │   ├── adventure.png
+│   │   │   │   │   ├── archer.png
+│   │   │   │   │   ├── armor.png
+│   │   │   │   │   ├── bow.png
+│   │   │   │   │   ├── castle.png
+│   │   │   │   │   ├── centaur.png
+│   │   │   │   │   ├── crystal.png
+│   │   │   │   │   ├── destructive.png
+│   │   │   │   │   ├── dragon-egg.png
+│   │   │   │   │   ├── fairy.png
+│   │   │   │   │   ├── flying-dragon.png
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── skull (2).png
+│   │   │   │   │   ├── skull.png
+│   │   │   │   │   └── sorceress.png
+│   │   │   │   ├── Flag_of_Catalonia.png
+│   │   │   │   ├── Home_chatgpt2.png
+│   │   │   │   ├── Home_chatgpt.png
+│   │   │   │   ├── Imagen_pong_CA.png
+│   │   │   │   ├── Imagen_pong_EN.png
+│   │   │   │   ├── Imagen_pong_FR.png
+│   │   │   │   ├── Imagen Pong v1.png
+│   │   │   │   ├── Imagen_pong_v2.png
+│   │   │   │   ├── nouser_chatgpt.png
+│   │   │   │   ├── react.svg
+│   │   │   │   └── x_chatgpt.png
+│   │   │   ├── components
+│   │   │   │   ├── AvatarSelector.tsx
+│   │   │   │   ├── Avatar.tsx
+│   │   │   │   ├── Canvas.tsx
+│   │   │   │   ├── ChatSidebar.tsx
+│   │   │   │   ├── Countdown.tsx
+│   │   │   │   ├── Footer.tsx
+│   │   │   │   ├── Header.tsx
+│   │   │   │   ├── LanguageSwitcher.tsx
+│   │   │   │   └── StatusBadge.tsx
+│   │   │   ├── context
+│   │   │   │   └── ModalContext.tsx
+│   │   │   ├── css
+│   │   │   │   ├── App.css
+│   │   │   │   ├── ChatSidebar.css
+│   │   │   │   ├── Countdown.css
+│   │   │   │   ├── Footer.css
+│   │   │   │   ├── Header.css
+│   │   │   │   ├── index.css
+│   │   │   │   ├── Login.css
+│   │   │   │   ├── MenuScreen.css
+│   │   │   │   ├── PongScreen.css
+│   │   │   │   └── ProfileScreen.css
+│   │   │   ├── i18n.ts
+│   │   │   ├── local
+│   │   │   │   ├── ca
+│   │   │   │   │   ├── about.html
+│   │   │   │   │   ├── contact.html
+│   │   │   │   │   ├── credits.html
+│   │   │   │   │   ├── privacy.html
+│   │   │   │   │   ├── terms.html
+│   │   │   │   │   └── translation_ca.json
+│   │   │   │   ├── en
+│   │   │   │   │   ├── about.html
+│   │   │   │   │   ├── contact.html
+│   │   │   │   │   ├── credits.html
+│   │   │   │   │   ├── privacy.html
+│   │   │   │   │   ├── terms.html
+│   │   │   │   │   └── translation_en.json
+│   │   │   │   ├── es
+│   │   │   │   │   ├── about.html
+│   │   │   │   │   ├── contact.html
+│   │   │   │   │   ├── credits.html
+│   │   │   │   │   ├── privacy.html
+│   │   │   │   │   ├── terms.html
+│   │   │   │   │   └── translation_es.json
+│   │   │   │   └── fr
+│   │   │   │       ├── about.html
+│   │   │   │       ├── contact.html
+│   │   │   │       ├── credits.html
+│   │   │   │       ├── privacy.html
+│   │   │   │       ├── terms.html
+│   │   │   │       └── translation_fr.json
+│   │   │   ├── main.tsx
+│   │   │   ├── oldApp.css
+│   │   │   ├── screens
+│   │   │   │   ├── InfoScreen.tsx
+│   │   │   │   ├── LoginScreen.tsx
+│   │   │   │   ├── MenuScreen.tsx
+│   │   │   │   ├── PongScreen.tsx
+│   │   │   │   ├── ProfileScreen.tsx
+│   │   │   │   ├── SettingsScreen.tsx
+│   │   │   │   ├── SignScreen.tsx
+│   │   │   │   └── StatsScreen.tsx
+│   │   │   ├── services
+│   │   │   │   ├── friend.service.ts
+│   │   │   │   ├── socketService.ts
+│   │   │   │   └── user.service.ts
+│   │   │   └── ts
+│   │   │       ├── models
+│   │   │       │   ├── Ball.ts
+│   │   │       │   ├── Player.ts
+│   │   │       │   └── Pong.ts
+│   │   │       ├── screenConf
+│   │   │       │   ├── screenProps.ts
+│   │   │       │   └── screenReducer.ts
+│   │   │       ├── types.ts
+│   │   │       └── utils
+│   │   │           ├── auth.ts
+│   │   │           ├── loadHtmlContent.ts
+│   │   │           └── string.ts
+│   │   ├── tsconfig.app.json
+│   │   ├── tsconfig.json
+│   │   ├── tsconfig.node.json
+│   │   ├── vite.config.ts
+│   │   └── workfrom42.code-workspace
+│   ├── grafana
+│   │   ├── doc
+│   │   │   └── GRAFANA_DOCUMENTATION.md
+│   │   ├── docker-compose-grafana.yml
+│   │   └── provisioning
+│   │       ├── alerting
+│   │       │   ├── alert_rules.yaml
+│   │       │   └── contact_points.yaml
+│   │       ├── dashboards
+│   │       │   ├── backend_metrics.json
+│   │       │   ├── dashboard.yml
+│   │       │   ├── transcendence_db.json
+│   │       │   ├── Transcendence_db_pong.json
+│   │       │   └── Trasncendence Backend.json
+│   │       └── datasources
+│   │           └── datasource.yml
+│   ├── nginx
+│   │   ├── docker-compose-nginx.yml
+│   │   ├── Dockerfile
+│   │   └── nginx.conf
+│   ├── prometheus
+│   │   ├── doc
+│   │   │   └── PROMETHEUS_DOCUMENTATION.md
+│   │   ├── docker-compose-prometheus.yml
+│   │   └── prometheus.yml
+│   ├── totp
+│   │   ├── app.py
+│   │   ├── doc
+│   │   │   ├── 2FA_DOCUMENTATION.md
+│   │   │   └── 2FA_LOGIN_DOCUMENTATION.md
+│   │   ├── docker-compose-totp.yml
+│   │   ├── Dockerfile
+│   │   ├── generate_encrypt_key.py
+│   │   ├── README_totp.md
+│   │   ├── requirements.txt
+│   │   └── totp.py
+│   └── tree_L5.txt
+├── test_listeners.sh
+└── tree.txt
+
+82 directories, 405 files

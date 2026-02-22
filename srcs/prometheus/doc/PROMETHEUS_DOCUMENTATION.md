@@ -6,6 +6,16 @@ Prometheus is the metrics collection engine of the Transcendence monitoring stac
 
 ---
 
+## Evaluation Justification: Monitoring System Module
+
+This document serves as the technical evidence for the Major Module: **"Monitoring system with Prometheus and Grafana"** (Part 1: Metrics Collection).
+It fulfills the project requirements by implementing a robust time-series database and scraping engine:
+* **Automated Data Aggregation:** Prometheus actively scrapes metrics from the NestJS backend and its own internal state at a fixed 15-second interval, eliminating the need for manual logging.
+* **Custom Application Metrics:** Beyond standard hardware metrics (CPU/RAM), it tracks domain-specific data such as `transcendence_users_total`, directly linking the DevOps monitoring stack to the application's business logic.
+* **Secure Containerized Integration:** Runs as an isolated container within the Docker network (`transcendence_net`), securely communicating with the backend without exposing raw metric endpoints to the public internet.
+
+---
+
 ## Architecture Position
 
 ```mermaid

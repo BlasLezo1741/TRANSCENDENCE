@@ -6,6 +6,16 @@ Grafana is the visualisation and alerting layer of the Transcendence monitoring 
 
 ---
 
+## Evaluation Justification: Monitoring System Module
+
+This document serves as the technical evidence for the Major Module: **"Monitoring system with Prometheus and Grafana"** (Part 2: Visualization and Alerting).
+It completes the DevOps monitoring requirement by translating raw data into actionable, visual insights:
+* **Dual-Source Dashboards:** Connects seamlessly to both Prometheus (for real-time application performance metrics) and PostgreSQL (for persistent game and user statistics), offering a unified monitoring hub.
+* **Automated Provisioning (Infrastructure as Code):** Dashboards, data sources, and alert rules are pre-configured via code (`.yaml`/`.json`). This ensures the entire monitoring environment is perfectly reproducible upon `docker compose up` without requiring any manual UI setup.
+* **Active Alerting System:** Demonstrates proactive monitoring by continuously evaluating PromQL queries (e.g., detecting new user registrations) and dispatching automated webhook alerts to a Discord channel.
+
+---
+
 ## Architecture Position
 
 ```mermaid
@@ -16,11 +26,10 @@ graph LR
         G[Grafana\ngrafana_alias]
     end
 
+    U[Browser / User] -->|HTTP GF_CONTAINER_PORT| G
     G -->|PromQL via proxy| P
     G -->|SQL queries| DB
-    U[Browser / User] -->|HTTP GF_CONTAINER_PORT| G
-    A[Discord Webhook] -->|Alert notifications| A
-    G -->|Alerting| A
+    G -->|Alert notifications| A[Discord Webhook]
 ```
 
 ---

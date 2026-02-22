@@ -8,6 +8,16 @@ The architecture is meticulously structured to decouple rendering concerns from 
 
 ---
 
+## Evaluation Justification: Web-based Pong Game Module
+
+This document serves as the primary technical evidence for the Major Module: **"Web-based Pong game"**. 
+It demonstrates how the core gameplay experience was built from scratch without the use of external game engines, fulfilling the strict project constraints:
+* **Engine-less Rendering:** The game is rendered natively using HTML5 `<canvas>` and the 2D Context API, orchestrated by React `requestAnimationFrame` loops.
+* **Responsive Input:** A custom event-driven input system accurately maps physical keyboard events (W/S and Arrow keys) to paddle movements in real time.
+* **Standalone Playability:** Before any networking is applied, the frontend contains a complete, self-sufficient physics engine supporting local Player vs. Player (PvP) and Player vs. AI (PvIA) modes.
+
+---
+
 ## System Architecture Overview
 
 ### Component Hierarchy Diagram
