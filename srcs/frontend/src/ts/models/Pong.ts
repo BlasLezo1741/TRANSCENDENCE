@@ -1,19 +1,20 @@
 import { Ball } from "./Ball.ts";
 import { Player } from "./Player.ts";
-import type { GameMode } from "../types.ts";
+import type { GameMode, GameDifficult } from "../types.ts";
 
 export class Pong
 {
     private c: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private mode: GameMode;
+    private diff: GameDifficult;
     public readonly player1: Player;
     public readonly player2: Player;
     public readonly ball: Ball;
 
     public readonly keysPressed: { [key: string]: boolean } = {};
     public readonly playerNumber: number; // 1 (Left) o 2 (Right)
-    private score: number[] = [0, 0];
+    public score: number[] = [0, 0];
     private winner: string = "none";
 
     // Solo para local/IA
@@ -25,6 +26,7 @@ export class Pong
         c: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
         mode: GameMode,
+        diff: GameDifficult,
         n: number,
         leftPlayerName: string,
         rightPlayerName: string,
@@ -34,9 +36,13 @@ export class Pong
         this.c = c;
         this.ctx = ctx;
         this.mode = mode;
+        if (mode === "ia")
+            this.diff = diff;
+        else
+            this.diff = "";
         this.playerNumber = n; 
-        this.player1 = new Player(leftPlayerName, 20, c.height);
-        this.player2 = new Player(rightPlayerName, c.width - 30, c.height);
+        this.player1 = new Player(leftPlayerName, 20, c.height, this.diff);
+        this.player2 = new Player(rightPlayerName, c.width - 30, c.height, "");
         this.ball = new Ball(c);
         // LÓGICA DE SINCRONIZACIÓN
         if (ballInit) {

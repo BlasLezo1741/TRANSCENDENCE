@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import Canvas from '../components/Canvas.tsx';
 import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
-import type { GameMode } from '../ts/types.ts';
+import type { GameMode, GameDifficult } from '../ts/types.ts';
 import { Countdown } from '../components/Countdown';
 import '../css/PongScreen.css';
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
+  difficult: GameDifficult;
   userName: string;
   opponentName: string;
   userAvatar?: string | null;      // Mi avatar
@@ -18,7 +19,7 @@ type PongScreenProps = ScreenProps & {
   roomId: string;
 };
 
-const PongScreen = ({ dispatch, mode, userName, opponentName, userAvatar, opponentAvatar, ballInit, playerSide, roomId }: PongScreenProps) =>
+const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAvatar, opponentAvatar, ballInit, playerSide, roomId }: PongScreenProps) =>
 {
   const { t } = useTranslation();
   // Si yo estoy a la izquierda: [Yo] vs [Rival]
@@ -89,6 +90,7 @@ return (
 
           <Canvas
             mode={mode}
+            difficult={difficult}
             dispatch={dispatch}
             userName={userName}
             opponentName={opponentName}

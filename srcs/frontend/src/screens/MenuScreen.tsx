@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { joinQueue, socket, setMatchData } from '../services/socketService.ts';
 
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
-import type { GameMode } from '../ts/types.ts';
+import type { GameDifficult, GameMode } from '../ts/types.ts';
 
 import cross from '../assets/x_chatgpt.png';
+
+import easy from '../assets/Easy_chatgpt.png';
+import normal from '../assets/Normal_chatgpt.png';
 
 import bg_image from '../assets/Imagen_pong_v2.png';
 //import bg_image from '../assets/Flag_of_Catalonia.png';
@@ -13,17 +16,20 @@ import bg_image from '../assets/Imagen_pong_v2.png';
 import "../css/MenuScreen.css";
 
 type OptionsProps = ScreenProps & {
+  mode: GameMode;
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
+  setDifficult: React.Dispatch<React.SetStateAction<GameDifficult>>;
   userName: string;
   // Añadidos para controlar el estado offline
   setOpponentName: React.Dispatch<React.SetStateAction<string>>;
   setPlayerSide: React.Dispatch<React.SetStateAction<'left' | 'right'>>;
 };
 
-const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSide }: OptionsProps) => {   
+const MenuScreen = ({ dispatch, mode, setMode, setDifficult, userName, setOpponentName, setPlayerSide }: OptionsProps) => {   
     const { t } = useTranslation();
 
     const [statusText, setStatusText] = useState<string>("");
+    const [ia, setIa] = useState<boolean>(false);
     const [modeActive, setModeActive] = useState<"offline" | "online" | null>(false);
     
     const countDownRef = useRef<NodeJS.Timeout | null>(null);
@@ -66,6 +72,13 @@ const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSid
         dispatch({ type: "PONG" });
     };
 
+    const handleDiff = (diff: GameDifficult) =>
+    {
+        setDifficult(diff);
+        setIa(false);
+        handleMode("ia");
+    };
+
     const startCountDown = (seconds: number) =>
     {
         setStatusText(seconds.toString());
@@ -94,18 +107,50 @@ const MenuScreen = ({ dispatch, setMode, userName, setOpponentName, setPlayerSid
         console.log("❌ Proceso cancelado");
     }
 
+    const showBtn = () =>
+    {
+        return (
+            <>
+                <h1>{t('modo')}</h1>
+
+                <div className="bt">
+                    <button onClick={() => setIa(true)}>player vs ia</button>
+                    <button onClick={() => handleMode("local")}>player vs player</button>
+                    <button onClick={() => handleMode("remote")}>player vs remote</button>
+                </div>
+            </>
+        );
+    };
+
+    const showImg = () =>
+    {
+        return (
+            <>
+                <h1>{t('difficulty')}</h1>
+
+                <div className="imagenes">
+                    <img
+                        src={easy}
+                        alt="easy"
+                        onClick={() => handleDiff("easy")}/>
+                    <img
+                        src={normal}
+                        alt="normal"
+                        onClick={() => handleDiff("normal")} />
+                    <img
+                        src={easy}
+                        alt="hard"
+                        onClick={() => handleDiff("hard")} />
+                </div>
+            </>
+        );
+    };
+
     return (
         <section className="menu">
             <img className="bg_image" src={bg_image} alt="Imagen central"/>
             
-            <h1>{t('modo')}</h1>
-
-            <div className="bt">
-                <button onClick={() => handleMode("ia")}>player vs ia</button>
-                <button onClick={() => handleMode("local")}>player vs player</button>
-                <button onClick={() => handleMode("remote")}>player vs remote</button>
-                {/* <button onClick={() => handleMode("tournament")}>tournament</button> */}
-            </div>
+            { ia ? showImg() : showBtn() }
 
             <div className="search">
                 <p>{statusText}</p>

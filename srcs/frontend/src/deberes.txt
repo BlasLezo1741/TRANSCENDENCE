@@ -15,4 +15,4 @@
 
 - Pasar a otros idiomas el infoscreen
 
-- En la IA: Hacer dificultad: cambiar texto y meter imagenes (cambiar el size del player)
+- En la IA: Meter imagen de dificultad dificil

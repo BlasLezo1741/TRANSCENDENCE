@@ -81,6 +81,20 @@ button
     padding-bottom: 3px;
 }
 
+.imagenes
+{
+    display: flex;
+    justify-content: center;
+}
+
+.imagenes img
+{
+    width: 150px;
+    height: 200px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
 @media screen and (max-width: 900px)
 {
     .lang-but
