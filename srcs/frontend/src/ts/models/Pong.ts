@@ -4,22 +4,22 @@ import type { GameMode } from "../types.ts";
 
 export class Pong
 {
-    c: HTMLCanvasElement;
-    ctx: CanvasRenderingContext2D;
-    mode: GameMode;
-    player1: Player;
-    player2: Player;
-    ball: Ball;
+    private c: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private mode: GameMode;
+    public readonly player1: Player;
+    public readonly player2: Player;
+    public readonly ball: Ball;
 
-    keysPressed: { [key: string]: boolean } = {};
-    playerNumber: number; // 1 (Left) o 2 (Right)
-    score: number[] = [0, 0];
-    winner: string = "none";
+    public readonly keysPressed: { [key: string]: boolean } = {};
+    public readonly playerNumber: number; // 1 (Left) o 2 (Right)
+    private score: number[] = [0, 0];
+    private winner: string = "none";
 
     // Solo para local/IA
-    maxScore: number = 5;
-    end: boolean = false;
-    pause: boolean = false;
+    private maxScore: number = 5;
+    private end: boolean = false;
+    private pause: boolean = false;
 
     constructor(
         c: HTMLCanvasElement,
@@ -46,7 +46,8 @@ export class Pong
 
     // --- INPUT REMOTO (Socket) ---
     // Mueve la pala del rival visualmente en remoto
-    moveOpponent(dir: 'up' | 'down' | 'stop') {
+    moveOpponent(dir: 'up' | 'down' | 'stop')
+    {
         const opponent = this.playerNumber === 1 ? this.player2 : this.player1;
 
         if (dir === 'up') opponent.moveUp(); // Asume que Player tiene moveUp()
@@ -93,7 +94,8 @@ export class Pong
 
     // --- UTILS ---
 
-    private handleLocalInput(p: Player, upKey: string = 'ArrowUp', downKey: string = 'ArrowDown') {
+    private handleLocalInput(p: Player, upKey: string = 'ArrowUp', downKey: string = 'ArrowDown')
+    {
         // In online mode (without args), we accept both keys for the active player
         const wKey = 'w';
         const sKey = 's';
@@ -112,7 +114,8 @@ export class Pong
         }
     }
 
-    private checkLocalWin() {
+    private checkLocalWin()
+    {
         // Actualizamos score local desde la bola
         this.score = this.ball.getScore();
 
@@ -128,6 +131,9 @@ export class Pong
     // --- DRAW (Renderizado) ---
     draw()
     {
+        if (this.pause)
+            return ;
+
         // 1. Limpiar
         this.ctx.clearRect(0, 0, this.c.width, this.c.height);
 
@@ -139,17 +145,15 @@ export class Pong
         this.player2.draw(this.ctx);
         this.ball.draw(this.ctx);
 
-        // // 4. Dibujar Marcador (El que viene del server)
-        // this.drawScore();
         // 4. Dibujar UI
-        if (this.pause) {
-            this.drawPause();
-        } else {
+        // if (this.pause)
+        //     this.drawPause();
+        //else
             this.drawScore();
-        }
     }
 
-    private drawScore() {
+    private drawScore()
+    {
         this.ctx.font = "48px Arial";
         this.ctx.fillStyle = "white";
         this.ctx.textAlign = "center";
@@ -166,15 +170,17 @@ export class Pong
         // this.ctx.fillText(this.player2.getName(), this.c.width * 0.75, 70);
     }
 
-    private drawPause() {
+    private drawPause()
+    {
         this.ctx.fillStyle = "white";
         this.ctx.font = "48px Arial";
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
-        this.ctx.fillText("PAUSE", this.c.width / 2, this.c.height / 2);
+        this.ctx.fillText("| |", this.c.width / 2, this.c.height / 2);
     }
 
-    private drawNet() {
+    private drawNet()
+    {
         this.ctx.beginPath();
         this.ctx.setLineDash([10, 15]);
         this.ctx.moveTo(this.c.width / 2, 0);
@@ -185,7 +191,12 @@ export class Pong
         this.ctx.closePath();
     }
 
-    setPause() {} 
+    setPause()
+    {
+        this.pause = !this.pause;
+        if (this.pause)
+            this.drawPause();
+    }
     hasWinner(): boolean { return this.end; }
     getWinner() { return this.winner; }
 }

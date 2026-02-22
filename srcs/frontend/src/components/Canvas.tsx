@@ -1,5 +1,6 @@
 import React, {useRef, useEffect} from "react";
-import { Pong } from "../ts/models/Pong.ts"
+import { Player } from "../ts/models/Player.ts";
+import { Pong } from "../ts/models/Pong.ts";
 import { socket } from '../services/socketService'; 
 import type { GameMode } from "../ts/types.ts";
 import { useModal } from '../context/ModalContext';
@@ -15,6 +16,20 @@ type CanvasProps = {
     roomId: string;
     isGameActive: boolean;
 };
+
+type DirX = "left" | "right" | "";
+type DirY = "up" | "down" | "";
+
+interface PosData
+{
+    touchX: number;
+    touchY: number;
+    halfX: number;
+    halfY: number;
+    dirX: DirX;
+    dirY: DirY;
+    mobile: boolean;
+}
 
 function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId,
     isGameActive }: CanvasProps)
@@ -197,57 +212,91 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                 game.setPause();  
         };
 
+        let moveInterval: number | null = null;
+
         const handlePointerDown = (e: PointerEvent) =>
         {
-            if (!activeRef.current) return;
+            if (!activeRef.current) return ;
+
+            const getPlayerSide = (data: PosData) =>
+            {
+                const isLeft = data.mobile
+                ? data.touchY < data.halfY
+                : data.touchX < data.halfX;
+
+                data.dirX = isLeft ? "left" : "right";
+                return isLeft ? "left" : "right";
+            };
+
+            const getDirection = (data: PosData) =>
+            {
+                console.log("X: " + data.touchX);
+                console.log("Y: " + data.touchY);
+                if (!data.mobile)
+                {
+                    if (data.touchY < data.halfY)
+                        return "up";
+                    return "down";
+                }
+                if (data.touchX < 225)
+                    return "down";
+                return "up";
+            };
+
+            const movePlayer = (dir: DirY, player: Player) =>
+            {
+                if (dir === "up")
+                    player.moveUp();
+                else
+                    player.moveDown();
+            };
+
+            const isMobile = () =>
+            {
+                if (innerWidth <= 660)
+                    return true;
+                return false;
+            };
 
             const rect = canvas.getBoundingClientRect();
-            const touchX = e.clientX - rect.left;
-            const touchY = e.clientY - rect.top;
-            
-            /* 
-                Si es local, mirar x,y para las dos palas 
-                Si es ia, mirar y de la pala izquierda
-                Si es remoto, mirar y, para la pala correspondiente
-            */
 
-            /* const isLocal = mode === "local";
-            const isRemoteOrIA = mode === "ia" || mode.includes("remote");
+            const posData: PosData =
+            {
+                touchX: e.clientX - rect.left,
+                touchY: e.clientY - rect.top,
+                halfX: canvas.width / 2,
+                halfY: canvas.height / 2,
+                dirX: "",
+                dirY: "",
+                mobile: isMobile()
+            };
 
-            let targetPlayer;
+            posData.dirY = getDirection(posData);
 
-            // 🎮 MODO LOCAL (dos jugadores en la misma pantalla)
-            if (isLocal) {
-                if (touchX < canvas.width / 2) {
-                    targetPlayer = game.player1; // izquierda
-                } else {
-                    targetPlayer = game.player2; // derecha
-                }
-            }
+            const player = mode === "ia" ? 
+                game.player1 : mode === "local" ? 
+                (getPlayerSide(posData) === "left" ?
+                game.player1 : game.player2) :
+                (game.playerNumber === 1 ?
+                game.player1 : game.player2);
 
-            // 🌐 REMOTO o 🤖 IA (solo controlo mi pala)
-            if (isRemoteOrIA) {
-                targetPlayer = game.playerNumber === 1
-                    ? game.player1
-                    : game.player2;
-            }
+            moveInterval = window.setInterval(() => movePlayer(posData.dirY, player), 16);
+        };
 
-            if (!targetPlayer) return;
-
-            const paddleCenter = targetPlayer.y + (targetPlayer.height / 2);
-
-            if (touchY < paddleCenter) {
-                targetPlayer.keysUp = true;
-                targetPlayer.keysDown = false;
-            } else {
-                targetPlayer.keysUp = false;
-                targetPlayer.keysDown = true;
-            } */
+        const stopMoving = () =>
+        {
+            if (moveInterval === null)
+                return ;
+            clearInterval(moveInterval);
+            moveInterval = null;
         };
 
         window.addEventListener("keyup", handleKeyUp);
         window.addEventListener("keydown", handleKeyDown);
         canvas.addEventListener("pointerdown", handlePointerDown);
+        canvas.addEventListener("pointerup", stopMoving);
+        canvas.addEventListener("pointercancel", stopMoving);
+        canvas.addEventListener("pointerleave", stopMoving);
 
         // --- BUCLE DE RENDERIZADO (NO FÍSICA) ---
         let animationId: number;
