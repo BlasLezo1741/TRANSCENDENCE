@@ -2,9 +2,25 @@
 
 ## Overview
 
-The WebSocket system provides real-time, bidirectional communication between the server and all connected clients. Built on top of **Socket.IO** and **NestJS Gateways**, it powers three critical features of the platform simultaneously: live Pong game state synchronization, user online/offline presence tracking, and instant social notifications (friend requests, acceptances, removals, and game invitations).
+The WebSocket system provides real-time, bidirectional communication between the server and all connected clients. Built on top of **Socket.IO** and **NestJS Gateways**, it powers four critical features of the platform simultaneously: live Pong game state synchronization, user online/offline presence tracking, instant social notifications (friend requests, acceptances, removals, and game invitations), and the **real-time direct messaging (Chat) system**.
 
-A single `GameGateway` instance handles all WebSocket traffic, making it the real-time backbone of the entire application. Any service that needs to push data to a client — without that client polling — injects the gateway and calls `sendNotification()`.
+---
+
+## Evaluation Module Mapping
+
+This document serves as the primary technical evidence for two separate Major Modules in the project rubric:
+
+### 1. Real-time features using WebSockets (Web Module)
+*Fulfilled by the core Socket.IO integration and the unified `GameGateway` event loop.*
+* **Zero Polling:** The entire platform operates without client-side polling. Every live feature is pushed from the server.
+* **Global Presence:** The system accurately tracks user connections and broadcasts online/offline status platform-wide.
+* **Instant Social Interactions:** Powers the real-time delivery of chat messages, friend requests, and private game invitations instantly across multiple browser tabs.
+
+### 2. Remote players - Real-time multiplayer (Gaming & User Experience Module)
+*Fulfilled by the matchmaking queue and the server-authoritative physics loop.*
+* **Synchronized Gameplay:** Handles bidirectional streams for paddle inputs (Client → Server) and ball physics updates (Server → Client) at ~60 FPS.
+* **Matchmaking & Lobbies:** Automatically pairs players in queues and generates private UUID-based WebSocket rooms for their matches.
+* **Anti-Cheat & Resilience:** The server dictates the ultimate game state (preventing client-side manipulation) and safely handles mid-game network disconnections without crashing.
 
 ---
 
@@ -408,6 +424,7 @@ This avoids a round-trip to the database — presence is derived from the live i
 | `finish_game` | `{ roomId: string, winnerId: string }` | `handleFinishGame()` | Signal game end (forfeit or manual stop) |
 | `send_game_invite` | `{ targetId: number }` | `handleSendInvite()` | Send a private game invitation |
 | `accept_game_invite` | `{ challengerId: number }` | `handleAcceptInvite()` | Accept invitation and start private match |
+| `send_message` | `{ receiverId: number, content: string }` | `handleSendMessage()` | Route a direct chat message to another user |
 
 ### Events Emitted (Server → Client)
 
@@ -425,6 +442,7 @@ This avoids a round-trip to the database — presence is derived from the live i
 | `friend_request` | `{ from: userId, msg }` | Target user | Incoming friend request notification |
 | `friend_accepted` | `{ friendId, msg }` | Both parties | Friendship confirmed notification |
 | `friend_removed` | `{ from: userId, msg }` | Both parties | Friendship removed notification |
+| `receive_message` | `{ id, senderId, content, createdAt }` | Target user | Incoming direct chat message |
 
 ---
 
@@ -435,7 +453,8 @@ This avoids a round-trip to the database — presence is derived from the live i
 ```typescript
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000', {
+// Relative path ensures Nginx handles the secure WSS upgrade dynamically
+const socket = io('/', {
   transports: ['websocket'],
   query: { userId: currentUser.id }  // ← Required for presence tracking
 });
@@ -445,10 +464,9 @@ socket.on('user_status', ({ userId, status }) => {
   updateFriendStatus(userId, status);
 });
 
-// Social
+// Social & Chat
 socket.on('friend_request',  (data) => showNotification(data));
-socket.on('friend_accepted', (data) => refreshFriendList());
-socket.on('friend_removed',  (data) => refreshFriendList());
+socket.on('receive_message', (message) => appendToChatAndFormatLocalTime(message));
 
 // Game invitation
 socket.on('incoming_game_invite', (data) => showInviteModal(data));
@@ -543,6 +561,19 @@ if (client.id === game.playerLeftId) {
 
 Currently set to `origin: '*'` for development. Should be restricted to the frontend origin in production.
 
+### WSS and Nginx Reverse Proxy
+To comply with strict security constraints and avoid browser SSL certificate errors on local networks, the frontend does not connect to the backend's raw port (3000). Instead, the frontend uses relative paths (`io('/')`). 
+
+An **Nginx Reverse Proxy** acts as the single point of entry over HTTPS (port 443/8443) and handles the WebSocket protocol upgrade using the following configuration:
+
+```nginx
+location ~ ^/(...|socket\.io) {
+    proxy_pass http://backend:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+}
+```
 ---
 
 ## Performance
@@ -590,6 +621,11 @@ A 3,500 ms grace period before physics processing begins allows both clients to 
 1. Did both players have valid entries in the `player` table when the match started?
 2. Was the final score `0-0`? Those are intentionally skipped.
 3. Check backend logs for `❌ Error guardando partida en DB`.
+
+### Issue: Chat messages show incorrect time (Timezone Desync)
+
+**Cause:** The backend stores and emits `createdAt` timestamps in absolute UTC. If displayed directly, messages appear to be from the future or past depending on the user's location.  
+**Check:** Ensure the frontend explicitly parses the ISO string as UTC (appending `Z` if necessary) and uses `Date.toLocaleTimeString()` to convert the timestamp to the client's local timezone before rendering.
 
 ---
 
@@ -646,9 +682,9 @@ A 3,500 ms grace period before physics processing begins allows both clients to 
 
 ## Summary
 
-The WebSocket system is the real-time nervous system of the platform. A single `GameGateway` class serves three responsibilities at once — presence tracking, game state synchronization, and social event delivery — without any polling or page refreshes on the client side.
+The WebSocket system is the real-time nervous system of the platform. A single `GameGateway` class serves four responsibilities at once — presence tracking, game state synchronization, social event delivery, and direct messaging (Chat) — without any polling or page refreshes on the client side.
 
-- ✅ **Real-time** — All game, presence and social events arrive in under a network round-trip
+- ✅ **Real-time** — All game, presence, chat, and social events arrive in under a network round-trip
 - ✅ **Authoritative** — Server owns the game state; clients send intent only
 - ✅ **Resilient** — Multi-tab, stale socket, and mid-game disconnect cases are all handled
 - ✅ **Efficient** — Physics broadcasts are scoped to 2-player rooms, not the full user base
@@ -656,10 +692,12 @@ The WebSocket system is the real-time nervous system of the platform. A single `
 - ✅ **Validated** — All incoming payloads pass through `ValidationPipe` with whitelisting
 
 **Core files:** 2  
-**Events handled:** 5 inbound, 11 outbound  
+**Events handled:** 6 inbound, 12 outbound  
 **Transport:** WebSocket (no polling)  
 **Game loop:** ~60 FPS, server-authoritative
 
-**Result:** Production-grade real-time infrastructure powering gameplay, presence, and social interactions simultaneously. 🎮
+**Result:** Production-grade real-time infrastructure powering gameplay, presence, chat, and social interactions simultaneously.
 
-[Return to Main modules table](../../../README.md#modules)
+---
+
+[⬅ Return to Main modules table](../../../README.md#modules)

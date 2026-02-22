@@ -6,6 +6,22 @@ The friends system allows Transcendence players to build a social network within
 
 ---
 
+## Evaluation Module Mapping
+
+The Friends System provides foundational data and real-time events that satisfy two Major Modules:
+
+### 1. Standard User Management (Relational State)
+*Fulfilled by the `friends.service.ts` database operations and the `player_friend` table.*
+* **State Persistence:** Manages the strict state-machine of relationships (`PENDING`, `ACCEPTED`, `BLOCKED`).
+* **Data Integrity:** Ensures users cannot friend themselves and automatically cleans up orphaned/zombie requests using cascade rules.
+
+### 2. Allow Users to Interact with Other Users (Social Actions)
+*Fulfilled by the `GameGateway` WebSocket integration and `friends.controller.ts` endpoints.*
+* **Real-Time Presence:** Tracks and broadcasts whether a friend is currently online or offline.
+* **Live Notifications:** Alerts users instantly when a friend request is sent, accepted, or removed, encouraging immediate social interaction.
+
+---
+
 ## System Architecture Diagram
 
 ```mermaid

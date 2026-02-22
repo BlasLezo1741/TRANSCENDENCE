@@ -6,6 +6,15 @@ The avatar system provides every player on the Transcendence platform with a per
 
 ---
 
+## Evaluation Justification: User Management Module
+This module directly fulfills the requirements for the Major Module: **"Standard user management and authentication"**. 
+Specifically, it handles the visual identity and personalization aspect of the user's account by implementing:
+* **Identity Customization:** Users can securely update their profile identity by selecting a custom avatar from a curated gallery.
+* **OAuth Integration:** The system natively supports and resolves external profile pictures provided by third-party authenticators (42 School and Google).
+* **Efficient Account Data:** By storing lightweight string IDs rather than raw image files, the system ensures optimal performance during user data retrieval and database management.
+
+---
+
 ## System Architecture Diagram
 
 ```mermaid

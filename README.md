@@ -221,7 +221,7 @@ The full entity-relationship diagram is available at [`./docs/ER.md`](./docs/ER.
 | OAuth — Google | Login and registration via Google OAuth 2.0 | Xavi |
 | Two-Factor Authentication | TOTP-based 2FA with QR code setup and backup codes | Luis |
 | User Profile | View and edit personal information, stats, match history | Xavi |
-| Avatar System | Upload custom avatar or choose from defaults | Xavi |
+| Avatar System | Upload custom avatar or choose from defaults <br> Real-time avatar synchronization across chat interface and friends list| Xavi / Natalia |
 | Friends System | Send/accept/reject friend requests, online status | Natalia |
 | Real-time Chat | Public channels and direct messages via WebSockets | Natalia |
 | Local Pong | Two players on the same device, same keyboard | Adria |
@@ -253,7 +253,7 @@ Modules are documented in dedicated artifacts. Each link below points to the cor
 | Implement remote authentication with OAuth 2.0 | User Management | Minor | 1 | Xavi | [OAUTH_DOCUMENTATION](./srcs/backend/doc/OAUTH_DOCUMENTATION.md)|
 | Implement a complete 2FA (Two-Factor Authentication) system for the users | User Management | Minor | 1 | Luis | [2FA_AUTHENTICATION_DOCUMENTATION.md](./srcs/totp/doc/2FA_DOCUMENTATION.md) <br> [2FA_LOGIN_DOCUMENTATION.md](./srcs/totp/doc/2FA_LOGIN_DOCUMENTATION.md)|
 | Web-based Pong game | Gaming & User Experience | Major | 2 | Adria / Natalia | [PONG_FRONTEND_DOCUMENTATION.md](./srcs/frontend/doc/PONG_FRONTEND_DOCUMENTATION.md) <br> [PONG_BACKEND_DOCUMENTATION.md](./srcs/backend/doc/PONG_BACKEND_DOCUMENTATION.md) |
-| Remote players (real-time multiplayer) | Gaming & User Experience | Major | 2 | Natalia | [WEBSOCKET_SYSTEM_DOCUMENTATION.md](./srcs/backend/doc/WEBSOCKET_SYSTEM_DOCUMENTATION.md) <br>[PONG_FRONTEND_DOCUMENTATION.md](./srcs/frontend/doc/PONG_FRONTEND_DOCUMENTATION.md) |
+| Remote players (real-time multiplayer) | Gaming & User Experience | Major | 2 | Natalia | [WEBSOCKET_SYSTEM_DOCUMENTATION.md](./srcs/backend/doc/WEBSOCKET_SYSTEM_DOCUMENTATION.md) <br>[PONG_BACKEND_DOCUMENTATION.md](./srcs/backend/doc/PONG_BACKEND_DOCUMENTATION.md) |
 | i18n — Support multiple languages (3+) | Accessibility & Internationalization | Minor | 1 | All | [I18N_SYSTEM_DOCUMENTATION.md](./srcs/frontend/doc/I18N_SYSTEM_DOCUMENTATION.md) |
 | Monitoring system with Prometheus and Grafana. | DevOps | Major | 2 | Natalia / Luis | [PROMETHEUS_DOCUMENTATION.md](./srcs/prometheus/doc/PROMETHEUS_DOCUMENTATION.md) <br>[GRAFANA_DOCUMENTATION.md](./srcs/grafana/doc/GRAFANA_DOCUMENTATION.md) |
 | Introduce an AI Opponent for games | IA | Major | 2 | Adria| [IA_OPPONENT_DOCUMENTATIOS.md](./srcs/frontend/doc/AI_OPPONENT_DOCUMENTATION.md)|
@@ -297,8 +297,10 @@ Modules are documented in dedicated artifacts. Each link below points to the cor
 - Developed the remote multiplayer Pong game mode
 - Implemented the friends system (requests, acceptance, online status)
 - Set up Prometheus metrics exposition from the NestJS backend
+- Polished the frontend user experience by integrating timezone-aware real-time chat timestamps and dynamic avatar synchronization.
+- Configured Nginx as a reverse proxy to handle secure HTTPS traffic, API routing, and WebSocket tunneling within the Docker network.
 
-*Challenges:* Synchronizing game state over WebSockets with low latency required careful management of event loops and server-side authoritative game logic to prevent cheating and desync between clients.
+*Challenges:* Synchronizing game state over WebSockets with low latency required careful management of event loops and server-side authoritative game logic to prevent cheating and desync between clients. Additionally, establishing stable and secure WebSocket (WSS) and API connections across a local network required advanced Nginx reverse proxy configuration to resolve strict browser SSL certificate constraints.
 
 ---
 

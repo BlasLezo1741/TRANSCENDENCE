@@ -6,6 +6,16 @@ The chat system enables real-time direct messaging between users. It combines a 
 
 ---
 
+## Evaluation Justification: Interaction Module
+
+This module directly fulfills the requirements for the Major Module: **"Allow users to interact with other users"**. 
+Specifically, it provides the core infrastructure for player-to-player communication by implementing:
+* **Direct Messaging:** Users can send and receive private messages in real-time.
+* **Access Control:** The chat is strictly gated; users can only message confirmed friends (enforcing the social network aspect).
+* **Live Notifications:** Unread message counts are dynamically updated and synced with the user's presence.
+
+---
+
 ## System Architecture
 
 The chat module is composed of three layers:
