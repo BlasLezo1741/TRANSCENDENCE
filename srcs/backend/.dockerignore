@@ -1,0 +1,24 @@
+# node .dockerignore (usar en backend/ y frontend/)
+node_modules
+npm-debug.log*
+.npm
+
+# Build output
+dist
+build
+.cache
+
+# Dev / editor
+.git
+.gitignore
+.env*
+*.local
+.DS_Store
+.vscode
+.idea
+
+# Tests
+coverage
+__tests__
+*.test.ts
+*.spec.ts

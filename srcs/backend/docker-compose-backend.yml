@@ -1,9 +1,13 @@
 services:
   # 2. Backend (NestJS + Socket.io Gateway)
   backend:
-    build: .
+    build:
+      context: .
+      args:
+          BE_CONTAINER_PORT: ${BE_CONTAINER_PORT}    
     container_name: ${BE_CONTAINER_NAME}
-    image: ${BE_CONTAINER_NAME}    
+    image: ${BE_CONTAINER_NAME}
+
     restart: on-failure
     depends_on:
       - ${DB_CONTAINER_NAME}

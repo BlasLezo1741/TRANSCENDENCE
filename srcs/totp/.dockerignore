@@ -1,0 +1,16 @@
+# totp .dockerignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+dist
+build
+.env*
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+*.log

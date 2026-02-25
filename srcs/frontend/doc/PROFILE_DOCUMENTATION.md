@@ -513,3 +513,6 @@ The profile screen uses extensive translation keys across `en.json`, `es.json`, 
 - **Audit log** — record all profile changes (field, old value, new value, timestamp) for moderation purposes
 - **Privacy settings** — control who can see your profile, send friend requests, etc.
 - **Block management** — UI to view and manage blocked users
+
+
+[Return to Main modules table](../../../README.md#modules)

@@ -1644,3 +1644,5 @@ Complete 2FA documentation using YOUR exact code with all Spanish comments prese
 - ~200 lines TypeScript (Backend)
 - ~150 lines React (Frontend)
 - **All with original Spanish comments preserved**
+
+[Return to Main modules table](../../../README.md#modules)

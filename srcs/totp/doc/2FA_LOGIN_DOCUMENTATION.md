@@ -503,3 +503,5 @@ Your 2FA login implementation uses a **unified, intelligent approach**:
 **All with your exact code and Spanish comments preserved!**
 
 This is **better UX** than many industry implementations that require separate "Use backup code" buttons or modes! 🎯
+
+[Return to Main modules table](../../../README.md#modules)

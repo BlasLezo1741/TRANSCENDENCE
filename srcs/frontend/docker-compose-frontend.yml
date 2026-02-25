@@ -2,7 +2,10 @@ services:
 
   # 3. Frontend (React + Vite)
   frontend:
-    build: .
+    build:
+      context: .
+      args:
+          FE_CONTAINER_PORT: ${FE_CONTAINER_PORT}
     container_name: ${FE_CONTAINER_NAME}
     image: ${FE_CONTAINER_NAME}        
     restart: on-failure
