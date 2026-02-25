@@ -28,6 +28,7 @@ import { firstcap } from '../ts/utils/string';
 import { sentence  } from '../ts/utils/string';
 import "../css/ProfileScreen.css";
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
+import { Leaderboard } from '../components/Leaderboard';
 
 // To update header if user changes the nick
 interface ProfileScreenProps {
@@ -965,10 +966,20 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         </>
     );
 
+    // const renderStatScreen = () => (
+    //     <>
+    //         <h1>{t('prof.stats_title')}</h1> {/* Added Translation key */}
+    //         <p>{t('prof.stats_placeholder')}</p> {/* Added Translation key */}
+    //     </>
+    // );
     const renderStatScreen = () => (
         <>
-            <h1>{t('prof.stats_title')}</h1> {/* Added Translation key */}
-            <p>{t('prof.stats_placeholder')}</p> {/* Added Translation key */}
+            <h1>{t('prof.stats_title')}</h1>
+            
+            {/* Aquí incrustamos el Leaderboard */}
+            <div className="flex flex-col items-center mt-6">
+                <Leaderboard />
+            </div>
         </>
     );
 

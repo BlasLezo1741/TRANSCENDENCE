@@ -273,3 +273,26 @@ BEGIN
     DELETE FROM player_friend WHERE f_2 = player_id;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Function to get the Top N players by victories
+CREATE OR REPLACE FUNCTION get_leaderboard(limit_rows INTEGER DEFAULT 10)
+RETURNS TABLE (
+    player_id INTEGER,
+    nick VARCHAR(255),
+    avatar_url VARCHAR(500),
+    wins BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        p.p_pk AS player_id,
+        p.p_nick AS nick,
+        p.p_avatar_url AS avatar_url,
+        COUNT(m.m_pk) AS wins
+    FROM player p
+    JOIN match m ON p.p_pk = m.m_winner_fk
+    GROUP BY p.p_pk, p.p_nick, p.p_avatar_url
+    ORDER BY wins DESC, p.p_pk ASC
+    LIMIT limit_rows;
+END;
+$$ LANGUAGE plpgsql;
