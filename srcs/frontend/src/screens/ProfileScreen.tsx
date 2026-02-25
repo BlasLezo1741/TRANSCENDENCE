@@ -28,6 +28,8 @@ import { firstcap } from '../ts/utils/string';
 import { sentence  } from '../ts/utils/string';
 import "../css/ProfileScreen.css";
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
+import { Leaderboard } from '../components/Leaderboard';
+import { MatchHistory } from '../components/MatchHistory';
 
 // To update header if user changes the nick
 interface ProfileScreenProps {
@@ -73,6 +75,9 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
     const [isSelectingAvatar, setIsSelectingAvatar] = useState(false);
 
+    // Estado para el sub-menú de estadísticas
+    const [statView, setStatView] = useState<'leaderboard' | 'history' | 'grafana'>('leaderboard');
+    
     const { showModal } = useModal();
 
     // --- CARGA DE DATOS ---
@@ -965,12 +970,69 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         </>
     );
 
-    const renderStatScreen = () => (
-        <>
-            <h1>{t('prof.stats_title')}</h1> {/* Added Translation key */}
-            <p>{t('prof.stats_placeholder')}</p> {/* Added Translation key */}
-        </>
-    );
+    const renderStatScreen = () => {
+        const btnBaseStyle = "px-4 py-2 rounded-md font-bold transition-colors duration-200 shadow-md";
+        const btnActiveStyle = "bg-cyan-600 text-white border border-cyan-400";
+        const btnInactiveStyle = "bg-gray-800 text-gray-400 border border-gray-600 hover:bg-gray-700 hover:text-white";
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px', width: '100%' }}>
+                {/* Título de la sección */}
+                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white', marginBottom: '20px' }}>
+                    {t('prof.stats_title')}
+                </h1>
+                
+                {/* 🎛️ SUB-MENÚ DE BOTONES */}
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <button 
+                        onClick={() => setStatView('leaderboard')}
+                        className={`${btnBaseStyle} ${statView === 'leaderboard' ? btnActiveStyle : btnInactiveStyle}`}
+                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                        🏆 Top 10 Global
+                    </button>
+                    <button 
+                        onClick={() => setStatView('history')}
+                        className={`${btnBaseStyle} ${statView === 'history' ? btnActiveStyle : btnInactiveStyle}`}
+                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                        📜 Mi Historial
+                    </button>
+                    <button 
+                        onClick={() => setStatView('grafana')}
+                        className={`${btnBaseStyle} ${statView === 'grafana' ? btnActiveStyle : btnInactiveStyle}`}
+                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                        📊 Analítica Avanzada
+                    </button>
+                </div>
+
+                {/* 📺 CONTENIDO DINÁMICO QUE CAMBIA SEGÚN EL BOTÓN */}
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                    {statView === 'leaderboard' && (
+                        <Leaderboard />
+                    )}
+                    
+                    {statView === 'history' && (
+                        <MatchHistory myProfile={userProfile} />
+                    )}
+                    
+                    {statView === 'grafana' && (
+                        <div style={{ width: '100%', height: '700px', backgroundColor: '#111827', borderRadius: '12px', overflow: 'hidden', border: '1px solid #374151', marginTop: '10px' }}>
+                            <iframe 
+                                src="https://localhost:8443/grafana/d/grhk4qc/transcendence-db-pong?orgId=1&from=now-6h&to=now&timezone=browser&kiosk=tv" 
+                                width="100%" 
+                                height="100%" 
+                                frameBorder="0"
+                                title="Grafana Analytics"
+                                style={{ pointerEvents: 'auto' }}
+                            ></iframe>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <main className="profile">

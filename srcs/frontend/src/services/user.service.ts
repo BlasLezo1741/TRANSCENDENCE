@@ -242,3 +242,80 @@ export const deleteMyAccount = async (): Promise<{ ok: boolean; msg: string }> =
         return { ok: false, msg: "Connection error" };
     }
 };
+
+export const getLeaderboard = async () => {
+    console.log("[user.service] getLeaderboard() - Starting request...");
+
+    try {
+        const token = getToken();
+        if (!token) {
+            console.error("❌ [user.service] No authentication token found for leaderboard");
+            return []; // Devolvemos array vacío para no romper la pantalla
+        }
+        // Usamos la ruta relativa EXACTAMENTE igual que en getCountries
+        const url = `/auth/stats/leaderboard`;
+        console.log("[user.service] Fetching from:", url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log("[user.service] Response status:", response.status);
+        if (response.status === 401) {
+            handle401Unauthorized();
+            return [];
+        }
+
+        if (!response.ok) {
+            console.error("❌ [user.service] Failed to fetch leaderboard");
+            throw new Error("Failed to fetch leaderboard");
+        }
+
+        const data = await response.json();
+        console.log("✅ [user.service] Leaderboard fetched:", data.length, "players");
+        
+        return data;
+    } catch (error) {
+        console.error("❌ [user.service] Error in getLeaderboard():", error);
+        return [];
+    }
+};
+
+// Obtener el historial de partidas del usuario
+export const getMatchHistory = async () => {
+    console.log("📡 [user.service] getMatchHistory() - Starting request...");
+
+    try {
+        const token = getToken();
+        if (!token) return [];
+
+        const url = `/auth/stats/history`;
+        console.log("📡 [user.service] Fetching history from:", url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            handle401Unauthorized();
+            return [];
+        }
+
+        if (!response.ok) throw new Error("Failed to fetch match history");
+
+        const data = await response.json();
+        console.log("✅ [user.service] History fetched:", data.length, "matches");
+        return data;
+    } catch (error) {
+        console.error("❌ [user.service] Error in getMatchHistory():", error);
+        return [];
+    }
+};

@@ -15,6 +15,7 @@ type CanvasProps = {
     playerSide?: 'left' | 'right';
     roomId: string;
     isGameActive: boolean;
+    onGameOver?: () => void;
 };
 
 type DirX = "left" | "right" | "";
@@ -32,7 +33,7 @@ interface PosData
 }
 
 function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId,
-    isGameActive }: CanvasProps)
+    isGameActive, onGameOver }: CanvasProps)
 {
     const { showModal } = useModal();
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -166,31 +167,57 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             // Paramos animación
             cancelAnimationFrame(animationId);
             
-            // alert("Game Over! Winner: " + winnerName);
-            // dispatch({ type: "MENU" });
-            showModal({
-                title: "🏆 ¡JUEGO TERMINADO!",
-                message: `Victoria para: ${winnerName}`,
-                type: "success",
-                onConfirm: () => {
-                    dispatch({ type: "MENU" });
-                }
-            });
+            // // alert("Game Over! Winner: " + winnerName);
+            // // dispatch({ type: "MENU" });
+            // showModal({
+            //     title: "🏆 ¡JUEGO TERMINADO!",
+            //     message: `Victoria para: ${winnerName}`,
+            //     type: "success",
+            //     onConfirm: () => {
+            //         dispatch({ type: "MENU" });
+            //     }
+            // });
+            // SI TENEMOS onGameOver, SE LO DEJAMOS AL PONGSCREEN
+            if (onGameOver) {
+                onGameOver();
+            } else {
+                showModal({
+                    title: "🏆 ¡JUEGO TERMINADO!",
+                    message: `Victoria para: ${winnerName}`,
+                    type: "success",
+                    onConfirm: () => {
+                        dispatch({ type: "MENU" });
+                    }
+                });
+            }
         };
 
         // Definimos qué hacer cuando el rival se desconecta
         const handleOpponentDisconnected = () => {
             console.warn("⚠️ Rival desconectado");
-            // alert("El rival se ha desconectado. Ganaste por abandono.");
-            // dispatch({ type: "MENU" });
-            showModal({
-                title: "🔌 Rival Desconectado",
-                message: "El rival ha perdido la conexión. ¡Has ganado por abandono!",
-                type: "info",
-                onConfirm: () => {
-                    dispatch({ type: "MENU" });
-                }
-            });
+            // // alert("El rival se ha desconectado. Ganaste por abandono.");
+            // // dispatch({ type: "MENU" });
+            // showModal({
+            //     title: "🔌 Rival Desconectado",
+            //     message: "El rival ha perdido la conexión. ¡Has ganado por abandono!",
+            //     type: "info",
+            //     onConfirm: () => {
+            //         dispatch({ type: "MENU" });
+            //     }
+            // });
+            // AVISAMOS AL PONGSCREEN
+            if (onGameOver) {
+                onGameOver();
+            } else {
+                showModal({
+                    title: "🔌 Rival Desconectado",
+                    message: "El rival ha perdido la conexión. ¡Has ganado por abandono!",
+                    type: "info",
+                    onConfirm: () => {
+                        dispatch({ type: "MENU" });
+                    }
+                });
+            }
         };
 
         // Activamos listeners de eventos de juego
@@ -329,17 +356,32 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                     cancelAnimationFrame(animationId);
                     
                     // We notify and exit with delay to give time to enter the last point on the scoreboard
+                    // setTimeout(() => {
+                    //     // alert(`¡Juego Terminado! Ganador: ${winnerName}`);
+                    //     // dispatch({ type: "MENU" });
+                    //     showModal({
+                    //         title: "🏆 ¡GAME OVER!",
+                    //         message: `Winner: ${winnerName}`,
+                    //         type: "success",
+                    //         onConfirm: () => {
+                    //             dispatch({ type: "MENU" });
+                    //         }
+                    //     });
+                    // }, 50);
                     setTimeout(() => {
-                        // alert(`¡Juego Terminado! Ganador: ${winnerName}`);
-                        // dispatch({ type: "MENU" });
-                        showModal({
-                            title: "🏆 ¡GAME OVER!",
-                            message: `Winner: ${winnerName}`,
-                            type: "success",
-                            onConfirm: () => {
-                                dispatch({ type: "MENU" });
-                            }
-                        });
+                        // AVISAMOS AL PONGSCREEN
+                        if (onGameOver) {
+                            onGameOver();
+                        } else {
+                            showModal({
+                                title: "🏆 ¡GAME OVER!",
+                                message: `Winner: ${winnerName}`,
+                                type: "success",
+                                onConfirm: () => {
+                                    dispatch({ type: "MENU" });
+                                }
+                            });
+                        }
                     }, 50);
                     return; 
                 }

@@ -273,3 +273,69 @@ BEGIN
     DELETE FROM player_friend WHERE f_2 = player_id;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Function to get the Top N players by victories
+CREATE OR REPLACE FUNCTION get_leaderboard(limit_rows INTEGER DEFAULT 10)
+RETURNS TABLE (
+    player_id INTEGER,
+    nick VARCHAR(255),
+    avatar_url VARCHAR(500),
+    wins BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        p.p_pk AS player_id,
+        p.p_nick AS nick,
+        p.p_avatar_url AS avatar_url,
+        COUNT(m.m_pk) AS wins
+    FROM player p
+    JOIN match m ON p.p_pk = m.m_winner_fk
+    GROUP BY p.p_pk, p.p_nick, p.p_avatar_url
+    ORDER BY wins DESC, p.p_pk ASC
+    LIMIT limit_rows;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_match_history(target_p_pk INTEGER, limit_rows INTEGER DEFAULT 10)
+RETURNS TABLE (
+    match_id INTEGER,
+    match_date TIMESTAMP,
+    mode_name VARCHAR(20),
+    my_score FLOAT,
+    opponent_id INTEGER,
+    opponent_nick VARCHAR(255),
+    opponent_avatar VARCHAR(500),
+    opponent_score FLOAT,
+    won BOOLEAN
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        m.m_pk AS match_id,
+        m.m_date AS match_date,
+        mm.mmod_name AS mode_name,
+        -- 1. Mis puntos (Métrica 1)
+        COALESCE(cm_me.mcm_value, 0) AS my_score,
+        -- 2. ID del Rival (Buscamos al otro competidor)
+        p_opp.p_pk AS opponent_id,
+        p_opp.p_nick AS opponent_nick,
+        p_opp.p_avatar_url AS opponent_avatar,
+        -- 3. Puntos del Rival
+        COALESCE(cm_opp.mcm_value, 0) AS opponent_score,
+        -- 4. ¿Gané yo? (Basado en el campo winner de la tabla match)
+        (m.m_winner_fk = target_p_pk) AS won
+    FROM match m
+    JOIN match_mode mm ON m.m_mode_fk = mm.mmod_pk
+    -- Me busco a mí como competidor en la partida
+    JOIN competitor c_me ON c_me.mc_match_fk = m.m_pk AND c_me.mc_player_fk = target_p_pk
+    -- Busco al OTRO competidor (el que NO tiene mi ID)
+    JOIN competitor c_opp ON c_opp.mc_match_fk = m.m_pk AND c_opp.mc_player_fk != target_p_pk
+    JOIN player p_opp ON p_opp.p_pk = c_opp.mc_player_fk
+    -- Traigo los puntos de ambos (Métrica 1 = "Points Scored")
+    LEFT JOIN competitormetric cm_me ON cm_me.mcm_match_fk = m.m_pk AND cm_me.mcm_player_fk = target_p_pk AND cm_me.mcm_metric_fk = 1
+    LEFT JOIN competitormetric cm_opp ON cm_opp.mcm_match_fk = m.m_pk AND cm_opp.mcm_player_fk = p_opp.p_pk AND cm_opp.mcm_metric_fk = 1
+    ORDER BY m.m_date DESC
+    LIMIT limit_rows;
+END;
+$$ LANGUAGE plpgsql;
