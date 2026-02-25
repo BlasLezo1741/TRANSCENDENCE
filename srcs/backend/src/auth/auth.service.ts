@@ -4,6 +4,7 @@ import { eq, or , and, sql, arrayContains } from 'drizzle-orm';
 // bcrypt - Library to encrypt passwords securely
 
 import { Injectable, Inject, Logger , ConflictException, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config'; 
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 
@@ -40,6 +41,7 @@ export class AuthService {
     private db: PostgresJsDatabase<typeof schema>,
     private readonly httpService: HttpService,
     private jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   // ==================== TRADITIONAL LOGIN ====================
@@ -120,7 +122,9 @@ export class AuthService {
     let totpsecret;
     if (enable2FA)
     {
-      const pythonUrlrandom = 'http://totp:8070/random';       
+      const totpServiceUrl = this.configService.get<string>('TOTP_SERVICE_URL') || 'http://totp:8070';
+      //const pythonUrlrandom = 'http://totp:8070/random';   
+      const pythonUrlrandom = `${totpServiceUrl}/random`    
       const { data } = await firstValueFrom(
         this.httpService.get(pythonUrlrandom)
       );
@@ -150,7 +154,10 @@ export class AuthService {
     if (enable2FA)
     {
       // 5. We call the TOTP microservice to generate the QR
-      const pythonqr = 'http://totp:8070/qrtext';
+
+      const totpServiceUrl = this.configService.get<string>('TOTP_SERVICE_URL') || 'http://totp:8070';
+      //const pythonqr = 'http://totp:8070/qrtext'; 
+      const pythonqr = `${totpServiceUrl}/qrtext`    
       this.logger.debug('4. Llamando al servicio TOTP en Python...');
       try{
         const { data } = await firstValueFrom(
@@ -206,7 +213,10 @@ async verifyTOTP(
     }
 
     // 2. Calling the TOTP service in Python to verify code...
-    const pythonVerifyUrl = 'http://totp:8070/verify';
+    const totpServiceUrl = this.configService.get<string>('TOTP_SERVICE_URL') || 'http://totp:8070';
+    // const pythonVerifyUrl = 'http://totp:8070/verify';
+    const pythonVerifyUrl = `${totpServiceUrl}/qrtext`    
+
        
     try {
       const { data } = await firstValueFrom(
