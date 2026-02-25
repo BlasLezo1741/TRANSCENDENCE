@@ -970,16 +970,6 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         </>
     );
 
-    // const renderStatScreen = () => (
-    //     <>
-    //         <h1>{t('prof.stats_title')}</h1>
-            
-    //         {/* Aquí incrustamos el Leaderboard */}
-    //         <div className="flex flex-col items-center mt-6">
-    //             <Leaderboard />
-    //         </div>
-    //     </>
-    // );
     const renderStatScreen = () => {
         const btnBaseStyle = "px-4 py-2 rounded-md font-bold transition-colors duration-200 shadow-md";
         const btnActiveStyle = "bg-cyan-600 text-white border border-cyan-400";
@@ -1028,9 +1018,15 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     )}
                     
                     {statView === 'grafana' && (
-                        <div style={{ color: '#9ca3af', textAlign: 'center', padding: '40px', backgroundColor: '#111827', borderRadius: '12px', width: '100%', maxWidth: '800px' }}>
-                            <h2 style={{ fontSize: '1.5rem', color: '#f59e0b', marginBottom: '10px' }}>Dashboard de Grafana</h2>
-                            <p>Aquí incrustaremos el iFrame con las métricas del servidor en tiempo real...</p>
+                        <div style={{ width: '100%', height: '700px', backgroundColor: '#111827', borderRadius: '12px', overflow: 'hidden', border: '1px solid #374151', marginTop: '10px' }}>
+                            <iframe 
+                                src="https://localhost:8443/grafana/d/grhk4qc/transcendence-db-pong?orgId=1&from=now-6h&to=now&timezone=browser&kiosk=tv" 
+                                width="100%" 
+                                height="100%" 
+                                frameBorder="0"
+                                title="Grafana Analytics"
+                                style={{ pointerEvents: 'auto' }}
+                            ></iframe>
                         </div>
                     )}
                 </div>
