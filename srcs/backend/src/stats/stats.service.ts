@@ -29,4 +29,30 @@ export class StatsService {
                 return [];
             }
     }
+
+    // HISTORIAL De partidas
+    async getMatchHistory(userId: number) {
+        try {
+            // Llamamos a la nueva función SQL pasándole el ID del usuario
+            const result = await this.db.execute(sql`SELECT * FROM get_match_history(${userId}, 15)`);
+            
+            // Drizzle / postgres-js array formatting
+            const rows = (result as any[]);
+            
+            return rows.map((row: any) => ({
+                id: row.match_id,
+                date: row.match_date,
+                mode: row.mode_name,
+                myScore: row.my_score || 0,
+                opponentId: row.opponent_id,
+                opponent: row.opponent_nick || 'Bot / Desconocido',
+                opponentAvatar: row.opponent_avatar,
+                opponentScore: row.opponent_score || 0,
+                won: row.won
+            }));
+        } catch (error) {
+            console.error("❌ Error obteniendo el historial de partidas:", error);
+            return [];
+        }
+    }
 }

@@ -243,21 +243,6 @@ export const deleteMyAccount = async (): Promise<{ ok: boolean; msg: string }> =
     }
 };
 
-// 5. Stats Leaderboard
-// export const getLeaderboard = async () => {
-//     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/stats/leaderboard`, {
-//         method: 'GET',
-//         headers: {
-//             // Asegúrate de enviar el token como lo hagáis en el resto del archivo
-//             'Authorization': `Bearer ${localStorage.getItem('token')}` 
-//         }
-//     });
-    
-//     if (!response.ok) {
-//         throw new Error('Error fetching leaderboard');
-//     }
-//     return response.json();
-// };
 export const getLeaderboard = async () => {
     console.log("[user.service] getLeaderboard() - Starting request...");
 
@@ -296,6 +281,41 @@ export const getLeaderboard = async () => {
         return data;
     } catch (error) {
         console.error("❌ [user.service] Error in getLeaderboard():", error);
+        return [];
+    }
+};
+
+// Obtener el historial de partidas del usuario
+export const getMatchHistory = async () => {
+    console.log("📡 [user.service] getMatchHistory() - Starting request...");
+
+    try {
+        const token = getToken();
+        if (!token) return [];
+
+        const url = `/auth/stats/history`;
+        console.log("📡 [user.service] Fetching history from:", url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            handle401Unauthorized();
+            return [];
+        }
+
+        if (!response.ok) throw new Error("Failed to fetch match history");
+
+        const data = await response.json();
+        console.log("✅ [user.service] History fetched:", data.length, "matches");
+        return data;
+    } catch (error) {
+        console.error("❌ [user.service] Error in getMatchHistory():", error);
         return [];
     }
 };

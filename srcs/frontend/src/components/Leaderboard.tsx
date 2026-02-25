@@ -27,32 +27,6 @@ export const Leaderboard = () => {
 
     if (loading) return <div className="text-white text-center p-4">Cargando ranking...</div>;
 
-//     return (
-//         <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-auto border border-gray-700 shadow-xl">
-//             <h2 className="text-2xl font-bold text-white text-center mb-6">🏆 Top 10 Jugadores</h2>
-//             <ul className="space-y-3">
-//                 {players.map((player, index) => (
-//                     <li key={player.id} className="flex items-center justify-between bg-gray-700 p-3 rounded-md">
-//                         <div className="flex items-center gap-4">
-//                             {/* Color para los 3 primeros puestos */}
-//                             <span className={`text-xl font-bold ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-orange-400' : 'text-gray-500'}`}>
-//                                 #{index + 1}
-//                             </span>
-//                             <Avatar src={player.avatar} userId={player.id} size={40} />
-//                             <span className="text-white font-medium">{player.nick}</span>
-//                         </div>
-//                         <div className="text-green-400 font-bold">
-//                             {player.wins} <span className="text-xs text-gray-400 font-normal">victorias</span>
-//                         </div>
-//                     </li>
-//                 ))}
-//                 {players.length === 0 && (
-//                     <p className="text-gray-400 text-center">No hay partidas registradas aún.</p>
-//                 )}
-//             </ul>
-//         </div>
-//     );
-// };
 return (
         <div style={{
             backgroundColor: '#111827', // Fondo súper oscuro para contrastar

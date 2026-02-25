@@ -29,6 +29,7 @@ import { sentence  } from '../ts/utils/string';
 import "../css/ProfileScreen.css";
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 import { Leaderboard } from '../components/Leaderboard';
+import { MatchHistory } from '../components/MatchHistory';
 
 // To update header if user changes the nick
 interface ProfileScreenProps {
@@ -74,6 +75,9 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
     const [isSelectingAvatar, setIsSelectingAvatar] = useState(false);
 
+    // Estado para el sub-menú de estadísticas
+    const [statView, setStatView] = useState<'leaderboard' | 'history' | 'grafana'>('leaderboard');
+    
     const { showModal } = useModal();
 
     // --- CARGA DE DATOS ---
@@ -968,20 +972,71 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
     // const renderStatScreen = () => (
     //     <>
-    //         <h1>{t('prof.stats_title')}</h1> {/* Added Translation key */}
-    //         <p>{t('prof.stats_placeholder')}</p> {/* Added Translation key */}
+    //         <h1>{t('prof.stats_title')}</h1>
+            
+    //         {/* Aquí incrustamos el Leaderboard */}
+    //         <div className="flex flex-col items-center mt-6">
+    //             <Leaderboard />
+    //         </div>
     //     </>
     // );
-    const renderStatScreen = () => (
-        <>
-            <h1>{t('prof.stats_title')}</h1>
-            
-            {/* Aquí incrustamos el Leaderboard */}
-            <div className="flex flex-col items-center mt-6">
-                <Leaderboard />
+    const renderStatScreen = () => {
+        const btnBaseStyle = "px-4 py-2 rounded-md font-bold transition-colors duration-200 shadow-md";
+        const btnActiveStyle = "bg-cyan-600 text-white border border-cyan-400";
+        const btnInactiveStyle = "bg-gray-800 text-gray-400 border border-gray-600 hover:bg-gray-700 hover:text-white";
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px', width: '100%' }}>
+                {/* Título de la sección */}
+                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white', marginBottom: '20px' }}>
+                    {t('prof.stats_title')}
+                </h1>
+                
+                {/* 🎛️ SUB-MENÚ DE BOTONES */}
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <button 
+                        onClick={() => setStatView('leaderboard')}
+                        className={`${btnBaseStyle} ${statView === 'leaderboard' ? btnActiveStyle : btnInactiveStyle}`}
+                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                        🏆 Top 10 Global
+                    </button>
+                    <button 
+                        onClick={() => setStatView('history')}
+                        className={`${btnBaseStyle} ${statView === 'history' ? btnActiveStyle : btnInactiveStyle}`}
+                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                        📜 Mi Historial
+                    </button>
+                    <button 
+                        onClick={() => setStatView('grafana')}
+                        className={`${btnBaseStyle} ${statView === 'grafana' ? btnActiveStyle : btnInactiveStyle}`}
+                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                        📊 Analítica Avanzada
+                    </button>
+                </div>
+
+                {/* 📺 CONTENIDO DINÁMICO QUE CAMBIA SEGÚN EL BOTÓN */}
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                    {statView === 'leaderboard' && (
+                        <Leaderboard />
+                    )}
+                    
+                    {statView === 'history' && (
+                        <MatchHistory myProfile={userProfile} />
+                    )}
+                    
+                    {statView === 'grafana' && (
+                        <div style={{ color: '#9ca3af', textAlign: 'center', padding: '40px', backgroundColor: '#111827', borderRadius: '12px', width: '100%', maxWidth: '800px' }}>
+                            <h2 style={{ fontSize: '1.5rem', color: '#f59e0b', marginBottom: '10px' }}>Dashboard de Grafana</h2>
+                            <p>Aquí incrustaremos el iFrame con las métricas del servidor en tiempo real...</p>
+                        </div>
+                    )}
+                </div>
             </div>
-        </>
-    );
+        );
+    };
 
     return (
         <main className="profile">
