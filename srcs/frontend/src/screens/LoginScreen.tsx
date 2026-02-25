@@ -31,14 +31,14 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
             if (showTotpInput) {
                 const result = await send2FACode(userId, totpCode);
                 if (!result.ok) {
-                    setError("Código 2FA incorrecto");
+                    setError(t('errors.invalid2faCode'));
                     setTotpCode("");
                     return;
                 } else {
                 // If verification is successful
                 localStorage.setItem("pong_user_nick", user);
                 localStorage.setItem("pong_user_id", userId!.toString());
-                localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
+                localStorage.setItem("pong_token", result.token); //SAVE THE TOKEN!
                 setGlobalUser(user);
                 dispatch({ type: "MENU" });
                 }
@@ -46,7 +46,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 // AWAIT the backend response
                 const result = await checkLogin(user, password);   
                 if (!result.ok) {
-                    setError(result.msg || "Error desconocido");
+                    setError(t(result.msg) || t('error.unknownError'));
                     setPassword("");
                 } else {
                     if (result.user.totp) {
@@ -58,7 +58,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                         // 1. We save in LocalStorage so it persists on refresh
                         localStorage.setItem("pong_user_nick", result.user.name);
                         localStorage.setItem("pong_user_id", result.user.id.toString());
-                        localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
+                        localStorage.setItem("pong_token", result.token); // SAVE THE TOKEN!
 
                         // 2. We update the global state in App.tsx
                         setGlobalUser(result.user.name);
@@ -71,7 +71,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
             } //showTotpInput
 
         } catch (err) {
-            setError("Error de conexión");
+            setError(t('errors.connectionError'));
         } finally {
             setIsLoading(false);
         }
@@ -95,12 +95,12 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
         <div>
             <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                    {showTotpInput ? t('veri_2fa') || 'Verificación 2FA' : t('bienvenido')}
+                    {showTotpInput ? t('veri_2fa') : t('bienvenido')}
                 </h1>
                 
                 {showTotpInput && (
                     <p className="text-gray-500 mt-2">
-                        {t('ingresa_codigo_2fa') || 'Ingresa el código de tu aplicación de autenticación'}
+                        {t('ingresa_codigo_2fa')}
                     </p>
                 )}
 
@@ -149,7 +149,7 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                 ):(
                     <div>
                         <label htmlFor="totp">
-                            {t('cod_2fa') || 'Código de autenticación'}
+                            {t('cod_2fa')}
                         </label>
                         <input
                             type="text"
@@ -163,8 +163,8 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                             }}
                             maxLength={8} // Allow up to 8 characters for Alphanumeric backup codes (6 for numeric TOTP)
                             pattern="(\d{6}|[A-Z0-9]{8})" // 6 digits OR 8 alphanumeric
-                            placeholder={(t('placeholder') || '123456 o ABCD1234')}
-                            title={t('qr_setup1') ?? 'Ingresa 6 dígitos numéricos o 8 caracteres alfanuméricos'}                                    
+                            placeholder={(t('placeholder'))}
+                            title={t('2fa_setup')}                                    
                             required
                             autoFocus
                         />
@@ -175,12 +175,12 @@ const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
                     <button
                     type="button"
                     onClick={handleBack}>
-                        {t('volver') || 'Volver'}
+                        {t('volver')}
                     </button>
                     <button
                         type="submit"
                         disabled={isLoading}>
-                        {isLoading ? t('enviando') : (showTotpInput ? (t('verificar') || 'Verificar código 2FA') : t('enviar'))}
+                        {isLoading ? t('enviando') : (showTotpInput ? (t('verificar')) : t('enviar'))}
                     </button>
                 </div>
 

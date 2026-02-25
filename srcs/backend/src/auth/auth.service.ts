@@ -62,26 +62,26 @@ export class AuthService {
     const user = result[0];
     
     if (!user) {
-      return { ok: false, msg: "User not found" };
+      return { ok: false, msg: "errors.userNotFound" };
     }
 
     // Check if user is OAuth user (no password)
     if (!user.pPass) {
-      return { ok: false, msg: "Please log in with your OAuth provider (42 or Google)" };
+      return { ok: false, msg: "errors.useOAuthProvider" };
     }
 
     const match = await bcrypt.compare(plainPassword, user.pPass);
     if (!match) {
-      return { ok: false, msg: "Incorrect password" };
+      return { ok: false, msg: "errors.incorrectPassword" };
     }
 
        if (user.pStatus === 0) {
-      return { ok: false, msg: "Inactive account" };
+      return { ok: false, msg: "errors.inactiveAccount" };
     }
 
     return { 
       ok: true, 
-      msg: "Correct login", 
+      msg: "success.login", 
       user: { 
         id: user.pPk, 
         name: user.pNick,
@@ -111,7 +111,7 @@ export class AuthService {
       .limit(1);
     
     if (existing.length > 0) {
-      return { ok: false, msg: "User or email already exists" };
+      return { ok: false, msg: "errors.userOrEmailExists" };
     }
 
     // 2. Hash password
@@ -179,7 +179,7 @@ export class AuthService {
     // 8. We return the necessary data to the frontend
     return { 
   ok: true, 
-  msg: "User registered correctly",
+  msg: "success.userRegistered",
   qrCode: totpqr?.qr_text[0] || null,
   backupCodes: backupCodesArray  // ["200513", "589663", "815166", ...]  
     }
