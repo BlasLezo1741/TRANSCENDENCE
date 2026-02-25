@@ -32,10 +32,11 @@ SERVICE4 = frontend
 SERVICE8 = grafana
 SERVICE9 = adminer
 SERVICE10 = prometheus
+SERVICE11 = nginx
 
 
 #SERVICES = $(SERVICE2) $(SERVICE9) $(SERVICE8)
-SERVICES = $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) $(SERVICE1) $(SERVICE10)
+SERVICES = $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) $(SERVICE1) $(SERVICE10) $(SERVICE11)
 #SERVICES = $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE9) $(SERVICE8) $(SERVICE1) $(SERVICE11) $(SERVICE12)
 
 
@@ -183,6 +184,10 @@ $(SERVICE10):
 	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE10)
 $(SERVICE10)clean:
 	docker image rm $(SERVICE10)
+$(SERVICE11):
+	docker compose --project-directory srcs -f srcs/docker-compose.yml build $(SERVICE11)
+$(SERVICE11)clean:
+	docker image rm $(SERVICE11)
 
 re-backend:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d --build $(SERVICE3)
@@ -257,7 +262,7 @@ re: fclean all
 .PHONY: all update-env $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR)
 .PHONY: test-db
 .PHONY: $(SERVICE1) $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE8) $(SERVICE9) $(SERVICE10)
-.PHONY: $(SERVICE1)clean $(SERVICE2)clean $(SERVICE3)clean $(SERVICE4)clean $(SERVICE8)clean $(SERVICE9)clean $(SERVICE10)clean
+.PHONY: $(SERVICE1)clean $(SERVICE2)clean $(SERVICE3)clean $(SERVICE4)clean $(SERVICE8)clean $(SERVICE9)clean $(SERVICE10)clean $(SERVICE11)clean
 #.PHONY: $(SERVICE1) $(SERVICE2) $(SERVICE3) $(SERVICE4) $(SERVICE8) $(SERVICE9) $(SERVICE11) $(SERVICE12)
 #.PHONY: $(SERVICE1)clean $(SERVICE2)clean $(SERVICE3)clean $(SERVICE4)clean $(SERVICE8)clean $(SERVICE9)clean $(SERVICE11)clean $(SERVICE12)clean
 # global rules

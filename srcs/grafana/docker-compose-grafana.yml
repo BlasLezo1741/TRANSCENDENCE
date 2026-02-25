@@ -27,8 +27,8 @@ services:
       - ./provisioning/alerting:/etc/grafana/provisioning/alerting/
       - grafana_data:/var/lib/grafana
     # Elimino para no exponer el puerto
-    # ports:
-    #   - ${GF_CONTAINER_PORT}:${GF_SERVER_HTTP_PORT}
+    ports:
+      - ${GF_CONTAINER_PORT}:${GF_SERVER_HTTP_PORT}
     networks:
       transcendence_net:
         aliases:
