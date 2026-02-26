@@ -422,7 +422,7 @@ def generate_backup_codes(num_codes=10, length=8):
     pulsaciones de teclas, temperatura del sistema, etc.) para generar el azar. 
     Es impredecible incluso si el atacante tiene mucha información previa.    
     """
-    codes = []
+    codes = [[],[]]
     alphabet = string.ascii_uppercase + string.digits
     alphabet = alphabet.replace('O', '').replace('I', '').replace('0', '')  # Remove confusing chars
     #alphabet = string.digits
@@ -430,7 +430,9 @@ def generate_backup_codes(num_codes=10, length=8):
     for _ in range(num_codes):
         # secrets.choice es criptográficamente seguro (mejor que random)
         code = ''.join(secrets.choice(alphabet) for _ in range(length))
-        codes.append(code)
+        codes[0].append(code)
+        codes[1].append(encrypt_secret(code.encode()))
+    print(codes)
     return codes    
 
 if __name__ == "__main__":

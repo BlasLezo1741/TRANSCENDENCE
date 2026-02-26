@@ -151,6 +151,7 @@ export class AuthService {
 
     let totpqr;
     let backupCodesArray: string[] = []; // We initialize the empty array
+    let backupCodesEncryptedArray: string[] = []; // We initialize the empty array
     if (enable2FA)
     {
       // 5. We call the TOTP microservice to generate the QR
@@ -172,14 +173,17 @@ export class AuthService {
         return { ok: false, msg: "Error generating the 2FA code" };
       }
       // 6. Convert the comma-separated codes string into an array
-      backupCodesArray = String(totpqr.qr_text[1])
+      backupCodesArray = String(totpqr.qr_text[1][0])
+        .split(',')
+        .map((code: string) => code.trim()); // trim() removes whitespace
+      backupCodesEncryptedArray == String(totpqr.qr_text[1][1])
         .split(',')
         .map((code: string) => code.trim()); // trim() removes whitespace
   
       // 7. Update the user with the backup codes
       await this.db
         .update(player)
-        .set({ pTotpBackupCodes: backupCodesArray })
+        .set({ pTotpBackupCodes: backupCodesEncryptedArray })
         .where(eq(player.pNick, newUser.pNick));
     } // if enable2FA
 
@@ -215,7 +219,7 @@ async verifyTOTP(
     // 2. Calling the TOTP service in Python to verify code...
     const totpServiceUrl = this.configService.get<string>('TOTP_SERVICE_URL') || 'http://totp:8070';
     // const pythonVerifyUrl = 'http://totp:8070/verify';
-    const pythonVerifyUrl = `${totpServiceUrl}/qrtext`    
+    const pythonVerifyUrl = `${totpServiceUrl}/verify`    
 
        
     try {
