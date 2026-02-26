@@ -176,10 +176,11 @@ export class AuthService {
       backupCodesArray = String(totpqr.qr_text[1][0])
         .split(',')
         .map((code: string) => code.trim()); // trim() removes whitespace
-      backupCodesEncryptedArray == String(totpqr.qr_text[1][1])
+      backupCodesEncryptedArray = String(totpqr.qr_text[1][1])
         .split(',')
         .map((code: string) => code.trim()); // trim() removes whitespace
-  
+      this.logger.debug(`5. ${backupCodesArray}` );
+      this.logger.debug(`6. ${backupCodesEncryptedArray}`);
       // 7. Update the user with the backup codes
       await this.db
         .update(player)
@@ -241,35 +242,57 @@ async verifyTOTP(
 
 async verifyBackupCode(
   userId: number, 
-  totpCode: string) 
+  totpBackupCode: string) 
 {
-     const result = await this.db.update(player)
-    .set({
-      // We remove the code from the array
-      pTotpBackupCodes: sql`array_remove(${player.pTotpBackupCodes}, ${totpCode})`,
-    })
-    .where(
-      and(
-        eq(player.pPk, userId),
-        // We only proceed if the code is present in the array
-        sql`${player.pTotpBackupCodes} @> ARRAY[${totpCode}]`
-      )
-    )
-    .returning({
-      updatedNick: player.pNick,
-    });
+    // hay que encriptar en totp el backup code en abierto
+    // 2. Calling the TOTP service in Python to verify code...
+    const totpServiceUrl = this.configService.get<string>('TOTP_SERVICE_URL') || 'http://totp:8070';
+    // const pythonEncryptUrl = 'http://totp:8070/encrypt';
+    const pythonEncryptUrl = `${totpServiceUrl}/encrypt`;
+      try {
+        const { data } = await firstValueFrom(
+          this.httpService.post(pythonEncryptUrl, {
+            totp_backup_code: totpBackupCode
+          })
+        );
+        if (data.status === 'ok') {
+          const result = await this.db.update(player)
+            .set({
+              // We remove the code from the array
+              pTotpBackupCodes: sql`array_remove(${player.pTotpBackupCodes}, ${data.encrypted_backup_code})`,
+            })
+            .where(
+              and(
+                eq(player.pPk, userId),
+                // We only proceed if the code is present in the array
+                sql`${player.pTotpBackupCodes} @> ARRAY[${data.encrypted_backup_code}]`
+              )
+            )
+            .returning({
+              updatedNick: player.pNick,
+            });
 
-  if (result.length === 0) {     
-    return { ok: false, msg: "Invalid or already used backup code" };
-  } else {
-      const result = await this.db.select({
-      // We use sql<number> to tell TS that the result is a number
-      codesLeft: sql<number>`cardinality(${player.pTotpBackupCodes})`,
-    })
-    .from(player)
-    .where(eq(player.pPk, userId));
-    return { ok: true, msg: `The user has ${result[0].codesLeft} codes remaining after correct backup code validation` };
-  }
+          if (result.length === 0) {     
+            return { ok: false, msg: "Invalid or already used backup code" };
+          } else {
+            const result = await this.db.select({
+            // We use sql<number> to tell TS that the result is a number
+            codesLeft: sql<number>`cardinality(${player.pTotpBackupCodes})`,
+            })
+            .from(player)
+            .where(eq(player.pPk, userId));
+            return { ok: true, msg: `The user has ${result[0].codesLeft} codes remaining after correct backup code validation` };
+          } ;
+
+      } else {
+        return { ok: false, msg: "totp_server does not encrypt backup code" };
+      }
+    }catch (error) { 
+      return { ok: false, msg: "Error verifying the 2FA backup code" };
+    }
+
+
+
 
 
    
