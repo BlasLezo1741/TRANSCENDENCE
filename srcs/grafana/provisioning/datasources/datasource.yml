@@ -1,6 +1,7 @@
 apiVersion: 1
   # Configuración del datasource de PostgreSQL para Grafana 
 datasources:
+  # --- (POSTGRESQL) ---
     # Nombre del datasource en Grafana
   - name: Postgres_Transcendence
     # Tipo de base de datos
@@ -29,7 +30,8 @@ datasources:
       timescaledb: false
       # Parámetros personalizados de consulta
       #customQueryParameters: "options=-c datestyle=ISO,MDY"
-    # --- (PROMETHEUS) ---
+  
+  # --- (PROMETHEUS) ---
   - name: Prometheus
     type: prometheus
     # Aquí usamos el alias que definimos en el docker-compose de prometheus
@@ -41,3 +43,13 @@ datasources:
     jsonData:
       # Intervalo de scrapeo por defecto
       timeInterval: "15s"
+
+  # --- (GITHUB) ---
+  - name: GitHub
+    type: grafana-github-datasource
+    uid: github_001
+    access: proxy
+    jsonData: {}
+    # Aquí le pasamos el token de forma segura
+    secureJsonData:
+      accessToken: ${GITHUB_TOKEN}
