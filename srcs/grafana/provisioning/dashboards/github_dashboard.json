@@ -153,7 +153,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 8,
+        "x": 0,
         "y": 1
       },
       "id": 38,
@@ -301,7 +301,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
+        "w": 5,
         "x": 4,
         "y": 6
       },
@@ -314,9 +314,9 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "countAll"
+            "count"
           ],
-          "fields": "/.*/",
+          "fields": "/^Field$/",
           "values": false
         },
         "showPercentChange": false,
@@ -376,8 +376,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 8,
+        "w": 5,
+        "x": 9,
         "y": 6
       },
       "id": 21,
@@ -420,91 +420,6 @@
             "include": {
               "names": [
                 "locked",
-                "open_time"
-              ]
-            }
-          }
-        },
-        {
-          "id": "reduce",
-          "options": {
-            "reducers": [
-              "mean"
-            ]
-          }
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "uid": "$datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 6
-      },
-      "id": 35,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.4.0",
-      "targets": [
-        {
-          "options": {
-            "query": "is:open",
-            "timeField": 3
-          },
-          "owner": "$organization",
-          "queryType": "Pull_Requests",
-          "refId": "A",
-          "repository": "$repository"
-        }
-      ],
-      "title": "Active PR Open Time",
-      "transformations": [
-        {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
                 "open_time"
               ]
             }
@@ -710,8 +625,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 8,
+        "w": 6,
+        "x": 4,
         "y": 11
       },
       "id": 34,
@@ -829,7 +744,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 74
+                "value": 211
               }
             ]
           },
@@ -841,15 +756,51 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 136
+                "value": 185
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "author_login"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 122
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "author_company"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 107
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pushed_at"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 261
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
+        "h": 12,
+        "w": 24,
         "x": 0,
         "y": 16
       },
@@ -872,80 +823,24 @@
         }
       ],
       "title": "Commits",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "uid": "$datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "title"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 323
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 16
-      },
-      "id": 12,
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true,
-        "sortBy": []
-      },
-      "pluginVersion": "12.4.0",
-      "targets": [
+      "transformations": [
         {
+          "id": "organize",
           "options": {
-            "query": ""
-          },
-          "owner": "$organization",
-          "queryType": "Issues",
-          "refId": "A",
-          "repository": "$repository"
+            "excludeByName": {
+              "author_company": true,
+              "author_email": true,
+              "author_login": true,
+              "committed_at": true,
+              "id": true,
+              "pushed_at": false
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
         }
       ],
-      "title": "Issues",
       "type": "table"
     },
     {
@@ -1021,9 +916,9 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 12,
+        "w": 24,
         "x": 0,
-        "y": 25
+        "y": 28
       },
       "id": 13,
       "options": {
@@ -1098,36 +993,24 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "id"
+              "options": "title"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 380
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "company"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 109
+                "value": 323
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 25
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 37
       },
-      "id": 17,
+      "id": 12,
       "options": {
         "cellHeight": "sm",
         "showHeader": true,
@@ -1140,133 +1023,12 @@
             "query": ""
           },
           "owner": "$organization",
-          "queryType": "Contributors",
+          "queryType": "Issues",
           "refId": "A",
           "repository": "$repository"
         }
       ],
-      "title": "Contributors",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "uid": "$datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 34
-      },
-      "id": 24,
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true
-      },
-      "pluginVersion": "12.4.0",
-      "targets": [
-        {
-          "options": {
-            "query": ""
-          },
-          "owner": "$organization",
-          "queryType": "Milestones",
-          "refId": "A",
-          "repository": "$repository"
-        }
-      ],
-      "title": "Milestones",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "uid": "$datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 34
-      },
-      "id": 23,
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true
-      },
-      "pluginVersion": "12.4.0",
-      "targets": [
-        {
-          "options": {
-            "names": "",
-            "packageType": "NPM"
-          },
-          "owner": "$organization",
-          "queryType": "Packages",
-          "refId": "A",
-          "repository": "$repository"
-        }
-      ],
-      "title": "Packages",
+      "title": "Issues",
       "type": "table"
     },
     {
@@ -1305,12 +1067,24 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "author_email"
+              "options": "id"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 155
+                "value": 380
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "company"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 109
               }
             ]
           }
@@ -1318,11 +1092,11 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 12,
+        "w": 24,
         "x": 0,
-        "y": 43
+        "y": 49
       },
-      "id": 11,
+      "id": 17,
       "options": {
         "cellHeight": "sm",
         "showHeader": true,
@@ -1331,13 +1105,16 @@
       "pluginVersion": "12.4.0",
       "targets": [
         {
+          "options": {
+            "query": ""
+          },
           "owner": "$organization",
-          "queryType": "Tags",
+          "queryType": "Contributors",
           "refId": "A",
           "repository": "$repository"
         }
       ],
-      "title": "Tags",
+      "title": "Contributors",
       "type": "table"
     }
   ],
