@@ -9,6 +9,7 @@ import cross from '../assets/x_chatgpt.png';
 
 import easy from '../assets/Easy_chatgpt.png';
 import normal from '../assets/Normal_chatgpt.png';
+import hard from '../assets/Hard_chatgpt.png';
 
 import bg_image from '../assets/Imagen_pong_v2.png';
 //import bg_image from '../assets/Flag_of_Catalonia.png';
@@ -138,7 +139,7 @@ const MenuScreen = ({ dispatch, mode, setMode, setDifficult, userName, setOppone
                         alt="normal"
                         onClick={() => handleDiff("normal")} />
                     <img
-                        src={easy}
+                        src={hard}
                         alt="hard"
                         onClick={() => handleDiff("hard")} />
                 </div>
