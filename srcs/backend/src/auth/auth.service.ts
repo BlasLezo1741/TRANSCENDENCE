@@ -173,6 +173,7 @@ export class AuthService {
         return { ok: false, msg: "Error generating the 2FA code" };
       }
       // 6. Convert the comma-separated codes string into an array
+<<<<<<< HEAD
       // 1. Directly map the array (No .split needed if it's already an array)
       const backupCodesArray = totpqr.qr_text[1]
           .map((code: any) => String(code).trim());
@@ -191,6 +192,20 @@ export class AuthService {
       await this.db
         .update(player)
         .set({ pTotpBackupCodes: backupCodesHashedArray })
+=======
+      backupCodesArray = String(totpqr.qr_text[1][0])
+        .split(',')
+        .map((code: string) => code.trim()); // trim() removes whitespace
+      backupCodesEncryptedArray = String(totpqr.qr_text[1][1])
+        .split(',')
+        .map((code: string) => code.trim()); // trim() removes whitespace
+      this.logger.debug(`5. ${backupCodesArray}` );
+      this.logger.debug(`6. ${backupCodesEncryptedArray}`);
+      // 7. Update the user with the backup codes
+      await this.db
+        .update(player)
+        .set({ pTotpBackupCodes: backupCodesEncryptedArray })
+>>>>>>> 8b94bd30b135b1c3088c1bbedcb1bd760c0561c7
         .where(eq(player.pNick, newUser.pNick));
     } // if enable2FA
 
