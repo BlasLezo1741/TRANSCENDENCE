@@ -43,7 +43,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
-
+  private saltRounds = 10;
   // ==================== TRADITIONAL LOGIN ====================
   
   async loginUser(username: string, plainPassword: string) {
@@ -117,7 +117,7 @@ export class AuthService {
     }
 
     // 2. Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, this.saltRounds);
     // 3. If the user wants 2FA we create it
     let totpsecret;
     if (enable2FA)
@@ -151,6 +151,7 @@ export class AuthService {
 
     let totpqr;
     let backupCodesArray: string[] = []; // We initialize the empty array
+    let backupCodesEncryptedArray: string[] = []; // We initialize the empty array
     if (enable2FA)
     {
       // 5. We call the TOTP microservice to generate the QR
@@ -172,14 +173,24 @@ export class AuthService {
         return { ok: false, msg: "Error generating the 2FA code" };
       }
       // 6. Convert the comma-separated codes string into an array
-      backupCodesArray = String(totpqr.qr_text[1])
-        .split(',')
-        .map((code: string) => code.trim()); // trim() removes whitespace
-  
+      // 1. Directly map the array (No .split needed if it's already an array)
+      const backupCodesArray = totpqr.qr_text[1]
+          .map((code: any) => String(code).trim());
+
+      // 2. Map through the array to create an array of Promises, 
+      //    then wait for all of them to resolve using Promise.all
+      const backupCodesHashedArray = await Promise.all(
+          backupCodesArray.map(async (code: string) => {
+              return await bcrypt.hash(code, this.saltRounds);
+          })
+      );
+
+      this.logger.debug(`5. ${backupCodesArray}` );
+      this.logger.debug(`6. ${backupCodesHashedArray}`);
       // 7. Update the user with the backup codes
       await this.db
         .update(player)
-        .set({ pTotpBackupCodes: backupCodesArray })
+        .set({ pTotpBackupCodes: backupCodesHashedArray })
         .where(eq(player.pNick, newUser.pNick));
     } // if enable2FA
 
@@ -215,7 +226,7 @@ async verifyTOTP(
     // 2. Calling the TOTP service in Python to verify code...
     const totpServiceUrl = this.configService.get<string>('TOTP_SERVICE_URL') || 'http://totp:8070';
     // const pythonVerifyUrl = 'http://totp:8070/verify';
-    const pythonVerifyUrl = `${totpServiceUrl}/qrtext`    
+    const pythonVerifyUrl = `${totpServiceUrl}/verify`    
 
        
     try {
@@ -237,37 +248,47 @@ async verifyTOTP(
 
 async verifyBackupCode(
   userId: number, 
-  totpCode: string) 
+  totpBackupCode: string) 
 {
-     const result = await this.db.update(player)
-    .set({
-      // We remove the code from the array
-      pTotpBackupCodes: sql`array_remove(${player.pTotpBackupCodes}, ${totpCode})`,
-    })
-    .where(
-      and(
-        eq(player.pPk, userId),
-        // We only proceed if the code is present in the array
-        sql`${player.pTotpBackupCodes} @> ARRAY[${totpCode}]`
-      )
-    )
-    .returning({
-      updatedNick: player.pNick,
-    });
 
-  if (result.length === 0) {     
-    return { ok: false, msg: "Invalid or already used backup code" };
-  } else {
-      const result = await this.db.select({
+    // 1. Fetch player data
+    const user = await this.db.select().from(player).where(eq(player.pPk, userId)).limit(1);
+    const storedHashes = user[0].pTotpBackupCodes || [];
+
+    // 2. Find the matching hash
+    let matchedHash :string | null = null;
+    for (const hash of storedHashes) {
+      if (await bcrypt.compare(totpBackupCode, hash)) {
+        matchedHash = hash;
+        break;
+      }
+    }
+
+    if (!matchedHash) {
+      return { ok: false, msg: "Invalid or already used backup code" };
+    }
+    else 
+    {
+      // 3. Remove the SPECIFIC matched hash from the array
+      let result1 = await this.db.update(player)
+        .set({
+          pTotpBackupCodes: sql`array_remove(${player.pTotpBackupCodes}, ${matchedHash})`,
+        })
+        .where(eq(player.pPk, userId))
+        .returning({ updatedNick: player.pNick });
+      // 4.- count remaining backup codes
+      let result2 = await this.db.select({
       // We use sql<number> to tell TS that the result is a number
       codesLeft: sql<number>`cardinality(${player.pTotpBackupCodes})`,
-    })
-    .from(player)
-    .where(eq(player.pPk, userId));
-    return { ok: true, msg: `The user has ${result[0].codesLeft} codes remaining after correct backup code validation` };
-  }
+      })
+      .from(player)
+      .where(eq(player.pPk, userId));
 
+      return { ok: true, msg: `The user has ${result2[0].codesLeft} codes remaining after correct backup code validation` };
 
+    }
+
+    ;
    
 }
   

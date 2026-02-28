@@ -18,6 +18,9 @@ class TotpVerifyRequest(BaseModel):
     user_totp_secret: str # String Base32: "I5NGEPK4GJ..."
     totp_code: str  # NestJS envía el código TOTP que el usuario ingresa para verificar
 
+class TotpBackupCode(BaseModel):
+    totp_backup_code : str # String plain text provided by user
+
 
 
 @app.get("/")
@@ -57,3 +60,13 @@ async def verify_totp(request: TotpVerifyRequest):
     else:
         print(f"incorrecta Verificando TOTP para {request.totp_code} con {request.user_totp_secret}")
         return {"status": "error", "verified": False    }
+
+@app.post("/encrypt")
+async def encrypt_back_code(request: TotpBackupCode):
+    try:
+        encrypted_backup_code = totp.encrypt_secret(request.totp_backup_code.encode())
+        print(request.totp_backup_code)
+        print(encrypted_backup_code)
+        return {"status": "ok", "encrypted_backup_code": encrypted_backup_code }
+    except:
+        return {"status": "error", "encrypted_backup_code": encrypted_backup_code }
