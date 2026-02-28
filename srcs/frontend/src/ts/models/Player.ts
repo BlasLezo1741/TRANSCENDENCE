@@ -1,3 +1,5 @@
+import type { GameDifficult } from "../types.ts";
+
 export class Player
 {
     nickname: string;
@@ -10,15 +12,34 @@ export class Player
     canvasHeight: number;
     color: string;
 
-    constructor(name: string, x: number, h: number)
+    constructor(name: string, x: number, h: number, diff: GameDifficult)
     {
         this.nickname = name;
         this.x = x;
         this.width = 10;
-        //this.height = 100;
-        this.height = h * 0.20;
+
+        if (diff === "easy")
+        {
+            this.height = h * 0.25;
+            this.speedIA = 5;
+        }
+        else if (diff === "normal")
+        {
+            this.height = h * 0.20;
+            this.speedIA = 7;
+        }
+        else if (diff === "hard")
+        {
+            this.height = h * 0.1;
+            this.speedIA = 10;
+        }
+        else
+        {
+            this.height = h * 0.06;
+            this.speedIA = 12;
+        }
+        
         this.speed = 10;
-        this.speedIA = 5;
         this.canvasHeight = h;
         // MEJORA: Centrar verticalmente según la altura real del canvas
         this.y = (h / 2) - (this.height / 2);
