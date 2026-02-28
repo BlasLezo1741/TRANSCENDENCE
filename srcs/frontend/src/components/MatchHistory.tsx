@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getMatchHistory } from '../services/user.service'; 
-import { Avatar } from './Avatar'; 
+import { Avatar } from './Avatar';
+import { useTranslation } from 'react-i18next'; 
 
 interface MatchRecord {
     id: number;
@@ -22,6 +23,7 @@ interface MatchHistoryProps {
 export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
     const [history, setHistory] = useState<MatchRecord[]>([]);
     const [loading, setLoading] = useState(true);
+    const { t } = useTranslation();
 
     useEffect(() => {
         getMatchHistory()
@@ -35,7 +37,7 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
             });
     }, []);
 
-    if (loading) return <div style={{ color: 'white', textAlign: 'center', padding: '20px' }}>Cargando historial...</div>;
+    if (loading) return <div style={{ color: 'white', textAlign: 'center', padding: '20px' }}>{t('history.loading')}</div>;
 
     return (
         <div style={{ width: '100%', maxWidth: '650px', margin: '0 auto' }}>
@@ -46,12 +48,12 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
                 fontSize: '1.5rem', 
                 fontWeight: 'bold' 
             }}>
-                📜 Últimas Partidas
+                {t('history.lastMatches')}
             </h2>
             
             {history.length === 0 ? (
                 <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>
-                    No has jugado ninguna partida aún. ¡Ve a buscar un rival!
+                    {t('history.notYet')}
                 </p>
             ) : (
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -81,7 +83,7 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
                                     color: match.won ? '#4ade80' : '#ef4444',
                                     letterSpacing: '1px'
                                 }}>
-                                    {match.won ? '🏆 VICTORIA' : '❌ DERROTA'}
+                                    {match.won ? t('history.win') : t('history.defeat')}
                                 </span>
                                 <span>{new Date(match.date).toLocaleDateString()}</span>
                             </div>
@@ -101,7 +103,7 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
                                         userId={myProfile?.id || 0} 
                                         size={50} 
                                     />
-                                    <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 'bold' }}>TÚ</span>
+                                    <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 'bold' }}>{t('history.you')}</span>
                                 </div>
 
                                 {/* CENTRO: MARCADOR */}
@@ -115,7 +117,7 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
                                     }}>
                                         {match.myScore} - {match.opponentScore}
                                     </div>
-                                    <div style={{ fontSize: '0.65rem', color: '#4b5563', marginTop: '4px', fontWeight: 'bold' }}>VS</div>
+                                    <div style={{ fontSize: '0.65rem', color: '#4b5563', marginTop: '4px', fontWeight: 'bold' }}>vs</div>
                                 </div>
 
                                 {/* LADO DERECHO: RIVAL */}

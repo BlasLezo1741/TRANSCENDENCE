@@ -12,6 +12,7 @@ import {
     type UserCandidate,
     removeFriend
 } from '../services/friend.service';
+import { checkForm } from '../ts/utils/auth';
 import { 
     getMyProfile, 
     updateMyProfile, 
@@ -119,7 +120,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             showModal({
                 title: t('error'),
                 message: t('prof.prof_no_load'),
-                type: "alert"
+                type: "error"
             });
         } finally {
             setIsLoadingProfile(false);
@@ -224,7 +225,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 showModal({
                     title: t('error'), // Added Translation key
                     message: result.msg || t('prof.avatar_update_error'), // Added Translation key
-                    type: "alert"
+                    type: "error"
                 });
             }
         } catch (error) {
@@ -236,7 +237,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             showModal({
                 title: t('error'), // Added Translation key
                 message: t('prof.avatar_update_error2'), // Added Translation key
-                type: "alert"
+                type: "error"
             });
         }
     };
@@ -275,59 +276,54 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     const handleUpdateProfile = async () => {
         console.log("💾 [ProfileScreen] handleUpdateProfile() - Starting...");
         console.log("📝 [ProfileScreen] Form data:", editForm);
-
-        // Validaciones
+    
+        // 1. Required fields (nick & email present)
         if (!editForm.nick || !editForm.email) {
             console.warn("⚠️ [ProfileScreen] Validation failed: Missing required fields");
             showModal({
-                title: t('error'), // Added Translation key
-                message: t('prof.fields_required'), // Added Translation key
-                type: "confirm"
+                title: t('error'),
+                message: t('prof.fields_required'),
+                type: "error"
             });
             return;
         }
-
+    
+        // 2. Format validation via checkForm (email format, birth date, new password strength)
+        const formResult = checkForm(
+            editForm.email,
+            editForm.newPassword,
+            editForm.confirmPassword,
+            editForm.birth,
+            { requirePassword: false }
+        );
+        if (!formResult.ok) {
+            console.warn("⚠️ [ProfileScreen] Validation failed:", formResult.msg);
+            showModal({
+                title: t('error'),
+                message: t(formResult.msg),
+                type: "error"
+            });
+            return;
+        }
+    
+        // 3. Current password required if changing password
+        if (editForm.newPassword && !editForm.currentPassword) {
+            console.warn("⚠️ [ProfileScreen] Validation failed: Missing current password");
+            showModal({
+                title: t('error'),
+                message: t('prof.need_current_pass'),
+                type: "error"
+            });
+            return;
+        }
+    
+        // 4. Sync nick to localStorage and header if changed
         if (editForm.nick !== userProfile?.nick) {
             console.log("🔄 [ProfileScreen] Updating localStorage with new nick:", editForm.nick);
             localStorage.setItem('pong_user_nick', editForm.nick);
-            
-            // 🔥 NEW: Update the global App state (Header) immediately
-            setGlobalUser(editForm.nick); 
+            setGlobalUser(editForm.nick);
         }
-
-        // Si quiere cambiar contraseña, validar
-        if (editForm.newPassword) {
-            console.log("🔐 [ProfileScreen] Password change requested");
-            
-            if (!editForm.currentPassword) {
-                console.warn("⚠️ [ProfileScreen] Validation failed: Missing current password");
-                showModal({
-                    title: t('error'), // Added Translation key
-                    message: t('prof.need_current_pass'), // Added Translation key
-                    type: "confirm"
-                });
-                return;
-            }
-            if (editForm.newPassword !== editForm.confirmPassword) {
-                console.warn("⚠️ [ProfileScreen] Validation failed: Passwords don't match");
-                showModal({
-                    title: t('error'), // Added Translation key
-                    message: t('prof.pass_mismatch'), // Added Translation key
-                    type: "confirm"
-                });
-                return;
-            }
-            if (editForm.newPassword.length < 6) {
-                console.warn("⚠️ [ProfileScreen] Validation failed: Password too short");
-                showModal({
-                    title: t('error'), // Added Translation key
-                    message: t('prof.pass_too_short'), // Added Translation key
-                    type: "confirm"
-                });
-                return;
-            }
-        }
-
+    
         try {
             const updateData: UpdateProfileData = {
                 nick: editForm.nick,
@@ -335,60 +331,49 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 birth: editForm.birth,
                 country: editForm.country,
                 lang: editForm.lang,
-                // Always carry the current avatarUrl forward so saving text fields
-                // never accidentally clears the avatar that was set separately.
                 avatarUrl: userProfile!.avatarUrl ?? undefined
             };
-
-            // Solo incluir contraseñas si se está intentando cambiar
+    
             if (editForm.newPassword) {
                 updateData.currentPassword = editForm.currentPassword;
                 updateData.newPassword = editForm.newPassword;
                 console.log("🔐 [ProfileScreen] Including password change in update");
             }
-
+    
             console.log("📡 [ProfileScreen] Sending update request...");
             const result = await updateMyProfile(updateData);
-
+    
             if (!result.ok) {
                 console.error("❌ [ProfileScreen] Update failed:", result.msg);
-                throw new Error(result.msg || t('prof.update_error')); // Added Translation key
+                throw new Error(result.msg || t('prof.update_error'));
             }
-
+    
             console.log("✅ [ProfileScreen] Profile updated successfully");
-
-            // Actualizar localStorage si cambió el nick
-            if (editForm.nick !== userProfile?.nick) {
-                console.log("🔄 [ProfileScreen] Updating localStorage with new nick:", editForm.nick);
-                localStorage.setItem('pong_user_nick', editForm.nick);
-            }
-
+    
             showModal({
-                title: t('prof.update_success_title'), // Added Translation key
-                message: t('prof.update_success_msg'), // Added Translation key
-                type: "confirm"
+                title: t('prof.update_success_title'),
+                message: t('prof.update_success_msg'),
+                type: "error"
             });
-
-            // Recargar perfil y salir del modo edición
+    
             await loadUserProfile();
             setIsEditing(false);
-            
-            // Limpiar campos de contraseña
+    
             setEditForm(prev => ({
                 ...prev,
                 currentPassword: '',
                 newPassword: '',
                 confirmPassword: ''
             }));
-
+    
             console.log("🏁 [ProfileScreen] handleUpdateProfile() - Success");
-
+    
         } catch (error: any) {
             console.error('❌ [ProfileScreen] Error updating profile:', error);
             showModal({
-                title: t('error'), // Added Translation key
-                message: error.message || t('prof.update_error'), // Added Translation key
-                type: "confirm"
+                title: t('error'),
+                message: t(error.message) || t('prof.update_error'),
+                type: "error"
             });
         }
     };
@@ -430,7 +415,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     showModal({
                         title: t('error'),
                         message: result.msg || t('prof.delete_account_error'),
-                        type: "alert"
+                        type: "error"
                     });
                 }
             }
@@ -989,21 +974,21 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         className={`${btnBaseStyle} ${statView === 'leaderboard' ? btnActiveStyle : btnInactiveStyle}`}
                         style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
                     >
-                        🏆 Top 10 Global
+                        🏆 Top 10
                     </button>
                     <button 
                         onClick={() => setStatView('history')}
                         className={`${btnBaseStyle} ${statView === 'history' ? btnActiveStyle : btnInactiveStyle}`}
                         style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
                     >
-                        📜 Mi Historial
+                        📜 {t('prof.history')}
                     </button>
                     <button 
                         onClick={() => setStatView('grafana')}
                         className={`${btnBaseStyle} ${statView === 'grafana' ? btnActiveStyle : btnInactiveStyle}`}
                         style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
                     >
-                        📊 Analítica Avanzada
+                        📊 {t('prof.analytics')}
                     </button>
                 </div>
 

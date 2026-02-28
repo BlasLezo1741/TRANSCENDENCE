@@ -120,7 +120,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
                                 onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                                 onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             >
-                                {modalConfig.type === 'confirm' ? t('modal.accept_btn').toUpperCase() : 'ENTENDIDO'}
+                                {modalConfig.type === 'confirm' ? t('modal.accept_btn').toUpperCase() : 'OK'}
                             </button>
 
                             {/* BOTÓN CANCELAR (Solo si es tipo confirm) */}
