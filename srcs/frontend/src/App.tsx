@@ -1,7 +1,7 @@
 import { useReducer, useState, useEffect } from 'react';
 import { screenReducer } from './ts/screenConf/screenReducer.ts';
 
-import type { Screen, GameMode } from "./ts/types.ts"
+import type { Screen, GameMode, GameDifficult } from "./ts/types.ts"
 
 import MenuScreen from './screens/MenuScreen.tsx'
 import SignScreen from './screens/SignScreen.tsx'
@@ -44,6 +44,7 @@ function App()
   // real avatarUrl has been fetched from the API.
   const [profileSynced, setProfileSynced] = useState<boolean>(!savedUserNick);
   const [mode, setMode] = useState<GameMode>("ia");
+  const [difficult, setDifficult] = useState<GameDifficult>("");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
   //AVATAR
@@ -53,6 +54,8 @@ function App()
   const [ballInit, setBallInit] = useState<{x: number, y: number} | null>(null);
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
   const [option, setOption] = useState<string>("");
+
+  const [ia, setIa] = useState<boolean>(false);
 
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
@@ -288,8 +291,12 @@ function renderScreen()
     {
       case "menu":
         return <MenuScreen 
-          dispatch={dispatch} 
-          setMode={setMode} 
+          dispatch={dispatch}
+          ia={ia}
+          setIa={setIa}
+          mode={mode}
+          setMode={setMode}
+          setDifficult={setDifficult}
           userName={currentUser} 
           setOpponentName={setOpponentName} // <--- NUEVO
           setPlayerSide={setPlayerSide}     // <--- NUEVO
@@ -315,6 +322,7 @@ function renderScreen()
         return <PongScreenComp
           dispatch={dispatch}
           mode={mode}
+          difficult={difficult}
           userName={currentUser}
           opponentName={opponentName}
           userAvatar={finalUserAvatar} 
@@ -383,7 +391,7 @@ function renderScreen()
           </div>
       )}
 
-      <Header dispatch={dispatch} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
+      <Header dispatch={dispatch} setIa={setIa} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
       <main>{renderScreen()}</main>
       <Footer dispatch={dispatch} setOption={setOption}/>
     </div>

@@ -2,11 +2,12 @@ import React, {useRef, useEffect} from "react";
 import { Player } from "../ts/models/Player.ts";
 import { Pong } from "../ts/models/Pong.ts";
 import { socket } from '../services/socketService'; 
-import type { GameMode } from "../ts/types.ts";
+import type { GameMode, GameDifficult } from "../ts/types.ts";
 import { useModal } from '../context/ModalContext';
 
 type CanvasProps = {
     mode: GameMode;
+    difficult: GameDifficult;
     dispatch: React.Dispatch<any>;
     playerNumber?: 1 | 2; 
     userName: string;
@@ -32,8 +33,8 @@ interface PosData
     mobile: boolean;
 }
 
-function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId,
-    isGameActive, onGameOver }: CanvasProps)
+function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId,
+    isGameActive }: CanvasProps)
 {
     const { showModal } = useModal();
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -96,6 +97,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             canvas,
             ctx,
             mode,
+            difficult,
             finalPlayerNumber,
             leftName,
             rightName,

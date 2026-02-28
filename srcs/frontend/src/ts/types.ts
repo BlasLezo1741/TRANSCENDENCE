@@ -26,6 +26,13 @@ export type GameMode =
     | "local"
     | "remote";
 
+export type GameDifficult =
+    | "easy"
+    | "normal"
+    | "hard"
+    | "impossible"
+    | "";
+
 // Lo que recibimos cuando el rival se mueve
 export type GameUpdatePayload = {
     playerId: string;
