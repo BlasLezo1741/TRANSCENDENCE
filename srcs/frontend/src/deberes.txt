@@ -5,14 +5,16 @@
     - En local y ia si abres el chat poner pausa
     - En remoto el chat no se puede abrir
 
-- Meter todo el css en archivos .css
+- Meter un boton atras en las dificultades
 
-- Hacer responsive la web para todos los sizes
+- CSS
 
-- Css QR y las otras cosas
+    - Meter tailwind
+    - Pasar todo el css a archivos .css
+    - Hacer responsive la pagina para los sizes
+    - Css QR y los otros
+    - Scrolls solo para el menuscreen
+    - Quitar max-widh de la app
+    - Redondear todo
+    - Sombras
 
-- Mirar los scrolls
-
-- Pasar a otros idiomas el infoscreen
-
-- En la IA: Meter imagen de dificultad dificil

@@ -55,6 +55,8 @@ function App()
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
   const [option, setOption] = useState<string>("");
 
+  const [ia, setIa] = useState<boolean>(false);
+
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
 
@@ -290,6 +292,8 @@ function renderScreen()
       case "menu":
         return <MenuScreen 
           dispatch={dispatch}
+          ia={ia}
+          setIa={setIa}
           mode={mode}
           setMode={setMode}
           setDifficult={setDifficult}
@@ -387,7 +391,7 @@ function renderScreen()
           </div>
       )}
 
-      <Header dispatch={dispatch} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
+      <Header dispatch={dispatch} setIa={setIa} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
       <main>{renderScreen()}</main>
       <Footer dispatch={dispatch} setOption={setOption}/>
     </div>

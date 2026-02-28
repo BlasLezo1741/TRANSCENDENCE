@@ -10,6 +10,7 @@ import cross from '../assets/x_chatgpt.png';
 import easy from '../assets/Easy_chatgpt.png';
 import normal from '../assets/Normal_chatgpt.png';
 import hard from '../assets/Hard_chatgpt.png';
+import impossible from '../assets/Impossible_chatgpt.png';
 
 import bg_image from '../assets/Imagen_pong_v2.png';
 //import bg_image from '../assets/Flag_of_Catalonia.png';
@@ -17,6 +18,8 @@ import bg_image from '../assets/Imagen_pong_v2.png';
 import "../css/MenuScreen.css";
 
 type OptionsProps = ScreenProps & {
+  ia: boolean;
+  setIa: React.Dispatch<React.SetStateAction<boolean>>;
   mode: GameMode;
   setMode: React.Dispatch<React.SetStateAction<GameMode>>;
   setDifficult: React.Dispatch<React.SetStateAction<GameDifficult>>;
@@ -26,11 +29,9 @@ type OptionsProps = ScreenProps & {
   setPlayerSide: React.Dispatch<React.SetStateAction<'left' | 'right'>>;
 };
 
-const MenuScreen = ({ dispatch, mode, setMode, setDifficult, userName, setOpponentName, setPlayerSide }: OptionsProps) => {   
+const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName, setOpponentName, setPlayerSide }: OptionsProps) => {   
     const { t } = useTranslation();
-
     const [statusText, setStatusText] = useState<string>("");
-    const [ia, setIa] = useState<boolean>(false);
     const [modeActive, setModeActive] = useState<"offline" | "online" | null>(false);
     
     const countDownRef = useRef<NodeJS.Timeout | null>(null);
@@ -142,6 +143,10 @@ const MenuScreen = ({ dispatch, mode, setMode, setDifficult, userName, setOppone
                         src={hard}
                         alt="hard"
                         onClick={() => handleDiff("hard")} />
+                    <img
+                        src={impossible}
+                        alt="hard"
+                        onClick={() => handleDiff("impossible")} />
                 </div>
             </>
         );

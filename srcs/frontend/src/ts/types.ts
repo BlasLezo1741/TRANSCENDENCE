@@ -30,6 +30,7 @@ export type GameDifficult =
     | "easy"
     | "normal"
     | "hard"
+    | "impossible"
     | "";
 
 // Lo que recibimos cuando el rival se mueve

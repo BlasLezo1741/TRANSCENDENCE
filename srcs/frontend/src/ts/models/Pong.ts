@@ -42,7 +42,7 @@ export class Pong
             this.diff = "";
         this.playerNumber = n; 
         this.player1 = new Player(leftPlayerName, 20, c.height, this.diff);
-        this.player2 = new Player(rightPlayerName, c.width - 30, c.height, "");
+        this.player2 = new Player(rightPlayerName, c.width - 30, c.height, this.diff);
         this.ball = new Ball(c);
         // LÓGICA DE SINCRONIZACIÓN
         if (ballInit) {
