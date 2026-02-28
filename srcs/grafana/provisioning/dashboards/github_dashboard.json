@@ -113,6 +113,154 @@
       "datasource": {
         "uid": "$datasource"
       },
+      "description": "🔴 Líneas discontinuas rojas: Commits o Issues cerradas.\n\n🟢 Líneas discontinuas verdes: Pull Requests o Releases.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "commits",
+            "axisPlacement": "left",
+            "axisSoftMax": 1,
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 0,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "Commits",
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "id"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "author"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 20,
+        "x": 0,
+        "y": 1
+      },
+      "id": 38,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.0",
+      "targets": [
+        {
+          "options": {
+            "gitRef": "$branch"
+          },
+          "owner": "BlasLezo1741",
+          "queryType": "Commits",
+          "refId": "A",
+          "repository": "TRANSCENDENCE"
+        }
+      ],
+      "title": "Activity",
+      "transformations": [
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "committed_at": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "id": {
+                "aggregations": [
+                  "count"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "destinationType": "time",
+                "targetField": "committed_at"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "$datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -151,12 +299,12 @@
         ]
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 4,
-        "x": 0,
+        "x": 20,
         "y": 1
       },
-      "id": 38,
+      "id": 39,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -190,12 +338,234 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "uid": "$datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "Commits",
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "id"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "author"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 40,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.0",
+      "targets": [
+        {
+          "options": {
+            "gitRef": "$branch"
+          },
+          "owner": "BlasLezo1741",
+          "queryType": "Commits",
+          "refId": "A",
+          "repository": "TRANSCENDENCE"
+        }
+      ],
+      "title": "Commits by User",
+      "transformations": [
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "author": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "author_login": {
+                "aggregations": []
+              },
+              "committed_at": {
+                "aggregations": []
+              },
+              "id": {
+                "aggregations": [
+                  "count"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "id (count)"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "uid": "$datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 12
+      },
+      "id": 33,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.0",
+      "targets": [
+        {
+          "options": {
+            "query": "is:open"
+          },
+          "owner": "$organization",
+          "queryType": "Issues",
+          "refId": "A",
+          "repository": "$repository"
+        }
+      ],
+      "title": "Active Issues",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "count"
+            ]
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 16
       },
       "id": 31,
       "panels": [],
@@ -225,7 +595,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 6
+        "y": 17
       },
       "id": 29,
       "options": {
@@ -303,7 +673,7 @@
         "h": 4,
         "w": 5,
         "x": 4,
-        "y": 6
+        "y": 17
       },
       "id": 32,
       "options": {
@@ -378,7 +748,7 @@
         "h": 4,
         "w": 5,
         "x": 9,
-        "y": 6
+        "y": 17
       },
       "id": 21,
       "options": {
@@ -442,89 +812,12 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 21
       },
       "id": 27,
       "panels": [],
       "title": "Issues",
       "type": "row"
-    },
-    {
-      "datasource": {
-        "uid": "$datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 30
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 1
-      },
-      "id": 33,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.4.0",
-      "targets": [
-        {
-          "options": {
-            "query": "is:open"
-          },
-          "owner": "$organization",
-          "queryType": "Issues",
-          "refId": "A",
-          "repository": "$repository"
-        }
-      ],
-      "title": "Active Issues",
-      "transformations": [
-        {
-          "id": "reduce",
-          "options": {
-            "reducers": [
-              "count"
-            ]
-          }
-        }
-      ],
-      "type": "stat"
     },
     {
       "datasource": {
@@ -553,7 +846,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 11
+        "y": 22
       },
       "id": 15,
       "options": {
@@ -627,7 +920,7 @@
         "h": 4,
         "w": 6,
         "x": 4,
-        "y": 11
+        "y": 22
       },
       "id": 34,
       "options": {
@@ -696,7 +989,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 26
       },
       "id": 37,
       "panels": [],
@@ -802,7 +1095,7 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 27
       },
       "id": 2,
       "options": {
@@ -896,7 +1189,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 259
+                "value": 476
               }
             ]
           },
@@ -911,6 +1204,42 @@
                 "value": 192
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "deletions"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "author_login"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 337
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "additions"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
           }
         ]
       },
@@ -918,7 +1247,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 39
       },
       "id": 13,
       "options": {
@@ -944,12 +1273,28 @@
           "id": "organize",
           "options": {
             "excludeByName": {
-              "author_company": false,
-              "author_email": false,
-              "is_draft": false,
-              "locked": false,
-              "repository": false
+              "author_company": true,
+              "author_email": true,
+              "author_name": true,
+              "closed": true,
+              "closed_at": true,
+              "created_at": true,
+              "is_draft": true,
+              "labels": true,
+              "locked": true,
+              "mergeable": true,
+              "merged": true,
+              "merged_at": true,
+              "merged_by_company": true,
+              "merged_by_email": true,
+              "merged_by_login": true,
+              "merged_by_name": true,
+              "repository": true,
+              "state": true,
+              "updated_at": true,
+              "url": true
             },
+            "includeByName": {},
             "indexByName": {},
             "renameByName": {}
           }
@@ -998,7 +1343,31 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 323
+                "value": 543
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "author"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 196
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "number"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 108
               }
             ]
           }
@@ -1008,7 +1377,7 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 48
       },
       "id": 12,
       "options": {
@@ -1029,6 +1398,24 @@
         }
       ],
       "title": "Issues",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "author_company": true,
+              "closed": true,
+              "closed_at": true,
+              "created_at": true,
+              "repo": true,
+              "updated_at": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
       "type": "table"
     },
     {
@@ -1094,7 +1481,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 49
+        "y": 60
       },
       "id": 17,
       "options": {
@@ -1115,6 +1502,20 @@
         }
       ],
       "title": "Contributors",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "company": true,
+              "email": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
       "type": "table"
     }
   ],
@@ -1253,6 +1654,6 @@
   "timezone": "browser",
   "title": "GitHub BlazdeLezo",
   "uid": "iVcSTeyGz",
-  "version": 6,
+  "version": 2,
   "weekStart": ""
 }
