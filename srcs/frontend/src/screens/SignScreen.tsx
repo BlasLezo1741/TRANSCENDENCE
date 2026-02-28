@@ -92,7 +92,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setBackupCodes(null);
         setShowOAuthButtons(true); // Show OAuth buttons on form submission    
         // 2. Check local password syntax
-        const formResult = checkForm(email, password, repeat);
+        const formResult = checkForm(email, password, repeat, birth);
         if (!formResult.ok) {
             setError(t(formResult.msg));
             setPassword("");
@@ -155,7 +155,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 <h1>{t('crear_cuenta')}</h1>
             </div>
 
-            <form onSubmit={handleForm} className="login-form">
+            <form onSubmit={handleForm} className="login-form" noValidate>
                 {/* Error message */}
                 {error && (
                     <span style={{color: "red"}}>{error}</span>

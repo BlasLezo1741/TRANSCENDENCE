@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getLeaderboard } from '../services/user.service';
 import { Avatar } from './Avatar'; 
+import { useTranslation } from 'react-i18next';
 
 interface LeaderboardPlayer {
     id: number;
@@ -12,6 +13,7 @@ interface LeaderboardPlayer {
 export const Leaderboard = () => {
     const [players, setPlayers] = useState<LeaderboardPlayer[]>([]);
     const [loading, setLoading] = useState(true);
+    const { t } = useTranslation();
 
     useEffect(() => {
         getLeaderboard()
@@ -25,7 +27,7 @@ export const Leaderboard = () => {
             });
     }, []);
 
-    if (loading) return <div className="text-white text-center p-4">Cargando ranking...</div>;
+    if (loading) return <div className="text-white text-center p-4">{t('leader.loading')}</div>;
 
 return (
         <div style={{
@@ -48,7 +50,7 @@ return (
                 justifyContent: 'center',
                 gap: '10px'
             }}>
-                🏆 Top 10 Jugadores
+                🏆 {t('leader.top10')}
             </h2>
 
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -96,13 +98,13 @@ return (
                             
                             {/* SECCIÓN DERECHA: Victorias */}
                             <div style={{ color: '#4ade80', fontWeight: 'bold', fontSize: '1.2rem', textAlign: 'right' }}>
-                                {player.wins} <span style={{ fontSize: '0.85rem', color: '#9ca3af', fontWeight: 'normal', display: 'block' }}>victorias</span>
+                                {player.wins} <span style={{ fontSize: '0.85rem', color: '#9ca3af', fontWeight: 'normal', display: 'block' }}>{t('leader.wins')}</span>
                             </div>
                         </li>
                     );
                 })}
                 {players.length === 0 && (
-                    <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px 0' }}>No hay partidas registradas aún.</p>
+                    <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px 0' }}>{t('leader.noMatches')}</p>
                 )}
             </ul>
         </div>

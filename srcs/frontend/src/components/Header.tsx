@@ -112,8 +112,8 @@ const Header = ({dispatch, userName, userId, userAvatarUrl, profileSynced, onLog
                             {/* Dropdown */}
                             {open && (
                                 <ul className="dropdown">
-                                    <li><a href="#" onClick={handleProfile}>Profile</a></li>
-                                    <li><a href="#" onClick={handleLogoutClick}>Sign out</a></li>
+                                    <li><a href="#" onClick={handleProfile}>{t('profile')}</a></li>
+                                    <li><a href="#" onClick={handleLogoutClick}>{t('logout')}</a></li>
                                 </ul>
                             )} 
                         </div>

@@ -44,6 +44,9 @@
     "veri_backup": "Respaldo",
     "placeholder": "6 dígits o codi respaldo",
     "error": "Error",
+    "profile": "Perfil",
+    "matchEnded": "Partida Acabada",
+    "back2Menu": "Tornar al Menú Principal",
     "chat": 
     {
         "my_friends": "els meus amics",
@@ -63,7 +66,7 @@
         "tab_info": "Dades",
         "tab_friends": "Amics ({{count}})",
         "tab_requests": "Sol·licituds",
-        "tab_stats": "Stats",
+        "tab_stats": "Estadístiques",
 
         "title": "Perfil d'usuari",
         "loading": "Carregant perfil...",
@@ -88,10 +91,10 @@
         "current_pass": "Contrasenya Actual",
         "current_pass_ph": "Només si vols canviar la contrasenya",
         "new_pass": "Nova Contrasenya",
-        "new_pass_ph": "Mínim 6 caràcters",
+        "new_pass_ph": "Mínim 8 caràcters",
         "confirm_pass": "Confirmar Nova Contrasenya",
         "confirm_pass_ph": "Repeteix la nova contrasenya",
-        "save_btn": "💾 Desar Canvis",
+        "save_btn": "💾 Desar",
 
         "avatar_update_error": "No s'ha pogut actualitzar l'avatar",
         "avatar_update_error2": "Error en actualitzar l'avatar",
@@ -121,7 +124,9 @@
         "accept_btn": "Acceptar",
 
         "stats_title": "Estadístiques",
-        "stats_placeholder": "Aquesta és la pàgina d'estadístiques"
+        "stats_placeholder": "Aquesta és la pàgina d'estadístiques",
+        "history": "Historial",
+        "analytics": "Analítica"
     },
     "info":
     {
@@ -150,6 +155,8 @@
         "userOrEmailExists": "L'usuari o el correu electrònic ja existeix",
         "useOAuthProvider": "Si us plau, inicia sessió amb el teu proveïdor OAuth (42 o Google)",
         "useOAuthProviderShort": "Si us plau, inicia sessió amb el teu proveïdor OAuth",
+        "noAuthToken": "Falta el token d'autenticació",
+        "sessionExpired": "Sessió expirada",
         "2faNotEnabled": "El 2FA no està activat per a aquest usuari",
         "2faGenerationError": "Error en generar el codi 2FA",
         "2faVerificationError": "Error en verificar el codi 2FA",
@@ -164,7 +171,9 @@
         "profileUpdateError": "Error en actualitzar el perfil",
         "accountDeleteError": "Error en eliminar el compte",
         "connectionError": "Error de connexió",
-        "unknownError": "Error desconegut"
+        "unknownError": "Error desconegut",
+        "birthFuture": "La data de naixement no pot ser futura",
+        "birthTooOld": "La data de naixement no pot ser anterior a 150 anys"
     },
     "success": 
     {
@@ -175,5 +184,21 @@
         "backupCodeValidated": "Codi de seguretat validat. Et queden {{count}} codis",
         "profileUpdated": "Perfil actualitzat correctament",
         "accountDeleted": "Compte eliminat correctament"
+    },
+    "leader":
+    {
+        "top10": "Top 10 Jugadors",
+        "wins": "victòries",
+        "loading":"Carregant el rànquing...",
+        "noMatches": "No hi ha partides registrades encara"
+    },
+    "history":
+    {
+        "you": "Tu",
+        "loading":"Carregant l'historial...",
+        "lastMatches": "📜 Últimes Partides",
+        "notYet": "Encara no has jugat cap partida. Busca un rival!",
+        "win": "🏆 Victòria",
+        "defeat": "❌ Derrota"
     }
 }

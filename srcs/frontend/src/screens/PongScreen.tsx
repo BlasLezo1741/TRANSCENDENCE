@@ -125,7 +125,7 @@ return (
                   color: 'white'
               }}>
                   <h1 style={{ fontSize: '3rem', marginBottom: '10px', color: '#4ade80' }}>
-                      ¡Partida Terminada!
+                      {t('matchEnded')}
                   </h1>
                   
                   {/* Mostramos el ranking directamente si es remoto */}
@@ -178,7 +178,7 @@ return (
                           e.currentTarget.style.transform = 'translateY(0)';
                       }}
                   >
-                      Volver al Menú Principal
+                      {t('back2Menu')}
                   </button>
               </div>
           )}
