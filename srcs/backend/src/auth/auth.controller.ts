@@ -125,7 +125,7 @@ export class AuthController {
     const { accessToken } = this.authService.generateJwtToken(user);
 
     // Get frontend URL from env, fallback to localhost for dev
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    const frontendUrl = this.configService.get<string>('VITE_FRONTEND_URL') || 'https://localhost:8443';
     res.redirect(`${frontendUrl}/?token=${accessToken}`);
   }
 
@@ -145,7 +145,7 @@ export class AuthController {
     
     const { accessToken } = this.authService.generateJwtToken(user);
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    const frontendUrl = this.configService.get<string>('VITE_FRONTEND_URL') || 'https://localhost:8443';
 
     res.redirect(`${frontendUrl}/?token=${accessToken}`);
   }

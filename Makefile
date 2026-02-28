@@ -143,9 +143,8 @@ update-env:
 	sed -i.bak "s|^VITE_AUS_API_URL=.*|VITE_AUS_API_URL=$$BASE_URL|" srcs/.env; \
 	sed -i.bak "s|^GF_SERVER_ROOT_URL=.*|GF_SERVER_ROOT_URL=$$BASE_URL/grafana/|" srcs/.env; \
 	sed -i.bak "s|^OAUTH_42_CALLBACK_URL=.*|OAUTH_42_CALLBACK_URL=$$BASE_URL/auth/42/callback|" srcs/.env; \
-	sed -i.bak "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" srcs/.env; \
 	rm -f srcs/.env.bak
-
+# sed -i.bak "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" srcs/.env; \
 # Create postgres data directory if does not exists
 $(DB_DATA_DIR):
 	@echo "Asegurando que $(SERVICE2) no está usando  $(DB_DATA_DIR)"
@@ -254,7 +253,7 @@ test-db: srcs/.env $(DB_DATA_DIR)
 
 # Ejecutar docker compose up
 up:
-	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d --build
+	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d
 
 build:
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up -d --build
