@@ -56,6 +56,7 @@ function App()
   const [option, setOption] = useState<string>("");
 
   const [ia, setIa] = useState<boolean>(false);
+  const [chatOpen, setChatOpen] = useState<boolean>(false);
 
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
@@ -329,7 +330,8 @@ function renderScreen()
           opponentAvatar={finalOpponentAvatar}
           ballInit={ballInit}
           playerSide={playerSide}
-          roomId={roomId} 
+          roomId={roomId}
+          chatOpen={chatOpen}
         />;
         case "profile":
           return <ProfileScreen
@@ -350,7 +352,7 @@ function renderScreen()
 
   return (
     <div className="app">
-      {currentUser && <ChatSidebar />}
+      {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
       {/* 🔥🔥 MODAL DE INVITACIÓN - ESTILOS INLINE PARA RAPIDEZ 🔥🔥 */}
       {inviteRequest && (
           <div style={{

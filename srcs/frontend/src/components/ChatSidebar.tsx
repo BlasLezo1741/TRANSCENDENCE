@@ -39,12 +39,16 @@ const formatLocalTime = (dateString: string | undefined | null) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
-export const ChatSidebar = () => {
+type ChatProps = {
+    chatOpen: boolean;
+    setChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
     
     //const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
     const { t } = useTranslation();
     // --- ESTADOS ---
-    const [isOpen, setIsOpen] = useState(false);
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
     const [msgInput, setMsgInput] = useState("");
     
@@ -258,9 +262,9 @@ export const ChatSidebar = () => {
 
     // --- RENDERIZADO ---
 
-    if (!isOpen) {
+    if (!chatOpen) {
         return (
-            <button className="chat-floating-btn" onClick={() => setIsOpen(true)}>
+            <button className="chat-floating-btn" onClick={() => setChatOpen(true)}>
                 💬
             </button>
         );
@@ -310,7 +314,7 @@ export const ChatSidebar = () => {
                 <h2>{selectedChatId 
                     ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
                     : firstcap(t('chat.my_friends'))}</h2>
-                <button className="chat-close-btn" onClick={() => setIsOpen(false)}>✕</button>
+                <button className="chat-close-btn" onClick={() => setChatOpen(false)}>✕</button>
             </div>
 
             <div className="chat-body">

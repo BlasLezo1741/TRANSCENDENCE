@@ -22,6 +22,8 @@ export class Pong
     private end: boolean = false;
     private pause: boolean = false;
 
+    public chat: boolean = false;
+
     constructor(
         c: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
@@ -197,12 +199,13 @@ export class Pong
         this.ctx.closePath();
     }
 
-    setPause()
+    setPause(pause: boolean)
     {
-        this.pause = !this.pause;
+        this.pause = pause;
         if (this.pause)
             this.drawPause();
     }
+    getPause(): boolean { return this.pause; }
     hasWinner(): boolean { return this.end; }
     getWinner() { return this.winner; }
 }

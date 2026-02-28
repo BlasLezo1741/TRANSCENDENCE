@@ -18,9 +18,10 @@ type PongScreenProps = ScreenProps & {
   ballInit: { x: number, y: number } | null;
   playerSide: 'left' | 'right';
   roomId: string;
+  chatOpen: boolean;
 };
 
-const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAvatar, opponentAvatar, ballInit, playerSide, roomId }: PongScreenProps) =>
+const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAvatar, opponentAvatar, ballInit, playerSide, roomId, chatOpen }: PongScreenProps) =>
 {
   const { t } = useTranslation();
   // Si yo estoy a la izquierda: [Yo] vs [Rival]
@@ -108,6 +109,7 @@ return (
             roomId={roomId}
             isGameActive={!isCountingDown && !gameOver}
             onGameOver={handleGameOver} // Pasamos la función al Canvas
+            chatOpen={chatOpen}
           />
 
           {/* NUEVO MODAL DE FIN DE PARTIDA */}
