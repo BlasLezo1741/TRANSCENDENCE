@@ -63,7 +63,7 @@
         "select": "Sélectionner",
         "cancel": "Annuler",
         "no_avatars": "Aucun avatar trouvé dans la galerie",
-        "tab_info": "Informations",
+        "tab_info": "Gérer le profil",
         "tab_friends": "Amis ({{count}})",
         "tab_requests": "Demandes",
         "tab_stats": "Statistiques",
@@ -199,6 +199,7 @@
         "lastMatches": "📜 Dernières Parties",
         "notYet": "Vous n'avez pas encore joué de partie. Trouvez un adversaire !",
         "win": "🏆 Victoire",
-        "defeat": "❌ Défaite"
+        "defeat": "❌ Défaite",
+        "deletedAccount": "Compte supprimé"
     }
 }

@@ -519,7 +519,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         
         setIsLoadingCandidates(true);
         const res = await sendFriendRequest(parseInt(targetIdInput));
-        setStatusMsg(res.msg || (res.ok ? t('prof.request_sent') : t('error'))); // Added Translation key
+        setStatusMsg(res.ok ? t('prof.request_sent') : t('error')); // Added Translation key
         
         console.log("📬 [ProfileScreen] Friend request result:", res);
         

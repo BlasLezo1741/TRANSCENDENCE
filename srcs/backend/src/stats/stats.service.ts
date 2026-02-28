@@ -47,6 +47,7 @@ export class StatsService {
                 opponentId: row.opponent_id,
                 opponent: row.opponent_nick || 'Bot / Desconocido',
                 opponentAvatar: row.opponent_avatar,
+                opponentStatus: row.opponent_status,
                 opponentScore: row.opponent_score || 0,
                 won: row.won
             }));
