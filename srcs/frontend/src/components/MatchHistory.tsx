@@ -12,6 +12,7 @@ interface MatchRecord {
     opponent: string;
     opponentAvatar: string | null;
     opponentScore: number;
+    opponentStatus: number;
     won: boolean;
 }
 
@@ -137,7 +138,7 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
                                         textOverflow: 'ellipsis',
                                         textAlign: 'center'
                                     }}>
-                                        {match.opponent}
+                                        {match.opponentStatus === 6 ? t('history.deletedAccount') : match.opponent}
                                     </span>
                                 </div>
 

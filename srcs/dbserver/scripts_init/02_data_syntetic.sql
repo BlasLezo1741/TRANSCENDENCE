@@ -79,7 +79,7 @@ CROSS JOIN LATERAL (
 CROSS JOIN LATERAL (
     SELECT status_pk 
     FROM STATUS
-    WHERE ud.i > 0
+    WHERE ud.i > 0 AND status_pk < 6
     ORDER BY random() 
     LIMIT 1
 ) rand_stat;
