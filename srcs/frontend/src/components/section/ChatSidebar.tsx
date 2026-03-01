@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { socket, sendDirectMessage } from '../services/socketService';
-import '../css/ChatSidebar.css'; 
-import { useModal } from '../context/ModalContext';
+import { socket, sendDirectMessage } from '../../services/socketService';
+import '../../css/ChatSidebar.css'; 
+import { useModal } from '../../context/ModalContext';
 import { useTranslation } from 'react-i18next';
-import { firstcap } from '../ts/utils/string';
-import { sentence } from '../ts/utils/string';
-import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
+import { firstcap } from '../../ts/utils/string';
+import { sentence } from '../../ts/utils/string';
+import { getAvatarUrlById, getDefaultAvatar } from '../../assets/avatars';
 
 // --- INTERFACES ---
 interface ChatContact {

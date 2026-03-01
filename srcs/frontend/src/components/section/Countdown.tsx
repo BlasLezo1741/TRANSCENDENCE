@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../css/Countdown.css';
+import '../../css/Countdown.css';
 
 interface CountdownProps {
     onComplete: () => void; // Función que se ejecuta al terminar

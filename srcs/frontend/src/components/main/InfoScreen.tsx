@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { loadHtmlContent } from '../ts/utils/loadHtmlContent';
+import { loadHtmlContent } from '../../ts/utils/loadHtmlContent';
 import { useTranslation } from 'react-i18next';
-import "../css/ProfileScreen.css";
+import "../../css/ProfileScreen.css";
 
 type States = 'a' | 'b' | 'c' | 'd' | 'e';
 

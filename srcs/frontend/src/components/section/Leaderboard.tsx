@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getLeaderboard } from '../services/user.service';
+import { getLeaderboard } from '../../services/user.service';
 import { Avatar } from './Avatar'; 
 import { useTranslation } from 'react-i18next';
 

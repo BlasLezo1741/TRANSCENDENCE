@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
-import cataloniaFlag from '../assets/Flag_of_Catalonia.png';
+import cataloniaFlag from '../../assets/Flag_of_Catalonia.png';
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();

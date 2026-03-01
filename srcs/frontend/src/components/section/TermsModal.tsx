@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { loadHtmlContent } from "../ts/utils/loadHtmlContent";
+import { loadHtmlContent } from "../../ts/utils/loadHtmlContent";
 
 interface TermsModalProps {
     isOpen: boolean;

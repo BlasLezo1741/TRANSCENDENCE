@@ -1,9 +1,9 @@
 import React, {useRef, useEffect} from "react";
-import { Player } from "../ts/models/Player.ts";
-import { Pong } from "../ts/models/Pong.ts";
-import { socket } from '../services/socketService'; 
-import type { GameMode, GameDifficult } from "../ts/types.ts";
-import { useModal } from '../context/ModalContext';
+import { Player } from "../../ts/models/Player.ts";
+import { Pong } from "../../ts/models/Pong.ts";
+import { socket } from '../../services/socketService.ts'; 
+import type { GameMode, GameDifficult } from "../../ts/types.ts";
+import { useModal } from '../../context/ModalContext.tsx';
 
 type CanvasProps = {
     mode: GameMode;

@@ -8,10 +8,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import TermsModal from '../components/TermsModal';
-import type { ScreenProps } from '../ts/screenConf/screenProps';
+import TermsModal from './TermsModal';
+import type { ScreenProps } from '../../ts/screenConf/screenProps';
 
-import '../css/Login.css';
+import '../../css/Login.css';
 
 type OAuthTermsScreenProps = ScreenProps & {
     pendingToken: string;

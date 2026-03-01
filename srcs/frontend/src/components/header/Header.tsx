@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { LanguageSwitcher } from './LanguageSwitcher';
-import noAvatarUrl from '../assets/nouser_chatgpt.png';
-import homeIcon from '../assets/Home_chatgpt.png';
+import { LanguageSwitcher } from '../section/LanguageSwitcher';
+import noAvatarUrl from '../../assets/nouser_chatgpt.png';
+import homeIcon from '../../assets/Home_chatgpt.png';
 import { useTranslation } from 'react-i18next';
-import { StatusBadge } from './StatusBadge'; // Importamos el nuevo badge
-import { Avatar } from './Avatar';
-import '../css/Header.css';
+import { StatusBadge } from '../section/StatusBadge'; // Importamos el nuevo badge
+import { Avatar } from '../section/Avatar';
+import '../../css/Header.css';
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;

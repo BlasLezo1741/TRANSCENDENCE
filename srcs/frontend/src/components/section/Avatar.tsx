@@ -1,7 +1,7 @@
 // /srcs/frontend/src/components/Avatar.tsx
 import React, { useState } from 'react';
-import { getDefaultAvatar, getAvatarUrlById } from '../assets/avatars';
-import nouserAvatar from '../assets/nouser_chatgpt.png';
+import { getDefaultAvatar, getAvatarUrlById } from '../../assets/avatars';
+import nouserAvatar from '../../assets/nouser_chatgpt.png';
 
 interface AvatarProps {
     src?: string | null;  // Can be: OAuth URL, avatar ID, or null

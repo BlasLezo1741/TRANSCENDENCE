@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { socket } from '../services/socketService';
+import { socket } from '../../services/socketService';
 
 export function StatusBadge() {
   const [isConnected, setIsConnected] = useState(socket.connected);

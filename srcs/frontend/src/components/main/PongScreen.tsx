@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import Canvas from '../components/Canvas.tsx';
+import Canvas from '../section/Canvas.tsx';
 import { useTranslation } from 'react-i18next';
-import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
-import type { GameMode, GameDifficult } from '../ts/types.ts';
-import { Countdown } from '../components/Countdown';
-import '../css/PongScreen.css';
-import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
-import { Leaderboard } from '../components/Leaderboard';
+import type { ScreenProps } from '../../ts/screenConf/screenProps.ts';
+import type { GameMode, GameDifficult } from '../../ts/types.ts';
+import { Countdown } from '../section/Countdown.tsx';
+import '../../css/PongScreen.css';
+import { getAvatarUrlById, getDefaultAvatar } from '../../assets/avatars/index.ts';
+import { Leaderboard } from '../section/Leaderboard.tsx';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { checkForm,  registUser } from "../ts/utils/auth";//checkPassword,
-import type { ScreenProps } from "../ts/screenConf/screenProps";
+import { checkForm,  registUser } from "../../ts/utils/auth";//checkPassword,
+import type { ScreenProps } from "../../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
-import TermsModal from "../components/TermsModal";
+import TermsModal from "../section/TermsModal";
 
-import '../css/Login.css';
+import '../../css/Login.css';
 
 interface Country {
     name: string;

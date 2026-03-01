@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { socket } from '../services/socketService';
+import { socket } from '../../services/socketService';
 import { 
     getMyFriends, 
     getPendingRequests, 
@@ -11,8 +11,8 @@ import {
     type PendingRequest, 
     type UserCandidate,
     removeFriend
-} from '../services/friend.service';
-import { checkForm } from '../ts/utils/auth';
+} from '../../services/friend.service';
+import { checkForm } from '../../ts/utils/auth';
 import { 
     getMyProfile, 
     updateMyProfile, 
@@ -21,16 +21,16 @@ import {
     type UserProfile,
     type Country,
     type UpdateProfileData
-} from '../services/user.service';
-import { useModal } from '../context/ModalContext';
-import { Avatar } from '../components/Avatar';
-import { AvatarSelector } from '../components/AvatarSelector';
-import { firstcap } from '../ts/utils/string';
-import { sentence  } from '../ts/utils/string';
-import "../css/ProfileScreen.css";
-import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
-import { Leaderboard } from '../components/Leaderboard';
-import { MatchHistory } from '../components/MatchHistory';
+} from '../../services/user.service';
+import { useModal } from '../../context/ModalContext';
+import { Avatar } from '../section/Avatar';
+import { AvatarSelector } from '../section/AvatarSelector';
+import { firstcap } from '../../ts/utils/string';
+import { sentence  } from '../../ts/utils/string';
+import "../../css/ProfileScreen.css";
+import { getAvatarUrlById, getDefaultAvatar } from '../../assets/avatars';
+import { Leaderboard } from '../section/Leaderboard';
+import { MatchHistory } from '../section/MatchHistory';
 
 // To update header if user changes the nick
 interface ProfileScreenProps {

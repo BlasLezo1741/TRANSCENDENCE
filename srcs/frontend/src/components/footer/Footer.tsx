@@ -1,6 +1,5 @@
-import type { ScreenProps } from '../ts/screenConf/screenProps';
 import { useTranslation } from 'react-i18next';
-import '../css/Footer.css';
+import '../../css/Footer.css';
 
 type FooterProps = {
     dispatch: React.Dispatch<any>;

@@ -3,19 +3,18 @@ import { screenReducer } from './ts/screenConf/screenReducer.ts';
 
 import type { Screen, GameMode, GameDifficult } from "./ts/types.ts"
 
-import MenuScreen from './screens/MenuScreen.tsx'
-import SignScreen from './screens/SignScreen.tsx'
-import LoginScreen from './screens/LoginScreen.tsx'
-import PongScreen from './screens/PongScreen.tsx'
-import ProfileScreen from './screens/ProfileScreen.tsx'
-import StatsScreen from './screens/StatsScreen.tsx'
-import InfoScreen from './screens/InfoScreen.tsx'
-import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
+import MenuScreen from './components/main/MenuScreen.tsx'
+import SignScreen from './components/main/SignScreen.tsx'
+import LoginScreen from './components/main/LoginScreen.tsx'
+import PongScreen from './components/main/PongScreen.tsx'
+import ProfileScreen from './components/main/ProfileScreen.tsx'
+import InfoScreen from './components/main/InfoScreen.tsx'
+import OAuthTermsScreen from './components/section/OAuthTermsScreen.tsx'
 
-import Header from './components/Header.tsx'
-import Footer from './components/Footer.tsx'
+import Header from './components/header/Header.tsx'
+import Footer from './components/footer/Footer.tsx'
 import { socket, connectSocket, setMatchData } from './services/socketService';
-import { ChatSidebar } from './components/ChatSidebar.tsx';
+import { ChatSidebar } from './components/section/ChatSidebar.tsx';
 import { getMyProfile } from './services/user.service';
 
 import "./css/App.css";
@@ -368,8 +367,6 @@ function renderScreen()
             setGlobalUserId={setCurrentUserId}
             setGlobalAvatarUrl={setCurrentUserAvatarUrl}
           />; // added to update the Header instantly in case of change of nick/avatar
-        case "stats":
-          return <StatsScreen />;
         case "info":
           return <InfoScreen dispatch={dispatch} option={option} />;
         case "oauth_terms":

@@ -1,7 +1,7 @@
 // /srcs/frontend/src/components/AvatarSelector.tsx
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getAvatarList, type AvatarInfo } from '../assets/avatars';
+import { getAvatarList, type AvatarInfo } from '../../assets/avatars';
 
 interface AvatarSelectorProps {
     currentAvatarUrl?: string | null;

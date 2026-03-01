@@ -1,9 +1,9 @@
-import { checkLogin, send2FACode } from "../ts/utils/auth";
+import { checkLogin, send2FACode } from "../../ts/utils/auth";
 import React, { useState, useEffect } from "react";
-import type { ScreenProps } from "../ts/screenConf/screenProps";
+import type { ScreenProps } from "../../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 
-import "../css/Login.css";
+import "../../css/Login.css";
 
 // Add prop for global state update
 type LoginScreenProps = ScreenProps & {

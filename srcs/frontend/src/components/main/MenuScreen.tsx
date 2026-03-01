@@ -1,21 +1,21 @@
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { joinQueue, socket, setMatchData } from '../services/socketService.ts';
+import { joinQueue, socket, setMatchData } from '../../services/socketService.ts';
 
-import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
-import type { GameDifficult, GameMode } from '../ts/types.ts';
+import type { ScreenProps } from '../../ts/screenConf/screenProps.ts';
+import type { GameDifficult, GameMode } from '../../ts/types.ts';
 
-import cross from '../assets/x_chatgpt.png';
+import cross from '../../assets/x_chatgpt.png';
 
-import easy from '../assets/Easy_chatgpt.png';
-import normal from '../assets/Normal_chatgpt.png';
-import hard from '../assets/Hard_chatgpt.png';
-import impossible from '../assets/Impossible_chatgpt.png';
+import easy from '../../assets/Easy_chatgpt.png';
+import normal from '../../assets/Normal_chatgpt.png';
+import hard from '../../assets/Hard_chatgpt.png';
+import impossible from '../../assets/Impossible_chatgpt.png';
 
-import bg_image from '../assets/Imagen_pong_v2.png';
+import bg_image from '../../assets/Imagen_pong_v2.png';
 //import bg_image from '../assets/Flag_of_Catalonia.png';
 
-import "../css/MenuScreen.css";
+import "../../css/MenuScreen.css";
 
 type OptionsProps = ScreenProps & {
   ia: boolean;
