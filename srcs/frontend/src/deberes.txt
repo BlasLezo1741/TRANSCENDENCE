@@ -3,7 +3,6 @@
 
 - CSS
 
-    - Meter tailwind
     - Pasar todo el css a archivos .css
     - Hacer responsive la pagina para los sizes
     - Css QR y los otros
@@ -28,6 +27,4 @@ Tailwind componentes
     Section
 
     Objects
-    
-    Componentes objects
 
