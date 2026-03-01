@@ -9,7 +9,6 @@ import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
-import SettingsScreen from './screens/SettingsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
 import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
 
@@ -371,8 +370,6 @@ function renderScreen()
           />; // added to update the Header instantly in case of change of nick/avatar
         case "stats":
           return <StatsScreen />;
-        case "settings":
-          return <SettingsScreen />;
         case "info":
           return <InfoScreen dispatch={dispatch} option={option} />;
         case "oauth_terms":

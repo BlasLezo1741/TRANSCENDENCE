@@ -3,7 +3,6 @@ export type Screen =
     | "sign"
     | "login"
     | "profile"
-    | "settings"
     | "pong"
     | "info"
     | "profile"  // <--- Nuevo
@@ -16,7 +15,6 @@ export type Action =
     | { type: "LOGIN" }
     | { type: "PROFILE" }
     | { type: "LOGOUT" } //ADDED
-    | { type: "SETTINGS" }
     | { type: "PONG" }
     | { type: "INFO"; option: string }
     | { type: "PROFILE" } // <--- Nuevo
