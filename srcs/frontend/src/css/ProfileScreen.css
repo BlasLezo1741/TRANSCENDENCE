@@ -100,3 +100,11 @@
     margin-right: 10px;
     border-radius: 50%;
 }
+
+@media screen and (max-width: 930px)
+{
+    .profile
+    {
+        grid-template-columns: 150px 1fr;
+    }
+}

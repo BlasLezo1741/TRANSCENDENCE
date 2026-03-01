@@ -288,9 +288,14 @@ const handleInviteResponse = (accept: boolean) => {
 // --- RENDERIZADO DE PANTALLAS ---
 function renderScreen()
   {
+    document.body.classList.remove("scroll");
+
     switch (screen)
     {
       case "menu":
+
+        document.body.classList.add("scroll");
+
         return <MenuScreen 
           dispatch={dispatch}
           ia={ia}
@@ -319,6 +324,9 @@ function renderScreen()
         
         // Usamos 'as any' para evitar líos de tipos si TypeScript se queja
         const PongScreenComp = PongScreen as any;
+
+        if (mode === "remote")
+          setChatOpen("false");
         
         return <PongScreenComp
           dispatch={dispatch}
