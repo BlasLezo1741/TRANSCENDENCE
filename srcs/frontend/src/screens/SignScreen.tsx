@@ -3,6 +3,7 @@ import { checkForm,  registUser } from "../ts/utils/auth";//checkPassword,
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
+import TermsModal from "../components/TermsModal";
 
 import '../css/Login.css';
 
@@ -32,7 +33,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     // NEW: Countries state
     const [countries, setCountries] = useState<Country[]>([]);
     const [isLoadingCountries, setIsLoadingCountries] = useState(true);
-
+    // NEW: Accept policy
+    const [acceptPolicy, setAcceptPolicy] = useState(false);
+    // NEW: Modal visibility for Terms and Privacy
+    const [showTermsModal, setShowTermsModal] = useState(false);
+    const [showPrivacyModal, setShowPrivacyModal] = useState(false);
     // NEW: QR Code state
     const [qrCode, setQrCode] = useState<string | null>(null);
     const [enabled2FA, setEnabled2FA] = useState(false);  //Por defecto no se activa
@@ -90,7 +95,14 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setSuccess("");
         setQrCode(null);
         setBackupCodes(null);
-        setShowOAuthButtons(true); // Show OAuth buttons on form submission    
+        setShowOAuthButtons(true); // Show OAuth buttons on form submission
+
+        // 1. Check terms acceptance
+        if (!acceptPolicy) {
+            setError(t('errors.mustAcceptTerms'));
+            return;
+        }
+
         // 2. Check local password syntax
         const formResult = checkForm(email, password, repeat, birth);
         if (!formResult.ok) {
@@ -137,13 +149,16 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setLanguage("");
         setError("");
         setQrCode(null);
+        setAcceptPolicy(false);
         setEnabled2FA(false);
         setBackupCodes(null);
         setShowOAuthButtons(true); // Show OAuth buttons on form submission
     };
     const handleOAuth = (provider: 'google' | '42') => {
-        // Redirect browser to Backend Auth Endpoint
-        // Ensure this matches your backend port (usually 3000)
+        if (!acceptPolicy) {
+            setError(t('errors.mustAcceptTerms'));
+            return;
+        }
         console.log(`Redirigiendo a OAuth con ${provider}`);
         //window.location.href = `http://localhost:3000/auth/${provider}`;
         window.location.href = `/auth/${provider}`; //para nginx
@@ -278,17 +293,52 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 
                 {/* QR Code check box */}
                 <div className="login-btn">
-                    <label htmlFor="lang">{t('enable_2fa')}</label>
                     <input
-                        style={{marginLeft: "5px"}}
+                        style={{ flexShrink: 0 }}
                         name="enabled2FA"
                         id="enabled2FA"
                         type="checkbox"
                         checked={enabled2FA}
                         onChange={(e) => setEnabled2FA(e.target.checked)}
                     />
+                    <label htmlFor="enabled2FA">{t('enable_2fa')}</label>
                 </div>
-                
+                {/* Privacy policy + Terms of Use checkbox */}
+                <div className="login-btn">
+                    <input
+                        style={{ flexShrink: 0 }}
+                        name="acceptPolicy"
+                        id="acceptPolicy"
+                        type="checkbox"
+                        checked={acceptPolicy}
+                        onChange={(e) => setAcceptPolicy(e.target.checked)}
+                    />
+                    <label htmlFor="acceptPolicy">
+                        {t('privacy.prefix')}{" "}
+                        <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }}>
+                            {t('info.terms_of_service')}
+                        </a>
+                        {" "}{t('privacy.and')}{" "}
+                        <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }}>
+                            {t('info.privacy_policy')}
+                        </a>
+                        {t('privacy.suffix')}
+                    </label>
+                </div>
+
+                {/* Modals */}
+                <TermsModal
+                    isOpen={showTermsModal}
+                    onClose={() => setShowTermsModal(false)}
+                    title={t('info.terms_of_service')}
+                    fileName="terms"
+                />
+                <TermsModal
+                    isOpen={showPrivacyModal}
+                    onClose={() => setShowPrivacyModal(false)}
+                    title={t('info.privacy_policy')}
+                    fileName="privacy"
+                />
                 {/* Action Buttons */}
                 <div className="login-btn form-btn">
                     <button

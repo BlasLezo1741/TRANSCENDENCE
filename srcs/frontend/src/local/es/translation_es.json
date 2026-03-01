@@ -25,6 +25,7 @@
     "pass_req": "La contraseña debe tener: minúscula, mayúscula, número y mínimo 8 caracteres.",
     "juegos": "Juegos",
     "enable_2fa": "Habilitar 2FA",
+
     "qr_setup1": "Escanea este código QR",
     "qr_setup2": "Importante:",
     "qr_setup3": "Guarda este código en tu aplicación de autenticación (Google Authenticator, Authy, etc.) antes de cerrar esta página.",
@@ -48,6 +49,12 @@
     "profile": "Perfil",
     "matchEnded": "Partida Terminada",
     "back2Menu": "Volver al Menú Principal",
+    "privacy": 
+    {
+        "prefix": "He leído y acepto los ",
+        "and": "y",
+        "suffix": "."
+    },
     "chat": 
     {
         "my_friends": "mis amigos",
@@ -140,11 +147,13 @@
     "modal":
     {
         "accept_btn": "aceptar",
-        "cancel_btn": "cancelar"
+        "cancel_btn": "cancelar",
+        "loading": "Cargando..."
     },
     "errors": 
     {
         "userNotFound": "Usuario no encontrado",
+        "mustAcceptTerms": "Es necesario aceptar los Términos de uso y la Política de privacidad para registrarse.",
         "invalidEmail": "Formato de e-mail incorrecto",
         "incorrectPassword": "Contraseña incorrecta",
         "noLowercasePassword": "La contraseña debe contener al menos una letra minúscula",
@@ -173,6 +182,7 @@
         "accountDeleteError": "Error al eliminar la cuenta",
         "connectionError": "Error de conexión",
         "unknownError": "Error desconocido",
+        "noBirthDate": "Por favor, introduce una fecha de nacimiento válida.",
         "birthFuture": "La fecha de nacimiento no puede ser futura",
         "birthTooOld": "La fecha de nacimiento no puede ser anterior a 150 años"
     },
@@ -202,5 +212,11 @@
         "win": "🏆 Victoria",
         "defeat": "❌ Derrota",
         "deletedAccount": "Cuenta eliminada"
+    },
+    "oauth_terms": 
+    {
+        "title": "Un último paso",
+        "subtitle": "Antes de crear tu cuenta, por favor, lee y acepta nuestros términos.",
+        "confirm_btn": "Crear cuenta"
     }
 }

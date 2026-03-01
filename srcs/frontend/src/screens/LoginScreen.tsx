@@ -8,14 +8,24 @@ import "../css/Login.css";
 // Add prop for global state update
 type LoginScreenProps = ScreenProps & {
     setGlobalUser: (user: string) => void;
+    oauthError?: string;
+    clearOAuthError?: () => void;
 };
 
-const LoginScreen = ({ dispatch, setGlobalUser }: LoginScreenProps) => {
+const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: LoginScreenProps) => {
     const { t } = useTranslation();
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [totpCode, setTotpCode] = useState("");
     const [error, setError] = useState("");
+
+    // Display any error forwarded from the OAuth callback (e.g. email conflict)
+    useEffect(() => {
+        if (oauthError) {
+            setError(t(oauthError));
+            clearOAuthError?.();
+        }
+    }, [oauthError]);
     const [isLoading, setIsLoading] = useState(false);
     const [showTotpInput, setShowTotpInput] = useState(false);
     const [userId, setUserId] = useState<number | null>(null);

@@ -11,6 +11,7 @@ import ProfileScreen from './screens/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
 import SettingsScreen from './screens/SettingsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
+import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
 
 import Header from './components/Header.tsx'
 import Footer from './components/Footer.tsx'
@@ -60,6 +61,11 @@ function App()
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
 
+  // Pending OAuth token (new OAuth user who hasn't accepted terms yet)
+  const [pendingOAuthToken, setPendingOAuthToken] = useState<string>("");
+  // Error message coming back from OAuth callback (e.g. email conflict)
+  const [oauthError, setOAuthError] = useState<string>("");
+
   // 🔥 ESTADO PARA LA INVITACIÓN MODAL
   const [inviteRequest, setInviteRequest] = useState<{fromUserId: number, fromUserName: string} | null>(null);
 
@@ -108,6 +114,22 @@ function App()
       } catch (err) {
         console.error("❌ Error processing OAuth token:", err);
       }
+    }
+
+    // New OAuth user → show terms acceptance screen before creating account
+    const pendingToken = params.get('oauth_pending');
+    if (pendingToken) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setPendingOAuthToken(pendingToken);
+      dispatch({ type: "OAUTH_TERMS" });
+    }
+
+    // OAuth callback error (e.g. email already registered under a different account)
+    const oauthError = params.get('oauth_error');
+    if (oauthError) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setOAuthError(decodeURIComponent(oauthError));
+      dispatch({ type: "LOGIN" });
     }
   }, []); // Run only once on mount
 
@@ -308,7 +330,7 @@ function renderScreen()
       case "login":
         //return <LoginScreen dispatch={dispatch} />;
         // Pasamos 'setCurrentUser' para que el Login pueda actualizar el estado de App
-        return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} />;
+        return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} oauthError={oauthError} clearOAuthError={() => setOAuthError("")} />;
       case "pong":
         // 1. Calcular MI avatar (Si soy null)
         const finalUserAvatar = currentUserAvatarUrl || (currentUserId ? getDefaultAvatar(currentUserId) : null);
@@ -342,7 +364,13 @@ function renderScreen()
         case "settings":
           return <SettingsScreen />;
         case "info":
-          return <InfoScreen dispatch={dispatch} option={option} />; 
+          return <InfoScreen dispatch={dispatch} option={option} />;
+        case "oauth_terms":
+          return <OAuthTermsScreen
+            dispatch={dispatch}
+            pendingToken={pendingOAuthToken}
+            setGlobalUser={setCurrentUser}
+          />;
         default:
           return null;
     }

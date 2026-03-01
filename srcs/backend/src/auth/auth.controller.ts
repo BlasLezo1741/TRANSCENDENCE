@@ -120,13 +120,24 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res: Response) {
-    
-    const user = await this.authService.findOrCreateOAuthUser(req.user);  
-    const { accessToken } = this.authService.generateJwtToken(user);
-
-    // Get frontend URL from env, fallback to localhost for dev
     const frontendUrl = this.configService.get<string>('VITE_FRONTEND_URL') || 'https://localhost:8443';
-    res.redirect(`${frontendUrl}/?token=${accessToken}`);
+
+    try {
+      // Returns the user if found, null if new, throws ConflictException if email conflict
+      const existing = await this.authService.findOAuthUser(req.user);
+      if (existing) {
+        // Returning user → login normally
+        const { accessToken } = this.authService.generateJwtToken(existing);
+        return res.redirect(`${frontendUrl}/?token=${accessToken}`);
+      }
+      // New user → send pending token, do NOT create account yet
+      const pendingToken = this.authService.generatePendingOAuthToken(req.user);
+      res.redirect(`${frontendUrl}/?oauth_pending=${pendingToken}`);
+    } catch (e: any) {
+      // Email already registered under a different account
+      const msg = encodeURIComponent(e?.status === 409 ? 'errors.userOrEmailExists' : 'errors.unknownError');
+      res.redirect(`${frontendUrl}/?oauth_error=${msg}`);
+    }
   }
 
   // ==================== 42 SCHOOL OAUTH ====================
@@ -140,15 +151,48 @@ export class AuthController {
   @Get('42/callback')
   @UseGuards(AuthGuard('42'))
   async fortyTwoAuthRedirect(@Req() req, @Res() res: Response) {
-    
-    const user = await this.authService.findOrCreateOAuthUser(req.user);
-    
-    const { accessToken } = this.authService.generateJwtToken(user);
-
     const frontendUrl = this.configService.get<string>('VITE_FRONTEND_URL') || 'https://localhost:8443';
 
-    res.redirect(`${frontendUrl}/?token=${accessToken}`);
+    try {
+      const existing = await this.authService.findOAuthUser(req.user);
+      if (existing) {
+        const { accessToken } = this.authService.generateJwtToken(existing);
+        return res.redirect(`${frontendUrl}/?token=${accessToken}`);
+      }
+      const pendingToken = this.authService.generatePendingOAuthToken(req.user);
+      res.redirect(`${frontendUrl}/?oauth_pending=${pendingToken}`);
+    } catch (e: any) {
+      const msg = encodeURIComponent(e?.status === 409 ? 'errors.userOrEmailExists' : 'errors.unknownError');
+      res.redirect(`${frontendUrl}/?oauth_error=${msg}`);
+    }
   }
+  // ==================== OAUTH TERMS ACCEPTANCE ====================
+
+  /**
+   * POST /auth/oauth-complete
+   * Called after a new OAuth user accepts the terms of service.
+   * Verifies the pending token, creates the user, returns a real JWT.
+   */
+  @Post('oauth-complete')
+  async oauthComplete(@Body() body: { pendingToken: string }) {
+    const oauthData = this.authService.verifyPendingOAuthToken(body.pendingToken);
+    if (!oauthData) {
+      return { ok: false, msg: 'errors.invalidOrExpiredToken' };
+    }
+
+    try {
+      const newUser = await this.authService.createOAuthUser(oauthData);
+      const { accessToken } = this.authService.generateJwtToken(newUser);
+      return { ok: true, token: accessToken };
+    } catch (e: any) {
+      if (e?.status === 409) {
+        return { ok: false, msg: 'errors.userOrEmailExists' };
+      }
+      return { ok: false, msg: 'errors.unknownError' };
+    }
+  }
+
+
 
   // ==================== PROFILE MANAGEMENT ====================
 

@@ -25,6 +25,7 @@
     "pass_req": "Le mot de passe doit contenir: minuscule, majuscule, chiffre et minimum 8 caractères.",
     "juegos": "Jeux",
     "enable_2fa": "Activer 2FA",
+
     "qr_setup1": "Scannez ce code QR",
     "qr_setup2": "Important:",
     "qr_setup3": "Enregistrez ce code dans votre application d'authentification (Google Authenticator, Authy, etc.) avant de fermer cette page.",
@@ -48,6 +49,12 @@
     "profile": "Profil",
     "matchEnded": "Partie Terminée",
     "back2Menu": "Retour au Menu Principal",
+    "privacy": 
+    {
+        "prefix": "J'ai lu et j'accepte les ",
+        "and": "et",
+        "suffix": "."
+    },
     "chat": 
     {
         "my_friends": "mes amis",
@@ -140,11 +147,13 @@
     "modal":
     {
         "accept_btn": "accepter",
-        "cancel_btn": "annuler"
+        "cancel_btn": "annuler",
+        "loading": "Chargement..."
     },
     "errors": 
     {
         "userNotFound": "Utilisateur introuvable",
+        "mustAcceptTerms": "Vous devez accepter les Conditions d'utilisation et la Politique de confidentialité pour vous inscrire.",
         "invalidEmail": "Format d'e-mail invalide",
         "incorrectPassword": "Mot de passe incorrect",
         "noLowercasePassword": "Le mot de passe doit contenir au moins une minuscule",
@@ -173,6 +182,7 @@
         "accountDeleteError": "Erreur lors de la suppression du compte",
         "connectionError": "Erreur de connexion",
         "unknownError": "Erreur inconnue",
+        "noBirthDate": "Veuillez indiquer une date de naissance valide.",
         "birthFuture": "La date de naissance ne peut pas être dans le futur",
         "birthTooOld": "La date de naissance ne peut pas remonter à plus de 150 ans"
     },
@@ -202,5 +212,11 @@
         "win": "🏆 Victoire",
         "defeat": "❌ Défaite",
         "deletedAccount": "Compte supprimé"
+    },
+    "oauth_terms": 
+    {
+        "title": "Une dernière étape",
+        "subtitle": "Avant de créer votre compte, veuillez lire et accepter nos conditions.",
+        "confirm_btn": "Créer un compte"
     }
 }

@@ -7,7 +7,8 @@ export type Screen =
     | "pong"
     | "info"
     | "profile"  // <--- Nuevo
-    | "stats";   // <--- Nuevo
+    | "stats"   // <--- Nuevo
+    | "oauth_terms"; // <--- New
 
 export type Action =
     | { type: "MENU" }
@@ -19,7 +20,8 @@ export type Action =
     | { type: "PONG" }
     | { type: "INFO"; option: string }
     | { type: "PROFILE" } // <--- Nuevo
-    | { type: "STATS" };  // <--- Nuevo
+    | { type: "STATS" }  // <--- Nuevo
+    | { type: "OAUTH_TERMS" }; // <--- New
 
 export type GameMode =
     | "ia"

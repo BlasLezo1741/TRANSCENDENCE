@@ -25,6 +25,7 @@
     "pass_req": "Password must have: lowercase, uppercase, number and minimum 8 characters.",
     "juegos": "Games",
     "enable_2fa": "Enable 2FA",
+
     "qr_setup1": "Scan this QR code",
     "qr_setup2": "Important:",
     "qr_setup3": "Save this code in your authentication app (Google Authenticator, Authy, etc.) before closing this page.",
@@ -48,6 +49,12 @@
     "profile": "Profile",
     "matchEnded": "Match Ended",
     "back2Menu": "Back to Main Menu",
+    "privacy": 
+    {
+        "prefix": "I have read and agree to the",
+        "and": "and",
+        "suffix": "."
+    },
     "chat": 
     {
         "my_friends": "my friends",
@@ -140,11 +147,13 @@
     "modal":
     {
         "accept_btn": "accept",
-        "cancel_btn": "cancel"
+        "cancel_btn": "cancel",
+        "loading": "Loading..."
     },
     "errors": 
     {
         "userNotFound": "User not found",
+        "mustAcceptTerms": "You must accept the Terms of Use and Privacy Policy to register.",
         "invalidEmail": "Invalid e-mail format",
         "incorrectPassword": "Incorrect password",
         "noLowercasePassword": "Password must contain at least one lowercase letter",
@@ -173,6 +182,7 @@
         "accountDeleteError": "Error deleting the account",
         "connectionError": "Connection error",
         "unknownError": "Unknown error",
+        "noBirthDate": "Please provide a valid date of birth",
         "birthFuture": "Date of birth cannot be in the future",
         "birthTooOld": "Date of birth cannot be more than 150 years ago"
     },
@@ -202,5 +212,11 @@
         "win": "🏆 Win",
         "defeat": "❌ Defeat",
         "deletedAccount": "Deleted account"
+    },
+    "oauth_terms": 
+    {
+        "title": "One last step",
+        "subtitle": "Before we create your account, please read and accept our terms.",
+        "confirm_btn": "Create account"
     }
 }

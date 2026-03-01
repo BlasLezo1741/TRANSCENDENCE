@@ -11,6 +11,7 @@ export function screenReducer(state: Screen, action: Action): Screen {
     case "PONG": return "pong";
     case "LOGOUT": return "login";
     case "INFO": return "info";
+    case "OAUTH_TERMS": return "oauth_terms";
     default: return state;
   }
 }

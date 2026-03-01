@@ -19,6 +19,8 @@ export function checkForm(email: string, password: string, repeat: string, birth
     const minDate = new Date();
     minDate.setFullYear(today.getFullYear() - 150);
 
+    if (!birthDate || isNaN(birthDate.getTime()))
+        return { ok: false, msg: 'errors.noBirthDate'};
     if (birthDate > today)
         return { ok: false, msg: 'errors.birthFuture' };
     if (birthDate < minDate)
