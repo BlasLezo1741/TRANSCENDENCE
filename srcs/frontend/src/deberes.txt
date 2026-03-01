@@ -10,3 +10,24 @@
     - Redondear todo
     - Sombras
 
+
+Tailwind componentes
+
+    Header
+        - Header
+    Main
+        - MenuScreen
+        - PongScreen
+        - ProfileScreen
+        - LoginScreen
+        - SignScreen
+        - InfoScreen
+    Footer
+        - Footer
+
+    Section
+
+    Objects
+    
+    Componentes objects
+

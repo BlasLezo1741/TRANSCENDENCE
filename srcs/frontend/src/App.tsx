@@ -13,10 +13,10 @@ import SettingsScreen from './screens/SettingsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
 import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
 
-import Header from './components/Header.tsx'
-import Footer from './components/Footer.tsx'
+import Header from './components2/Header.tsx'
+import Footer from './components2/Footer.tsx'
 import { socket, connectSocket, setMatchData } from './services/socketService';
-import { ChatSidebar } from './components/ChatSidebar';
+import { ChatSidebar } from './components2/ChatSidebar.tsx';
 import { getMyProfile } from './services/user.service';
 
 import "./css/App.css";
