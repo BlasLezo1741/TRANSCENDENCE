@@ -57,6 +57,7 @@ function App()
   const [option, setOption] = useState<string>("");
 
   const [ia, setIa] = useState<boolean>(false);
+  const [chatOpen, setChatOpen] = useState<boolean>(false);
 
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
@@ -309,9 +310,14 @@ const handleInviteResponse = (accept: boolean) => {
 // --- RENDERIZADO DE PANTALLAS ---
 function renderScreen()
   {
+    document.body.classList.remove("scroll");
+
     switch (screen)
     {
       case "menu":
+
+        document.body.classList.add("scroll");
+
         return <MenuScreen 
           dispatch={dispatch}
           ia={ia}
@@ -340,6 +346,9 @@ function renderScreen()
         
         // Usamos 'as any' para evitar líos de tipos si TypeScript se queja
         const PongScreenComp = PongScreen as any;
+
+        if (mode === "remote")
+          setChatOpen("false");
         
         return <PongScreenComp
           dispatch={dispatch}
@@ -351,7 +360,8 @@ function renderScreen()
           opponentAvatar={finalOpponentAvatar}
           ballInit={ballInit}
           playerSide={playerSide}
-          roomId={roomId} 
+          roomId={roomId}
+          chatOpen={chatOpen}
         />;
         case "profile":
           return <ProfileScreen
@@ -378,7 +388,7 @@ function renderScreen()
 
   return (
     <div className="app">
-      {currentUser && <ChatSidebar />}
+      {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
       {/* 🔥🔥 MODAL DE INVITACIÓN - ESTILOS INLINE PARA RAPIDEZ 🔥🔥 */}
       {inviteRequest && (
           <div style={{

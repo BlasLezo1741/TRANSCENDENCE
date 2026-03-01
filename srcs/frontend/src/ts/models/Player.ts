@@ -23,7 +23,7 @@ export class Player
             this.height = h * 0.25;
             this.speedIA = 5;
         }
-        else if (diff === "normal")
+        else if (diff === "normal" || diff === "")
         {
             this.height = h * 0.20;
             this.speedIA = 7;
