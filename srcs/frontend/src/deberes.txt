@@ -12,19 +12,12 @@
 
 Tailwind componentes
 
-    Header
-        - Header
-    Main
-        - MenuScreen
-        - PongScreen
-        - ProfileScreen
-        - LoginScreen
-        - SignScreen
-        - InfoScreen
-    Footer
-        - Footer
-
-    Section
-
     Objects
+
+        - Botones
+
+            - Boton normal
+            - Boton aceptar
+            - Boton eliminar
+            - Boton idiomas
 

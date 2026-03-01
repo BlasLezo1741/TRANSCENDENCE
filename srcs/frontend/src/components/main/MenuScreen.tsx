@@ -5,6 +5,9 @@ import { joinQueue, socket, setMatchData } from '../../services/socketService.ts
 import type { ScreenProps } from '../../ts/screenConf/screenProps.ts';
 import type { GameDifficult, GameMode } from '../../ts/types.ts';
 
+import Btn from '../objects/Btn.tsx';  
+import ImageBtn from '../objects/ImageBtn.tsx';  
+
 import cross from '../../assets/x_chatgpt.png';
 
 import easy from '../../assets/Easy_chatgpt.png';
@@ -111,42 +114,51 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
 
     const showBtn = () =>
     {
+        const modeButtons =
+        [
+            { msg: "player vs ia", onClick: () => setIa(true) },
+            { msg: "player vs player", onClick: () => handleMode("local") },
+            { msg: "player vs remote", onClick: () => handleMode("remote") }
+        ];
+
         return (
             <>
                 <h1>{t('modo')}</h1>
 
                 <div className="bt">
-                    <button onClick={() => setIa(true)}>player vs ia</button>
-                    <button onClick={() => handleMode("local")}>player vs player</button>
-                    <button onClick={() => handleMode("remote")}>player vs remote</button>
+                    {modeButtons.map((btn) =>
+                    (
+                        <Btn key={btn.msg} type="normal" msg={btn.msg} onClick={btn.onClick}/>
+                    ))}
                 </div>
             </>
         );
     };
 
     const showImg = () =>
-    {
+    {1
+        const modeImgs: {src: string, diff: GameDifficult }[] =
+        [
+            { src: easy, diff: "easy" },
+            { src: normal, diff: "normal" },
+            { src: hard, diff: "hard" },
+            { src: impossible, diff: "impossible" }
+        ];
+
         return (
             <>
                 <h1>{t('difficulty')}</h1>
 
                 <div className="imagenes">
-                    <img
-                        src={easy}
-                        alt="easy"
-                        onClick={() => handleDiff("easy")}/>
-                    <img
-                        src={normal}
-                        alt="normal"
-                        onClick={() => handleDiff("normal")} />
-                    <img
-                        src={hard}
-                        alt="hard"
-                        onClick={() => handleDiff("hard")} />
-                    <img
-                        src={impossible}
-                        alt="hard"
-                        onClick={() => handleDiff("impossible")} />
+                    {modeImgs.map((btn) =>
+                    (
+                        <ImageBtn
+                            key={btn.diff}
+                            src={btn.src}
+                            alt={btn.diff}
+                            onClick={() => handleDiff(btn.diff)}
+                    />
+                    ))}
                 </div>
             </>
         );

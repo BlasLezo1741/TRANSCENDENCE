@@ -2,7 +2,8 @@ import { checkLogin, send2FACode } from "../../ts/utils/auth";
 import React, { useState, useEffect } from "react";
 import type { ScreenProps } from "../../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
-
+import Input from '../objects/Input.tsx';
+import Label from '../objects/Label.tsx';
 import "../../css/Login.css";
 
 // Add prop for global state update
@@ -121,47 +122,58 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                     <div>
                         <span style={{color: "red"}}>{error}</span>
                     </div>
-                )}
+                )}  
 
                 {!showTotpInput ?  (
                     <div className="login-elem">      
                         <div className="login-elem">
-                            <label htmlFor="user">
-                                {t('user')}
-                            </label>
-                            <input
-                                type="text"
+                            <Label
+                                htmlFor="user"
+                                msg={t('user')}
+                            />
+                            <Input
                                 id="user"
-                                name="user"
                                 value={user}
-                                onChange={(e) => setUser(e.target.value)}
+                                onChange={setUser}
                                 pattern="[\x21-\x7E]+"
-                                required
                                 autoFocus
+                                required
                             />
                         </div>
 
                         
                         <div className="login-elem">
-                            <label htmlFor="pass">
-                                {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
-                            </label>
-                            <input
-                                type="password"
+                            <Label
+                                htmlFor="pass"
+                                msg={t('password').charAt(0).toUpperCase() + t('password').slice(1)}
+                            />
+                            <Input
                                 id="pass"
-                                name="pass"
+                                type="password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={setPassword}
                                 required
                             />
                         </div>
                     </div>
                 ):(
                     <div>
-                        <label htmlFor="totp">
-                            {t('cod_2fa')}
-                        </label>
-                        <input
+                        <Label
+                            htmlFor="totp"
+                            msg={t('cod_2fa')}
+                        />
+                        <Input
+                            id="totp"
+                            value={totpCode}
+                            onChange={(val) => setTotpCode(val.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                            maxLength={8}
+                            required
+                            pattern="(\d{6}|[A-Z0-9]{8})"
+                            placeholder={(t('placeholder'))}
+                            title={t('2fa_setup')}
+                            autoFocus
+                        />
+                        {/* <input
                             type="text"
                             id="totp"
                             name="totp"
@@ -177,7 +189,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             title={t('2fa_setup')}                                    
                             required
                             autoFocus
-                        />
+                        /> */}
                     </div>
                 )}
 
