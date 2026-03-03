@@ -133,4 +133,5 @@ Steps for the evaluator to verify this module:
     * Ensure it opens the Grafana interface showing the **PostgreSQL** dashboard (not the GitHub one), visualizing the game data stored in the database.
 
     [Back to Profile Documentation](./PROFILE_DOCUMENTATION.mdREADME.md#modules)
+    
     [Return to Main modules table](../../../README.md#modules)
