@@ -8,7 +8,7 @@ The profile screen features a multi-tab interface:
 - **Info Tab**: Personal details and avatar selection
 - **Friends Tab**: Confirmed friends list with online status and invite system
 - **Requests Tab**: Incoming friend requests with accept/decline actions
-- **Stats Tab**: Match statistics (placeholder for future implementation)
+- **Stats Tab**: Full visualization of match history, user performance metrics, and global leaderboard.
 
 ---
 
@@ -26,6 +26,12 @@ Because the Profile screen acts as the central hub for the user, its features ar
 *Fulfilled primarily by the **Friends Tab** and **Requests Tab**.*
 * **Social Hub:** Serves as the UI interface to view the friends list and check live online/offline status indicators.
 * **Networking Actions:** Users can initiate interactions by sending friend requests directly from the profile interface or removing existing connections.
+
+### 3. Game Statistics and Match History (Minor Module)
+*Fulfilled by the **Stats Tab**.*
+* While the UI is hosted within the Profile, the logic constitutes a separate game module.
+* **Features:** Win/Loss tracking, Match History log, and Leaderboard.
+* **Documentation:** Please refer to [GAME_STATS_MODULE.md](./GAME_STATS_MODULE.md) for the full technical breakdown and verification steps for this module.
 
 ---
 
@@ -523,7 +529,6 @@ The profile screen uses extensive translation keys across `en.json`, `es.json`, 
 ## Future Enhancements
 
 - **Public profile pages** — allow viewing another player's profile at `/profile/:id` (read-only, no edit controls)
-- **Match history tab** — embed recent match results and statistics directly on the profile page
 - **Account deletion** — GDPR-compliant self-service data removal (currently has button but needs backend implementation)
 - **Email verification** — confirm new email addresses before applying changes
 - **Username change cooldown** — enforce a minimum interval between nick changes to prevent abuse
