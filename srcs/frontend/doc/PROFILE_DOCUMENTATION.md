@@ -31,7 +31,7 @@ Because the Profile screen acts as the central hub for the user, its features ar
 *Fulfilled by the **Stats Tab**.*
 * While the UI is hosted within the Profile, the logic constitutes a separate game module.
 * **Features:** Win/Loss tracking, Match History log, and Leaderboard.
-* **Documentation:** Please refer to [GAME_STATS_MODULE.md](./GAME_STATS_MODULE.md) for the full technical breakdown and verification steps for this module.
+* **Documentation:** Please refer to [GAME_STATS_MODULE.md](./GAME_STATS_MODULE..md) for the full technical breakdown and verification steps for this module.
 
 ---
 
