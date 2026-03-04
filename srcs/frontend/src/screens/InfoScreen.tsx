@@ -17,8 +17,8 @@ const contentMap: Record<States, string> = {
     d: 'contact',
     e: 'credits'
 };
-
-const InfoScreen = ({dispatch, option}: InfoProps) => {
+// dispatch option is unused. Kept for potential use
+const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
     const { t, i18n } = useTranslation();
     const [activeTab, setActiveTab] = useState<States>(option);
     const [htmlContent, setHtmlContent] = useState<string>('');

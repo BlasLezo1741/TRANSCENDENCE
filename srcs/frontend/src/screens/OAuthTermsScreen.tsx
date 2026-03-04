@@ -100,13 +100,13 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
                 <label htmlFor="acceptPolicy">
                     {t('privacy.prefix')}{' '}
                     <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }}>
-                        {t('info.terms_of_service')}
+                        <u><b>{t('info.terms_of_service')}</b></u>
                     </a>
                     {' '}{t('privacy.and')}{' '}
                     <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }}>
-                        {t('info.privacy_policy')}
+                        <u><b>{t('info.privacy_policy')}</b></u>
                     </a>
-                    {t('privacy.suffix')}
+                    {t('privacy.dot')}
                 </label>
             </div>
 

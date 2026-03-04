@@ -5,6 +5,17 @@
     "count": "Somos ",
     "modo": "Elige el modo de juego",
     "difficulty": "Escoge dificultad",
+    "guest": "Invitado",
+    "searching_player": "Buscando jugador...",
+    "player_vs_ia": "Jugador vs IA",
+    "player_vs_player": "Jugador vs Jugador",
+    "player_vs_remote": "Jugador vs Remoto",
+    "alt_main_image": "Imagen principal",
+    "alt_easy": "Fácil",
+    "alt_normal": "Normal",
+    "alt_hard": "Difícil",
+    "alt_impossible": "Imposible",
+    "alt_cancel": "Cancelar",    
     "juego_mode": "Modo de juego: ",
     "Jugar": "Jugar",
     "user": "Usuario",
@@ -53,7 +64,7 @@
     {
         "prefix": "He leído y acepto los ",
         "and": "y",
-        "suffix": "."
+        "dot": "."
     },
     "chat": 
     {
@@ -184,7 +195,10 @@
         "unknownError": "Error desconocido",
         "noBirthDate": "Por favor, introduce una fecha de nacimiento válida.",
         "birthFuture": "La fecha de nacimiento no puede ser futura",
-        "birthTooOld": "La fecha de nacimiento no puede ser anterior a 150 años"
+        "birthTooOld": "La fecha de nacimiento no puede ser anterior a 150 años",
+        "userRequired": "Por favor ingresa tu nombre de usuario",
+        "passwordRequired": "Por favor ingresa tu contraseña",
+        "codeRequired": "Por favor ingresa el código de autenticación"
     },
     "success": 
     {

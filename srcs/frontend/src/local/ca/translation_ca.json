@@ -4,8 +4,19 @@
     "sel_lang": "Selecciona l'idioma",
     "count": "Som ",
     "modo": "Tria el mode de joc",
-    "juego_mode": "Mode de joc: ",
     "difficulty": "Tria dificultat",
+    "guest": "Convidat",
+    "searching_player": "Buscant jugador...",
+    "player_vs_ia": "Jugador vs IA",
+    "player_vs_player": "Jugador vs Jugador",
+    "player_vs_remote": "Jugador vs Remot",
+    "alt_main_image": "Imatge principal",
+    "alt_easy": "Fàcil",
+    "alt_normal": "Normal",
+    "alt_hard": "Difícil",
+    "alt_impossible": "Impossible",
+    "alt_cancel": "Cancel·lar",
+    "juego_mode": "Mode de joc: ",
     "Jugar": "Jugar",
     "user": "Usuari",
     "crear_cuenta": "Crear un compte",
@@ -53,7 +64,7 @@
     {
         "prefix": "He llegit i accepto els ",
         "and": "i",
-        "suffix": "."
+        "dot": "."
     },
     "chat": 
     {
@@ -184,7 +195,10 @@
         "unknownError": "Error desconegut",
         "noBirthDate": "Si us plau, introdueix una data de naixement vàlida.",
         "birthFuture": "La data de naixement no pot ser futura",
-        "birthTooOld": "La data de naixement no pot ser anterior a 150 anys"
+        "birthTooOld": "La data de naixement no pot ser anterior a 150 anys",
+        "userRequired": "Si us plau introdueix el teu nom d'usuari",
+        "passwordRequired": "Si us plau introdueix la teva contrasenya",
+        "codeRequired": "Si us plau introdueix el codi d'autenticació"
     },
     "success": 
     {

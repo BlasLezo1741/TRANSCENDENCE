@@ -5,6 +5,17 @@
     "count": "Nous sommes ",
     "modo": "Choisir le mode de jeu:",
     "difficulty": "Choisis difficulté",
+    "guest": "Invité",
+    "searching_player": "Recherche de joueur...",
+    "player_vs_ia": "Joueur vs IA",
+    "player_vs_player": "Joueur vs Joueur",
+    "player_vs_remote": "Joueur vs Distant",
+    "alt_main_image": "Image principale",
+    "alt_easy": "Facile",
+    "alt_normal": "Normal",
+    "alt_hard": "Difficile",
+    "alt_impossible": "Impossible",
+    "alt_cancel": "Annuler",    
     "juego_mode": "Mode de jeu: ",
     "Jugar": "Jouer",
     "user": "Utilisateur",
@@ -53,7 +64,7 @@
     {
         "prefix": "J'ai lu et j'accepte les ",
         "and": "et",
-        "suffix": "."
+        "dot": "."
     },
     "chat": 
     {
@@ -184,7 +195,10 @@
         "unknownError": "Erreur inconnue",
         "noBirthDate": "Veuillez indiquer une date de naissance valide.",
         "birthFuture": "La date de naissance ne peut pas être dans le futur",
-        "birthTooOld": "La date de naissance ne peut pas remonter à plus de 150 ans"
+        "birthTooOld": "La date de naissance ne peut pas remonter à plus de 150 ans",
+        "userRequired": "Veuillez saisir votre nom d'utilisateur",
+        "passwordRequired": "Veuillez saisir votre mot de passe",
+        "codeRequired": "Veuillez saisir le code d'authentification"
     },
     "success": 
     {

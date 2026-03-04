@@ -5,6 +5,17 @@
     "count": "We are ",
     "modo": "Choose game mode",
     "difficulty": "Choose difficulty",
+    "guest": "Guest",
+    "searching_player": "Searching for player...",
+    "player_vs_ia": "Player vs AI",
+    "player_vs_player": "Player vs Player",
+    "player_vs_remote": "Player vs Remote",
+    "alt_main_image": "Main image",
+    "alt_easy": "Easy",
+    "alt_normal": "Normal",
+    "alt_hard": "Hard",
+    "alt_impossible": "Impossible",
+    "alt_cancel": "Cancel",
     "juego_mode": "Game mode: ",
     "Jugar": "Play",
     "user": "Username",
@@ -53,7 +64,7 @@
     {
         "prefix": "I have read and agree to the",
         "and": "and",
-        "suffix": "."
+        "dot": "."
     },
     "chat": 
     {
@@ -162,7 +173,7 @@
         "badLengthPassword": "Password must be between 8 and 100 characters",
         "noMatchPassword": "Passwords do not match",
         "inactiveAccount": "This account is inactive",
-        "userOrEmailExists": "Username or em-ail already exists",
+        "userOrEmailExists": "Username or e-mail already exists",
         "useOAuthProvider": "Please log in with your OAuth provider (42 or Google)",
         "useOAuthProviderShort": "Please log in with your OAuth provider",
         "noAuthToken": "Missing authentication token",
@@ -184,7 +195,10 @@
         "unknownError": "Unknown error",
         "noBirthDate": "Please provide a valid date of birth",
         "birthFuture": "Date of birth cannot be in the future",
-        "birthTooOld": "Date of birth cannot be more than 150 years ago"
+        "birthTooOld": "Date of birth cannot be more than 150 years ago",
+        "userRequired": "Please enter your username",
+        "passwordRequired": "Please enter your password",
+        "codeRequired": "Please enter the authentication code"
     },
     "success": 
     {
