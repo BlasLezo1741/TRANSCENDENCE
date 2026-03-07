@@ -24,6 +24,7 @@ type OptionsProps = ScreenProps & {
   userName: string;
   setOpponentName: React.Dispatch<React.SetStateAction<string>>;
   setPlayerSide: React.Dispatch<React.SetStateAction<'left' | 'right'>>;
+  isAuthenticated: boolean; // para validar el tipo de conexion admitida
 };
 
 const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName, setOpponentName, setPlayerSide }: OptionsProps) => {   
@@ -47,6 +48,12 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
 
         if (mode === "remote")
         {
+            if (!isAuthenticated) {
+                setStatusText("Debes estar logueado para jugar online.");
+                // Opcional: Borrar el mensaje después de 3 segundos
+                setTimeout(() => setStatusText(""), 3000);
+                return; 
+            }
             const socketMode = "1v1_remote";
             console.log("🚀 Enviando al Socket (Online):", socketMode);
             
