@@ -6,6 +6,7 @@ import type { GameMode, GameDifficult } from '../../ts/types.ts';
 import { Countdown } from '../section/Countdown.tsx';
 import { getAvatarUrlById, getDefaultAvatar } from '../../assets/avatars/index.ts';
 import { Leaderboard } from '../section/Leaderboard.tsx';
+import Image  from '../objects/Image.tsx';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
@@ -67,12 +68,14 @@ return (
       }}>
           {/* JUGADOR IZQUIERDA */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <img 
-                  src={resolveAvatar(leftAvatarRaw, 1)} 
-                  alt={leftPlayer} 
-                  style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px solid #007bff' }}
-              />
-              <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{leftPlayer}</span>
+            {/* style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px solid #007bff' }} */}
+            <Image
+                src={resolveAvatar(leftAvatarRaw, 1)}
+                alt={leftPlayer}
+                className="itemMid"
+                extraClass="rounded-full border-2 border-[#007bff]"
+            />
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{leftPlayer}</span>
           </div>
 
           {/* INFORMACIÓN CENTRAL */}
@@ -83,12 +86,13 @@ return (
 
           {/* JUGADOR DERECHA */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexDirection: 'row-reverse' }}>
-              <img 
-                  src={resolveAvatar(rightAvatarRaw, 2)} 
-                  alt={rightPlayer} 
-                  style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px solid #ff4444' }}
-              />
-              <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{rightPlayer}</span>
+            <Image
+                src={resolveAvatar(rightAvatarRaw, 2)}
+                alt={rightPlayer}
+                className="itemMid"
+                extraClass="rounded-full border-2 border-[#ff4444]"
+            />
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{rightPlayer}</span>
           </div>
       </div>
       

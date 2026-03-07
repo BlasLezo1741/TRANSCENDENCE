@@ -32,6 +32,7 @@ import { Leaderboard } from '../section/Leaderboard';
 import { MatchHistory } from '../section/MatchHistory';
 
 import Btn from '../objects/Btn.tsx';
+import Image from '../objects/Image.tsx';
 import Li from '../objects/Li.tsx';
 import Input from '../objects/Input.tsx';
 import Label from '../objects/Label.tsx';
@@ -753,13 +754,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
                         {/* Previsualización del Avatar Seleccionado */}
                         {selectedCandidate && (
-                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #ddd' }}>
-                                <img 
-                                    src={getDisplayAvatar(selectedCandidate.id, (selectedCandidate as any).avatar)} 
-                                    alt="Preview"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                            </div>
+                            <Image
+                                src={getDisplayAvatar(selectedCandidate.id, (selectedCandidate as any).avatar)}
+                                alt="Preview"
+                                className='avatar'
+                            />
                         )}
                         <Btn msg={t('prof.send_request_btn')} onClick={handleSendRequest} 
                             disabled={!targetIdInput || isLoadingCandidates}/>
@@ -793,14 +792,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                     </div>
 
                                     {/* 2. Avatar (NUEVO) */}
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden' }}>
-                                        <img 
-                                            // Asumimos que f tiene la propiedad 'avatar' gracias a nuestro arreglo en el backend
-                                            src={getDisplayAvatar(f.id, (f as any).avatar)} 
-                                            alt={f.friend_nick}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                        />
-                                    </div>
+                                    <Image
+                                        src={getDisplayAvatar(f.id, (f as any).avatar)}
+                                        alt={f.friend_nick}
+                                        className='avatar'
+                                    />
 
                                     {/* 3. Nombre */}
                                     <span style={{ fontWeight: '500', fontSize: '1.1rem' }}>

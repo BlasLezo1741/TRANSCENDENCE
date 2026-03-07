@@ -6,7 +6,7 @@ import type { ScreenProps } from '../../ts/screenConf/screenProps.ts';
 import type { GameDifficult, GameMode } from '../../ts/types.ts';
 
 import Btn from '../objects/Btn.tsx';  
-import ImageBtn from '../objects/ImageBtn.tsx';  
+import Image from '../objects/Image.tsx';  
 
 import cross from '../../assets/x_chatgpt.png';
 
@@ -150,9 +150,10 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
                 <div className="imagenes">
                     {modeImgs.map((btn) =>
                     (
-                        <ImageBtn
+                        <Image
                             key={btn.diff}
                             src={btn.src}
+                            className='btnDiff'
                             alt={btn.diff}
                             onClick={() => handleDiff(btn.diff)}
                     />
@@ -164,7 +165,7 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
 
     return (
         <section className="menu">
-            <img className="bg_image" src={bg_image} alt="Imagen central"/>
+            <Image className='bg' src={bg_image} alt="Imagen central"/>
             
             { ia ? showImg() : showBtn() }
 
@@ -172,7 +173,11 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
                 <p>{statusText}</p>
                 {modeActive && 
                 (
-                    <img className="cross" src={cross} alt="Cancelar" onClick={cancelProcess}/>
+                    <Image
+                        className='itemLow'
+                        src={cross}
+                        alt='Cancelar'
+                        onClick={cancelProcess} />
                 )}
             </div>
 
