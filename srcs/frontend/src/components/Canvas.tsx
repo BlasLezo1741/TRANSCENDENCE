@@ -353,8 +353,15 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             }
             
             // 1. If activeRef.current is TRUE. Move paddle locally (Your keyboard updates game.player1.y here)
-            gameRef.current?.update(); 
-            gameRef.current?.draw(); 
+            // gameRef.current?.update(); 
+            // gameRef.current?.draw(); 
+            // Solo calculamos las físicas locales si NO es un juego remoto
+            if (!mode.includes('remote')) {
+                gameRef.current?.update(); 
+            }
+
+            // El draw() lo dejamos FUERA del if, porque SIEMPRE tenemos que pintar la pantalla
+            gameRef.current?.draw();
 
             // --- NEW BLOCK: LOCAL / IA VICTORY CONTROL  ---
             // Only enters here if we are NOT in online mode
