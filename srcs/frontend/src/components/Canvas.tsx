@@ -35,7 +35,7 @@ interface PosData
 }
 
 function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId,
-    isGameActive, chatOpen }: CanvasProps)
+    isGameActive, onGameOver, chatOpen }: CanvasProps)
 {
     const { showModal } = useModal();
     const canvasRef = useRef<HTMLCanvasElement>(null);
