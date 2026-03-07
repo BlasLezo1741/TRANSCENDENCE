@@ -37,47 +37,22 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
 
         // CUSTOM VALIDATION - Check if fields are filled
         if (!showTotpInput) {
-            if (!user.trim()) {
+            const trimmedUser = user.trim();
+            const trimmedPassword = password.trim();
+
+            if (!trimmedUser) {
                 setError(t('errors.userRequired'));
                 return;
             }
-            if (!password) {
+            if (!trimmedPassword) {
                 setError(t('errors.passwordRequired'));
                 return;
             }
-        } else {
-            if (!totpCode.trim()) {
-                setError(t('errors.codeRequired'));
-                return;
-            }
-        }
 
-        setIsLoading(true);
+            setIsLoading(true);
 
-        try 
-        {
-            if (showTotpInput) {
-                // Check if userId exists before sending 2FA code
-                if (!userId) {
-                    setError(t('errors.unknownError'));
-                    return;
-                }
-                const result = await send2FACode(userId, totpCode);
-                if (!result.ok) {
-                    setError(t('errors.invalid2faCode'));
-                    setTotpCode("");
-                    return;
-                } else {
-                    // If verification is successful
-                    localStorage.setItem("pong_user_nick", user);
-                    localStorage.setItem("pong_user_id", userId.toString());
-                    localStorage.setItem("pong_token", result.token);
-                    setGlobalUser(user);
-                    dispatch({ type: "MENU" });
-                }
-            } else {
-                // AWAIT the backend response
-                const result = await checkLogin(user, password);   
+            try {
+                const result = await checkLogin(trimmedUser, trimmedPassword);
                 if (!result.ok) {
                     setError(t(result.msg) || t('errors.unknownError'));
                     setPassword("");
@@ -96,12 +71,44 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                         dispatch({ type: "MENU" });
                     }
                 }
+            } catch (err) {
+                setError(t('errors.connectionError'));
+            } finally {
+                setIsLoading(false);
             }
 
-        } catch (err) {
-            setError(t('errors.connectionError'));
-        } finally {
-            setIsLoading(false);
+        } else {
+            if (!totpCode.trim()) {
+                setError(t('errors.codeRequired'));
+                return;
+            }
+
+            setIsLoading(true);
+
+            try {
+                // Check if userId exists before sending 2FA code
+                if (!userId) {
+                    setError(t('errors.unknownError'));
+                    return;
+                }
+                const result = await send2FACode(userId, totpCode);
+                if (!result.ok) {
+                    setError(t('errors.invalid2faCode'));
+                    setTotpCode("");
+                    return;
+                } else {
+                    // If verification is successful
+                    localStorage.setItem("pong_user_nick", user);
+                    localStorage.setItem("pong_user_id", userId.toString());
+                    localStorage.setItem("pong_token", result.token);
+                    setGlobalUser(user);
+                    dispatch({ type: "MENU" });
+                }
+            } catch (err) {
+                setError(t('errors.connectionError'));
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -152,6 +159,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                                 name="user"
                                 value={user}
                                 onChange={(e) => setUser(e.target.value)}
+                                onBlur={(e) => setUser(e.target.value.trim())}
                                 pattern="[\x21-\x7E]+"
                                 autoFocus
                                 // Remove 'required' attribute
@@ -168,6 +176,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                                 name="pass"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                onBlur={(e) => setPassword(e.target.value.trim())}
                                 // Remove 'required' attribute
                             />
                         </div>

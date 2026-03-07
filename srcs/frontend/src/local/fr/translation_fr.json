@@ -64,7 +64,7 @@
     {
         "prefix": "J'ai lu et j'accepte les ",
         "and": "et",
-        "dot": "."
+        "sufix": "."
     },
     "chat": 
     {
