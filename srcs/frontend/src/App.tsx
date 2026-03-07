@@ -260,6 +260,9 @@ function App()
               // 🔥 IMPORTANTE: Asegurar que se cierra cualquier invitación pendiente
               setInviteRequest(null);
 
+              // Cerramos el chat ANTES de pintar la pantalla del juego
+              setChatOpen(false);
+
               // CAMBIO DE PANTALLA
               // Usamos dispatch, no navigate. El setTimeout ayuda a que los estados se asienten.
               setTimeout(() => {
@@ -329,6 +332,7 @@ function renderScreen()
           setPlayerSide={setPlayerSide}     // <--- NUEVO
           //userAvatar={currentUserAvatarUrl}  // Tu avatar (Estado global)
           //opponentAvatar={opponentAvatar}    // Avatar del rival (Estado nuevo)
+          isAuthenticated={!!currentUser}
         />;
       case "sign":
         return <SignScreen dispatch={dispatch} />;
@@ -346,8 +350,8 @@ function renderScreen()
         // Usamos 'as any' para evitar líos de tipos si TypeScript se queja
         const PongScreenComp = PongScreen as any;
 
-        if (mode === "remote")
-          setChatOpen("false");
+        // if (mode === "remote")
+        //   setChatOpen("false");
         
         return <PongScreenComp
           dispatch={dispatch}
