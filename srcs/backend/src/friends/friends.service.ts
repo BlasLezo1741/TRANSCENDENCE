@@ -43,7 +43,7 @@ export class FriendsService {
                 msg: "You have a new friendship request" 
             });
 
-            return { ok: true, msg: "Request Sent" };
+            return { ok: true, msg: "Request Sent" };/// ADD TRANSALATION KEYS
         } catch (error) {
             console.error("💥 Error SQL en sendRequest:", error);
             return { ok: false, msg: "Database error" };
@@ -165,6 +165,7 @@ export class FriendsService {
                 p.p_avatar_url as avatar
             FROM PLAYER p
             WHERE p.p_pk != ${userId} -- No mostrarme a mí mismo
+            AND p.p_status != 6 -- Exclude deleted/anonymized accounts
             AND NOT EXISTS (
                 -- Solo esconder si existe una relación PENDIENTE (1) o ACEPTADA (2) activa
                 SELECT 1 FROM PLAYER_FRIEND pf

@@ -1,6 +1,7 @@
 // /srcs/frontend/src/components/Avatar.tsx
 import React, { useState } from 'react';
 import { getDefaultAvatar, getAvatarUrlById } from '../assets/avatars';
+import nouserAvatar from '../assets/nouser_chatgpt.png';
 
 interface AvatarProps {
     src?: string | null;  // Can be: OAuth URL, avatar ID, or null
@@ -22,7 +23,10 @@ export const Avatar: React.FC<AvatarProps> = ({
     let avatarSrc: string;
     let isOAuthUrl = false;
     
-    if (!src || imgError) {
+    if (src === 'deleted') {
+        avatarSrc = nouserAvatar;
+        console.log('🚫 [Avatar] Using anonymous avatar for deleted user');
+    } else if (!src || imgError) {
         // No avatar or error loading - use default based on user ID
         avatarSrc = getDefaultAvatar(userId);
         console.log('🎨 [Avatar] Using default avatar for user', userId);

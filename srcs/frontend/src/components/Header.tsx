@@ -9,6 +9,7 @@ import '../css/Header.css';
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;
+    setIa: React.Dispatch<React.SetStateAction<boolean>>;
     userName: string;
     userId?: number;
     userAvatarUrl?: string | null;
@@ -16,7 +17,7 @@ type HeaderProps = {
     onLogout: () => void; // <--- NUEVO: Recibimos la función de limpieza desde el padre
 };
 
-const Header = ({dispatch, userName, userId, userAvatarUrl, profileSynced, onLogout}: HeaderProps) =>
+const Header = ({dispatch, setIa, userName, userId, userAvatarUrl, profileSynced, onLogout}: HeaderProps) =>
 {
 
     const [signed, setSigned] = useState(true);
@@ -69,7 +70,7 @@ const Header = ({dispatch, userName, userId, userAvatarUrl, profileSynced, onLog
         <>
             <StatusBadge />
             <header style={{ position: 'relative', zIndex: 50 }}>
-                <div className="home" onClick={() => dispatch({ type: "MENU" })}>
+                <div className="home" onClick={() => { setIa(false); dispatch({ type: "MENU" });}}>
                     <img src={homeIcon} alt="Logo" />
                     <p className="letters">Okinawa</p>
                 </div>
@@ -112,8 +113,8 @@ const Header = ({dispatch, userName, userId, userAvatarUrl, profileSynced, onLog
                             {/* Dropdown */}
                             {open && (
                                 <ul className="dropdown">
-                                    <li><a href="#" onClick={handleProfile}>Profile</a></li>
-                                    <li><a href="#" onClick={handleLogoutClick}>Sign out</a></li>
+                                    <li><a href="#" onClick={handleProfile}>{t('profile')}</a></li>
+                                    <li><a href="#" onClick={handleLogoutClick}>{t('logout')}</a></li>
                                 </ul>
                             )} 
                         </div>

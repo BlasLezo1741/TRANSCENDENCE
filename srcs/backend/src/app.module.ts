@@ -26,6 +26,9 @@ import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MetricsModule } from './metrics/metrics.module';
 
+// --- STADISTICS ---
+import { StatsModule } from './stats/stats.module';
+
 @Module({
   imports: [
     // Activar el sistema de Cron Jobs (Tareas programadas)
@@ -44,6 +47,7 @@ import { MetricsModule } from './metrics/metrics.module';
     GatewayModule,
     ChatModule,
     AuthModule, // <--- Added AuthModule here
+    StatsModule, 
   ],
   controllers: [
     AppController, 

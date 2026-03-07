@@ -2,11 +2,12 @@ import React, {useRef, useEffect} from "react";
 import { Player } from "../ts/models/Player.ts";
 import { Pong } from "../ts/models/Pong.ts";
 import { socket } from '../services/socketService'; 
-import type { GameMode } from "../ts/types.ts";
+import type { GameMode, GameDifficult } from "../ts/types.ts";
 import { useModal } from '../context/ModalContext';
 
 type CanvasProps = {
     mode: GameMode;
+    difficult: GameDifficult;
     dispatch: React.Dispatch<any>;
     playerNumber?: 1 | 2; 
     userName: string;
@@ -15,6 +16,8 @@ type CanvasProps = {
     playerSide?: 'left' | 'right';
     roomId: string;
     isGameActive: boolean;
+    onGameOver?: () => void;
+    chatOpen: boolean;
 };
 
 type DirX = "left" | "right" | "";
@@ -31,8 +34,8 @@ interface PosData
     mobile: boolean;
 }
 
-function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId,
-    isGameActive }: CanvasProps)
+function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente", ballInit, playerSide = 'left', roomId,
+    isGameActive, chatOpen }: CanvasProps)
 {
     const { showModal } = useModal();
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,7 +44,7 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
     const roomIdRef = useRef<string>(roomId); //nuevo
     //const roomIdRef = useRef<string | null>(null);//guardamos IDde la sala
     const lastSentY = useRef<number>(0.5); // Aquí la última posición enviada
-
+    const gameRef = useRef<Pong | null>(null);
     // TRUCO DE REF: Guardamos el estado en una referencia
     // Esto permite que el renderLoop (que corre aislado) lea el valor actual sin reiniciarse
     const activeRef = useRef(isGameActive);
@@ -95,11 +98,14 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             canvas,
             ctx,
             mode,
+            difficult,
             finalPlayerNumber,
             leftName,
             rightName,
-            ballInit
+            ballInit,
         );
+
+        gameRef.current = game;
 
         // --- 3. EVENTOS DEL SOCKET ---
 
@@ -166,31 +172,57 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             // Paramos animación
             cancelAnimationFrame(animationId);
             
-            // alert("Game Over! Winner: " + winnerName);
-            // dispatch({ type: "MENU" });
-            showModal({
-                title: "🏆 ¡JUEGO TERMINADO!",
-                message: `Victoria para: ${winnerName}`,
-                type: "success",
-                onConfirm: () => {
-                    dispatch({ type: "MENU" });
-                }
-            });
+            // // alert("Game Over! Winner: " + winnerName);
+            // // dispatch({ type: "MENU" });
+            // showModal({
+            //     title: "🏆 ¡JUEGO TERMINADO!",
+            //     message: `Victoria para: ${winnerName}`,
+            //     type: "success",
+            //     onConfirm: () => {
+            //         dispatch({ type: "MENU" });
+            //     }
+            // });
+            // SI TENEMOS onGameOver, SE LO DEJAMOS AL PONGSCREEN
+            if (onGameOver) {
+                onGameOver();
+            } else {
+                showModal({
+                    title: "🏆 ¡JUEGO TERMINADO!",
+                    message: `Victoria para: ${winnerName}`,
+                    type: "success",
+                    onConfirm: () => {
+                        dispatch({ type: "MENU" });
+                    }
+                });
+            }
         };
 
         // Definimos qué hacer cuando el rival se desconecta
         const handleOpponentDisconnected = () => {
             console.warn("⚠️ Rival desconectado");
-            // alert("El rival se ha desconectado. Ganaste por abandono.");
-            // dispatch({ type: "MENU" });
-            showModal({
-                title: "🔌 Rival Desconectado",
-                message: "El rival ha perdido la conexión. ¡Has ganado por abandono!",
-                type: "info",
-                onConfirm: () => {
-                    dispatch({ type: "MENU" });
-                }
-            });
+            // // alert("El rival se ha desconectado. Ganaste por abandono.");
+            // // dispatch({ type: "MENU" });
+            // showModal({
+            //     title: "🔌 Rival Desconectado",
+            //     message: "El rival ha perdido la conexión. ¡Has ganado por abandono!",
+            //     type: "info",
+            //     onConfirm: () => {
+            //         dispatch({ type: "MENU" });
+            //     }
+            // });
+            // AVISAMOS AL PONGSCREEN
+            if (onGameOver) {
+                onGameOver();
+            } else {
+                showModal({
+                    title: "🔌 Rival Desconectado",
+                    message: "El rival ha perdido la conexión. ¡Has ganado por abandono!",
+                    type: "info",
+                    onConfirm: () => {
+                        dispatch({ type: "MENU" });
+                    }
+                });
+            }
         };
 
         // Activamos listeners de eventos de juego
@@ -201,15 +233,20 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
 
         const handleKeyUp = (e: KeyboardEvent) =>
         {
-            game.keysPressed[e.key] = false;       
+            if (!activeRef.current || !gameRef.current) return;
+
+            gameRef.current.keysPressed[e.key] = false;       
         };
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (!activeRef.current) return;
-            if (game.keysPressed[e.key]) return;
-            game.keysPressed[e.key] = true;
-            if (e.code === "Space" && mode !== "remote")
-                game.setPause();  
+            if (!activeRef.current || !gameRef.current) return;
+
+            if (gameRef.current.keysPressed[e.key]) return;
+            
+            gameRef.current.keysPressed[e.key] = true;
+            
+            if (e.code === "Space" && mode !== "remote" && !gameRef.current.chat)
+                gameRef.current.setPause(!gameRef.current.getPause());  
         };
 
         let moveInterval: number | null = null;
@@ -274,11 +311,11 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             posData.dirY = getDirection(posData);
 
             const player = mode === "ia" ? 
-                game.player1 : mode === "local" ? 
+                gameRef.current.player1 : mode === "local" ? 
                 (getPlayerSide(posData) === "left" ?
-                game.player1 : game.player2) :
-                (game.playerNumber === 1 ?
-                game.player1 : game.player2);
+                gameRef.current.player1 : gameRef.current.player2) :
+                (gameRef.current.playerNumber === 1 ?
+                gameRef.current.player1 : gameRef.current.player2);
 
             moveInterval = window.setInterval(() => movePlayer(posData.dirY, player), 16);
         };
@@ -301,13 +338,13 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         // --- BUCLE DE RENDERIZADO (NO FÍSICA) ---
         let animationId: number;
 
-        const renderLoop = () => {
-            
+        const renderLoop = () => 
+        {
             // MAIN LOOP BLOCKING During COUNTDOWN 
-            if (!activeRef.current) {
+            if (!activeRef.current || gameRef.current?.getPause()) {
                 // If we are in countdown:
                 // WE DRAW (to see the static board in the background)
-                game.draw(); 
+                gameRef.current.draw(); 
                 // But WE DON'T UPDATE (game.update() is not called)
                 
                 // We request next frame and EXIT
@@ -316,22 +353,36 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
             }
             
             // 1. If activeRef.current is TRUE. Move paddle locally (Your keyboard updates game.player1.y here)
-            game.update(); 
-            game.draw(); 
+            gameRef.current?.update(); 
+            gameRef.current?.draw(); 
 
             // --- NEW BLOCK: LOCAL / IA VICTORY CONTROL  ---
             // Only enters here if we are NOT in online mode
-            if (!mode.includes('remote')) {
-                if (game.hasWinner()) {
-                    const winnerName = game.getWinner();
-                    
-                    // We stop the loop immediately 
-                    cancelAnimationFrame(animationId);
-                    
-                    // We notify and exit with delay to give time to enter the last point on the scoreboard
-                    setTimeout(() => {
-                        // alert(`¡Juego Terminado! Ganador: ${winnerName}`);
-                        // dispatch({ type: "MENU" });
+            if (!mode.includes('remote') && gameRef.current?.hasWinner())
+            {
+                const winnerName = gameRef.current.getWinner();
+                
+                // We stop the loop immediately 
+                cancelAnimationFrame(animationId);
+                
+                // We notify and exit with delay to give time to enter the last point on the scoreboard
+                // setTimeout(() => {
+                //     // alert(`¡Juego Terminado! Ganador: ${winnerName}`);
+                //     // dispatch({ type: "MENU" });
+                //     showModal({
+                //         title: "🏆 ¡GAME OVER!",
+                //         message: `Winner: ${winnerName}`,
+                //         type: "success",
+                //         onConfirm: () => {
+                //             dispatch({ type: "MENU" });
+                //         }
+                //     });
+                // }, 50);
+                setTimeout(() => {
+                    // AVISAMOS AL PONGSCREEN
+                    if (onGameOver) {
+                        onGameOver();
+                    } else {
                         showModal({
                             title: "🏆 ¡GAME OVER!",
                             message: `Winner: ${winnerName}`,
@@ -340,14 +391,14 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
                                 dispatch({ type: "MENU" });
                             }
                         });
-                    }, 50);
-                    return; 
-                }
+                    }
+                }, 50);
+                return; 
             }
             
             // 2. SEND POSITION TO SERVER
             if (mode.includes('remote')) {
-                const myPlayer = game.playerNumber === 1 ? game.player1 : game.player2;
+                const myPlayer = gameRef.current?.playerNumber === 1 ? gameRef.current?.player1 : gameRef.current?.player2;
                 
                 // --- ABSOLUTE COORDINATE CALCULATION --- 
                 // We get the paddle center in pixels 
@@ -387,6 +438,12 @@ function Canvas({ mode, dispatch, userName, opponentName = "Oponente", ballInit,
         };
     
     }, [mode, userName, opponentName, ballInit, playerSide, dispatch, roomId]); 
+
+    useEffect(() => {
+        if (!gameRef.current) return;
+        gameRef.current.setPause(chatOpen);
+        gameRef.current.chat = chatOpen;
+    }, [chatOpen]);
 
     return <canvas ref={canvasRef} className="game-canvas"/>;
 }

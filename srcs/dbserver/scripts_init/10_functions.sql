@@ -260,16 +260,78 @@ BEGIN
         p_totp_backup_codes = NULL,
         p_oauth_provider = NULL,
         p_oauth_id = NULL,
-        p_avatar_url = NULL,
+        p_avatar_url = 'deleted',
         p_profile_complete = FALSE,
         p_reg = NULL,
         p_bir = NULL,
         p_lang = NULL,
         p_country = NULL,
         p_role = 1,
-        p_status = 1
+        p_status = 6
     WHERE p_pk = player_id;
     DELETE FROM player_friend WHERE f_1 = player_id;
     DELETE FROM player_friend WHERE f_2 = player_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to get the Top N players by victories
+CREATE OR REPLACE FUNCTION get_leaderboard(limit_rows INTEGER DEFAULT 10)
+RETURNS TABLE (
+    player_id INTEGER,
+    nick VARCHAR(255),
+    avatar_url VARCHAR(500),
+    wins BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        p.p_pk AS player_id,
+        p.p_nick AS nick,
+        p.p_avatar_url AS avatar_url,
+        COUNT(m.m_pk) AS wins
+    FROM player p
+    JOIN match m ON p.p_pk = m.m_winner_fk
+    WHERE p.p_status != 6
+    GROUP BY p.p_pk, p.p_nick, p.p_avatar_url
+    ORDER BY wins DESC, p.p_pk ASC
+    LIMIT limit_rows;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_match_history(target_p_pk INTEGER, limit_rows INTEGER DEFAULT 10)
+RETURNS TABLE (
+    match_id INTEGER,
+    match_date TIMESTAMP,
+    mode_name VARCHAR(255),
+    my_score FLOAT,
+    opponent_id INTEGER,
+    opponent_nick VARCHAR(255),
+    opponent_avatar VARCHAR(500),
+    opponent_status SMALLINT,
+    opponent_score FLOAT,
+    won BOOLEAN
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        m.m_pk AS match_id,
+        m.m_date AS match_date,
+        mm.mmod_name::VARCHAR(255) AS mode_name,
+        COALESCE(cm_me.mcm_value, 0)::FLOAT AS my_score,
+        p_opp.p_pk AS opponent_id,
+        p_opp.p_nick::VARCHAR(255) AS opponent_nick,
+        p_opp.p_avatar_url::VARCHAR(500) AS opponent_avatar,
+        p_opp.p_status::SMALLINT AS opponent_status,
+        COALESCE(cm_opp.mcm_value, 0)::FLOAT AS opponent_score,
+        (m.m_winner_fk = target_p_pk) AS won
+    FROM match m
+    JOIN match_mode mm ON m.m_mode_fk = mm.mmod_pk
+    JOIN competitor c_me ON c_me.mc_match_fk = m.m_pk AND c_me.mc_player_fk = target_p_pk
+    JOIN competitor c_opp ON c_opp.mc_match_fk = m.m_pk AND c_opp.mc_player_fk != target_p_pk
+    JOIN player p_opp ON p_opp.p_pk = c_opp.mc_player_fk
+    LEFT JOIN competitormetric cm_me ON cm_me.mcm_match_fk = m.m_pk AND cm_me.mcm_player_fk = target_p_pk AND cm_me.mcm_metric_fk = 1
+    LEFT JOIN competitormetric cm_opp ON cm_opp.mcm_match_fk = m.m_pk AND cm_opp.mcm_player_fk = p_opp.p_pk AND cm_opp.mcm_metric_fk = 1
+    ORDER BY m.m_date DESC
+    LIMIT limit_rows;
 END;
 $$ LANGUAGE plpgsql;

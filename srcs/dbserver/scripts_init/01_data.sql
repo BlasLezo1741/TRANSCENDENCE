@@ -31,7 +31,8 @@ VALUES
     ('{"en":"Connected","es":"Conectado","fr":"Connecté","pt":"Conectado","ca":"Connectat"}'),
     ('{"en":"Inactive for 5 minutes","es":"Inactivo por 5 minutos","fr":"Inactif pendant 5 minutes","pt":"Inativo por 5 minutos","ca":"Inactiu durant 5 minuts"}'),
     ('{"en":"Inactive for 10 minutes","es":"Inactivo por 10 minutos","fr":"Inactif pendant 10 minutes","pt":"Inativo por 10 minutos","ca":"Inactiu durant 10 minuts"}'),
-    ('{"en":"Busy","es":"Ocupado","fr":"Occupé","pt":"Ocupado","ca":"Ocupat"}');
+    ('{"en":"Busy","es":"Ocupado","fr":"Occupé","pt":"Ocupado","ca":"Ocupat"}'),
+    ('{"en":"Deleted","es":"Borrado","fr":"Éliminé","pt":"Eliminado","ca":"Eliminat"}');;
 
 INSERT INTO P_ROLE (role_i18n_name)
 VALUES

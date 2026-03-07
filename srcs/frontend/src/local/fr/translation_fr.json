@@ -4,6 +4,7 @@
     "sel_lang": "Sélectionner la langue",
     "count": "Nous sommes ",
     "modo": "Choisir le mode de jeu:",
+    "difficulty": "Choisis difficulté",
     "juego_mode": "Mode de jeu: ",
     "Jugar": "Jouer",
     "user": "Utilisateur",
@@ -18,12 +19,13 @@
     "enviando": "Envoi en cours...",
     "bienvenido": "Bienvenue",
     "init_ses": "Se connecter",
-    "logout": "Se déconnecter",
+    "logout": "Quitter",
     "cuenta?" :"Vous n'avez pas de compte?",
     "sel_pais" : "Sélectionner le pays",
     "pass_req": "Le mot de passe doit contenir: minuscule, majuscule, chiffre et minimum 8 caractères.",
     "juegos": "Jeux",
     "enable_2fa": "Activer 2FA",
+
     "qr_setup1": "Scannez ce code QR",
     "qr_setup2": "Important:",
     "qr_setup3": "Enregistrez ce code dans votre application d'authentification (Google Authenticator, Authy, etc.) avant de fermer cette page.",
@@ -44,6 +46,15 @@
     "veri_backup": "Secours",
     "placeholder": "6 chiffres ou code de secours",
     "error": "Erreur",
+    "profile": "Profil",
+    "matchEnded": "Partie Terminée",
+    "back2Menu": "Retour au Menu Principal",
+    "privacy": 
+    {
+        "prefix": "J'ai lu et j'accepte les ",
+        "and": "et",
+        "suffix": "."
+    },
     "chat": 
     {
         "my_friends": "mes amis",
@@ -60,10 +71,10 @@
         "select": "Sélectionner",
         "cancel": "Annuler",
         "no_avatars": "Aucun avatar trouvé dans la galerie",
-        "tab_info": "Informations",
+        "tab_info": "Gérer le profil",
         "tab_friends": "Amis ({{count}})",
         "tab_requests": "Demandes",
-        "tab_stats": "Stats",
+        "tab_stats": "Statistiques",
 
         "title": "Profil utilisateur",
         "loading": "Chargement du profil...",
@@ -88,10 +99,10 @@
         "current_pass": "Mot de passe actuel",
         "current_pass_ph": "Uniquement si vous souhaitez changer le mot de passe",
         "new_pass": "Nouveau mot de passe",
-        "new_pass_ph": "Minimum 6 caractères",
+        "new_pass_ph": "Minimum 8 caractères",
         "confirm_pass": "Confirmer le nouveau mot de passe",
         "confirm_pass_ph": "Répétez le nouveau mot de passe",
-        "save_btn": "💾 Enregistrer les modifications",
+        "save_btn": "💾 Enregistrer",
 
         "avatar_update_error": "Impossible de mettre à jour l'avatar",
         "avatar_update_error2": "Erreur lors de la mise à jour de l'avatar",
@@ -121,7 +132,9 @@
         "accept_btn": "Accepter",
 
         "stats_title": "Statistiques",
-        "stats_placeholder": "Voici la page des statistiques"
+        "stats_placeholder": "Voici la page des statistiques",
+        "history": "Historique",
+        "analytics": "Analytique"
     },
     "info":
     {
@@ -134,11 +147,13 @@
     "modal":
     {
         "accept_btn": "accepter",
-        "cancel_btn": "annuler"
+        "cancel_btn": "annuler",
+        "loading": "Chargement..."
     },
     "errors": 
     {
         "userNotFound": "Utilisateur introuvable",
+        "mustAcceptTerms": "Vous devez accepter les Conditions d'utilisation et la Politique de confidentialité pour vous inscrire.",
         "invalidEmail": "Format d'e-mail invalide",
         "incorrectPassword": "Mot de passe incorrect",
         "noLowercasePassword": "Le mot de passe doit contenir au moins une minuscule",
@@ -150,6 +165,8 @@
         "userOrEmailExists": "Ce nom d'utilisateur ou cette adresse e-mail existe déjà",
         "useOAuthProvider": "Veuillez vous connecter avec votre fournisseur OAuth (42 ou Google)",
         "useOAuthProviderShort": "Veuillez vous connecter avec votre fournisseur OAuth",
+        "noAuthToken": " Jeton d'authentification manquant",
+        "sessionExpired": "Session expirée",
         "2faNotEnabled": "Le 2FA n'est pas activé pour cet utilisateur",
         "2faGenerationError": "Erreur lors de la génération du code 2FA",
         "2faVerificationError": "Erreur lors de la vérification du code 2FA",
@@ -164,7 +181,10 @@
         "profileUpdateError": "Erreur lors de la mise à jour du profil",
         "accountDeleteError": "Erreur lors de la suppression du compte",
         "connectionError": "Erreur de connexion",
-        "unknownError": "Erreur inconnue"
+        "unknownError": "Erreur inconnue",
+        "noBirthDate": "Veuillez indiquer une date de naissance valide.",
+        "birthFuture": "La date de naissance ne peut pas être dans le futur",
+        "birthTooOld": "La date de naissance ne peut pas remonter à plus de 150 ans"
     },
     "success": 
     {
@@ -175,6 +195,28 @@
         "backupCodeValidated": "Code de secours validé. Il vous reste {{count}} codes",
         "profileUpdated": "Profil mis à jour avec succès",
         "accountDeleted": "Compte supprimé avec succès"
+    },
+    "leader":
+    {
+        "top10": "Top 10 Joueurs",
+        "wins": "victoires",
+        "loading":"Chargement du classement...",
+        "noMatches": "Aucune partie enregistrée pour le moment"
+    },
+    "history":
+    {
+        "you": "Vous",
+        "loading":"Chargement de l'historique...",
+        "lastMatches": "📜 Dernières Parties",
+        "notYet": "Vous n'avez pas encore joué de partie. Trouvez un adversaire !",
+        "win": "🏆 Victoire",
+        "defeat": "❌ Défaite",
+        "deletedAccount": "Compte supprimé"
+    },
+    "oauth_terms": 
+    {
+        "title": "Une dernière étape",
+        "subtitle": "Avant de créer votre compte, veuillez lire et accepter nos conditions.",
+        "confirm_btn": "Créer un compte"
     }
-
 }

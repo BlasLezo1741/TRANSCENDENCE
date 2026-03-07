@@ -43,3 +43,11 @@
     color: black;
     margin-bottom: 5px;
 }
+/* Checkbox rows where label contains inline text + links */
+.login-btn label
+{
+    margin-left: 6px;
+    color: black;
+    cursor: pointer;
+    user-select: none;
+}

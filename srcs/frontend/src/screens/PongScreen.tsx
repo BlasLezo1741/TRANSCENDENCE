@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import Canvas from '../components/Canvas.tsx';
 import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
-import type { GameMode } from '../ts/types.ts';
+import type { GameMode, GameDifficult } from '../ts/types.ts';
 import { Countdown } from '../components/Countdown';
 import '../css/PongScreen.css';
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
+import { Leaderboard } from '../components/Leaderboard';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
+  difficult: GameDifficult;
   userName: string;
   opponentName: string;
   userAvatar?: string | null;      // Mi avatar
@@ -16,9 +18,10 @@ type PongScreenProps = ScreenProps & {
   ballInit: { x: number, y: number } | null;
   playerSide: 'left' | 'right';
   roomId: string;
+  chatOpen: boolean;
 };
 
-const PongScreen = ({ dispatch, mode, userName, opponentName, userAvatar, opponentAvatar, ballInit, playerSide, roomId }: PongScreenProps) =>
+const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAvatar, opponentAvatar, ballInit, playerSide, roomId, chatOpen }: PongScreenProps) =>
 {
   const { t } = useTranslation();
   // Si yo estoy a la izquierda: [Yo] vs [Rival]
@@ -38,6 +41,15 @@ const PongScreen = ({ dispatch, mode, userName, opponentName, userAvatar, oppone
 
 
   const [isCountingDown, setIsCountingDown] = useState(true);
+
+  // Para las estadisticas
+  const [gameOver, setGameOver] = useState(false);
+  //const [showLeaderboard, setShowLeaderboard] = useState(false);
+
+  //Funcion stadisticas
+  const handleGameOver = () => {
+    setGameOver(true);
+  };
 
 return (
     <div className="game">
@@ -81,22 +93,99 @@ return (
           </div>
       </div>
       
-      {/* ... (Resto del Canvas y Countdown sigue igual) ... */}
       <div style={{ position: 'relative', width: '800px', height: '600px' }}>
-          {isCountingDown && (
+          {isCountingDown && !gameOver && (
               <Countdown onComplete={() => setIsCountingDown(false)} />
           )}
 
           <Canvas
             mode={mode}
+            difficult={difficult}
             dispatch={dispatch}
             userName={userName}
             opponentName={opponentName}
             ballInit={ballInit}
             playerSide={playerSide} 
             roomId={roomId}
-            isGameActive={!isCountingDown}
+            isGameActive={!isCountingDown && !gameOver}
+            onGameOver={handleGameOver} // Pasamos la función al Canvas
+            chatOpen={chatOpen}
           />
+
+          {/* NUEVO MODAL DE FIN DE PARTIDA */}
+          {gameOver && (
+              <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'rgba(0,0,0,0.85)', // Un poco más oscuro para que resalte
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 50,
+                  color: 'white'
+              }}>
+                  <h1 style={{ fontSize: '3rem', marginBottom: '10px', color: '#4ade80' }}>
+                      {t('matchEnded')}
+                  </h1>
+                  
+                  {/* Mostramos el ranking directamente si es remoto */}
+                  {mode.includes('remote') && (
+                      <div style={{ 
+                          maxHeight: '350px', 
+                          overflowY: 'auto', 
+                          marginBottom: '20px', 
+                          width: '100%', 
+                          display: 'flex', 
+                          justifyContent: 'center' 
+                      }}>
+                          <Leaderboard />
+                      </div>
+                  )}
+                  
+                  {/* Botón de volver al menú destacado */}
+                  <button 
+                      onClick={() => dispatch({ type: "MENU" })} 
+                      style={{
+                          backgroundColor: '#1f2937', // Fondo oscuro
+                          color: '#d1d5db', // Texto claro
+                          border: '1px solid #4b5563',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontSize: '1.1rem',
+                          fontWeight: 'bold',
+                          marginTop: '20px', // Un poco más de espacio arriba
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                          transition: 'all 0.2s ease',
+                          
+                          display: 'flex',             // Convierte el botón en una caja flexible
+                          alignItems: 'center',        // Centra el texto verticalmente
+                          justifyContent: 'center',    // Centra el texto horizontalmente
+                          padding: '15px 40px',        // Padding generoso para que respire
+                          whiteSpace: 'nowrap',        // Mantiene el texto en una línea
+                          width: 'auto',               // Deja que el ancho se adapte al contenido
+                          minWidth: '250px'            // Un ancho mínimo para que tenga presencia
+                      }}
+                      onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = '#374151';
+                          e.currentTarget.style.color = 'white';
+                          e.currentTarget.style.borderColor = '#6b7280';
+                          e.currentTarget.style.transform = 'translateY(-2px)'; // Pequeño efecto de elevación
+                      }}
+                      onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = '#1f2937';
+                          e.currentTarget.style.color = '#d1d5db';
+                          e.currentTarget.style.borderColor = '#4b5563';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                  >
+                      {t('back2Menu')}
+                  </button>
+              </div>
+          )}
       </div>
     </div>
   );

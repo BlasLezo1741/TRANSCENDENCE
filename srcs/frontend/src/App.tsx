@@ -1,7 +1,7 @@
 import { useReducer, useState, useEffect } from 'react';
 import { screenReducer } from './ts/screenConf/screenReducer.ts';
 
-import type { Screen, GameMode } from "./ts/types.ts"
+import type { Screen, GameMode, GameDifficult } from "./ts/types.ts"
 
 import MenuScreen from './screens/MenuScreen.tsx'
 import SignScreen from './screens/SignScreen.tsx'
@@ -9,13 +9,13 @@ import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
-import SettingsScreen from './screens/SettingsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
+import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
 
 import Header from './components/Header.tsx'
 import Footer from './components/Footer.tsx'
 import { socket, connectSocket, setMatchData } from './services/socketService';
-import { ChatSidebar } from './components/ChatSidebar';
+import { ChatSidebar } from './components/ChatSidebar.tsx';
 import { getMyProfile } from './services/user.service';
 
 import "./css/App.css";
@@ -44,6 +44,7 @@ function App()
   // real avatarUrl has been fetched from the API.
   const [profileSynced, setProfileSynced] = useState<boolean>(!savedUserNick);
   const [mode, setMode] = useState<GameMode>("ia");
+  const [difficult, setDifficult] = useState<GameDifficult>("");
   //ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
   //AVATAR
@@ -54,8 +55,16 @@ function App()
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
   const [option, setOption] = useState<string>("");
 
+  const [ia, setIa] = useState<boolean>(false);
+  const [chatOpen, setChatOpen] = useState<boolean>(false);
+
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
+
+  // Pending OAuth token (new OAuth user who hasn't accepted terms yet)
+  const [pendingOAuthToken, setPendingOAuthToken] = useState<string>("");
+  // Error message coming back from OAuth callback (e.g. email conflict)
+  const [oauthError, setOAuthError] = useState<string>("");
 
   // 🔥 ESTADO PARA LA INVITACIÓN MODAL
   const [inviteRequest, setInviteRequest] = useState<{fromUserId: number, fromUserName: string} | null>(null);
@@ -105,6 +114,22 @@ function App()
       } catch (err) {
         console.error("❌ Error processing OAuth token:", err);
       }
+    }
+
+    // New OAuth user → show terms acceptance screen before creating account
+    const pendingToken = params.get('oauth_pending');
+    if (pendingToken) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setPendingOAuthToken(pendingToken);
+      dispatch({ type: "OAUTH_TERMS" });
+    }
+
+    // OAuth callback error (e.g. email already registered under a different account)
+    const oauthError = params.get('oauth_error');
+    if (oauthError) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setOAuthError(decodeURIComponent(oauthError));
+      dispatch({ type: "LOGIN" });
     }
   }, []); // Run only once on mount
 
@@ -284,12 +309,21 @@ const handleInviteResponse = (accept: boolean) => {
 // --- RENDERIZADO DE PANTALLAS ---
 function renderScreen()
   {
+    document.body.classList.remove("scroll");
+
     switch (screen)
     {
       case "menu":
+
+        document.body.classList.add("scroll");
+
         return <MenuScreen 
-          dispatch={dispatch} 
-          setMode={setMode} 
+          dispatch={dispatch}
+          ia={ia}
+          setIa={setIa}
+          mode={mode}
+          setMode={setMode}
+          setDifficult={setDifficult}
           userName={currentUser} 
           setOpponentName={setOpponentName} // <--- NUEVO
           setPlayerSide={setPlayerSide}     // <--- NUEVO
@@ -301,7 +335,7 @@ function renderScreen()
       case "login":
         //return <LoginScreen dispatch={dispatch} />;
         // Pasamos 'setCurrentUser' para que el Login pueda actualizar el estado de App
-        return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} />;
+        return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} oauthError={oauthError} clearOAuthError={() => setOAuthError("")} />;
       case "pong":
         // 1. Calcular MI avatar (Si soy null)
         const finalUserAvatar = currentUserAvatarUrl || (currentUserId ? getDefaultAvatar(currentUserId) : null);
@@ -311,17 +345,22 @@ function renderScreen()
         
         // Usamos 'as any' para evitar líos de tipos si TypeScript se queja
         const PongScreenComp = PongScreen as any;
+
+        if (mode === "remote")
+          setChatOpen("false");
         
         return <PongScreenComp
           dispatch={dispatch}
           mode={mode}
+          difficult={difficult}
           userName={currentUser}
           opponentName={opponentName}
           userAvatar={finalUserAvatar} 
           opponentAvatar={finalOpponentAvatar}
           ballInit={ballInit}
           playerSide={playerSide}
-          roomId={roomId} 
+          roomId={roomId}
+          chatOpen={chatOpen}
         />;
         case "profile":
           return <ProfileScreen
@@ -331,10 +370,14 @@ function renderScreen()
           />; // added to update the Header instantly in case of change of nick/avatar
         case "stats":
           return <StatsScreen />;
-        case "settings":
-          return <SettingsScreen />;
         case "info":
-          return <InfoScreen dispatch={dispatch} option={option} />; 
+          return <InfoScreen dispatch={dispatch} option={option} />;
+        case "oauth_terms":
+          return <OAuthTermsScreen
+            dispatch={dispatch}
+            pendingToken={pendingOAuthToken}
+            setGlobalUser={setCurrentUser}
+          />;
         default:
           return null;
     }
@@ -342,7 +385,7 @@ function renderScreen()
 
   return (
     <div className="app">
-      {currentUser && <ChatSidebar />}
+      {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
       {/* 🔥🔥 MODAL DE INVITACIÓN - ESTILOS INLINE PARA RAPIDEZ 🔥🔥 */}
       {inviteRequest && (
           <div style={{
@@ -383,7 +426,7 @@ function renderScreen()
           </div>
       )}
 
-      <Header dispatch={dispatch} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
+      <Header dispatch={dispatch} setIa={setIa} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
       <main>{renderScreen()}</main>
       <Footer dispatch={dispatch} setOption={setOption}/>
     </div>

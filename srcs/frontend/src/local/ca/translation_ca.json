@@ -5,6 +5,7 @@
     "count": "Som ",
     "modo": "Tria el mode de joc",
     "juego_mode": "Mode de joc: ",
+    "difficulty": "Tria dificultat",
     "Jugar": "Jugar",
     "user": "Usuari",
     "crear_cuenta": "Crear un compte",
@@ -24,6 +25,7 @@
     "pass_req": "La contrasenya ha de tenir: minúscula, majúscula, número i mínim 8 caràcters.",
     "juegos": "Jocs",
     "enable_2fa": "Habilitar 2FA",
+
     "qr_setup1": "Escaneja aquest codi QR",
     "qr_setup2": "Important:",
     "qr_setup3": "Guarda aquest codi a la teva aplicació d'autenticació (Google Authenticator, Authy, etc.) abans de tancar aquesta pàgina.",
@@ -44,6 +46,15 @@
     "veri_backup": "Respaldo",
     "placeholder": "6 dígits o codi respaldo",
     "error": "Error",
+    "profile": "Perfil",
+    "matchEnded": "Partida Acabada",
+    "back2Menu": "Tornar al Menú Principal",
+    "privacy": 
+    {
+        "prefix": "He llegit i accepto els ",
+        "and": "i",
+        "suffix": "."
+    },
     "chat": 
     {
         "my_friends": "els meus amics",
@@ -60,10 +71,10 @@
         "select": "Seleccionar",
         "cancel": "Cancel·lar",
         "no_avatars": "No s'han trobat avatars a la galeria",
-        "tab_info": "Dades",
+        "tab_info": "Gestionar el perfil",
         "tab_friends": "Amics ({{count}})",
         "tab_requests": "Sol·licituds",
-        "tab_stats": "Stats",
+        "tab_stats": "Estadístiques",
 
         "title": "Perfil d'usuari",
         "loading": "Carregant perfil...",
@@ -88,10 +99,10 @@
         "current_pass": "Contrasenya Actual",
         "current_pass_ph": "Només si vols canviar la contrasenya",
         "new_pass": "Nova Contrasenya",
-        "new_pass_ph": "Mínim 6 caràcters",
+        "new_pass_ph": "Mínim 8 caràcters",
         "confirm_pass": "Confirmar Nova Contrasenya",
         "confirm_pass_ph": "Repeteix la nova contrasenya",
-        "save_btn": "💾 Desar Canvis",
+        "save_btn": "💾 Desar",
 
         "avatar_update_error": "No s'ha pogut actualitzar l'avatar",
         "avatar_update_error2": "Error en actualitzar l'avatar",
@@ -121,7 +132,9 @@
         "accept_btn": "Acceptar",
 
         "stats_title": "Estadístiques",
-        "stats_placeholder": "Aquesta és la pàgina d'estadístiques"
+        "stats_placeholder": "Aquesta és la pàgina d'estadístiques",
+        "history": "Historial",
+        "analytics": "Analítica"
     },
     "info":
     {
@@ -134,11 +147,13 @@
     "modal":
     {
         "accept_btn": "acceptar",
-        "cancel_btn": "cancel·lar"
+        "cancel_btn": "cancel·lar",
+        "loading": "Carregant..."
     },
     "errors": 
     {
         "userNotFound": "Usuari no trobat",
+        "mustAcceptTerms": "Cal acceptar els Termes d'ús i la Política de privacitat per registrar-se.",
         "invalidEmail": "Format d'e-mail no vàlid",
         "incorrectPassword": "Contrasenya incorrecta",
         "noLowercasePassword": "La contrasenya ha de contenir almenys una lletra minúscula",
@@ -150,6 +165,8 @@
         "userOrEmailExists": "L'usuari o el correu electrònic ja existeix",
         "useOAuthProvider": "Si us plau, inicia sessió amb el teu proveïdor OAuth (42 o Google)",
         "useOAuthProviderShort": "Si us plau, inicia sessió amb el teu proveïdor OAuth",
+        "noAuthToken": "Falta el token d'autenticació",
+        "sessionExpired": "Sessió expirada",
         "2faNotEnabled": "El 2FA no està activat per a aquest usuari",
         "2faGenerationError": "Error en generar el codi 2FA",
         "2faVerificationError": "Error en verificar el codi 2FA",
@@ -164,7 +181,10 @@
         "profileUpdateError": "Error en actualitzar el perfil",
         "accountDeleteError": "Error en eliminar el compte",
         "connectionError": "Error de connexió",
-        "unknownError": "Error desconegut"
+        "unknownError": "Error desconegut",
+        "noBirthDate": "Si us plau, introdueix una data de naixement vàlida.",
+        "birthFuture": "La data de naixement no pot ser futura",
+        "birthTooOld": "La data de naixement no pot ser anterior a 150 anys"
     },
     "success": 
     {
@@ -175,5 +195,28 @@
         "backupCodeValidated": "Codi de seguretat validat. Et queden {{count}} codis",
         "profileUpdated": "Perfil actualitzat correctament",
         "accountDeleted": "Compte eliminat correctament"
+    },
+    "leader":
+    {
+        "top10": "Top 10 Jugadors",
+        "wins": "victòries",
+        "loading":"Carregant el rànquing...",
+        "noMatches": "No hi ha partides registrades encara"
+    },
+    "history":
+    {
+        "you": "Tu",
+        "loading":"Carregant l'historial...",
+        "lastMatches": "📜 Últimes Partides",
+        "notYet": "Encara no has jugat cap partida. Busca un rival!",
+        "win": "🏆 Victòria",
+        "defeat": "❌ Derrota",
+        "deletedAccount": "Compte eliminat"
+    },
+    "oauth_terms": 
+    {
+        "title": "Un últim pas",
+        "subtitle": "Abans de crear el teu compte, si us plau, llegeix i accepta els nostres termes.",
+        "confirm_btn": "Crear compte"
     }
 }

@@ -1,18 +1,30 @@
 - CHAT
-
-    - Quitar espacio reservado del profile y del footer
-    - Cerrar el chat cuando vayas al PongScren
-    - En local y ia si abres el chat poner pausa
     - En remoto el chat no se puede abrir
 
-- Meter todo el css en archivos .css
+- CSS
 
-- Hacer responsive la web para todos los sizes
+    - Pasar todo el css a archivos .css
+    - Hacer responsive la pagina para los sizes
+    - Css QR y los otros
+    - Redondear todo
+    - Sombras
 
-- Css QR y las otras cosas
 
-- Mirar los scrolls
+Tailwind componentes
 
-- Pasar a otros idiomas el infoscreen
+    Header
+        - Header
+    Main
+        - MenuScreen
+        - PongScreen
+        - ProfileScreen
+        - LoginScreen
+        - SignScreen
+        - InfoScreen
+    Footer
+        - Footer
 
-- En la IA: Hacer dificultad: cambiar texto y meter imagenes (cambiar el size del player)
+    Section
+
+    Objects
+

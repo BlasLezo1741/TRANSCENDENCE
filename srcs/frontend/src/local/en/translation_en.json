@@ -4,6 +4,7 @@
     "sel_lang": "Select language",
     "count": "We are ",
     "modo": "Choose game mode",
+    "difficulty": "Choose difficulty",
     "juego_mode": "Game mode: ",
     "Jugar": "Play",
     "user": "Username",
@@ -24,6 +25,7 @@
     "pass_req": "Password must have: lowercase, uppercase, number and minimum 8 characters.",
     "juegos": "Games",
     "enable_2fa": "Enable 2FA",
+
     "qr_setup1": "Scan this QR code",
     "qr_setup2": "Important:",
     "qr_setup3": "Save this code in your authentication app (Google Authenticator, Authy, etc.) before closing this page.",
@@ -44,6 +46,15 @@
     "veri_backup": "Backup",
     "placeholder": "6 digits or backup code",
     "error": "Error",
+    "profile": "Profile",
+    "matchEnded": "Match Ended",
+    "back2Menu": "Back to Main Menu",
+    "privacy": 
+    {
+        "prefix": "I have read and agree to the",
+        "and": "and",
+        "suffix": "."
+    },
     "chat": 
     {
         "my_friends": "my friends",
@@ -60,10 +71,10 @@
         "select": "Select",
         "cancel": "Cancel",
         "no_avatars": "No avatars found in the gallery",
-        "tab_info": "Info",
+        "tab_info": "Manage the profile",
         "tab_friends": "Friends ({{count}})",
         "tab_requests": "Requests",
-        "tab_stats": "Stats",
+        "tab_stats": "Statistics",
 
         "title": "User Profile",
         "loading": "Loading profile...",
@@ -88,10 +99,10 @@
         "current_pass": "Current Password",
         "current_pass_ph": "Only if you want to change your password",
         "new_pass": "New Password",
-        "new_pass_ph": "Minimum 6 characters",
+        "new_pass_ph": "Minimum 8 characters",
         "confirm_pass": "Confirm New Password",
         "confirm_pass_ph": "Repeat new password",
-        "save_btn": "Save Changes",
+        "save_btn": "💾 Save",
 
         "avatar_update_error": "Could not update avatar",
         "avatar_update_error2": "Error updating avatar",
@@ -121,7 +132,9 @@
         "accept_btn": "Accept",
 
         "stats_title": "Statistics",
-        "stats_placeholder": "This is the stats page"
+        "stats_placeholder": "This is the stats page",
+        "history": "History",
+        "analytics": "Analytics"
     },
     "info":
     {
@@ -134,11 +147,13 @@
     "modal":
     {
         "accept_btn": "accept",
-        "cancel_btn": "cancel"
+        "cancel_btn": "cancel",
+        "loading": "Loading..."
     },
     "errors": 
     {
         "userNotFound": "User not found",
+        "mustAcceptTerms": "You must accept the Terms of Use and Privacy Policy to register.",
         "invalidEmail": "Invalid e-mail format",
         "incorrectPassword": "Incorrect password",
         "noLowercasePassword": "Password must contain at least one lowercase letter",
@@ -150,6 +165,8 @@
         "userOrEmailExists": "Username or em-ail already exists",
         "useOAuthProvider": "Please log in with your OAuth provider (42 or Google)",
         "useOAuthProviderShort": "Please log in with your OAuth provider",
+        "noAuthToken": "Missing authentication token",
+        "sessionExpired": "Session expired",
         "2faNotEnabled": "2FA is not enabled for this user",
         "2faGenerationError": "Error generating the 2FA code",
         "2faVerificationError": "Error verifying the 2FA code",
@@ -164,7 +181,10 @@
         "profileUpdateError": "Error updating the profile",
         "accountDeleteError": "Error deleting the account",
         "connectionError": "Connection error",
-        "unknownError": "Unknown error"
+        "unknownError": "Unknown error",
+        "noBirthDate": "Please provide a valid date of birth",
+        "birthFuture": "Date of birth cannot be in the future",
+        "birthTooOld": "Date of birth cannot be more than 150 years ago"
     },
     "success": 
     {
@@ -175,5 +195,28 @@
         "backupCodeValidated": "Backup code validated. You have {{count}} codes remaining",
         "profileUpdated": "Profile updated successfully",
         "accountDeleted": "Account deleted successfully"
+    },
+    "leader":
+    {
+        "top10": "Top 10 Players",
+        "wins": "wins",
+        "loading":"Loading leaderboard...",
+        "noMatches": "No matches found yet"
+    },
+    "history":
+    {
+        "you": "You",
+        "loading":"Loading history...",
+        "lastMatches": "📜 Last Matches",
+        "notYet": "You haven't played any matches yet. Find an opponent!",
+        "win": "🏆 Win",
+        "defeat": "❌ Defeat",
+        "deletedAccount": "Deleted account"
+    },
+    "oauth_terms": 
+    {
+        "title": "One last step",
+        "subtitle": "Before we create your account, please read and accept our terms.",
+        "confirm_btn": "Create account"
     }
 }

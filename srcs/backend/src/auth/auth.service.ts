@@ -312,17 +312,15 @@ async verifyBackupCode(
 
   // ==================== OAUTH AUTHENTICATION ====================
   
-  // Find or create OAuth user
-  async findOrCreateOAuthUser(oauthData: {
+  // Find existing OAuth user (does NOT create)
+  // Returns the user if found, null if new, or throws ConflictException if
+  // the email is already registered under a different account.
+  async findOAuthUser(oauthData: {
     oauthId: string;
     oauthProvider: string;
     email: string;
-    nick: string;
-    avatarUrl?: string;
-    lang?: string;
-    country?: string;
   }) {
-    // Check if user exists by OAuth ID
+    // 1. Check by OAuth identity first (returning user)
     const existingUser = await this.db
       .select()
       .from(player)
@@ -334,10 +332,32 @@ async verifyBackupCode(
       )
       .limit(1);
 
-    if (existingUser.length > 0) {
-      return existingUser[0];
+    if (existingUser.length > 0) return existingUser[0];
+
+    // 2. New OAuth identity — check for email conflict before issuing a pending token
+    const emailExists = await this.db
+      .select()
+      .from(player)
+      .where(eq(player.pMail, oauthData.email))
+      .limit(1);
+
+    if (emailExists.length > 0) {
+      throw new ConflictException('Email already registered in other account');
     }
 
+    return null;
+  }
+
+  // Create a new OAuth user (called only after terms acceptance)
+  async createOAuthUser(oauthData: {
+    oauthId: string;
+    oauthProvider: string;
+    email: string;
+    nick: string;
+    avatarUrl?: string;
+    lang?: string;
+    country?: string;
+  }) {
     // Check if email is already used
     const emailExists = await this.db
       .select()
@@ -361,9 +381,7 @@ async verifyBackupCode(
       finalNick = `${oauthData.nick}_${Math.floor(Math.random() * 10000)}`;
     }
 
-    //const hasProfileInfo = oauthData.lang && oauthData.country;
-    // Create new user
-    let now = new Date().toISOString();
+    const now = new Date().toISOString();
     const newUser = await this.db
       .insert(player)
       .values({
@@ -378,7 +396,7 @@ async verifyBackupCode(
         pAvatarUrl: oauthData.avatarUrl,
         pLang: oauthData.lang || 'ca',
         pCountry: oauthData.country || 'FR',
-        pProfileComplete: false,
+        pProfileComplete: true, // Terms accepted at creation
         pReg: now,
         pRole: 1,
         pStatus: 1,
@@ -386,6 +404,21 @@ async verifyBackupCode(
       .returning();
 
     return newUser[0];
+  }
+
+  // Keep legacy alias so nothing else breaks if called elsewhere
+  async findOrCreateOAuthUser(oauthData: {
+    oauthId: string;
+    oauthProvider: string;
+    email: string;
+    nick: string;
+    avatarUrl?: string;
+    lang?: string;
+    country?: string;
+  }) {
+    const existing = await this.findOAuthUser(oauthData);
+    if (existing) return existing;
+    return this.createOAuthUser(oauthData);
   }
 
   // ==================== PROFILE COMPLETION ====================
@@ -428,6 +461,48 @@ async verifyBackupCode(
     };
 
     return this.jwtService.sign(payload, { expiresIn: '15m' });
+  }
+
+  // Generate a short-lived pending token carrying the OAuth profile (no DB write yet)
+  generatePendingOAuthToken(oauthData: {
+    oauthId: string;
+    oauthProvider: string;
+    email: string;
+    nick: string;
+    avatarUrl?: string;
+    lang?: string;
+    country?: string;
+  }) {
+    const payload = {
+      oauth_pending: true,
+      oauthId: oauthData.oauthId,
+      oauthProvider: oauthData.oauthProvider,
+      email: oauthData.email,
+      nick: oauthData.nick,
+      avatarUrl: oauthData.avatarUrl,
+      lang: oauthData.lang,
+      country: oauthData.country,
+    };
+    return this.jwtService.sign(payload, { expiresIn: '10m' });
+  }
+
+  // Verify and decode a pending OAuth token; returns null if invalid/expired
+  verifyPendingOAuthToken(token: string) {
+    try {
+      const payload = this.jwtService.verify(token) as any;
+      if (!payload.oauth_pending) return null;
+      return {
+        oauthId: payload.oauthId,
+        oauthProvider: payload.oauthProvider,
+        email: payload.email,
+        nick: payload.nick,
+        avatarUrl: payload.avatarUrl,
+        lang: payload.lang,
+        country: payload.country,
+      };
+    } catch {
+      return null;
+    }
   }
 
   // ==================== USER UTILITIES ====================

@@ -4,6 +4,7 @@
     "sel_lang": "Selecciona el idioma",
     "count": "Somos ",
     "modo": "Elige el modo de juego",
+    "difficulty": "Escoge dificultad",
     "juego_mode": "Modo de juego: ",
     "Jugar": "Jugar",
     "user": "Usuario",
@@ -24,6 +25,7 @@
     "pass_req": "La contraseña debe tener: minúscula, mayúscula, número y mínimo 8 caracteres.",
     "juegos": "Juegos",
     "enable_2fa": "Habilitar 2FA",
+
     "qr_setup1": "Escanea este código QR",
     "qr_setup2": "Importante:",
     "qr_setup3": "Guarda este código en tu aplicación de autenticación (Google Authenticator, Authy, etc.) antes de cerrar esta página.",
@@ -44,6 +46,15 @@
     "veri_backup": "Respaldo",
     "placeholder": "6 dígitos o código respaldo",
     "error": "Error",
+    "profile": "Perfil",
+    "matchEnded": "Partida Terminada",
+    "back2Menu": "Volver al Menú Principal",
+    "privacy": 
+    {
+        "prefix": "He leído y acepto los ",
+        "and": "y",
+        "suffix": "."
+    },
     "chat": 
     {
         "my_friends": "mis amigos",
@@ -60,10 +71,10 @@
         "select": "Seleccionar",
         "cancel": "Cancelar",
         "no_avatars": "No se encontraron avatares en la galería",
-        "tab_info": "Datos",
+        "tab_info": "Gestionar el perfil",
         "tab_friends": "Amigos ({{count}})",
         "tab_requests": "Solicitudes",
-        "tab_stats": "Stats",
+        "tab_stats": "Estadísticas",
 
         "title": "Perfil de usuario",
         "loading": "Cargando perfil...",
@@ -88,10 +99,10 @@
         "current_pass": "Contraseña Actual",
         "current_pass_ph": "Solo si quieres cambiar la contraseña",
         "new_pass": "Nueva Contraseña",
-        "new_pass_ph": "Mínimo 6 caracteres",
+        "new_pass_ph": "Mínimo 8 caracteres",
         "confirm_pass": "Confirmar Nueva Contraseña",
         "confirm_pass_ph": "Repite la nueva contraseña",
-        "save_btn": "💾 Guardar Cambios",
+        "save_btn": "💾 Guardar",
 
         "avatar_update_error": "No se pudo actualizar el avatar",
         "avatar_update_error2": "Error al actualizar el avatar",
@@ -121,7 +132,9 @@
         "accept_btn": "Aceptar",
 
         "stats_title": "Estadísticas",
-        "stats_placeholder": "Esta es la página de stats"
+        "stats_placeholder": "Esta es la página de stats",
+        "history": "Historial",
+        "analytics": "Analítica"
     },
     "info":
     {
@@ -134,11 +147,13 @@
     "modal":
     {
         "accept_btn": "aceptar",
-        "cancel_btn": "cancelar"
+        "cancel_btn": "cancelar",
+        "loading": "Cargando..."
     },
     "errors": 
     {
         "userNotFound": "Usuario no encontrado",
+        "mustAcceptTerms": "Es necesario aceptar los Términos de uso y la Política de privacidad para registrarse.",
         "invalidEmail": "Formato de e-mail incorrecto",
         "incorrectPassword": "Contraseña incorrecta",
         "noLowercasePassword": "La contraseña debe contener al menos una letra minúscula",
@@ -150,6 +165,8 @@
         "userOrEmailExists": "El usuario o el correo electrónico ya existe",
         "useOAuthProvider": "Por favor, inicia sesión con tu proveedor OAuth (42 o Google)",
         "useOAuthProviderShort": "Por favor, inicia sesión con tu proveedor OAuth",
+        "noAuthToken": "Falta el token de autenticación",
+        "sessionExpired": "Sesión expirada",
         "2faNotEnabled": "El 2FA no está activado para este usuario",
         "2faGenerationError": "Error al generar el código 2FA",
         "2faVerificationError": "Error al verificar el código 2FA",
@@ -164,7 +181,10 @@
         "profileUpdateError": "Error al actualizar el perfil",
         "accountDeleteError": "Error al eliminar la cuenta",
         "connectionError": "Error de conexión",
-        "unknownError": "Error desconocido"
+        "unknownError": "Error desconocido",
+        "noBirthDate": "Por favor, introduce una fecha de nacimiento válida.",
+        "birthFuture": "La fecha de nacimiento no puede ser futura",
+        "birthTooOld": "La fecha de nacimiento no puede ser anterior a 150 años"
     },
     "success": 
     {
@@ -175,5 +195,28 @@
         "backupCodeValidated": "Código de respaldo validado. Te quedan {{count}} códigos",
         "profileUpdated": "Perfil actualizado correctamente",
         "accountDeleted": "Cuenta eliminada correctamente"
+    },
+    "leader":
+    {
+        "top10": "Top 10 Jugadores",
+        "wins": "victorias",
+        "loading":"Cargando ranking...",
+        "noMatches": "No hay partidas registradas aún."
+    },
+    "history":
+    {
+        "you": "Tú",
+        "loading":"Cargando historial...",
+        "lastMatches": "📜 Últimas Partidas",
+        "notYet": "No has jugado ninguna partida aún. ¡Busca un rival!",
+        "win": "🏆 Victoria",
+        "defeat": "❌ Derrota",
+        "deletedAccount": "Cuenta eliminada"
+    },
+    "oauth_terms": 
+    {
+        "title": "Un último paso",
+        "subtitle": "Antes de crear tu cuenta, por favor, lee y acepta nuestros términos.",
+        "confirm_btn": "Crear cuenta"
     }
 }
