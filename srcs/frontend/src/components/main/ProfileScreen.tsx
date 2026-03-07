@@ -27,10 +27,15 @@ import { Avatar } from '../section/Avatar';
 import { AvatarSelector } from '../section/AvatarSelector';
 import { firstcap } from '../../ts/utils/string';
 import { sentence  } from '../../ts/utils/string';
-import "../../css/ProfileScreen.css";
 import { getAvatarUrlById, getDefaultAvatar } from '../../assets/avatars';
 import { Leaderboard } from '../section/Leaderboard';
 import { MatchHistory } from '../section/MatchHistory';
+
+import Btn from '../objects/Btn.tsx';
+import Li from '../objects/Li.tsx';
+import Input from '../objects/Input.tsx';
+import Label from '../objects/Label.tsx';
+import Select from '../objects/Select.tsx';
 
 // To update header if user changes the nick
 interface ProfileScreenProps {
@@ -583,27 +588,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             alt={userProfile.nick}
                         />
                         
-                        <div style={{ marginTop: '15px' }}>
-                            <button
-                                onClick={() => {
-                                    console.log("🖼️ [ProfileScreen] Opening avatar selector");
-                                    setIsSelectingAvatar(true);
-                                }}
-                                style={{
-                                    width: '200px',
-                                    padding: '8px 20px',
-                                    fontSize: '14px',
-                                    borderRadius: '5px',
-                                    border: '1px solid #4CAF50',
-                                    backgroundColor: 'white',
-                                    color: '#4CAF50',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                {t('prof.edit_image')}
-                            </button>
-                        </div>
+                        <Btn msg={t('prof.edit_image')} onClick={setIsSelectingAvatar(true)} />
                     </div>
 
                 {!isEditing ? (
@@ -635,45 +620,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             </div>
                         )}
 
-                        <button
-                                onClick={() => {
-                                console.log("✏️ [InfoScreen] Entering edit mode");
-                                setIsEditing(true);
-                                }}
-                                style={{
-                                    width: '200px',
-                                    padding: '8px 20px',
-                                    marginTop: '20px',
-                                    fontSize: '14px',
-                                    borderRadius: '5px',
-                                    border: '1px solid #4CAF50',
-                                    backgroundColor: 'white',
-                                    color: '#4CAF50',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                            {t('prof.edit_btn')} {/* Added Translation key */}
-                        </button>
-                        <button
-                                onClick={() => {
-                                    handleDeleteAccount();
-                                }}
-                                style={{
-                                    width: '200px',
-                                    padding: '8px 20px',
-                                    marginLeft: '5px',
-                                    fontSize: '14px',
-                                    borderRadius: '5px',
-                                    border: '1px solid #D93814',
-                                    backgroundColor: 'white',
-                                    color: '#D93814',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                {sentence(t('prof.delete_btn'))} {/* Added Translation key */}
-                        </button>
+                        <Btn msg={t('prof.edit_btn')} onClick={setIsEditing(true)} />
+                        <Btn msg={sentence(t('prof.delete_btn'))} onClick={handleDeleteAccount} />
                     </>
                 ) : (
                     // MODO EDICIÓN
@@ -683,75 +631,57 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         </div>
 
                         <div style={{ marginBottom: '15px' }}>
-                            <label>
-                                <strong>{t('user')}:</strong>
-                                <input
-                                    type="text"
-                                    value={editForm.nick}
-                                    onChange={(e) => setEditForm({ ...editForm, nick: e.target.value })}
-                                    style={{ width: '100%', marginTop: '5px' }}
-                                />
-                            </label>
+                            <strong>{t('user')}:</strong>
+                            <Input
+                                value={editForm.nick}
+                                onChange={(value) => setEditForm({ ...editForm, nick: value })}/>
                         </div>
 
                         <div style={{ marginBottom: '15px' }}>
-                            <label>
-                                <strong>Email:</strong>
-                                <input
-                                    type="email"
-                                    value={editForm.email}
-                                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                    style={{ width: '100%', marginTop: '5px' }}
-                                />
-                            </label>
+                            <strong>Email:</strong>
+                            <Input
+                                type="email"
+                                value={editForm.email}
+                                onChange={(value) => setEditForm({ ...editForm, email: value })}/>
                         </div>
 
                         <div style={{ marginBottom: '15px' }}>
-                            <label>
-                                <strong>{t('cumple')}:</strong> {/* Added Translation key */}
-                                <input
-                                    type="date"
-                                    value={editForm.birth}
-                                    onChange={(e) => setEditForm({ ...editForm, birth: e.target.value })}
-                                    style={{ width: '100%', marginTop: '5px' }}
-                                />
-                            </label>
+                            <strong>{t('cumple')}:</strong> {/* Added Translation key */}
+                            <Input
+                                type="date"
+                                value={editForm.birth}
+                                onChange={(value) => setEditForm({ ...editForm, birth: value })}/>
                         </div>
 
                         <div style={{ marginBottom: '15px' }}>
-                            <label>
-                                <strong>{t('prof.field_country')}:</strong> {/* Added Translation key */}
-                                <select
-                                    value={editForm.country}
-                                    onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
-                                    style={{ width: '100%', marginTop: '5px' }}
-                                    disabled={isLoadingCountries}>
-                                    <option value="">
-                                        {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')} {/* Added Translation key */}
-                                    </option>
-                                    {countries.map((c) => (
-                                        <option key={c.coun2_pk} value={c.coun2_pk}>
-                                            {c.coun_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
+                            <strong>{t('prof.field_country')}:</strong> {/* Added Translation key */}
+                            <Select
+                                value={editForm.country}
+                                onChange={(value) => setEditForm({ ...editForm, country: value })}
+                                disabled={isLoadingCountries}
+                                options={[
+                                    { value: "", label: isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country') },
+                                    ...countries.map((c) => ({
+                                        value: c.coun2_pk,
+                                        label: c.coun_name
+                                    }))
+                                ]}
+                            />                            
                         </div>
 
                         <div style={{ marginBottom: '15px' }}>
-                            <label>
-                                <strong>{t('lang')}:</strong> {/* Added Translation key */}
-                                <select
-                                    value={editForm.lang}
-                                    onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}    
-                                    style={{ width: '100%', marginTop: '5px' }}>
-                                    <option value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
-                                    <option value="es">Español</option>
-                                    <option value="ca">Català</option>
-                                    <option value="en">English</option>
-                                    <option value="fr">Français</option>
-                                </select>
-                            </label>
+                            <strong>{t('lang')}:</strong> {/* Added Translation key */}
+                            <Select
+                                value={editForm.lang} 
+                                onChange={(value) => setEditForm({ ...editForm, lang: value })}
+                                options={[
+                                    { value: "", label: t("prof.sel_lang") },
+                                    { value: "es", label: "Español" },
+                                    { value: "ca", label: "Català" },
+                                    { value: "en", label: "English" },
+                                    { value: "fr", label: "Français" },
+                                ]}
+                            />
                         </div>
 
                         {/* Cambio de contraseña - Solo para usuarios NO OAuth */}
@@ -761,53 +691,37 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 <h3>{t('prof.change_pass')}</h3> {/* Added Translation key */}
 
                                 <div style={{ marginBottom: '15px' }}>
-                                    <label>
-                                        <strong>{t('prof.current_pass')}:</strong> {/* Added Translation key */}
-                                        <input
-                                            type="password"
-                                            value={editForm.currentPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
-                                            style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.current_pass_ph')} // Added Translation key
-                                        />
-                                    </label>
+                                    <strong>{t('prof.current_pass')}:</strong> {/* Added Translation key */}
+                                    <Input
+                                        type='password'
+                                        value={editForm.currentPassword}
+                                        onChange={(value) => setEditForm({ ...editForm, currentPassword: value })}
+                                        placeholder={t('prof.current_pass_ph')} />
                                 </div>
 
                                 <div style={{ marginBottom: '15px' }}>
-                                    <label>
-                                        <strong>{t('prof.new_pass')}:</strong> {/* Added Translation key */}
-                                        <input
-                                            type="password"
-                                            value={editForm.newPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
-                                            style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.new_pass_ph')} // Added Translation key
-                                        />
-                                    </label>
+                                    <strong>{t('prof.new_pass')}:</strong> {/* Added Translation key */}
+                                    <Input
+                                        type='password'
+                                        value={editForm.newPassword}
+                                        onChange={(value) => setEditForm({ ...editForm, newPassword: value })}
+                                        placeholder={t('prof.new_pass_ph')} />
                                 </div>
 
                                 <div style={{ marginBottom: '15px' }}>
-                                    <label>
-                                        <strong>{t('prof.confirm_pass')}:</strong> {/* Added Translation key */}
-                                        <input
-                                            type="password"
-                                            value={editForm.confirmPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
-                                            style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.confirm_pass_ph')} // Added Translation key
-                                        />
-                                    </label>
+                                    <strong>{t('prof.confirm_pass')}:</strong> {/* Added Translation key */}
+                                    <Input
+                                        type='password'
+                                        value={editForm.confirmPassword}
+                                        onChange={(value) => setEditForm({ ...editForm, confirmPassword: value })}
+                                        placeholder={t('prof.confirm_pass_ph')} />
                                 </div>
                             </>
                         )}
 
                         <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                            <button onClick={handleUpdateProfile}>
-                                {t('prof.save_btn')} {/* Added Translation key */}
-                            </button>
-                            <button onClick={handleCancelEdit}>
-                                {t('prof.cancel')} {/* Added Translation key */}
-                            </button>
+                            <Btn msg={t('prof.save_btn')} onClick={handleUpdateProfile} />
+                            <Btn msg={t('prof.cancel')} onClick={handleCancelEdit} />
                         </div>
                     </>
                 )}
@@ -824,26 +738,18 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 <h1>{firstcap(t('prof.friends_title'))}</h1>
 
                 <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-                    <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-                        {t('prof.invite_label')}
-                    </label>
-                    
+                    <Label children={t('prof.invite_label')} />
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                         {/* Selector */}
-                        <select
+                        <Select
                             value={targetIdInput}
-                            onChange={(e) => setTargetIdInput(e.target.value)}
+                            onChange={setTargetIdInput}
                             disabled={isLoadingCandidates}
-                            style={{ flex: 1, padding: '8px' }}>
-                            <option value="">
-                                {isLoadingCandidates ? t('prof.loading_users') : t('prof.sel_player')}
-                            </option>
-                            {candidates.map((user) => (
-                                <option key={user.id} value={user.id}>
-                                    {user.nick}
-                                </option>
-                            ))}
-                        </select>
+                            options={[
+                                { value: "", label: isLoadingCandidates ? t('prof.loading_users') : t('prof.sel_player') },
+                                ...candidates.map((user) => ({ value: user.id, label: user.nick }))
+                            ]}
+                        />
 
                         {/* Previsualización del Avatar Seleccionado */}
                         {selectedCandidate && (
@@ -855,13 +761,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 />
                             </div>
                         )}
-
-                        <button
-                            onClick={handleSendRequest}
-                            disabled={!targetIdInput || isLoadingCandidates}
-                            style={{ padding: '8px 16px' }}>
-                            {t('prof.send_request_btn')}
-                        </button>
+                        <Btn msg={t('prof.send_request_btn')} onClick={handleSendRequest} 
+                            disabled={!targetIdInput || isLoadingCandidates}/>
                     </div>
                 </div>
 
@@ -906,20 +807,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                         {f.friend_nick}
                                     </span>
                                 </div>
-
-                                <button 
-                                    onClick={() => handleRemoveFriend(f.id, f.friend_nick)}
-                                    style={{ 
-                                        backgroundColor: '#ef4444', 
-                                        color: 'white', 
-                                        border: 'none', 
-                                        padding: '5px 10px', 
-                                        borderRadius: '4px',
-                                        cursor: 'pointer' 
-                                    }}
-                                >
-                                    {t('prof.remove_btn')}
-                                </button>
+                                <Btn msg={t('prof.remove_btn')} 
+                                    onClick={() => handleRemoveFriend(f.id, f.friend_nick)} />
                             </li>
                         ))}
                     </ul>
@@ -943,11 +832,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             <span>
                                 <strong>{r.nick}</strong> {t('prof.wants_friend')} {/* Added Translation key */}
                             </span>
-                            <div>
-                                <button onClick={() => handleAccept(r.id)}>
-                                    {t('prof.accept_btn')} {/* Added Translation key */}
-                                </button>
-                            </div>
+                            <Btn msg={t('prof.accept_btn')} onClick={() => handleAccept(r.id)} />
                         </li>
                     ))}
                 </ul>
@@ -969,27 +854,14 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 
                 {/* 🎛️ SUB-MENÚ DE BOTONES */}
                 <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    <button 
-                        onClick={() => setStatView('leaderboard')}
-                        className={`${btnBaseStyle} ${statView === 'leaderboard' ? btnActiveStyle : btnInactiveStyle}`}
-                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
-                    >
-                        🏆 Top 10
-                    </button>
-                    <button 
-                        onClick={() => setStatView('history')}
-                        className={`${btnBaseStyle} ${statView === 'history' ? btnActiveStyle : btnInactiveStyle}`}
-                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
-                    >
-                        📜 {t('prof.history')}
-                    </button>
-                    <button 
-                        onClick={() => setStatView('grafana')}
-                        className={`${btnBaseStyle} ${statView === 'grafana' ? btnActiveStyle : btnInactiveStyle}`}
-                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
-                    >
-                        📊 {t('prof.analytics')}
-                    </button>
+                    {/* className={`${btnBaseStyle} ${statView === 'leaderboard' ? btnActiveStyle : btnInactiveStyle}`} */}
+                    <Btn msg="🏆 Top 10" onClick={() => setStatView('leaderboard')} />
+
+                    {/* className={`${btnBaseStyle} ${statView === 'history' ? btnActiveStyle : btnInactiveStyle}`} */}
+                    <Btn msg={`📜 {t('prof.history')}`} onClick={setStatView('history')} />
+                    
+                    {/* className={`${btnBaseStyle} ${statView === 'grafana' ? btnActiveStyle : btnInactiveStyle}`} */}
+                    <Btn msg={`📊 {t('prof.analytics')}`} onClick={setStatView('grafana')} />
                 </div>
 
                 {/* 📺 CONTENIDO DINÁMICO QUE CAMBIA SEGÚN EL BOTÓN */}
@@ -1023,30 +895,31 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         <main className="profile">
             <nav>
                 <ul>
-                    <li
+                    <Li
+                        label={t('prof.tab_info')}
+                        active={activeTab === "info"}
                         onClick={() => setActiveTab("info")}
-                        className={activeTab === "info" ? "selected" : ""}>
-                        {t('prof.tab_info')} {/* Added Translation key */}
-                    </li>
-                    <li
+                    />
+                    <Li
+                        label={t('prof.tab_friends', { count: friends.length })}
+                        active={activeTab === "friends"}
                         onClick={() => setActiveTab("friends")}
-                        className={activeTab === "friends" ? "selected" : ""}>
-                        {t('prof.tab_friends', { count: friends.length })} {/* Added Translation key */}
-                    </li>
-                    <li
+                    />
+                    <Li
+                        active={activeTab === "requests"}
                         onClick={() => setActiveTab("requests")}
-                        className={activeTab === "requests" ? "selected" : ""}>
+                    >
                         {t('prof.tab_requests')} {/* Added Translation key */}
                         {requests.length > 0 &&
                             <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 ({requests.length})
                             </span>}
-                    </li>
-                    <li
+                    </Li>
+                    <Li
+                        label={t('prof.tab_stats')}
+                        active={activeTab === "stats"}
                         onClick={() => setActiveTab("stats")}
-                        className={activeTab === "stats" ? "selected" : ""}>
-                        {t('prof.tab_stats')} {/* Added Translation key */}
-                    </li>
+                    />
                 </ul>
             </nav>
 

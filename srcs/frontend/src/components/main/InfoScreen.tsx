@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { loadHtmlContent } from '../../ts/utils/loadHtmlContent';
 import { useTranslation } from 'react-i18next';
-import "../../css/ProfileScreen.css";
+
+import Li from '../objects/Li.tsx';
 
 type States = 'a' | 'b' | 'c' | 'd' | 'e';
 
@@ -46,31 +47,29 @@ const InfoScreen = ({dispatch, option}: InfoProps) => {
             {/* Navigation */}
             <nav>
                 <ul>
-                    <li
-                        onClick={() => setActiveTab("a")}
-                        className={activeTab === "a" ? "selected" : ""}>
-                        {t('info.privacy_policy')}
-                    </li>
-                    <li
-                        onClick={() => setActiveTab("b")}
-                        className={activeTab === "b" ? "selected" : ""}>
-                        {t('info.terms_of_service')}
-                    </li>
-                    <li
+                    <Li
+                        label={t('info.privacy_policy')}
+                        active={activeTab === "a"}
+                        onClick={() => setActiveTab("a")} />
+                    <Li
+                        label={t('info.terms_of_service')}
+                        active={activeTab === "b"}
+                        onClick={() => setActiveTab("b")} />
+                    <Li
+                        label={t('info.about_project')}
+                        active={activeTab === "c"}
                         onClick={() => setActiveTab("c")}
-                        className={activeTab === "c" ? "selected" : ""}>
-                        {t('info.about_project')}
-                    </li>
-                    <li
+                    />
+                    <Li
+                        label={t('info.contact')}
+                        active={activeTab === "d"}
                         onClick={() => setActiveTab("d")}
-                        className={activeTab === "d" ? "selected" : ""}>
-                        {t('info.contact')}
-                    </li>
-                    <li
+                    />
+                    <Li
+                        label={t('info.credits')}
+                        active={activeTab === "e"}
                         onClick={() => setActiveTab("e")}
-                        className={activeTab === "e" ? "selected" : ""}>
-                        {t('info.credits')}
-                    </li>
+                    />
                 </ul>
             </nav>
 

@@ -4,8 +4,10 @@ import type { ScreenProps } from "../../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
 import TermsModal from "../section/TermsModal";
-
-import '../../css/Login.css';
+import Input from '../objects/Input.tsx';
+import Label from '../objects/Label.tsx';
+import Btn from '../objects/Btn.tsx';
+import Select from '../objects/Select.tsx';
 
 interface Country {
     name: string;
@@ -178,32 +180,18 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                 {/* User */}
                 <div className="login-elem">
-                    <label htmlFor="user">{t('user')}</label>
-                    <input
-                        type="text"
-                        id="user"
-                        name="user"
-                        value={user}
-                        onChange={(e) => setUser(e.target.value)}
-                        placeholder="ej: Jhon_Wick123"
+                    <Label htmlFor="user" children={t('user')}/>
+                    <Input id="user" value={user} onChange={(value) => setUser(value)}
+                        placeholder="ej: Jhon_Wick123" required autoFocus 
                         pattern="[a-zA-Z0-9_]{3,20}"
-                        required
-                        autoFocus
                     />
                 </div>
 
                 {/* Email */}
                 <div className="login-elem">
-                    <label htmlFor="email">email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={email}
-                        placeholder="ej: abc@def.com"
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
+                    <Label htmlFor="email" children="email"/>
+                    <Input type="email" id="email" value={email} placeholder="ej: abc@def.com"
+                        onChange={(value) => setEmail(value)} required/>
                 </div>
 
                 {/* Password Info Box */}
@@ -213,107 +201,77 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                 {/* Password */}
                 <div className="login-elem">
-                    <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">{t('password').charAt(0).toUpperCase() + t('password').slice(1)}</label>
-                    <input
-                        type="password"
-                        id="pass"
-                        name="pass"
-                        value={password}
-                        placeholder="ej: P@ssw0rd!"
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                    <Label htmlFor="pass" children={t('password').charAt(0).toUpperCase() + t('password').slice(1)}/>
+                    <Input type="password" id="pass" value={password} required
+                        placeholder="ej: P@ssw0rd!" onChange={(value) => setPassword(value)} />
                 </div>
 
                 {/* Repeat Password */}
                 <div className="login-elem">
-                    <label htmlFor="passR">{t('rep_pass')}</label>
-                    <input
-                        type="password"
-                        id="passR"
-                        name="passR"
-                        value={repeat}
-                        onChange={(e) => setRepeat(e.target.value)}
-                        required
-                    />
+                    <Label htmlFor="passR" children={t('rep_pass')} />
+                    <Input type="password" id="passR" value={repeat} required
+                        onChange={(value) => setRepeat(value)} />
                 </div>
 
                 {/* Birth date */}
                 <div className="login-elem">
-                    <label htmlFor="birth">{t('cumple')}</label>
-                    <input
-                        type="date"
-                        name="birth"
-                        id="birth"
-                        value={birth}
-                        onChange={(e) => setBirth(e.target.value)}
-                        required
-                    />
+                    <Label htmlFor="birth" children={t('cumple')} />
+                    <Input type="date" id="birth" value={birth} required 
+                        onChange={(value) => setBirth(value)} />
                 </div>
 
                 {/* Country & Language Row */}
                 <div className="login-elem">
                     {/* Country - UPDATED TO DROPDOWN */}
-                    <label htmlFor="country">{t('cod_pais')}</label>
-                    <select
+                    <Label htmlFor="country" children={t('cod_pais')} />
+                    <Select
                         id="country"
-                        name="country"
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        required
-                        disabled={isLoadingCountries}>
-                        <option value="">
-                            {isLoadingCountries ? 'Loading...' : t('sel_pais')}
-                        </option>
-                        {countries.map((c) => (
-                            <option key={c.code} value={c.code}>
-                                {c.name} ({c.code})
-                            </option>
-                        ))}
-                    </select>
+                        value={country} 
+                        onChange={setCountry} 
+                        required 
+                        disabled={isLoadingCountries} 
+                        options={[
+                            {
+                                value: "",
+                                label: isLoadingCountries ? "Loading..." : t("sel_pais")
+                            },
+                            ...countries.map((c) => ({
+                                value: c.code, 
+                                label: `${c.name} (${c.code})`
+                            }))
+                        ]}
+                    />
                 </div>
 
                 {/* Language */}
                 <div className="login-elem">
-                    <label htmlFor="lang">{t('lang')}</label>
-                    <select
-                        name="lang"
+                    <Label htmlFor="lang" children={t('lang')} />
+                    <Select
                         id="lang"
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        required
-                    >
-                        <option value="">{t('sel_lang')}</option>
-                        <option value="es">Español</option>
-                        <option value="ca">Català</option>
-                        <option value="en">English</option>
-                        <option value="fr">Français</option>
-                    </select>
+                        value={language} 
+                        onChange={setLanguage}
+                        required 
+                        options={[
+                            { value: "", label: t("sel_lang") },
+                            { value: "es", label: "Español" },
+                            { value: "ca", label: "Català" },
+                            { value: "en", label: "English" },
+                            { value: "fr", label: "Français" },
+                        ]}
+                    />
                 </div>
                 
                 {/* QR Code check box */}
                 <div className="login-btn">
-                    <input
-                        style={{ flexShrink: 0 }}
-                        name="enabled2FA"
-                        id="enabled2FA"
-                        type="checkbox"
-                        checked={enabled2FA}
-                        onChange={(e) => setEnabled2FA(e.target.checked)}
-                    />
-                    <label htmlFor="enabled2FA">{t('enable_2fa')}</label>
+                    <Input id="enabled2FA" type="checkbox" checked={enabled2FA} 
+                        onChange={(value) => setEnabled2FA(value)} />
+                    <Label htmlFor="enable2FA" children={t('enable_2fa')} />
                 </div>
                 {/* Privacy policy + Terms of Use checkbox */}
                 <div className="login-btn">
-                    <input
-                        style={{ flexShrink: 0 }}
-                        name="acceptPolicy"
-                        id="acceptPolicy"
-                        type="checkbox"
-                        checked={acceptPolicy}
-                        onChange={(e) => setAcceptPolicy(e.target.checked)}
-                    />
-                    <label htmlFor="acceptPolicy">
+                    <Input id="acceptPolicy" type="checkbox" checked={acceptPolicy} 
+                        onChange={(value) => setAcceptPolicy(value)} />
+                    <Label htmlFor="acceptPolicy">
                         {t('privacy.prefix')}{" "}
                         <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }}>
                             {t('info.terms_of_service')}
@@ -323,7 +281,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             {t('info.privacy_policy')}
                         </a>
                         {t('privacy.suffix')}
-                    </label>
+                    </Label>
                 </div>
 
                 {/* Modals */}
@@ -341,20 +299,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 />
                 {/* Action Buttons */}
                 <div className="login-btn form-btn">
-                    <button
-                        type="button"
-                        onClick={handleReset}>
-                        {t('borrar_t')}
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        // className={`flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-                        // ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
-                        // focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
-                        >
-                        {isLoading ? t('enviando') : t('enviar')}
-                    </button>
+                    <Btn msg={t('borrar_t')} onClick={handleReset}/>
+                    <Btn msg={isLoading ? t('enviando') : t('enviar')} disabled/>
                 </div>
 
                 <hr />
@@ -385,22 +331,16 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         </p>
                         
                         {/* --- NUEVO BOTÓN DE CONFIRMACIÓN --- */}
-                        <div>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    // 1. Opcional: Mostrar un pequeño feedback visual de éxito
-                                    setSuccess(t('registro_exitoso'));
-                                    
-                                    // 2. Esperar 2 segundos antes de cambiar al menú
-                                    setTimeout(() => {
-                                        dispatch({ type: "MENU" });
-                                    }, 2000);
-                                }}
-                            >
-                                ✅ {t('ya_escaneado')}
-                            </button>
-                        </div>
+                        <Btn msg="✅ {t('ya_escaneado')}"
+                            onClick={() =>
+                            {
+                                setSuccess(t('registro_exitoso'));
+                                setTimeout(() =>
+                                {
+                                    dispatch({ type: "MENU" });
+                                }, 2000);
+                            }}
+                        />  
                     </div>
                 )}
                 {backupCodes && backupCodes.length > 0 && (
@@ -429,17 +369,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     <span style={{color: "black", marginBottom: "5px"}}>{t('crear_cuenta')} / {t('init_ses')}: </span>
 
                     <div className="login-btn">
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('42')}>
-                            <span>42 Network</span>
-                        </button>
-
-                        <button
-                                type="button"
-                                onClick={() => handleOAuth('google')}>
-                                Google
-                        </button>
+                        <Btn msg="42 Network" onClick={() => handleOAuth('42')}/>
+                        <Btn msg="Google" onClick={() => handleOAuth('google')}/>
                     </div>
                 </div>
                 )}

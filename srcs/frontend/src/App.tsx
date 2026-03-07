@@ -21,6 +21,8 @@ import "./css/App.css";
 
 import { getDefaultAvatar } from './assets/avatars';
 
+import Btn from './components/objects/Btn.tsx';   
+
 function App()
 {
   // 1. LEER EL USUARIO DEL STORAGE ANTES DE INICIALIZAR EL REDUCER
@@ -400,24 +402,8 @@ function renderScreen()
                       <strong>{inviteRequest.fromUserName}</strong> quiere jugar contigo.
                   </p>
                   <div style={{display: 'flex', gap: '20px', justifyContent: 'center'}}>
-                      <button 
-                          onClick={() => handleInviteResponse(true)}
-                          style={{
-                              backgroundColor: '#22c55e', color: 'white', border: 'none',
-                              padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
-                          }}
-                      >
-                          ACEPTAR
-                      </button>
-                      <button 
-                          onClick={() => handleInviteResponse(false)}
-                          style={{
-                              backgroundColor: '#ef4444', color: 'white', border: 'none',
-                              padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
-                          }}
-                      >
-                          RECHAZAR
-                      </button>
+                      <Btn msg="ACEPTAR" onClick={handleInviteResponse(true)} className="accept" />
+                      <Btn msg="RECHAZAR" onClick={handleInviteResponse(false)} className="reject" />
                   </div>
               </div>
           </div>

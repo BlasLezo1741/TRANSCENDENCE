@@ -1,6 +1,6 @@
 type InputProps = {
-  id: string;
-  value: string;
+  id?: string;
+  value?: string;
   onChange?: (value: string) => void;
   type?: string;
   placeholder?: string;
@@ -9,15 +9,16 @@ type InputProps = {
   autoFocus?: boolean;
   required?: boolean;
   title?: string;
+  checked?: boolean;
 };
 
-const inputCss = "";
+const inputCss = "text-black";
 
 const Input = 
 ({
     id, value, type = "text", onChange = () => {},
     placeholder, pattern, maxLength, autoFocus,
-    required = true, title 
+    required = true, title, checked
 }: InputProps) => {
   return (
     <input
@@ -28,6 +29,7 @@ const Input =
       value={value}
       placeholder={placeholder}
       pattern={pattern}
+      checked={checked}
       maxLength={maxLength}
       autoFocus={autoFocus}
       required={required}

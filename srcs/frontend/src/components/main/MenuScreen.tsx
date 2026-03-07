@@ -18,8 +18,6 @@ import impossible from '../../assets/Impossible_chatgpt.png';
 import bg_image from '../../assets/Imagen_pong_v2.png';
 //import bg_image from '../assets/Flag_of_Catalonia.png';
 
-import "../../css/MenuScreen.css";
-
 type OptionsProps = ScreenProps & {
   ia: boolean;
   setIa: React.Dispatch<React.SetStateAction<boolean>>;
@@ -128,7 +126,7 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
                 <div className="bt">
                     {modeButtons.map((btn) =>
                     (
-                        <Btn key={btn.msg} type="normal" msg={btn.msg} onClick={btn.onClick}/>
+                        <Btn key={btn.msg} className="normal" msg={btn.msg} onClick={btn.onClick}/>
                     ))}
                 </div>
             </>

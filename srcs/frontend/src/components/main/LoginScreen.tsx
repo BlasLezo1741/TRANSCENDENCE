@@ -4,7 +4,7 @@ import type { ScreenProps } from "../../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 import Input from '../objects/Input.tsx';
 import Label from '../objects/Label.tsx';
-import "../../css/Login.css";
+import Btn from '../objects/Btn.tsx';
 
 // Add prop for global state update
 type LoginScreenProps = ScreenProps & {
@@ -129,7 +129,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                         <div className="login-elem">
                             <Label
                                 htmlFor="user"
-                                msg={t('user')}
+                                children={t('user')}
                             />
                             <Input
                                 id="user"
@@ -145,7 +145,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                         <div className="login-elem">
                             <Label
                                 htmlFor="pass"
-                                msg={t('password').charAt(0).toUpperCase() + t('password').slice(1)}
+                                children={t('password').charAt(0).toUpperCase() + t('password').slice(1)}
                             />
                             <Input
                                 id="pass"
@@ -160,7 +160,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                     <div>
                         <Label
                             htmlFor="totp"
-                            msg={t('cod_2fa')}
+                            children={t('cod_2fa')}
                         />
                         <Input
                             id="totp"
@@ -194,16 +194,12 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                 )}
 
                 <div className="login-btn form-btn">
-                    <button
-                    type="button"
-                    onClick={handleBack}>
-                        {t('volver')}
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}>
-                        {isLoading ? t('enviando') : (showTotpInput ? (t('verificar')) : t('enviar'))}
-                    </button>
+                    <Btn msg={t('volver')} className="return" onClick={handleBack}/>
+                    <Btn
+                        msg={isLoading ? t('enviando') : (showTotpInput ? (t('verificar')) : t('enviar'))} 
+                        className="sent" 
+                        type="submit" 
+                        disabled={isLoading}/>
                 </div>
 
                 <hr />
@@ -213,35 +209,19 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                     <span style={{color: "black"}}>{t('init_ses')}</span>
 
                     <div className="login-btn">
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('42')}                            >
-                            <span>42 Network</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('google')}                            >
-                            Google
-                        </button>
+                        <Btn onClick={() => handleOAuth('42')} msg="42 Network"/>
+                        <Btn onClick={() => handleOAuth('google')} msg="Google"/>
                     </div>
 
                     <div className="account login-elem">
                         <p>
                             {t('cuenta?')}{" "}
                         </p>
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                dispatch({ type: "SIGN" });
-                            }}>
-                            {t('crear_cuenta')}
-                        </button>
+                        <Btn onClick={() =>dispatch({type: "SIGN"})} msg={t('crear_cuenta')} type="button" />
                     </div>
                 </div>
                 ) : null}
             </form>
-            
         </div>
     );
 };

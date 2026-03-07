@@ -1,19 +1,21 @@
+import { ReactNode } from "react";
+
 type LabelProps =
 {
-    htmlFor: string;
-    msg: string;
+    htmlFor?: string;
+    children: ReactNode;
 };
 
-const labelCss = "";
+const labelCss = "text-black";
 
-const Label = ( {htmlFor, msg}: LabelProps ) => 
+const Label = ( {htmlFor, children}: LabelProps ) => 
 {
     return (
         <label
             htmlFor={htmlFor}
             className={labelCss}
         >
-            {msg}
+            {children}
         </label>
     );
 };
