@@ -165,7 +165,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     for (const [roomId, game] of this.games.entries()) {
         if (game.playerLeftId === client.id || game.playerRightId === client.id) {
              this.stopGameLoop(roomId); 
-             this.server.to(roomId).emit('opponent_disconnected');
+             this.server.to(roomId).emit('opponent_disconnected', { roomId: roomId });
         }
     }
   }
@@ -300,6 +300,29 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
   }
 
+ // --- ABANDONO DE PARTIDA (BOTÓN VOLVER) ---
+  @SubscribeMessage('leave_game')
+  handleLeaveGame(
+    @ConnectedSocket() client: Socket, 
+    @MessageBody() payload: { roomId: string }
+  ) {
+    const roomId = payload.roomId;
+    const game = this.games.get(roomId);
+
+    if (game) {
+      console.log(`🚪 Jugador ${client.id} ha abandonado la sala ${roomId} a medias.`);
+      
+      // 1. Detenemos el bucle de la partida para que deje de consumir recursos
+      this.stopGameLoop(roomId);
+
+      // 2. Avisamos al rival de que se ha quedado solo (¡INCLUYENDO EL ROOM ID!)
+      this.server.to(roomId).emit('opponent_disconnected', { roomId: roomId });
+
+      // 3. Sacamos al socket de la sala para que no reciba más basura
+      client.leave(roomId);
+    }
+  } 
+
 // --- GAME LOOP & PHYSICS ---
 
   private startGameLoop(roomId: string, pLeftId: string, pRightId: string, pLeftDb: number, pRightDb: number) {
@@ -346,6 +369,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       this.updateGamePhysics(state);
       
       this.server.to(roomId).emit('game_update_physics', {
+        roomId: roomId,
         ball: { x: state.ball.x, y: state.ball.y },
         score: state.score,
         paddles: { left: state.paddles.left, right: state.paddles.right }
@@ -439,7 +463,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   private checkWinner(state: GameState) {
       if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
-        this.server.to(state.roomId).emit('score_updated', { score: state.score });
+        this.server.to(state.roomId).emit('score_updated', { roomId: state.roomId, score: state.score });
         // 1. Get the REAL NICKNAME of the winner using the saved IDs
 
 
@@ -458,7 +482,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         // This allows the Frontend to receive the score, React renders the 5,
         // the user sees it, and THEN the ending jumps.
         setTimeout(() => {
-                this.server.to(state.roomId).emit('game_over', { winner: winnerSide });
+                this.server.to(state.roomId).emit('game_over', { roomId: state.roomId, winner: winnerSide });
                 console.log("🏁 Evento game_over enviado.");
             }, 500); // 500 milliseconds (half a second)
       }
@@ -526,7 +550,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const game = this.games.get(payload.roomId);
     if (!game) return;
     
-console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario ${payload.winnerId}`);
+    console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario ${payload.winnerId}`);
     // GUARDAR EN BASE DE DATOS (Una sola vez)
     //await this.saveMatchToDb(game, payload.winnerId);
     await this.saveMatchToDb(game);
@@ -592,8 +616,16 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
 
   private stopGameLoop(roomId: string) {
       const game = this.games.get(roomId);
-      if (game && game.intervalId) {
-          clearInterval(game.intervalId);
+      // if (game && game.intervalId) {
+      //     clearInterval(game.intervalId);
+      //     this.games.delete(roomId);
+      // }
+      if (game) {
+          // Si hay un bucle corriendo, lo paramos
+          if (game.intervalId) {
+              clearInterval(game.intervalId);
+          }
+          // Borramos SIEMPRE la sala de la memoria
           this.games.delete(roomId);
       }
   }
