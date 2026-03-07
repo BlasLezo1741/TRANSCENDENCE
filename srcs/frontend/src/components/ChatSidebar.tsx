@@ -325,7 +325,7 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
                         <div className="chat-list">
                             {contacts.length === 0 && (
                                 <p style={{textAlign: 'center', padding: '20px', color: '#666'}}>
-                                    No tienes amigos conectados.<br/>¡Añade a alguien desde el perfil!
+                                    {t('chat.noFriends')}<br/>{t('chat.addFriends')}
                                 </p>
                             )}
 
@@ -411,7 +411,7 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
                             {contacts.find(c => c.id === selectedChatId)?.status === 'online' && (
                                 <button 
                                     onClick={handleInviteClick}
-                                    title="Invitar a jugar Pong"
+                                    title={t('chat.invitePlay')}
                                     style={{
                                         backgroundColor: '#ea580c', // Naranja vibrante
                                         color: 'white',
@@ -425,7 +425,7 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
                                         transition: 'background 0.2s'
                                     }}
                                 >
-                                    🏓 RETAR
+                                    {t('chat.challenge')}
                                 </button>
                             )}
                         </div>

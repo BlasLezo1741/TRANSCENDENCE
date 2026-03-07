@@ -4,6 +4,7 @@ import { Pong } from "../ts/models/Pong.ts";
 import { socket } from '../services/socketService'; 
 import type { GameMode, GameDifficult } from "../ts/types.ts";
 import { useModal } from '../context/ModalContext';
+import { useTranslation } from "react-i18next";
 
 type CanvasProps = {
     mode: GameMode;
@@ -48,7 +49,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
     // TRUCO DE REF: Guardamos el estado en una referencia
     // Esto permite que el renderLoop (que corre aislado) lea el valor actual sin reiniciarse
     const activeRef = useRef(isGameActive);
-
+    const { t } = useTranslation();
     // Actualizamos la referencia cada vez que cambia la prop
     useEffect(() => {
         activeRef.current = isGameActive;
@@ -187,8 +188,8 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                 onGameOver();
             } else {
                 showModal({
-                    title: "🏆 ¡JUEGO TERMINADO!",
-                    message: `Victoria para: ${winnerName}`,
+                    title: t('game.ended'),
+                    message: t('game.winner', { name : winnerName }),
                     type: "success",
                     onConfirm: () => {
                         dispatch({ type: "MENU" });
@@ -215,8 +216,8 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                 onGameOver();
             } else {
                 showModal({
-                    title: "🔌 Rival Desconectado",
-                    message: "El rival ha perdido la conexión. ¡Has ganado por abandono!",
+                    title: t('game.disconnected'),
+                    message: t('game.messageDisconnected'),
                     type: "info",
                     onConfirm: () => {
                         dispatch({ type: "MENU" });
@@ -384,8 +385,8 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                         onGameOver();
                     } else {
                         showModal({
-                            title: "🏆 ¡GAME OVER!",
-                            message: `Winner: ${winnerName}`,
+                            title: t('game.ended'),
+                            message: t('game.winner', { name : winnerName }),
                             type: "success",
                             onConfirm: () => {
                                 dispatch({ type: "MENU" });

@@ -70,7 +70,11 @@
     {
         "my_friends": "my friends",
         "with": "chat with {{name}}",
-        "write": "write a message"
+        "write": "write a message",
+        "noFriends": "No friends online",
+        "addFriends": "Add someone from their profile!",
+        "invitePlay": "Invite to play",
+        "challenge": "🏓 Challenge"
     },
     "prof": 
     {
@@ -232,5 +236,11 @@
         "title": "One last step",
         "subtitle": "Before we create your account, please read and accept our terms.",
         "confirm_btn": "Create account"
+    },
+    "game":
+    {
+        "ended": "🏆 MATCH ENDED",
+        "winner": "Winner: {{name}}",
+        "disconnected": "🔌 Your opponent has lost connection. You won by forfeit!"
     }
 }

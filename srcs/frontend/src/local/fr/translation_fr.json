@@ -70,7 +70,11 @@
     {
         "my_friends": "mes amis",
         "with": "chat avec {{name}}",
-        "write": "écrire un message"
+        "write": "écrire un message",
+        "noFriends": "Aucun ami en ligne",
+        "addFriends": "Ajoutez quelqu'un depuis son profil !",
+        "invitePlay": "Inviter à jouer",
+        "challenge": "🏓 Défier"
     },
     "prof": 
     {
@@ -232,5 +236,12 @@
         "title": "Une dernière étape",
         "subtitle": "Avant de créer votre compte, veuillez lire et accepter nos conditions.",
         "confirm_btn": "Créer un compte"
+    },
+    "game":
+    {
+        "ended": "🏆 ¡JUEGO TERMINADO!",
+        "winner": "Vainqueur: {{name}}",
+        "disconnected": "🔌 Adversaire Déconnecté",
+        "messageDisconnected": "L'adversaire a perdu la connexion. Vous avez gagné par abandon !"
     }
 }

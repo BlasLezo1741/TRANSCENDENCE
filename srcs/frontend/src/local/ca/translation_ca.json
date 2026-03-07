@@ -70,7 +70,11 @@
     {
         "my_friends": "els meus amics",
         "with": "chat amb {{name}}",
-        "write": "escriu un missatge"
+        "write": "escriu un missatge",
+        "noFriends": "No tens amics connectats",
+        "addFriends": "Afegeix algú des del seu perfil!",
+        "invitePlay": "Convidar a jugar",
+        "challenge": "🏓 Desafiar"
     },
     "prof": 
     {
@@ -232,5 +236,12 @@
         "title": "Un últim pas",
         "subtitle": "Abans de crear el teu compte, si us plau, llegeix i accepta els nostres termes.",
         "confirm_btn": "Crear compte"
+    },
+    "game":
+    {
+        "ended": "🏆 Partida Acabada!",
+        "winner": "Guanyador: {{name}}",
+        "disconnected": "🔌 Rival Desconnectat",
+        "messageDisconnected": "El rival ha perdut la connexió. Has guanyat per abandonament!"
     }
 }
