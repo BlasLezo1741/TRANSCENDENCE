@@ -106,7 +106,7 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
                     <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }}>
                         <u><b>{t('info.privacy_policy')}</b></u>
                     </a>
-                    {t('privacy.sufix')}{'.'}
+                    {t('privacy.dot')}
                 </label>
             </div>
 

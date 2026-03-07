@@ -18,8 +18,7 @@ export type Action =
     | { type: "PONG" }
     | { type: "INFO"; option: string }
     | { type: "PROFILE" } // <--- Nuevo
-    | { type: "STATS" }  // <--- Nuevo
-    | { type: "OAUTH_TERMS" }; // <--- New
+    | { type: "STATS" };  // <--- Nuevo
 
 export type GameMode =
     | "ia"

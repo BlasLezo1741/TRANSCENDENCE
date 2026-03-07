@@ -104,13 +104,15 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         }
 
         // 2. Check local password syntax
-        const formResult = checkForm(email, password, repeat, birth);
+        const formResult = checkForm(user, email, password, repeat, birth);
         if (!formResult.ok) {
             setError(t(formResult.msg));
             setPassword("");
             setRepeat("");
             return;
         }
+
+        
         setIsLoading(true);
 
         try {
@@ -316,13 +318,13 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     <label htmlFor="acceptPolicy">
                         {t('privacy.prefix')}{" "}
                         <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }}>
-                            {t('info.terms_of_service')}
+                            <u>{t('info.terms_of_service')}</u>
                         </a>
                         {" "}{t('privacy.and')}{" "}
                         <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }}>
-                            {t('info.privacy_policy')}
+                            <u>{t('info.privacy_policy')}</u>
                         </a>
-                        {t('privacy.suffix')}
+                        {t('privacy.dot')}
                     </label>
                 </div>
 

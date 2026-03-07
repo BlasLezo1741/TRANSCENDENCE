@@ -3,7 +3,7 @@ import { loadHtmlContent } from '../ts/utils/loadHtmlContent';
 import { useTranslation } from 'react-i18next';
 import "../css/ProfileScreen.css";
 
-type States = 'a' | 'b' | 'c' | 'd' | 'e';
+export type States = 'a' | 'b' | 'c' | 'd' | 'e';
 
 type InfoProps = {
     dispatch: React.Dispatch<any>;

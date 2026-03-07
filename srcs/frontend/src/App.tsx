@@ -1,5 +1,6 @@
 import { useReducer, useState, useEffect } from 'react';
 import { screenReducer } from './ts/screenConf/screenReducer.ts';
+import { useTranslation } from 'react-i18next';
 
 import type { Screen, GameMode, GameDifficult } from "./ts/types.ts"
 
@@ -10,7 +11,7 @@ import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
-import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
+import type { States } from './screens/InfoScreen.tsx';
 
 import Header from './components/Header.tsx'
 import Footer from './components/Footer.tsx'
@@ -24,18 +25,16 @@ import { getDefaultAvatar } from './assets/avatars';
 
 function App()
 {
+  const { t } = useTranslation();
   // 1. LEER EL USUARIO DEL STORAGE ANTES DE INICIALIZAR EL REDUCER
   const savedUserNick = localStorage.getItem("pong_user_nick") || "";
   const savedUserId   = Number(localStorage.getItem("pong_user_id")) || undefined;
   
-  ////const [screen, dispatch] = useReducer(screenReducer, "menu" as Screen);
-  //const [screen, dispatch] = useReducer(screenReducer, "login" as Screen); // Iniciamos en LOGIN por defecto
-  
-  // Si ya hay usuario, arrancamos en "menu". Si no, en "login".
+  // Si ya hay usuario, arrancamos en "menu". Si no, en "menu".
   // Esto evita que React renderice 'LoginScreen' al refrescar y active el borrado de usuario.
   const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "menu" as Screen);
 
-  // // --- GESTIÓN DE USUARIO REAL,GESTIÓN DE ESTADOS GLOBALES ---
+  // // --- GESTIÓN DE USUARIO REAL, GESTIÓN DE ESTADOS GLOBALES ---
   const [currentUser, setCurrentUser] = useState<string>(savedUserNick);
   const [currentUserId, setCurrentUserId] = useState<number | undefined>(savedUserId);
   const [currentUserAvatarUrl, setCurrentUserAvatarUrl] = useState<string | null>(null);
@@ -45,15 +44,15 @@ function App()
   const [profileSynced, setProfileSynced] = useState<boolean>(!savedUserNick);
   const [mode, setMode] = useState<GameMode>("ia");
   const [difficult, setDifficult] = useState<GameDifficult>("");
-  //ESTADO NUEVO: Guardamos el nombre del rival aquí
+  // ESTADO NUEVO: Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
-  //AVATAR
+  // AVATAR
   const [opponentAvatar, setOpponentAvatar] = useState<string | null>(null);
   const [opponentId, setOpponentId] = useState<number | null>(null);
   
   const [ballInit, setBallInit] = useState<{x: number, y: number} | null>(null);
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
-  const [option, setOption] = useState<string>("");
+  const [option, setOption] = useState<States>("a");; // Narrowed to match States
 
   const [ia, setIa] = useState<boolean>(false);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
@@ -61,8 +60,6 @@ function App()
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
 
-  // Pending OAuth token (new OAuth user who hasn't accepted terms yet)
-  const [pendingOAuthToken, setPendingOAuthToken] = useState<string>("");
   // Error message coming back from OAuth callback (e.g. email conflict)
   const [oauthError, setOAuthError] = useState<string>("");
 
@@ -79,7 +76,6 @@ function App()
 
     if (token) {
       try {
-        
         // Decode JWT payload to get user info
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -93,7 +89,6 @@ function App()
         const payload = JSON.parse(jsonPayload); // { sub: 1, nick: 'foo', ... }
 
         // 1. Save data to localStorage
-        //localStorage.setItem("jwt_token", token);
         localStorage.setItem("pong_token", token);
         localStorage.setItem("pong_user_nick", payload.nick);
         localStorage.setItem("pong_user_id", payload.sub.toString());
@@ -116,12 +111,38 @@ function App()
       }
     }
 
-    // New OAuth user → show terms acceptance screen before creating account
+    // New OAuth user — terms already accepted in SignScreen before redirect.
+    // Call /auth/oauth-complete directly to exchange pendingToken for a real JWT.
     const pendingToken = params.get('oauth_pending');
     if (pendingToken) {
       window.history.replaceState({}, document.title, window.location.pathname);
-      setPendingOAuthToken(pendingToken);
-      dispatch({ type: "OAUTH_TERMS" });
+
+      fetch('/auth/oauth-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pendingToken }),
+      })
+        .then(r => r.json())
+        .then(result => {
+          if (result.ok) {
+            const token = result.token;
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            localStorage.setItem('pong_user_nick', payload.nick);
+            localStorage.setItem('pong_user_id', String(payload.sub));
+            localStorage.setItem('pong_token', token);
+            setCurrentUser(payload.nick);
+            setCurrentUserId(Number(payload.sub));
+            console.log("🔓 OAuth registration complete:", payload.nick);
+            dispatch({ type: 'MENU' });
+          } else {
+            console.error("❌ oauth-complete failed:", result.msg);
+            dispatch({ type: 'LOGIN' });
+          }
+        })
+        .catch(err => {
+          console.error("❌ Error calling /auth/oauth-complete:", err);
+          dispatch({ type: 'LOGIN' });
+        });
     }
 
     // OAuth callback error (e.g. email already registered under a different account)
@@ -139,21 +160,11 @@ function App()
   // -----------------------------------------------------------
   useEffect(() => {
     if (currentUser) {
-        console.log("🔄 Usuario activo detectado. Conectando socket...");
-        //connectSocket(); // <--- IMPORTANTE: Asegúrate de importar esto arriba
-        // -----------------------------------------------------------
-        // 🕵️ TRUCO PARA PROBAR: Leer ID de la URL
-        // -----------------------------------------------------------
+        console.log("🔄 Active user detected. Connecting socket...");
         const queryParams = new URLSearchParams(window.location.search);
         const urlId = queryParams.get('uid'); 
-        
-        // Si hay ?uid=X en la URL, usamos ese. 
-        // Si no, intentamos leer del localStorage (o dejamos que el servicio lo busque).
         const idToConnect = urlId ? Number(urlId) : Number(localStorage.getItem("pong_user_id"));
-
-        // Pasamos el ID explícito al servicio
         connectSocket(idToConnect);
-        /*********************************** */
     }
   }, [currentUser]);
 
@@ -188,7 +199,6 @@ function App()
   }, [currentUser]);
 
   // FUNCIÓN DE LOGOUT EXPLÍCITA
-  // Pasa esta función a tu Header o donde tengas el botón de salir
   const handleLogout = () => {
       // 1. Limpiar Storage
       localStorage.removeItem("pong_user_nick");
@@ -202,7 +212,7 @@ function App()
       setCurrentUserAvatarUrl(null);
       setProfileSynced(false);
       // 4. Cambiar Pantalla
-      dispatch({ type: "LOGOUT" }); // O "LOGIN"
+      dispatch({ type: "LOGOUT" });
   };
   
   // -----------------------------------------------------------------------
@@ -210,8 +220,8 @@ function App()
   // -----------------------------------------------------------------------
   useEffect(() => {
   const handleMatchFound = (payload: any) => {
-          console.log("🔔 [App.tsx] Evento match_found recibido:", payload);
-          console.log("🕵️ [App.tsx] Datos del oponente:", payload.opponent);
+          console.log("🔔 [App.tsx] Event match_found received:", payload);
+          console.log("🕵️ [App.tsx] Data from rival:", payload.opponent);
 
           if (payload.roomId) { 
               
@@ -240,7 +250,7 @@ function App()
                   console.log("📸 Avatar del oponente recibido:", payload.opponent.avatar);
                   setOpponentAvatar(payload.opponent.avatar);
               } else {
-                  setOpponentAvatar(null); // Por si viene vacío
+                  setOpponentAvatar(null);
               }
 
               // Guardar Física (si viene del backend)
@@ -264,7 +274,6 @@ function App()
               setChatOpen(false);
 
               // CAMBIO DE PANTALLA
-              // Usamos dispatch, no navigate. El setTimeout ayuda a que los estados se asienten.
               setTimeout(() => {
                   console.log("🚀 Ejecutando cambio de pantalla a PONG...");
                   dispatch({ type: "PONG" }); 
@@ -277,7 +286,7 @@ function App()
       // 🔥 MANEJO DE INVITACIÓN CON MODAL PROPIO (NO window.confirm)
       const handleIncomingInvite = (data: { fromUserId: number, fromUserName: string }) => {
         console.log("🔔 Invitación recibida (Modal):", data);
-        setInviteRequest(data); // Esto abrirá el pop-up visual
+        setInviteRequest(data);
       };
 
       socket.on('match_found', handleMatchFound);
@@ -291,21 +300,15 @@ function App()
 
     // --- FUNCIÓN PARA ACEPTAR/RECHAZAR ---
 const handleInviteResponse = (accept: boolean) => {
-      // Si no hay invitación, no hacemos nada
       if (!inviteRequest) return;
 
       if (accept) {
           console.log("✅ Aceptando reto...");
-          // 1. Avisamos al servidor
           socket.emit('accept_game_invite', { challengerId: inviteRequest.fromUserId });
-          
-          // 🔥 2. IMPORTANTE: Cerramos el modal VISUALMENTE ya.
-          // No esperamos a que el servidor responda. Si hay error, ya lo manejaremos,
-          // pero el usuario no debe ver el modal bloqueando la pantalla.
           setInviteRequest(null); 
       } else {
           console.log("❌ Rechazando reto.");
-          setInviteRequest(null); // Cerramos el modal
+          setInviteRequest(null);
       }
   };
    
@@ -317,9 +320,7 @@ function renderScreen()
     switch (screen)
     {
       case "menu":
-
         document.body.classList.add("scroll");
-
         return <MenuScreen 
           dispatch={dispatch}
           ia={ia}
@@ -328,31 +329,18 @@ function renderScreen()
           setMode={setMode}
           setDifficult={setDifficult}
           userName={currentUser} 
-          setOpponentName={setOpponentName} // <--- NUEVO
-          setPlayerSide={setPlayerSide}     // <--- NUEVO
-          //userAvatar={currentUserAvatarUrl}  // Tu avatar (Estado global)
-          //opponentAvatar={opponentAvatar}    // Avatar del rival (Estado nuevo)
+          setOpponentName={setOpponentName}
+          setPlayerSide={setPlayerSide}
           isAuthenticated={!!currentUser}
         />;
       case "sign":
         return <SignScreen dispatch={dispatch} />;
       case "login":
-        //return <LoginScreen dispatch={dispatch} />;
-        // Pasamos 'setCurrentUser' para que el Login pueda actualizar el estado de App
         return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} oauthError={oauthError} clearOAuthError={() => setOAuthError("")} />;
       case "pong":
-        // 1. Calcular MI avatar (Si soy null)
         const finalUserAvatar = currentUserAvatarUrl || (currentUserId ? getDefaultAvatar(currentUserId) : null);
-
-        // 2. Calcular AVATAR RIVAL (si es null, usando SU id)
         const finalOpponentAvatar = opponentAvatar || (opponentId ? getDefaultAvatar(opponentId) : null);
-        
-        // Usamos 'as any' para evitar líos de tipos si TypeScript se queja
         const PongScreenComp = PongScreen as any;
-
-        // if (mode === "remote")
-        //   setChatOpen("false");
-        
         return <PongScreenComp
           dispatch={dispatch}
           mode={mode}
@@ -371,17 +359,11 @@ function renderScreen()
             setGlobalUser={setCurrentUser}
             setGlobalUserId={setCurrentUserId}
             setGlobalAvatarUrl={setCurrentUserAvatarUrl}
-          />; // added to update the Header instantly in case of change of nick/avatar
+          />;
         case "stats":
           return <StatsScreen />;
         case "info":
           return <InfoScreen dispatch={dispatch} option={option} />;
-        case "oauth_terms":
-          return <OAuthTermsScreen
-            dispatch={dispatch}
-            pendingToken={pendingOAuthToken}
-            setGlobalUser={setCurrentUser}
-          />;
         default:
           return null;
     }
@@ -390,7 +372,7 @@ function renderScreen()
   return (
     <div className="app">
       {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
-      {/* 🔥🔥 MODAL DE INVITACIÓN - ESTILOS INLINE PARA RAPIDEZ 🔥🔥 */}
+      {/* 🔥🔥 MODAL DE INVITACIÓN 🔥🔥 */}
       {inviteRequest && (
           <div style={{
               position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -402,9 +384,9 @@ function renderScreen()
                   border: '2px solid #ea580c', textAlign: 'center', color: 'white',
                   maxWidth: '400px', boxShadow: '0 0 20px rgba(234, 88, 12, 0.5)'
               }}>
-                  <h2 style={{marginTop: 0}}>⚔️ ¡DESAFÍO PONG!</h2>
+                  <h2 style={{marginTop: 0}}>⚔️ {t('app.pongChallenge')}</h2>
                   <p style={{fontSize: '18px', margin: '20px 0'}}>
-                      <strong>{inviteRequest.fromUserName}</strong> quiere jugar contigo.
+                      <strong>{inviteRequest.fromUserName === 'app.afriend' ? t('app.afriend') : inviteRequest.fromUserName}</strong>{t('app.wantPlay')}
                   </p>
                   <div style={{display: 'flex', gap: '20px', justifyContent: 'center'}}>
                       <button 
@@ -414,7 +396,7 @@ function renderScreen()
                               padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
                           }}
                       >
-                          ACEPTAR
+                        {t('modal.accept_btn')}
                       </button>
                       <button 
                           onClick={() => handleInviteResponse(false)}
@@ -423,7 +405,7 @@ function renderScreen()
                               padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
                           }}
                       >
-                          RECHAZAR
+                          {t('modal.reject_btn')}
                       </button>
                   </div>
               </div>

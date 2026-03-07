@@ -637,7 +637,7 @@ console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario $
     // We include the senderId and senderName (if you have it in client.data or you look it up)
       this.server.to(targetSocketId).emit('incoming_game_invite', {
           fromUserId: senderId,
-          fromUserName: client.data.user?.pNick || "Un amigo", // Make sure you have the nick // or "A friend"
+          fromUserName: client.data.user?.pNick || 'app.afriend', // Make sure you have the nick // or "A friend"
           mode: 'classic' // Or 'custom', if you implement modes
       });
   }

@@ -60,11 +60,17 @@
     "profile": "Profile",
     "matchEnded": "Match Ended",
     "back2Menu": "Back to Main Menu",
+    "app":
+    {
+        "pongChallenge": "PONG Challenge",
+        "afriend": "A friend",
+        "wantPlay": " wants to play with you."
+    },
     "privacy": 
     {
         "prefix": "I have read and agree to the",
-        "and": "and",
-        "sufix": "."
+        "and": "and the ",
+        "dot": "."
     },
     "chat": 
     {
@@ -90,7 +96,7 @@
         "no_avatars": "No avatars found in the gallery",
         "tab_info": "Manage the profile",
         "tab_friends": "Friends ({{count}})",
-        "tab_requests": "Requests",
+        "tab_requests": "Requests ({{count}})",
         "tab_stats": "Statistics",
 
         "title": "User Profile",
@@ -165,6 +171,7 @@
     {
         "accept_btn": "accept",
         "cancel_btn": "cancel",
+        "reject_btn": "Reject",
         "loading": "Loading..."
     },
     "errors": 
@@ -204,7 +211,10 @@
         "birthTooOld": "Date of birth cannot be more than 150 years ago",
         "userRequired": "Please enter your username",
         "passwordRequired": "Please enter your password",
-        "codeRequired": "Please enter the authentication code"
+        "codeRequired": "Please enter the authentication code",
+        "userTooShort": "Username must be at least 3 characters.",
+        "userTooLong": "Username must be at most 20 characters.",
+        "userInvalidChars": "Username can only contain letters, numbers and underscores."
     },
     "success": 
     {

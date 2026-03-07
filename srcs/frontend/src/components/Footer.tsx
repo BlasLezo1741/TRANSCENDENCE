@@ -1,16 +1,17 @@
-import type { ScreenProps } from '../ts/screenConf/screenProps';
+// import type { ScreenProps } from '../ts/screenConf/screenProps'; // Handled differently
+import type { States } from '../screens/InfoScreen.tsx';
 import { useTranslation } from 'react-i18next';
 import '../css/Footer.css';
 
 type FooterProps = {
     dispatch: React.Dispatch<any>;
-    setOption: React.Dispatch<React.SetStateAction<string>>;
+    setOption: React.Dispatch<React.SetStateAction<States>>;
 };
 
 const FooterCont = ({dispatch, setOption}: FooterProps) =>
 {
     const { t } = useTranslation();
-    const changeScreen = (option: string) =>
+    const changeScreen = (option: States) =>
     {
         setOption(option);
         dispatch({ type: "INFO" });

@@ -60,11 +60,17 @@
     "profile": "Perfil",
     "matchEnded": "Partida Acabada",
     "back2Menu": "Tornar al Menú Principal",
+    "app":
+    {
+        "pongChallenge": "Repte PONG",
+        "afriend": "Un amic",
+        "wantPlay": " vol jugar amb tu."
+    },
     "privacy": 
     {
         "prefix": "He llegit i accepto els ",
-        "and": "i",
-        "sufix": "."
+        "and": "i la ",
+        "dot": "."
     },
     "chat": 
     {
@@ -90,7 +96,7 @@
         "no_avatars": "No s'han trobat avatars a la galeria",
         "tab_info": "Gestionar el perfil",
         "tab_friends": "Amics ({{count}})",
-        "tab_requests": "Sol·licituds",
+        "tab_requests": "Sol·licituds ({{count}})",
         "tab_stats": "Estadístiques",
 
         "title": "Perfil d'usuari",
@@ -165,6 +171,7 @@
     {
         "accept_btn": "acceptar",
         "cancel_btn": "cancel·lar",
+        "reject_btn": "Rebutjar",
         "loading": "Carregant..."
     },
     "errors": 
@@ -204,7 +211,10 @@
         "birthTooOld": "La data de naixement no pot ser anterior a 150 anys",
         "userRequired": "Si us plau introdueix el teu nom d'usuari",
         "passwordRequired": "Si us plau introdueix la teva contrasenya",
-        "codeRequired": "Si us plau introdueix el codi d'autenticació"
+        "codeRequired": "Si us plau introdueix el codi d'autenticació",
+        "userTooShort": "El nom d'usuari ha de tenir almenys 3 caràcters.",
+        "userTooLong": "El nom d'usuari ha de tenir com a màxim 20 caràcters",
+        "userInvalidChars": "El nom d'usuari només pot contenir lletres, números i guions baixos."
     },
     "success": 
     {

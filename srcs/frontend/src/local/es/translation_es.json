@@ -60,11 +60,17 @@
     "profile": "Perfil",
     "matchEnded": "Partida Terminada",
     "back2Menu": "Volver al Menú Principal",
+    "app":
+    {
+        "pongChallenge": "Desafío PONG",
+        "afriend": "Un amigo",
+        "wantPlay": " quiere jugar contigo."
+    },
     "privacy": 
     {
         "prefix": "He leído y acepto los ",
-        "and": "y",
-        "sufix": "."
+        "and": "y la ",
+        "dot": "."
     },
     "chat": 
     {
@@ -90,7 +96,7 @@
         "no_avatars": "No se encontraron avatares en la galería",
         "tab_info": "Gestionar el perfil",
         "tab_friends": "Amigos ({{count}})",
-        "tab_requests": "Solicitudes",
+        "tab_requests": "Solicitudes ({{count}})",
         "tab_stats": "Estadísticas",
 
         "title": "Perfil de usuario",
@@ -165,6 +171,7 @@
     {
         "accept_btn": "aceptar",
         "cancel_btn": "cancelar",
+        "reject_btn": "Rechazar",
         "loading": "Cargando..."
     },
     "errors": 
@@ -204,7 +211,10 @@
         "birthTooOld": "La fecha de nacimiento no puede ser anterior a 150 años",
         "userRequired": "Por favor ingresa tu nombre de usuario",
         "passwordRequired": "Por favor ingresa tu contraseña",
-        "codeRequired": "Por favor ingresa el código de autenticación"
+        "codeRequired": "Por favor ingresa el código de autenticación",
+        "userTooShort": "El nombre de usuario debe tener al menos 3 caracteres.",
+        "userTooLong": "El nombre de usuario debe tener como máximo 20 caracteres.",
+        "userInvalidChars": "El nombre de usuario solo puede contener letras, números y guiones bajos."
     },
     "success": 
     {
