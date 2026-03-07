@@ -74,7 +74,9 @@
         "noFriends": "No friends online",
         "addFriends": "Add someone from their profile!",
         "invitePlay": "Invite to play",
-        "challenge": "🏓 Challenge"
+        "challenge": "🏓 Challenge",
+        "challengeSent": "🚀 Challenge sent",
+        "messageChallengeSent": "The invitation has been successfully sent. Wait for your friend to accept to start the match."
     },
     "prof": 
     {

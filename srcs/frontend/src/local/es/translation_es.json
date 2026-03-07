@@ -74,7 +74,9 @@
         "noFriends": "No friends online",
         "addFriends": "Add someone from their profile!",
         "invitePlay": "Invitar a jugar",
-        "challenge": "🏓 Desafiar"
+        "challenge": "🏓 Desafiar",
+        "challengeSent": "🚀 Reto enviado",
+        "messageChallengeSent": "La invitación ha sido enviada correctamente. Espera a que tu amigo acepte para comenzar la partida."
     },
     "prof": 
     {

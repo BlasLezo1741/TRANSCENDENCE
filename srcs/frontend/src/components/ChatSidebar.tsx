@@ -283,8 +283,8 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
         
         //alert("¡Invitación enviada! Esperando respuesta...");
         showModal({
-            title: "🚀 Reto Enviado",
-            message: "La invitación ha sido enviada correctamente. Espera a que tu amigo acepte para comenzar la partida.",
+            title: t('chat.challengeSent'),
+            message: t('chat.messageChallengeSent'),
             type: "info" // Solo botón de OK
         });
     };

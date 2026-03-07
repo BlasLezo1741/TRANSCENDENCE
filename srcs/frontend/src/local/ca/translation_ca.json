@@ -74,7 +74,9 @@
         "noFriends": "No tens amics connectats",
         "addFriends": "Afegeix algú des del seu perfil!",
         "invitePlay": "Convidar a jugar",
-        "challenge": "🏓 Desafiar"
+        "challenge": "🏓 Desafiar",
+        "challengeSent": "🚀 Repte enviat",
+        "messageChallengeSent": "La invitació s'ha enviat correctament. Espera que el teu amic accepti per començar la partida."
     },
     "prof": 
     {
