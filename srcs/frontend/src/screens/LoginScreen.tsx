@@ -46,10 +46,10 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                     return;
                 } else {
                 // If verification is successful
-                localStorage.setItem("pong_user_nick", user);
+                localStorage.setItem("pong_user_nick", result.user);
                 localStorage.setItem("pong_user_id", userId!.toString());
                 localStorage.setItem("pong_token", result.token); //SAVE THE TOKEN!
-                setGlobalUser(user);
+                setGlobalUser(result.user);
                 dispatch({ type: "MENU" });
                 }
             } else {

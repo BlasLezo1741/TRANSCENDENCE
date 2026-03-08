@@ -237,7 +237,12 @@ async verifyTOTP(
         })
       );
       if (data.status === 'ok') {
-        return { ok: true, msg: "Correcta validación del código 2FA" };
+        let username = await this.db.select({ pNick: player.pNick }).from(player).where(eq(player.pPk, userId));
+        const access_token = this.jwtService.sign({ 
+          sub: userId, 
+          username: username 
+        });
+        return { ok: true, msg: "Correcta validación del código 2FA",token: access_token, user:username  };
       } else {
         return { ok: false, msg: "Código 2FA inválido" };
       }
@@ -283,9 +288,14 @@ async verifyBackupCode(
       })
       .from(player)
       .where(eq(player.pPk, userId));
-
+      // generate TOKEN to preserve session persistence
+      let username = await this.db.select({ pNick: player.pNick }).from(player).where(eq(player.pPk, userId));
+      const access_token = this.jwtService.sign({ 
+        sub: userId, 
+        username: username 
+      });
       //return { ok: true, msg: `The user has ${result2[0].codesLeft} codes remaining after correct backup code validation` };
-      return { ok: true, msg: `Correcta validación del código 2FA` };
+      return { ok: true, msg: `Correcta validación del código 2FA`,token: access_token, user:username };
 
     }
 
