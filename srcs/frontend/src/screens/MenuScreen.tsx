@@ -27,7 +27,7 @@ type OptionsProps = ScreenProps & {
   isAuthenticated: boolean; // para validar el tipo de conexion admitida
 };
 
-const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName, setOpponentName, setPlayerSide }: OptionsProps) => {   
+const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName, setOpponentName, setPlayerSide, isAuthenticated }: OptionsProps) => {   
     const { t, i18n } = useTranslation(); // Add i18n to access current language
     const [statusText, setStatusText] = useState<string>("");
     const [modeActive, setModeActive] = useState<"offline" | "online" | null>(null);
