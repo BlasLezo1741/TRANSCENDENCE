@@ -317,6 +317,30 @@ function App()
       };
     }, []);
 
+    // -----------------------------------------------------------------------
+  // 3. LIMPIEZA DE ESTADO AL VOLVER AL MENÚ
+  // -----------------------------------------------------------------------
+  useEffect(() => {
+    // Si la pantalla actual es el menú, reseteamos todos los estados del juego
+    // para que la próxima partida empiece totalmente limpia.
+    if (screen === "menu") {
+      // Avisamos al servidor SOLO cuando de verdad volvemos al menú
+      if (roomId && mode === "remote") {
+        console.log("Avisando al servidor para abandonar la sala:", roomId);
+        socket.emit('leave_game', { roomId: roomId });
+    }
+      setBallInit(null);
+      setRoomId("");
+      setOpponentId(null);
+      setOpponentName("");
+      setOpponentAvatar(null);
+      setPlayerSide("left");
+      
+      // Si usabas setMatchData para guardar info, también la limpiamos
+      // setMatchData("", 0); // Descomenta esto si tienes una función para resetear matchData
+    }
+  }, [screen]); // <--- Se ejecuta automáticamente cada vez que la variable 'screen' cambia
+
     // --- FUNCIÓN PARA ACEPTAR/RECHAZAR ---
 const handleInviteResponse = (accept: boolean) => {
       if (!inviteRequest) return;
