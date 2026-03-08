@@ -12,7 +12,8 @@ include: # Please keep alphabetic order
 
 networks:
   public_net:         # <--- AÑADIDA: Red pública (Solo para Nginx)
-    name: public_net
+    # name: public_net
+    name: public_net_v2
     driver: bridge
   transcendence_net:
     name: thenet_v2

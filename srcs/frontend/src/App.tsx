@@ -296,6 +296,11 @@ function App()
     // Si la pantalla actual es el menú, reseteamos todos los estados del juego
     // para que la próxima partida empiece totalmente limpia.
     if (screen === "menu") {
+      // Avisamos al servidor SOLO cuando de verdad volvemos al menú
+      if (roomId && mode === "remote") {
+        console.log("Avisando al servidor para abandonar la sala:", roomId);
+        socket.emit('leave_game', { roomId: roomId });
+    }
       setBallInit(null);
       setRoomId("");
       setOpponentId(null);

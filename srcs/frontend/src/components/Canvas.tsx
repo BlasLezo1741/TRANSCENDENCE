@@ -41,7 +41,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animationIdRef = useRef<number | null>(null);
     const gameRunningRef = useRef(false);
-    const roomIdRef = useRef<string>(roomId); //nuevo
+    //const roomIdRef = useRef<string>(roomId); //nuevo
     //const roomIdRef = useRef<string | null>(null);//guardamos IDde la sala
     const lastSentY = useRef<number>(0.5); // Aquí la última posición enviada
     const gameRef = useRef<Pong | null>(null);
@@ -375,18 +375,6 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                 cancelAnimationFrame(animationId);
                 
                 // We notify and exit with delay to give time to enter the last point on the scoreboard
-                // setTimeout(() => {
-                //     // alert(`¡Juego Terminado! Ganador: ${winnerName}`);
-                //     // dispatch({ type: "MENU" });
-                //     showModal({
-                //         title: "🏆 ¡GAME OVER!",
-                //         message: `Winner: ${winnerName}`,
-                //         type: "success",
-                //         onConfirm: () => {
-                //             dispatch({ type: "MENU" });
-                //         }
-                //     });
-                // }, 50);
                 setTimeout(() => {
                     // AVISAMOS AL PONGSCREEN
                     if (onGameOver) {
@@ -417,11 +405,11 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                 const myNormalizedY = myCenterPixel / canvas.height;
 
                 // 3. Send only if it has changed (to not saturate)
-                // We use roomIdRef.current to ensure we have the ID
-                if (roomIdRef.current && Math.abs(myNormalizedY - lastSentY.current) > 0.001) {
+                // We use roomIdRef.current to ensure we have the ID change by roomId
+                if (roomId && Math.abs(myNormalizedY - lastSentY.current) > 0.001) {
                     
                     socket.emit('paddle_move', { 
-                        roomId: roomIdRef.current, 
+                        roomId: roomId, 
                         y: myNormalizedY // <--- We send the exact data, NOT 'up' or 'down'
                     });
                     lastSentY.current = myNormalizedY;
@@ -441,11 +429,11 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
             
-            // Avisar al backend para que destruya la sala y no mande datos fantasma
-            if (roomId && mode.includes('remote')) {
-                socket.emit('leave_game', { roomId: roomId }); 
-                // Nota: Si en tu backend este evento se llama distinto (ej: 'leave_room'), cámbialo aquí.
-            }
+            // // Avisar al backend para que destruya la sala y no mande datos fantasma
+            // if (roomId && mode.includes('remote')) {
+            //     socket.emit('leave_game', { roomId: roomId }); 
+            //     // Nota: Si en tu backend este evento se llama distinto (ej: 'leave_room'), cámbialo aquí.
+            // }
 
             socket.off('game_update_physics');
             socket.off('game_over', handleGameOver);
