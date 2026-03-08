@@ -59,6 +59,7 @@
     "error": "Erreur",
     "profile": "Profil",
     "matchEnded": "Partie Terminée",
+    "you": "Vous",
     "back2Menu": "Retour au Menu Principal",
     "app":
     {
@@ -251,7 +252,7 @@
     },
     "game":
     {
-        "ended": "🏆 ¡JUEGO TERMINADO!",
+        "ended": "🏆 PARTIE FINIE!",
         "winner": "Vainqueur: {{name}}",
         "disconnected": "🔌 Adversaire Déconnecté",
         "messageDisconnected": "L'adversaire a perdu la connexion. Vous avez gagné par abandon !"
