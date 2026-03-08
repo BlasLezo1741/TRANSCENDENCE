@@ -3,7 +3,7 @@ import { loadHtmlContent } from '../ts/utils/loadHtmlContent';
 import { useTranslation } from 'react-i18next';
 import "../css/ProfileScreen.css";
 
-type States = 'a' | 'b' | 'c' | 'd' | 'e';
+export type States = 'a' | 'b' | 'c' | 'd' | 'e';
 
 type InfoProps = {
     dispatch: React.Dispatch<any>;
@@ -17,8 +17,8 @@ const contentMap: Record<States, string> = {
     d: 'contact',
     e: 'credits'
 };
-
-const InfoScreen = ({dispatch, option}: InfoProps) => {
+// dispatch option is unused. Kept for potential use
+const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
     const { t, i18n } = useTranslation();
     const [activeTab, setActiveTab] = useState<States>(option);
     const [htmlContent, setHtmlContent] = useState<string>('');

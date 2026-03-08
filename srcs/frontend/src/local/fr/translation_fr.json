@@ -5,6 +5,17 @@
     "count": "Nous sommes ",
     "modo": "Choisir le mode de jeu:",
     "difficulty": "Choisis difficulté",
+    "guest": "Invité",
+    "searching_player": "Recherche de joueur...",
+    "player_vs_ia": "Joueur vs IA",
+    "player_vs_player": "Joueur vs Joueur",
+    "player_vs_remote": "Joueur vs Distant",
+    "alt_main_image": "Image principale",
+    "alt_easy": "Facile",
+    "alt_normal": "Normal",
+    "alt_hard": "Difficile",
+    "alt_impossible": "Impossible",
+    "alt_cancel": "Annuler",    
     "juego_mode": "Mode de jeu: ",
     "Jugar": "Jouer",
     "user": "Utilisateur",
@@ -48,18 +59,31 @@
     "error": "Erreur",
     "profile": "Profil",
     "matchEnded": "Partie Terminée",
+    "you": "Vous",
     "back2Menu": "Retour au Menu Principal",
+    "app":
+    {
+        "pongChallenge": "Défi PONG",
+        "afriend": "Un ami",
+        "wantPlay": " veut jouer avec vous."
+    },
     "privacy": 
     {
         "prefix": "J'ai lu et j'accepte les ",
-        "and": "et",
-        "suffix": "."
+        "and": "et la ",
+        "dot": "."
     },
     "chat": 
     {
         "my_friends": "mes amis",
         "with": "chat avec {{name}}",
-        "write": "écrire un message"
+        "write": "écrire un message",
+        "noFriends": "Aucun ami en ligne",
+        "addFriends": "Ajoutez quelqu'un depuis son profil !",
+        "invitePlay": "Inviter à jouer",
+        "challenge": "🏓 Défier",
+        "challengeSent": "🚀 Défi envoyé",
+        "messageChallengeSent": "L'invitation a été envoyée avec succès. Attendez que votre ami accepte pour commencer la partie."
     },
     "prof": 
     {
@@ -73,7 +97,7 @@
         "no_avatars": "Aucun avatar trouvé dans la galerie",
         "tab_info": "Gérer le profil",
         "tab_friends": "Amis ({{count}})",
-        "tab_requests": "Demandes",
+        "tab_requests": "Demandes ({{count}})",
         "tab_stats": "Statistiques",
 
         "title": "Profil utilisateur",
@@ -146,8 +170,9 @@
     },
     "modal":
     {
-        "accept_btn": "accepter",
-        "cancel_btn": "annuler",
+        "accept_btn": "Accepter",
+        "cancel_btn": "Annuler",
+        "reject_btn": "Décliner",
         "loading": "Chargement..."
     },
     "errors": 
@@ -184,7 +209,13 @@
         "unknownError": "Erreur inconnue",
         "noBirthDate": "Veuillez indiquer une date de naissance valide.",
         "birthFuture": "La date de naissance ne peut pas être dans le futur",
-        "birthTooOld": "La date de naissance ne peut pas remonter à plus de 150 ans"
+        "birthTooOld": "La date de naissance ne peut pas remonter à plus de 150 ans",
+        "userRequired": "Veuillez saisir votre nom d'utilisateur",
+        "passwordRequired": "Veuillez saisir votre mot de passe",
+        "codeRequired": "Veuillez saisir le code d'authentification",
+        "userTooShort": "Le nom d'utilisateur doit comporter au moins 3 caractères.",
+        "userTooLong": "Le nom d'utilisateur doit comporter au maximum 20 caractères.",
+        "userInvalidChars": "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des traits de soulignement."
     },
     "success": 
     {
@@ -218,5 +249,12 @@
         "title": "Une dernière étape",
         "subtitle": "Avant de créer votre compte, veuillez lire et accepter nos conditions.",
         "confirm_btn": "Créer un compte"
+    },
+    "game":
+    {
+        "ended": "🏆 PARTIE FINIE!",
+        "winner": "Vainqueur: {{name}}",
+        "disconnected": "🔌 Adversaire Déconnecté",
+        "messageDisconnected": "L'adversaire a perdu la connexion. Vous avez gagné par abandon !"
     }
 }

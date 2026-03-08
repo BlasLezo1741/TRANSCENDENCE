@@ -5,6 +5,17 @@
     "count": "We are ",
     "modo": "Choose game mode",
     "difficulty": "Choose difficulty",
+    "guest": "Guest",
+    "searching_player": "Searching for player...",
+    "player_vs_ia": "Player vs AI",
+    "player_vs_player": "Player vs Player",
+    "player_vs_remote": "Player vs Remote",
+    "alt_main_image": "Main image",
+    "alt_easy": "Easy",
+    "alt_normal": "Normal",
+    "alt_hard": "Hard",
+    "alt_impossible": "Impossible",
+    "alt_cancel": "Cancel",
     "juego_mode": "Game mode: ",
     "Jugar": "Play",
     "user": "Username",
@@ -48,18 +59,31 @@
     "error": "Error",
     "profile": "Profile",
     "matchEnded": "Match Ended",
+    "you": "You",
     "back2Menu": "Back to Main Menu",
+    "app":
+    {
+        "pongChallenge": "PONG Challenge",
+        "afriend": "A friend",
+        "wantPlay": " wants to play with you."
+    },
     "privacy": 
     {
         "prefix": "I have read and agree to the",
-        "and": "and",
-        "suffix": "."
+        "and": "and the ",
+        "dot": "."
     },
     "chat": 
     {
         "my_friends": "my friends",
         "with": "chat with {{name}}",
-        "write": "write a message"
+        "write": "write a message",
+        "noFriends": "No friends online",
+        "addFriends": "Add someone from their profile!",
+        "invitePlay": "Invite to play",
+        "challenge": "🏓 Challenge",
+        "challengeSent": "🚀 Challenge sent",
+        "messageChallengeSent": "The invitation has been successfully sent. Wait for your friend to accept to start the match."
     },
     "prof": 
     {
@@ -73,7 +97,7 @@
         "no_avatars": "No avatars found in the gallery",
         "tab_info": "Manage the profile",
         "tab_friends": "Friends ({{count}})",
-        "tab_requests": "Requests",
+        "tab_requests": "Requests ({{count}})",
         "tab_stats": "Statistics",
 
         "title": "User Profile",
@@ -146,8 +170,9 @@
     },
     "modal":
     {
-        "accept_btn": "accept",
-        "cancel_btn": "cancel",
+        "accept_btn": "Accept",
+        "cancel_btn": "Cancel",
+        "reject_btn": "Reject",
         "loading": "Loading..."
     },
     "errors": 
@@ -162,7 +187,7 @@
         "badLengthPassword": "Password must be between 8 and 100 characters",
         "noMatchPassword": "Passwords do not match",
         "inactiveAccount": "This account is inactive",
-        "userOrEmailExists": "Username or em-ail already exists",
+        "userOrEmailExists": "Username or e-mail already exists",
         "useOAuthProvider": "Please log in with your OAuth provider (42 or Google)",
         "useOAuthProviderShort": "Please log in with your OAuth provider",
         "noAuthToken": "Missing authentication token",
@@ -184,7 +209,13 @@
         "unknownError": "Unknown error",
         "noBirthDate": "Please provide a valid date of birth",
         "birthFuture": "Date of birth cannot be in the future",
-        "birthTooOld": "Date of birth cannot be more than 150 years ago"
+        "birthTooOld": "Date of birth cannot be more than 150 years ago",
+        "userRequired": "Please enter your username",
+        "passwordRequired": "Please enter your password",
+        "codeRequired": "Please enter the authentication code",
+        "userTooShort": "Username must be at least 3 characters.",
+        "userTooLong": "Username must be at most 20 characters.",
+        "userInvalidChars": "Username can only contain letters, numbers and underscores."
     },
     "success": 
     {
@@ -218,5 +249,11 @@
         "title": "One last step",
         "subtitle": "Before we create your account, please read and accept our terms.",
         "confirm_btn": "Create account"
+    },
+    "game":
+    {
+        "ended": "🏆 MATCH ENDED",
+        "winner": "Winner: {{name}}",
+        "disconnected": "🔌 Your opponent has lost connection. You won by forfeit!"
     }
 }

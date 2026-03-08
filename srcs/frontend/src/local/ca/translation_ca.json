@@ -4,8 +4,19 @@
     "sel_lang": "Selecciona l'idioma",
     "count": "Som ",
     "modo": "Tria el mode de joc",
-    "juego_mode": "Mode de joc: ",
     "difficulty": "Tria dificultat",
+    "guest": "Convidat",
+    "searching_player": "Buscant jugador...",
+    "player_vs_ia": "Jugador vs IA",
+    "player_vs_player": "Jugador vs Jugador",
+    "player_vs_remote": "Jugador vs Remot",
+    "alt_main_image": "Imatge principal",
+    "alt_easy": "Fàcil",
+    "alt_normal": "Normal",
+    "alt_hard": "Difícil",
+    "alt_impossible": "Impossible",
+    "alt_cancel": "Cancel·lar",
+    "juego_mode": "Mode de joc: ",
     "Jugar": "Jugar",
     "user": "Usuari",
     "crear_cuenta": "Crear un compte",
@@ -48,18 +59,31 @@
     "error": "Error",
     "profile": "Perfil",
     "matchEnded": "Partida Acabada",
+    "you": "Tu",
     "back2Menu": "Tornar al Menú Principal",
+    "app":
+    {
+        "pongChallenge": "Repte PONG",
+        "afriend": "Un amic",
+        "wantPlay": " vol jugar amb tu."
+    },
     "privacy": 
     {
         "prefix": "He llegit i accepto els ",
-        "and": "i",
-        "suffix": "."
+        "and": "i la ",
+        "dot": "."
     },
     "chat": 
     {
         "my_friends": "els meus amics",
         "with": "chat amb {{name}}",
-        "write": "escriu un missatge"
+        "write": "escriu un missatge",
+        "noFriends": "No tens amics connectats",
+        "addFriends": "Afegeix algú des del seu perfil!",
+        "invitePlay": "Convidar a jugar",
+        "challenge": "🏓 Desafiar",
+        "challengeSent": "🚀 Repte enviat",
+        "messageChallengeSent": "La invitació s'ha enviat correctament. Espera que el teu amic accepti per començar la partida."
     },
     "prof": 
     {
@@ -73,7 +97,7 @@
         "no_avatars": "No s'han trobat avatars a la galeria",
         "tab_info": "Gestionar el perfil",
         "tab_friends": "Amics ({{count}})",
-        "tab_requests": "Sol·licituds",
+        "tab_requests": "Sol·licituds ({{count}})",
         "tab_stats": "Estadístiques",
 
         "title": "Perfil d'usuari",
@@ -146,8 +170,9 @@
     },
     "modal":
     {
-        "accept_btn": "acceptar",
-        "cancel_btn": "cancel·lar",
+        "accept_btn": "Acceptar",
+        "cancel_btn": "Cancel·lar",
+        "reject_btn": "Rebutjar",
         "loading": "Carregant..."
     },
     "errors": 
@@ -184,7 +209,13 @@
         "unknownError": "Error desconegut",
         "noBirthDate": "Si us plau, introdueix una data de naixement vàlida.",
         "birthFuture": "La data de naixement no pot ser futura",
-        "birthTooOld": "La data de naixement no pot ser anterior a 150 anys"
+        "birthTooOld": "La data de naixement no pot ser anterior a 150 anys",
+        "userRequired": "Si us plau introdueix el teu nom d'usuari",
+        "passwordRequired": "Si us plau introdueix la teva contrasenya",
+        "codeRequired": "Si us plau introdueix el codi d'autenticació",
+        "userTooShort": "El nom d'usuari ha de tenir almenys 3 caràcters.",
+        "userTooLong": "El nom d'usuari ha de tenir com a màxim 20 caràcters",
+        "userInvalidChars": "El nom d'usuari només pot contenir lletres, números i guions baixos."
     },
     "success": 
     {
@@ -218,5 +249,12 @@
         "title": "Un últim pas",
         "subtitle": "Abans de crear el teu compte, si us plau, llegeix i accepta els nostres termes.",
         "confirm_btn": "Crear compte"
+    },
+    "game":
+    {
+        "ended": "🏆 Partida Acabada!",
+        "winner": "Guanyador: {{name}}",
+        "disconnected": "🔌 Rival Desconnectat",
+        "messageDisconnected": "El rival ha perdut la connexió. Has guanyat per abandonament!"
     }
 }

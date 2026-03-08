@@ -277,7 +277,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         console.log("💾 [ProfileScreen] handleUpdateProfile() - Starting...");
         console.log("📝 [ProfileScreen] Form data:", editForm);
     
-        // 1. Required fields (nick & email present)
+/*         // 1. Required fields (nick & email present)
         if (!editForm.nick || !editForm.email) {
             console.warn("⚠️ [ProfileScreen] Validation failed: Missing required fields");
             showModal({
@@ -286,10 +286,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 type: "error"
             });
             return;
-        }
+        } */
     
         // 2. Format validation via checkForm (email format, birth date, new password strength)
         const formResult = checkForm(
+            editForm.nick,
             editForm.email,
             editForm.newPassword,
             editForm.confirmPassword,
@@ -945,7 +946,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             </span>
                             <div>
                                 <button onClick={() => handleAccept(r.id)}>
-                                    {t('prof.accept_btn')} {/* Added Translation key */}
+                                    {sentence(t('prof.accept_btn'))} {/* Added Translation key */}
                                 </button>
                             </div>
                         </li>
@@ -1031,16 +1032,12 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     <li
                         onClick={() => setActiveTab("friends")}
                         className={activeTab === "friends" ? "selected" : ""}>
-                        {t('prof.tab_friends', { count: friends.length })} {/* Added Translation key */}
+                        {t('prof.tab_friends', { count: friends.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("requests")}
                         className={activeTab === "requests" ? "selected" : ""}>
-                        {t('prof.tab_requests')} {/* Added Translation key */}
-                        {requests.length > 0 &&
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                ({requests.length})
-                            </span>}
+                        {t('prof.tab_requests', { count: requests.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("stats")}

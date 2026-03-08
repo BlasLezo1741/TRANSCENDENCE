@@ -9,7 +9,20 @@ interface CheckFormOptions {
     requirePassword?: boolean; // default true
 }
 
-export function checkForm(email: string, password: string, repeat: string, birth: string, options: CheckFormOptions = { requirePassword: true }) {
+export function checkForm(user: string, email: string, password: string, repeat: string, birth: string, options: CheckFormOptions = { requirePassword: true }) {
+    
+    if (!user || !user.trim())
+        return { ok: false, msg: 'errors.userRequired' };
+
+    const userPattern = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!userPattern.test(user.trim())) {
+        if (user.trim().length < 3)
+            return { ok: false, msg: 'errors.userTooShort' };
+        if (user.trim().length > 20)
+            return { ok: false, msg: 'errors.userTooLong' };
+        return { ok: false, msg: 'errors.userInvalidChars' };
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email))
         return { ok: false, msg: 'errors.invalidEmail' };
