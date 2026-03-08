@@ -74,9 +74,10 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
 
         if (mode === 'ia') {
             setOpponentName("IA-Bot");
-        } else {
+        } 
+/*         else {
             setOpponentName(t('guest'));
-        }
+        } */
         setMode(mode);
         dispatch({ type: "PONG" });
     };

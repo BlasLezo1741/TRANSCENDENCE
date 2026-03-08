@@ -24,36 +24,39 @@ type PongScreenProps = ScreenProps & {
 
 const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAvatar, opponentAvatar, ballInit, playerSide, roomId, chatOpen }: PongScreenProps) =>
 {
-  const { t } = useTranslation();
-  if (!userName){
-    userName = t('you');
-    userAvatar = noAvatarUrl;
+    const { t } = useTranslation();
+    if (!userName){
+        userName = t('you');
+        userAvatar = noAvatarUrl;
+    }
+    if (!opponentName){
+        opponentName = t('guest');
     }
 // Si yo estoy a la izquierda: [Yo] vs [Rival]
   // Si yo estoy a la derecha:   [Rival] vs [Yo]
-  const leftPlayer = playerSide === 'left' ? userName : opponentName;
-  const rightPlayer = playerSide === 'left' ? opponentName : userName;
+    const leftPlayer = playerSide === 'left' ? userName : opponentName;
+    const rightPlayer = playerSide === 'left' ? opponentName : userName;
 
-  const leftAvatarRaw = playerSide === 'left' ? userAvatar : opponentAvatar;
-  const rightAvatarRaw = playerSide === 'left' ? opponentAvatar : userAvatar;
-  // 4. Función Helper (La misma que en Chat/Perfil)
-  const resolveAvatar = (avatarRaw?: string | null, seedId: number = 0) => {
-    if (!avatarRaw) return getDefaultAvatar(seedId); 
-    if (avatarRaw.startsWith('http') || avatarRaw.startsWith('/')) return avatarRaw;
-    const customUrl = getAvatarUrlById(avatarRaw);
-    return customUrl || getDefaultAvatar(seedId);
-  };
+    const leftAvatarRaw = playerSide === 'left' ? userAvatar : opponentAvatar;
+    const rightAvatarRaw = playerSide === 'left' ? opponentAvatar : userAvatar;
+    // 4. Función Helper (La misma que en Chat/Perfil)
+    const resolveAvatar = (avatarRaw?: string | null, seedId: number = 0) => {
+        if (!avatarRaw) return getDefaultAvatar(seedId); 
+        if (avatarRaw.startsWith('http') || avatarRaw.startsWith('/')) return avatarRaw;
+        const customUrl = getAvatarUrlById(avatarRaw);
+        return customUrl || getDefaultAvatar(seedId);
+    };
 
 
-  const [isCountingDown, setIsCountingDown] = useState(true);
+    const [isCountingDown, setIsCountingDown] = useState(true);
 
-  // Para las estadisticas
-  const [gameOver, setGameOver] = useState(false);
-  //const [showLeaderboard, setShowLeaderboard] = useState(false);
+    // Para las estadisticas
+    const [gameOver, setGameOver] = useState(false);
+    //const [showLeaderboard, setShowLeaderboard] = useState(false);
 
-  //Funcion stadisticas
-  const handleGameOver = () => {
-    setGameOver(true);
+    //Funcion stadisticas
+    const handleGameOver = () => {
+        setGameOver(true);
   };
 
 return (
