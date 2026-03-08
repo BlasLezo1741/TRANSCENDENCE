@@ -17,7 +17,7 @@ type CanvasProps = {
     playerSide?: 'left' | 'right';
     roomId: string;
     isGameActive: boolean;
-    onGameOver?: () => void;
+    onGameOver?: (winner: string) => void;
     chatOpen: boolean;
 };
 
@@ -191,7 +191,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             
             // SI TENEMOS onGameOver, SE LO DEJAMOS AL PONGSCREEN
             if (onGameOver) {
-                onGameOver();
+                onGameOver(winnerName);
             } else {
                 showModal({
                     title: t('game.ended'),
@@ -212,10 +212,10 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             if (data?.roomId && data.roomId !== roomId) return;
             
             console.warn("⚠️ Rival desconectado");
-
+            const winnerName = userName;
             // AVISAMOS AL PONGSCREEN
             if (onGameOver) {
-                onGameOver();
+                onGameOver(winnerName);
             } else {
                 showModal({
                     title: t('game.disconnected'),
@@ -379,7 +379,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                 setTimeout(() => {
                     // AVISAMOS AL PONGSCREEN
                     if (onGameOver) {
-                        onGameOver();
+                        onGameOver(winnerName);
                     } else {
                         showModal({
                             title: t('game.ended'),

@@ -45,10 +45,13 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
   // Para las estadisticas
   const [gameOver, setGameOver] = useState(false);
   //const [showLeaderboard, setShowLeaderboard] = useState(false);
+  //Para mostrar el ganador
+  const [winnerName, setWinnerName] = useState<string>("");
 
   //Funcion stadisticas
-  const handleGameOver = () => {
+  const handleGameOver = (winner: string) => {
     setGameOver(true);
+    setWinnerName(winner);
   };
 
 return (
@@ -131,6 +134,10 @@ return (
                   <h1 style={{ fontSize: '3rem', marginBottom: '10px', color: '#4ade80' }}>
                       {t('matchEnded')}
                   </h1>
+                  {/* 🟢 NUEVO: Mostramos al gran campeón */}
+                  <h2 style={{ fontSize: '2rem', marginBottom: '20px', color: '#facc15' }}>
+                      🏆 Ganador: {winnerName}
+                  </h2>
                   
                   {/* Mostramos el ranking directamente si es remoto */}
                   {mode.includes('remote') && (
