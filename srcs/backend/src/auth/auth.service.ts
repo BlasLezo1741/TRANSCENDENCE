@@ -302,7 +302,7 @@ async verifyBackupCode(
     return null;
   }
 
-  // Create a new OAuth user (called only after terms acceptance)
+  // Create a new OAuth user (called only after terms acceptance from signin)
   async createOAuthUser(oauthData: {
     oauthId: string;
     oauthProvider: string;
@@ -350,7 +350,7 @@ async verifyBackupCode(
         pAvatarUrl: oauthData.avatarUrl,
         pLang: oauthData.lang || 'ca',
         pCountry: oauthData.country || 'FR',
-        pProfileComplete: true, // Terms accepted at creation
+        pProfileComplete: true, // Terms accepted at creation if from signin
         pReg: now,
         pRole: 1,
         pStatus: 1,

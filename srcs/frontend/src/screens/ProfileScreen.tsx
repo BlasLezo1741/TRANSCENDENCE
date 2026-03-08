@@ -946,7 +946,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             </span>
                             <div>
                                 <button onClick={() => handleAccept(r.id)}>
-                                    {t('prof.accept_btn')} {/* Added Translation key */}
+                                    {sentence(t('prof.accept_btn'))} {/* Added Translation key */}
                                 </button>
                             </div>
                         </li>

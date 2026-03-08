@@ -169,8 +169,8 @@
     },
     "modal":
     {
-        "accept_btn": "acceptar",
-        "cancel_btn": "cancel·lar",
+        "accept_btn": "Acceptar",
+        "cancel_btn": "Cancel·lar",
         "reject_btn": "Rebutjar",
         "loading": "Carregant..."
     },

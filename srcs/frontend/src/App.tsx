@@ -12,6 +12,7 @@ import ProfileScreen from './screens/ProfileScreen.tsx'
 import StatsScreen from './screens/StatsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
 import type { States } from './screens/InfoScreen.tsx';
+import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
 
 import Header from './components/Header.tsx'
 import Footer from './components/Footer.tsx'
@@ -34,7 +35,7 @@ function App()
   // Esto evita que React renderice 'LoginScreen' al refrescar y active el borrado de usuario.
   const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "menu" as Screen);
 
-  // // --- GESTIÓN DE USUARIO REAL, GESTIÓN DE ESTADOS GLOBALES ---
+  // --- GESTIÓN DE USUARIO REAL, GESTIÓN DE ESTADOS GLOBALES ---
   const [currentUser, setCurrentUser] = useState<string>(savedUserNick);
   const [currentUserId, setCurrentUserId] = useState<number | undefined>(savedUserId);
   const [currentUserAvatarUrl, setCurrentUserAvatarUrl] = useState<string | null>(null);
@@ -44,7 +45,7 @@ function App()
   const [profileSynced, setProfileSynced] = useState<boolean>(!savedUserNick);
   const [mode, setMode] = useState<GameMode>("ia");
   const [difficult, setDifficult] = useState<GameDifficult>("");
-  // ESTADO NUEVO: Guardamos el nombre del rival aquí
+  // Guardamos el nombre del rival aquí
   const [opponentName, setOpponentName] = useState<string>("IA-Bot");
   // AVATAR
   const [opponentAvatar, setOpponentAvatar] = useState<string | null>(null);
@@ -52,7 +53,7 @@ function App()
   
   const [ballInit, setBallInit] = useState<{x: number, y: number} | null>(null);
   const [playerSide, setPlayerSide] = useState<'left' | 'right'>('left');
-  const [option, setOption] = useState<States>("a");; // Narrowed to match States
+  const [option, setOption] = useState<States>("a");
 
   const [ia, setIa] = useState<boolean>(false);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
@@ -60,6 +61,8 @@ function App()
   // Estado para la sala
   const [roomId, setRoomId] = useState<string>("");
 
+  // Pending OAuth token (new OAuth user coming from LoginScreen who hasn't accepted terms yet)
+  const [pendingOAuthToken, setPendingOAuthToken] = useState<string>("");
   // Error message coming back from OAuth callback (e.g. email conflict)
   const [oauthError, setOAuthError] = useState<string>("");
 
@@ -93,7 +96,7 @@ function App()
         localStorage.setItem("pong_user_nick", payload.nick);
         localStorage.setItem("pong_user_id", payload.sub.toString());
 
-        // 2. Update Global State (this will trigger the app to show user as logged in)
+        // 2. Update Global State
         // NOTE: avatarUrl is NOT in the JWT — syncProfile useEffect will fetch it from
         // the API automatically when currentUser becomes truthy, so we don't set it here.
         setCurrentUser(payload.nick);
@@ -111,38 +114,54 @@ function App()
       }
     }
 
-    // New OAuth user — terms already accepted in SignScreen before redirect.
-    // Call /auth/oauth-complete directly to exchange pendingToken for a real JWT.
+    // New OAuth user — two possible flows depending on where they came from:
+    //
+    // A) SignScreen → user already accepted terms before clicking OAuth
+    //    → termsAccepted=true is appended to the provider URL by SignScreen
+    //    → call /auth/oauth-complete directly, skip OAuthTermsScreen
+    //
+    // B) LoginScreen → user is new and has NOT accepted terms yet
+    //    → no termsAccepted flag in URL
+    //    → show OAuthTermsScreen to collect acceptance first
     const pendingToken = params.get('oauth_pending');
+    const termsAccepted = params.get('termsAccepted') === 'true';
+
     if (pendingToken) {
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      fetch('/auth/oauth-complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pendingToken }),
-      })
-        .then(r => r.json())
-        .then(result => {
-          if (result.ok) {
-            const token = result.token;
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            localStorage.setItem('pong_user_nick', payload.nick);
-            localStorage.setItem('pong_user_id', String(payload.sub));
-            localStorage.setItem('pong_token', token);
-            setCurrentUser(payload.nick);
-            setCurrentUserId(Number(payload.sub));
-            console.log("🔓 OAuth registration complete:", payload.nick);
-            dispatch({ type: 'MENU' });
-          } else {
-            console.error("❌ oauth-complete failed:", result.msg);
-            dispatch({ type: 'LOGIN' });
-          }
+      if (termsAccepted) {
+        // Came from SignScreen — complete registration directly
+        fetch('/auth/oauth-complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pendingToken }),
         })
-        .catch(err => {
-          console.error("❌ Error calling /auth/oauth-complete:", err);
-          dispatch({ type: 'LOGIN' });
-        });
+          .then(r => r.json())
+          .then(result => {
+            if (result.ok) {
+              const jwt = result.token;
+              const payload = JSON.parse(atob(jwt.split('.')[1]));
+              localStorage.setItem('pong_user_nick', payload.nick);
+              localStorage.setItem('pong_user_id', String(payload.sub));
+              localStorage.setItem('pong_token', jwt);
+              setCurrentUser(payload.nick);
+              setCurrentUserId(Number(payload.sub));
+              console.log("🔓 OAuth registration complete (SignScreen):", payload.nick);
+              dispatch({ type: 'MENU' });
+            } else {
+              console.error("❌ oauth-complete failed:", result.msg);
+              dispatch({ type: 'LOGIN' });
+            }
+          })
+          .catch(err => {
+            console.error("❌ Error calling /auth/oauth-complete:", err);
+            dispatch({ type: 'LOGIN' });
+          });
+      } else {
+        // Came from LoginScreen — show terms screen first
+        setPendingOAuthToken(pendingToken);
+        dispatch({ type: "OAUTH_TERMS" });
+      }
     }
 
     // OAuth callback error (e.g. email already registered under a different account)
@@ -216,7 +235,7 @@ function App()
   };
   
   // -----------------------------------------------------------------------
-  // 2. ESCUCHA GLOBAL DE SOCKET (PARTIDAS E INVITACIONES)
+  // 3. ESCUCHA GLOBAL DE SOCKET (PARTIDAS E INVITACIONES)
   // -----------------------------------------------------------------------
   useEffect(() => {
   const handleMatchFound = (payload: any) => {
@@ -364,6 +383,13 @@ function renderScreen()
           return <StatsScreen />;
         case "info":
           return <InfoScreen dispatch={dispatch} option={option} />;
+        case "oauth_terms":
+          // Only reached from LoginScreen OAuth flow (new user, terms not yet accepted)
+          return <OAuthTermsScreen
+            dispatch={dispatch}
+            pendingToken={pendingOAuthToken}
+            setGlobalUser={setCurrentUser}
+          />;
         default:
           return null;
     }

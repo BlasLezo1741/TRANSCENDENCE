@@ -163,7 +163,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         }
         console.log(`Redirigiendo a OAuth con ${provider}`);
         //window.location.href = `http://localhost:3000/auth/${provider}`;
-        window.location.href = `/auth/${provider}`; //para nginx
+        window.location.href = `/auth/${provider}?termsAccepted=true`; //to nginx and terms checked
     };
 
     return (

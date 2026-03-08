@@ -5,20 +5,21 @@ export type Screen =
     | "profile"
     | "pong"
     | "info"
-    | "profile"  // <--- Nuevo
-    | "stats"   // <--- Nuevo
-    | "oauth_terms"; // <--- New
+    | "profile"
+    | "stats"
+    | "oauth_terms";
 
 export type Action =
     | { type: "MENU" }
     | { type: "SIGN" }
     | { type: "LOGIN" }
     | { type: "PROFILE" }
-    | { type: "LOGOUT" } //ADDED
+    | { type: "LOGOUT" }
     | { type: "PONG" }
     | { type: "INFO"; option: string }
-    | { type: "PROFILE" } // <--- Nuevo
-    | { type: "STATS" };  // <--- Nuevo
+    | { type: "PROFILE" }
+    | { type: "STATS" }
+    | { type: "OAUTH_TERMS" };  // <--- Nuevo
 
 export type GameMode =
     | "ia"

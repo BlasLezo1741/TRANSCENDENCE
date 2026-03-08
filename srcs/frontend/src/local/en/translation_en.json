@@ -169,8 +169,8 @@
     },
     "modal":
     {
-        "accept_btn": "accept",
-        "cancel_btn": "cancel",
+        "accept_btn": "Accept",
+        "cancel_btn": "Cancel",
         "reject_btn": "Reject",
         "loading": "Loading..."
     },
