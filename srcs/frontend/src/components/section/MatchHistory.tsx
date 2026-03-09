@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getMatchHistory } from '../../services/user.service'; 
 import { Avatar } from './Avatar';
 import { useTranslation } from 'react-i18next'; 
+import Li from '../objects/Li.tsx';
 
 interface MatchRecord {
     id: number;
@@ -59,7 +60,9 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
             ) : (
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {history.map((match) => (
-                        <li key={match.id} style={{
+                        <Li
+                            key={match.id}
+                            /* style={{
                             display: 'flex',
                             flexDirection: 'column',
                             backgroundColor: '#1f2937',
@@ -68,7 +71,8 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
                             borderLeft: `6px solid ${match.won ? '#4ade80' : '#ef4444'}`,
                             boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
                             overflow: 'hidden'
-                        }}>
+                            }} */
+                        >
                             {/* BANDA SUPERIOR: Estado y Fecha */}
                             <div style={{ 
                                 display: 'flex', 
@@ -141,9 +145,8 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
                                         {match.opponentStatus === 6 ? t('history.deletedAccount') : match.opponent}
                                     </span>
                                 </div>
-
                             </div>
-                        </li>
+                        </Li>
                     ))}
                 </ul>
             )}

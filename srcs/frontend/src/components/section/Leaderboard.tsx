@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getLeaderboard } from '../../services/user.service';
 import { Avatar } from './Avatar'; 
 import { useTranslation } from 'react-i18next';
-
+import Li from '../objects/Li.tsx';
 interface LeaderboardPlayer {
     id: number;
     nick: string;
@@ -62,7 +62,9 @@ return (
                                       '#9ca3af';                // Gris para el resto
 
                     return (
-                        <li key={player.id} style={{
+                        <Li 
+                            key={player.id}
+                            /* style={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
@@ -72,7 +74,8 @@ return (
                             borderRadius: '8px',
                             borderLeft: `5px solid ${rankColor}`, // Línea de color a la izquierda
                             boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                        }}>
+                            }} */
+                        >
                             {/* SECCIÓN IZQUIERDA: Puesto, Avatar y Nombre */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                 
@@ -100,7 +103,7 @@ return (
                             <div style={{ color: '#4ade80', fontWeight: 'bold', fontSize: '1.2rem', textAlign: 'right' }}>
                                 {player.wins} <span style={{ fontSize: '0.85rem', color: '#9ca3af', fontWeight: 'normal', display: 'block' }}>{t('leader.wins')}</span>
                             </div>
-                        </li>
+                        </Li>
                     );
                 })}
                 {players.length === 0 && (

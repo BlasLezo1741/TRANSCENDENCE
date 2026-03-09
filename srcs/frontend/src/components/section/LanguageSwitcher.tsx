@@ -2,6 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import cataloniaFlag from '../../assets/Flag_of_Catalonia.png';
 
+import Btn from '../objects/Btn.tsx';
+import Image from '../objects/Image.tsx';
+
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
   const [activeLanguage, setActiveLanguage] = useState(i18n.language);
@@ -19,10 +22,10 @@ export function LanguageSwitcher() {
   };
 
   const FlagIcon = ({ src, alt }: { src: string; alt: string }) => (
-    <img 
+    <Image 
       src={src} 
       alt={alt} 
-      style={{ width: '20px', height: '15px' }} // proporción rectangular
+      /* style={{ width: '20px', height: '15px' }} */
     />
   );
 
@@ -66,35 +69,36 @@ export function LanguageSwitcher() {
 
   return (
     <div className="language-switcher" ref={dropdownRef}>
-
-      <button className="dropdown-btn" onClick={() => setOpen(!open)}>
-        {getLanguageDisplay(activeLanguage)}
-      </button>
-
-      <div className={`lang-but ${open ? 'show' : ''}`}>        
-        <button
+      <Btn
+        msg={getLanguageDisplay(activeLanguage)}
+        onClick={() => setOpen(!open)}
+        /* className='dropdown-btn' */
+      />
+      <div className={`lang-but ${open ? 'show' : ''}`}>
+        <Btn
+          msg={getLanguageDisplay('en')}
           onClick={() => changeLanguage('en')}
-          className={activeLanguage === 'en' ? 'lang-sel' : ''}>
-          {getLanguageDisplay('en')}
-        </button>
-
-        <button
+          active={activeLanguage === 'en'}
+          /* className='lang-sel' */
+        />
+        <Btn
+          msg={getLanguageDisplay('es')}
           onClick={() => changeLanguage('es')}
-          className={activeLanguage === 'es' ? 'lang-sel' : ''}>
-          {getLanguageDisplay('es')}
-        </button>
-
-        <button
+          active={activeLanguage === 'es'}
+          /* className='lang-sel' */
+        />
+        <Btn
+          msg={getLanguageDisplay('ca')}
           onClick={() => changeLanguage('ca')}
-          className={`cat ${activeLanguage === 'ca' ? 'lang-sel' : ''}`}>
-          {getLanguageDisplay('ca')}
-        </button>
-
-        <button
+          active={activeLanguage === 'ca'}
+          /* className='lang-sel' */
+        />
+        <Btn
+          msg={getLanguageDisplay('fr')}
           onClick={() => changeLanguage('fr')}
-          className={activeLanguage === 'fr' ? 'lang-sel' : ''}>
-          {getLanguageDisplay('fr')}
-        </button>
+          active={activeLanguage === 'fr'}
+          /* className='lang-sel' */
+        />
       </div>
     </div>
   );

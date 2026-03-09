@@ -7,6 +7,10 @@ import { firstcap } from '../../ts/utils/string';
 import { sentence } from '../../ts/utils/string';
 import { getAvatarUrlById, getDefaultAvatar } from '../../assets/avatars';
 
+import Input from '../objects/Input.tsx';
+import Image from '../objects/Image.tsx';
+import Btn from '../objects/Btn.tsx';
+
 // --- INTERFACES ---
 interface ChatContact {
     id: number;
@@ -264,9 +268,11 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
 
     if (!chatOpen) {
         return (
-            <button className="chat-floating-btn" onClick={() => setChatOpen(true)}>
-                💬
-            </button>
+            <Btn
+                msg='💬'
+                onClick={() => setChatOpen(true)}
+                /* className='chat-floating-btn' */
+            />
         );
     }
 
@@ -314,7 +320,11 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
                 <h2>{selectedChatId 
                     ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
                     : firstcap(t('chat.my_friends'))}</h2>
-                <button className="chat-close-btn" onClick={() => setChatOpen(false)}>✕</button>
+                <Btn
+                    msg='x'
+                    onClick={() => setChatOpen(false)}
+                    /* className='chat-close-btn' */
+                />
             </div>
 
             <div className="chat-body">
@@ -354,10 +364,10 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
                                         {chat.name.charAt(0)}
                                     </div> */}
                                     <div className="chat-avatar">
-                                        <img 
-                                            src={getDisplayAvatar(chat.id, chat.avatarId)} // <--- USO DE LA NUEVA FUNCIÓN
+                                        <Image
+                                            src={getDisplayAvatar(chat.id, chat.avatarId)}
                                             alt={chat.name}
-                                            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                                            /* style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} */
                                         />
                                     </div>
                                     <div className="chat-info">
@@ -381,19 +391,21 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
                     <div className="chat-conversation">
                         
                         <div className="chat-subheader">
-                            <button onClick={() => setSelectedChatId(null)} className="chat-back-btn">
-                                ⬅ {t('volver')}
-                            </button>
-
+                            <Btn
+                                msg={`⬅ {t('volver')}`}
+                                onClick={() => setSelectedChatId(null)}
+                                /* className="chat-back-btn" */
+                            />
+                            
                             {/* 👇👇👇 AQUI INSERTAMOS EL AVATAR EN LA CABECERA 👇👇👇 */}
                             <div style={{ width: '35px', height: '35px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, marginLeft: '10px' }}>
-                                <img 
+                                <Image
                                     src={(() => {
                                         const contact = contacts.find(c => c.id === selectedChatId);
                                         return contact ? getDisplayAvatar(contact.id, contact.avatarId) : '';
                                     })()}
-                                    alt="Avatar"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    alt='Avatar'
+                                    /* style={{ width: '100%', height: '100%', objectFit: 'cover' }} */
                                 />
                             </div>
                             
@@ -409,10 +421,11 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
 
                             {/* 2. BOTÓN DE RETAR (Solo visible si está Online) */}
                             {contacts.find(c => c.id === selectedChatId)?.status === 'online' && (
-                                <button 
+                                <Btn
+                                    msg='🏓 RETAR'
                                     onClick={handleInviteClick}
-                                    title="Invitar a jugar Pong"
-                                    style={{
+                                    title='Invitar a jugar Pong'
+                                    /* style={{
                                         backgroundColor: '#ea580c', // Naranja vibrante
                                         color: 'white',
                                         border: 'none',
@@ -423,10 +436,8 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
                                         fontWeight: 'bold',
                                         boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                                         transition: 'background 0.2s'
-                                    }}
-                                >
-                                    🏓 RETAR
-                                </button>
+                                    }} */
+                                />
                             )}
                         </div>
 
@@ -462,13 +473,17 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
 
                         <div className="chat-input-area">
                             <form className="chat-form" onSubmit={handleSendSubmit}>
-                                <input 
-                                    className="chat-input"
+                                <Input
+                                    /* className="chat-input" */
                                     placeholder={sentence(t('chat.write'))+'...'}
                                     value={msgInput}
-                                    onChange={e => setMsgInput(e.target.value)}
+                                    onChange={setMsgInput}
                                 />
-                                <button type="submit" className="chat-send-btn">➤</button>
+                                <Btn
+                                    msg='➤'
+                                    type='submit'
+                                    /* className='chat-send-btn' */
+                                />
                             </form>
                         </div>
                     </div>

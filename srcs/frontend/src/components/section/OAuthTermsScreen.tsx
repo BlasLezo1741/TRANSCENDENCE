@@ -11,7 +11,9 @@ import { useTranslation } from 'react-i18next';
 import TermsModal from './TermsModal';
 import type { ScreenProps } from '../../ts/screenConf/screenProps';
 
-import '../../css/Login.css';
+import Btn from '../objects/Btn.tsx';
+import Input from '../objects/Input.tsx';
+import Label from '../objects/Label.tsx';
 
 type OAuthTermsScreenProps = ScreenProps & {
     pendingToken: string;
@@ -90,14 +92,13 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
             {error && <span style={{ color: 'red' }}>{error}</span>}
 
             <div className="login-btn" style={{ margin: '20px 0' }}>
-                <input
-                    style={{ flexShrink: 0 }}
-                    id="acceptPolicy"
-                    type="checkbox"
+                <Input
+                    id='acceptPolicy'
+                    type='checkbox'
                     checked={acceptPolicy}
-                    onChange={(e) => setAcceptPolicy(e.target.checked)}
+                    onChange={setAcceptPolicy}
                 />
-                <label htmlFor="acceptPolicy">
+                <Label htmlFor='acceptPolicy'>
                     {t('privacy.prefix')}{' '}
                     <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }}>
                         {t('info.terms_of_service')}
@@ -107,16 +108,19 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
                         {t('info.privacy_policy')}
                     </a>
                     {t('privacy.suffix')}
-                </label>
+                </Label>
             </div>
 
             <div className="login-btn form-btn">
-                <button type="button" onClick={handleCancel}>
-                    {t('volver')}
-                </button>
-                <button type="button" onClick={handleAccept} disabled={isLoading}>
-                    {isLoading ? t('enviando') : t('oauth_terms.confirm_btn')}
-                </button>
+                <Btn
+                    onClick={handleCancel}
+                    msg={t('volver')}
+                />
+                <Btn
+                    onClick={handleAccept}
+                    disabled={isLoading}
+                    msg={isLoading ? t('enviando') : t('oauth_terms.confirm_btn')}
+                />
             </div>
 
             <TermsModal

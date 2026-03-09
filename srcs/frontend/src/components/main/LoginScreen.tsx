@@ -217,7 +217,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                         <p>
                             {t('cuenta?')}{" "}
                         </p>
-                        <Btn onClick={() =>dispatch({type: "SIGN"})} msg={t('crear_cuenta')} type="button" />
+                        <Btn onClick={() => dispatch({type: "SIGN"})} msg={t('crear_cuenta')} />
                     </div>
                 </div>
                 ) : null}

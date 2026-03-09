@@ -1,6 +1,8 @@
+import { ReactNode } from 'react';
+
 type LiProps =
 {
-    label: string;
+    children: React.ReactNode;
     active: boolean;
     onClick?: () => void;
 };
@@ -8,14 +10,14 @@ type LiProps =
 const liCss = "";
 const selectedLi = ""
 
-const Li = ({label, active, onClick }: LiProps) =>
+const Li = ({children, active = false, onClick }: LiProps) =>
 {
     return (
         <li
             className={ active ? selectedLi : liCss }
             onClick={onClick}
         >
-            {label}
+            {children}
         </li>
     );
 };

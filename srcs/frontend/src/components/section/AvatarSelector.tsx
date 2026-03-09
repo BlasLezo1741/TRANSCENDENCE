@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAvatarList, type AvatarInfo } from '../../assets/avatars';
+import Btn from '../objects/Btn.tsx';
+import Image from '../objects/Image.tsx';
 
 interface AvatarSelectorProps {
     currentAvatarUrl?: string | null;
@@ -131,17 +133,17 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                                 }
                             }}
                         >
-                            <img
-                                src={avatar.url}
-                                alt={avatar.name}
-                                style={{
+                            {/* style={{
                                     width: '100px',
                                     height: '100px',
                                     borderRadius: '50%',
                                     objectFit: 'cover',
                                     display: 'block',
                                     margin: '0 auto 8px'
-                                }}
+                                }} */}
+                            <Image
+                                src={avatar.url}
+                                alt={avatar.name}
                             />
                             <div style={{
                                 fontSize: '12px',
@@ -159,10 +161,7 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                     gap: '10px',
                     justifyContent: 'center'
                 }}>
-                    <button
-                        onClick={handleSelect}
-                        disabled={!selectedAvatarId}
-                        style={{
+                    {/* style={{
                             padding: '12px 30px',
                             fontSize: '16px',
                             borderRadius: '5px',
@@ -171,13 +170,13 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                             color: 'white',
                             cursor: selectedAvatarId ? 'pointer' : 'not-allowed',
                             fontWeight: 'bold'
-                        }}
-                    >
-                        ✅ {t('prof.select')}
-                    </button>
-                    <button
-                        onClick={onCancel}
-                        style={{
+                        }} */}
+                    <Btn
+                        msg={`✅ ${t('prof.select')}`}
+                        disabled={!selectedAvatarId}
+                        onClick={handleSelect}
+                    />
+                    {/* style={{
                             padding: '12px 30px',
                             fontSize: '16px',
                             borderRadius: '5px',
@@ -185,10 +184,11 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                             backgroundColor: 'white',
                             color: '#666',
                             cursor: 'pointer'
-                        }}
-                    >
-                        ❌ {t('prof.cancel')}
-                    </button>
+                        }} */}
+                    <Btn
+                        msg={`❌ {t('prof.cancel')}`}
+                        onClick={onCancel}
+                    />
                 </div>
 
                 {avatars.length === 0 && (

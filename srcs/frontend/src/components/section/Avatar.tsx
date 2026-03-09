@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { getDefaultAvatar, getAvatarUrlById } from '../../assets/avatars';
 import nouserAvatar from '../../assets/nouser_chatgpt.png';
+import Image from '../objects/Image.tsx';
 
 interface AvatarProps {
     src?: string | null;  // Can be: OAuth URL, avatar ID, or null
@@ -89,19 +90,19 @@ export const Avatar: React.FC<AvatarProps> = ({
                     ...
                 </div>
             )}
-            <img
+            <Image
                 src={avatarSrc}
                 alt={alt}
                 onLoadStart={handleLoadStart}
-                onError={handleError}
                 onLoad={handleLoad}
-                style={{
+                onError={handleError}
+            />
+            {/* style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
                     display: loading ? 'none' : 'block'
-                }}
-            />
+                }} */}
         </div>
     );
 };

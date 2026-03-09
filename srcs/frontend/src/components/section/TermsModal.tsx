@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { loadHtmlContent } from "../../ts/utils/loadHtmlContent";
-
+import Btn from '../objects/Btn.tsx';
 interface TermsModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -81,20 +81,19 @@ const TermsModal = ({ isOpen, onClose, title, fileName }: TermsModalProps) => {
                     }}
                 >
                     <h2 style={{ margin: 0, fontSize: "1.1rem" }}>{title}</h2>
-                    <button
+                    <Btn
                         onClick={onClose}
-                        style={{
+                        aria-label="Close"
+                        msg="x"
+                        /* style={{
                             background: "none",
                             border: "none",
                             fontSize: "1.4rem",
                             cursor: "pointer",
                             lineHeight: 1,
                             color: "#555",
-                        }}
-                        aria-label="Close"
-                    >
-                        ✕
-                    </button>
+                        }} */
+                    />
                 </div>
 
                 {/* Scrollable body */}
@@ -122,9 +121,10 @@ const TermsModal = ({ isOpen, onClose, title, fileName }: TermsModalProps) => {
                         justifyContent: "flex-end",
                     }}
                 >
-                    <button onClick={onClose}>
-                        {t("modal.cancel_btn")}
-                    </button>
+                    <Btn
+                        onClick={onClose}
+                        msg={t("modal.cancel_btn")}
+                    />
                 </div>
             </div>
         </div>
