@@ -144,7 +144,7 @@ return (
                   </h1>
                   {/* 🟢 NUEVO: Mostramos al gran campeón */}
                   <h2 style={{ fontSize: '2rem', marginBottom: '20px', color: '#facc15' }}>
-                      🏆 Ganador: {winnerName}
+                        {t('game.winner', { name : winnerName })}
                   </h2>
                   
                   {/* Mostramos el ranking directamente si es remoto */}

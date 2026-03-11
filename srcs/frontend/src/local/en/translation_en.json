@@ -253,7 +253,7 @@
     "game":
     {
         "ended": "🏆 MATCH ENDED",
-        "winner": "Winner: {{name}}",
+        "winner": "🏆 Winner: {{name}}",
         "disconnected": "🔌 Your opponent has lost connection. You won by forfeit!"
     }
 }

@@ -253,7 +253,7 @@
     "game":
     {
         "ended": "🏆 PARTIE FINIE!",
-        "winner": "Vainqueur: {{name}}",
+        "winner": "🏆 Vainqueur: {{name}}",
         "disconnected": "🔌 Adversaire Déconnecté",
         "messageDisconnected": "L'adversaire a perdu la connexion. Vous avez gagné par abandon !"
     }
