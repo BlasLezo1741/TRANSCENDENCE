@@ -174,13 +174,17 @@ export class AuthService {
       }
       // 6. Convert the comma-separated codes string into an array
       // 1. Directly map the array (No .split needed if it's already an array)
-      const backupCodesArray = totpqr.qr_text[1]
+      const backupCodesArray = String(totpqr.qr_text[1])
+      .split(',')
+      .map((code: string) => code.trim()); // trim() removes whitespace
+
+      const backupCodesArray2 = totpqr.qr_text[1]
           .map((code: any) => String(code).trim());
 
       // 2. Map through the array to create an array of Promises, 
       //    then wait for all of them to resolve using Promise.all
       const backupCodesHashedArray = await Promise.all(
-          backupCodesArray.map(async (code: string) => {
+          backupCodesArray2.map(async (code: string) => {
               return await bcrypt.hash(code, this.saltRounds);
           })
       );
@@ -199,7 +203,7 @@ export class AuthService {
   ok: true, 
   msg: "success.userRegistered",
   qrCode: totpqr?.qr_text[0] || null,
-  backupCodes: backupCodesArray  // ["200513", "589663", "815166", ...]  
+  backupCodes: String(totpqr.qr_text[1])  // ["200513", "589663", "815166", ...]  
     }
   } // registerUser
 

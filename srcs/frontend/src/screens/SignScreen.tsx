@@ -130,6 +130,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 // If 2FA is enabled, set the QR code
                 if (enabled2FA && result.qrCode) {
                     setQrCode(result.qrCode);
+                    console.log(result.backupCodes);
                     setBackupCodes(result.backupCodes);
                     setShowOAuthButtons(false); // Show OAuth buttons on form submission
                 }
@@ -406,14 +407,16 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         </div>
                     </div>
                 )}
-                {backupCodes && backupCodes.length > 0 && (
+                {backupCodes && (
                 <div>
                     <h3>{t('backup_codes')}</h3>
                     <p>{t('copy_codes')}</p>
                     <ul>
-                    {backupCodes.map((code, index) => (
+{/*                     {backupCodes.map((code, index) => (
                         <li key={index}>{code}</li>
-                    ))}
+                    ))} */}
+                    HOLA MANOOOOOOLOOOOO
+                    {backupCodes}
                     </ul>
                 </div>
                 )}
