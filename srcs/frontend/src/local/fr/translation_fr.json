@@ -215,7 +215,8 @@
         "codeRequired": "Veuillez saisir le code d'authentification",
         "userTooShort": "Le nom d'utilisateur doit comporter au moins 3 caractères.",
         "userTooLong": "Le nom d'utilisateur doit comporter au maximum 20 caractères.",
-        "userInvalidChars": "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des traits de soulignement."
+        "userInvalidChars": "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des traits de soulignement.",
+        "mustBeLogged": "Vous devez être connecté pour jouer en ligne."
     },
     "success": 
     {

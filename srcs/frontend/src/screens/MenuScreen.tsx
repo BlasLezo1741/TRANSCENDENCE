@@ -49,7 +49,7 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
         if (mode === "remote")
         {
             if (!isAuthenticated) {
-                setStatusText("Debes estar logueado para jugar online.");
+                setStatusText(t('errors.mustBeLogged'));
                 // Opcional: Borrar el mensaje después de 3 segundos
                 setTimeout(() => setStatusText(""), 3000);
                 return; 

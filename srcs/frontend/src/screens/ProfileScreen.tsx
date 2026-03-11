@@ -617,7 +617,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             <strong>{t('user')}:</strong> {userProfile.nick}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>Email:</strong> {userProfile.email}
+                            <strong>{t('prof.field_email')}:</strong> {userProfile.email}
                         </div>
                         {userProfile.birth && (
                             <div style={{ marginBottom: '10px' }}>
@@ -697,7 +697,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>
-                                <strong>Email:</strong>
+                                <strong>{t('prof.field_email')}:</strong>
                                 <input
                                     type="email"
                                     value={editForm.email}

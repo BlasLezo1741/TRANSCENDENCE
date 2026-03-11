@@ -215,7 +215,8 @@
         "codeRequired": "Si us plau introdueix el codi d'autenticació",
         "userTooShort": "El nom d'usuari ha de tenir almenys 3 caràcters.",
         "userTooLong": "El nom d'usuari ha de tenir com a màxim 20 caràcters",
-        "userInvalidChars": "El nom d'usuari només pot contenir lletres, números i guions baixos."
+        "userInvalidChars": "El nom d'usuari només pot contenir lletres, números i guions baixos.",
+        "mustBeLogged": "Has d'iniciar sessió per jugar en línia."
     },
     "success": 
     {

@@ -4,6 +4,7 @@ import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
 import TermsModal from "../components/TermsModal";
+import { sentence } from "../ts/utils/string";
 
 import '../css/Login.css';
 
@@ -187,7 +188,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         name="user"
                         value={user}
                         onChange={(e) => setUser(e.target.value)}
-                        placeholder="ej: Jhon_Wick123"
+                        placeholder="John_Wick123"
                         pattern="[a-zA-Z0-9_]{3,20}"
                         required
                         autoFocus
@@ -196,13 +197,13 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                 {/* Email */}
                 <div className="login-elem">
-                    <label htmlFor="email">email</label>
+                    <label htmlFor="email">{t('prof.field_email')}</label>
                     <input
                         type="email"
                         id="email"
                         name="email"
                         value={email}
-                        placeholder="ej: abc@def.com"
+                        placeholder="abc@def.com"
                         onChange={(e) => setEmail(e.target.value)}
                         required
                     />
@@ -215,13 +216,13 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                 {/* Password */}
                 <div className="login-elem">
-                    <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">{t('password').charAt(0).toUpperCase() + t('password').slice(1)}</label>
+                    <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">{sentence(t('password'))}</label>
                     <input
                         type="password"
                         id="pass"
                         name="pass"
                         value={password}
-                        placeholder="ej: P@ssw0rd!"
+                        placeholder="P@ssw0rd!"
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
@@ -265,7 +266,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         required
                         disabled={isLoadingCountries}>
                         <option value="">
-                            {isLoadingCountries ? 'Loading...' : t('sel_pais')}
+                            {isLoadingCountries ? t('prof.loading_countries') : t('sel_pais')}
                         </option>
                         {countries.map((c) => (
                             <option key={c.code} value={c.code}>

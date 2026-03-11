@@ -215,7 +215,8 @@
         "codeRequired": "Please enter the authentication code",
         "userTooShort": "Username must be at least 3 characters.",
         "userTooLong": "Username must be at most 20 characters.",
-        "userInvalidChars": "Username can only contain letters, numbers and underscores."
+        "userInvalidChars": "Username can only contain letters, numbers and underscores.",
+        "mustBeLogged": "You must be logged in to play online."
     },
     "success": 
     {

@@ -105,7 +105,7 @@
         "load_error": "No se pudo cargar el perfil",
         "field_id": "ID",
         "field_id_readonly": "no editable",
-        "field_email": "Email",
+        "field_email": "Correo electrónico",
         "field_birth": "Fecha de Nacimiento",
         "field_country": "País",
         "field_lang": "Idioma",
@@ -215,7 +215,8 @@
         "codeRequired": "Por favor ingresa el código de autenticación",
         "userTooShort": "El nombre de usuario debe tener al menos 3 caracteres.",
         "userTooLong": "El nombre de usuario debe tener como máximo 20 caracteres.",
-        "userInvalidChars": "El nombre de usuario solo puede contener letras, números y guiones bajos."
+        "userInvalidChars": "El nombre de usuario solo puede contener letras, números y guiones bajos.",
+        "mustBeLogged": "Debes iniciar sesión para jugar online."
     },
     "success": 
     {
