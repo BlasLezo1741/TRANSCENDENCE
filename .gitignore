@@ -116,3 +116,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 #prometeus
 data/prometheus/*
+
+# to test
+/dockerfiles_upload/
