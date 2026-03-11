@@ -56,6 +56,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                 if (!result.ok) {
                     setError(t(result.msg) || t('errors.unknownError'));
                     setPassword("");
+                    return;
                 } else {
                     if (result.user.totp) {
                         // 2FA enabled, show TOTP input
