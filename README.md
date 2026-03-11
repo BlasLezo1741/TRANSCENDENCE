@@ -340,3 +340,6 @@ This project was developed as part of the 42 curriculum. It is submitted for aca
 
 - [Language codes](https://github.com/datasets/language-codes/tree/main)
 - [Country codes — ISO 3166](https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv)
+
+
+7NB6DA7N,CRXED3VR,KEW55AL7,S9DZJJRV,QMET9EEE,TWMPTWVN,2V97N45V,6GXEH7QU,K9RZ71E5,Q3XTEKWE
