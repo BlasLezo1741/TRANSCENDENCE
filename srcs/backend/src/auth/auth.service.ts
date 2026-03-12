@@ -174,7 +174,7 @@ export class AuthService {
       }
       // 6. Convert the comma-separated codes string into an array
       // 1. Directly map the array (No .split needed if it's already an array)
-      const backupCodesArray = String(totpqr.qr_text[1])
+      backupCodesArray = String(totpqr.qr_text[1])
       .split(',')
       .map((code: string) => code.trim()); // trim() removes whitespace
 
@@ -203,7 +203,7 @@ export class AuthService {
   ok: true, 
   msg: "success.userRegistered",
   qrCode: totpqr?.qr_text[0] || null,
-  backupCodes: String(totpqr.qr_text[1])  // ["200513", "589663", "815166", ...]  
+  backupCodes: backupCodesArray  // ["200513", "589663", "815166", ...]  
     }
   } // registerUser
 

@@ -407,16 +407,14 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         </div>
                     </div>
                 )}
-                {backupCodes && (
+                {backupCodes && backupCodes.length > 0 && (
                 <div>
                     <h3>{t('backup_codes')}</h3>
                     <p>{t('copy_codes')}</p>
                     <ul>
-{/*                     {backupCodes.map((code, index) => (
+                     {backupCodes.map((code, index) => (
                         <li key={index}>{code}</li>
-                    ))} */}
-                    HOLA MANOOOOOOLOOOOO
-                    {backupCodes}
+                    ))}
                     </ul>
                 </div>
                 )}
