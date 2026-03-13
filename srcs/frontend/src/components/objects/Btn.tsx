@@ -4,6 +4,7 @@ type BtnProps =
 {
     msg: React.ReactNode;
     className?: "default" | "normal" | "sent" | "del" | "return" | "accept" | "reject";
+    extraClasses?: string;
     type?: "button" | "reset" | "submit";
     disabled?: boolean;
     onClick?: () => void;
@@ -22,7 +23,7 @@ const BtnStyles =
     del: "bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-500 active:bg-red-700 transition-colors duration-200 shadow-md",
 };
 
-const Btn = ({ msg, className = "default", type = "button", disabled, onClick = () => {}, title, active = true }: BtnProps) =>
+const Btn = ({ msg, className = "default", extraClasses = "", type = "button", disabled, onClick = () => {}, title, active = true }: BtnProps) =>
 {
     return (
         <button
