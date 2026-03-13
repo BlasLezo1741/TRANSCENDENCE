@@ -1,0 +1,16 @@
+pair_id,player1,player2,p1_matched,p2_matched,p1_game_over,p2_game_over,duration_s,status,error_msg,screenshot_p1,screenshot_p2
+1,play_81hr3nt,play_lienr6z,YES,NO,YES,NO,30.8,FAILED,play_lienr6z: P1 did not enter queue within 20s,screenshots_game/end_play_81hr3nt_1773438984.png,
+2,play_pvhvo81,play_m19xgg9,YES,NO,YES,NO,32.5,FAILED,play_m19xgg9: P1 did not enter queue within 20s,screenshots_game/end_play_pvhvo81_1773438986.png,
+3,play_hlbl4zy,play_u3witre,YES,NO,YES,NO,59.8,FAILED,play_u3witre: match_found not received after 45s,screenshots_game/end_play_hlbl4zy_1773438986.png,screenshots_game/match_fail_play_u3witre_1773439014.png
+4,play_vnikfn5,play_x2czmsl,YES,NO,YES,NO,30.6,FAILED,play_x2czmsl: P1 did not enter queue within 20s,screenshots_game/end_play_vnikfn5_1773438984.png,
+5,play_hf60d1t,play_g244sab,YES,NO,YES,NO,31.3,FAILED,play_g244sab: P1 did not enter queue within 20s,screenshots_game/end_play_hf60d1t_1773438978.png,
+6,play_xb5x0o3,play_ypylax1,YES,NO,YES,NO,31.6,FAILED,play_ypylax1: P1 did not enter queue within 20s,screenshots_game/end_play_xb5x0o3_1773438985.png,
+7,play_4ovb6e3,play_q9l5ur2,YES,YES,YES,YES,31.4,OK,,screenshots_game/end_play_4ovb6e3_1773438978.png,screenshots_game/end_play_q9l5ur2_1773438985.png
+8,play_51kzxqp,play_zzqjy78,YES,YES,YES,YES,31.3,OK,,screenshots_game/end_play_51kzxqp_1773438982.png,screenshots_game/end_play_zzqjy78_1773438985.png
+9,play_p012pib,play_v31pong,YES,NO,YES,NO,30.1,FAILED,play_v31pong: P1 did not enter queue within 20s,screenshots_game/end_play_p012pib_1773438982.png,
+10,play_rrgqzir,play_8s7k6bs,NO,NO,NO,NO,56.9,FAILED,play_rrgqzir: match_found not received after 45s | play_8s7k6bs: P1 did not enter queue within 20s,screenshots_game/match_fail_play_rrgqzir_1773439012.png,
+11,play_re58e7x,play_nrvshb4,YES,YES,YES,YES,32.2,OK,,screenshots_game/end_play_re58e7x_1773438986.png,screenshots_game/end_play_nrvshb4_1773438986.png
+12,play_03wk47f,play_cbap69a,YES,YES,YES,YES,35.8,OK,,screenshots_game/end_play_03wk47f_1773438991.png,screenshots_game/end_play_cbap69a_1773438986.png
+13,play_iavgslu,play_ax4eho4,YES,NO,YES,NO,35.8,FAILED,play_ax4eho4: P1 did not enter queue within 20s,screenshots_game/end_play_iavgslu_1773438991.png,
+14,play_kbmt2d8,play_icck6gp,YES,YES,YES,YES,31.9,OK,,screenshots_game/end_play_kbmt2d8_1773438984.png,screenshots_game/end_play_icck6gp_1773438986.png
+15,play_dpta5n3,play_krwrq7h,YES,YES,YES,YES,31.3,OK,,screenshots_game/end_play_dpta5n3_1773438985.png,screenshots_game/end_play_krwrq7h_1773438984.png
