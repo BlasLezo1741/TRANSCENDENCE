@@ -126,7 +126,7 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
                 <div className="bt">
                     {modeButtons.map((btn) =>
                     (
-                        <Btn key={btn.msg} className="normal" msg={btn.msg} onClick={btn.onClick}/>
+                        <Btn key={btn.msg} variant='default' msg={btn.msg} onClick={btn.onClick}/>
                     ))}
                 </div>
             </>

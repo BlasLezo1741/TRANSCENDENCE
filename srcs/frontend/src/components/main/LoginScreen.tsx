@@ -194,10 +194,10 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                 )}
 
                 <div className="login-btn form-btn">
-                    <Btn msg={t('volver')} className="return" onClick={handleBack}/>
+                    <Btn msg={t('volver')} variant="return" onClick={handleBack}/>
                     <Btn
                         msg={isLoading ? t('enviando') : (showTotpInput ? (t('verificar')) : t('enviar'))} 
-                        className="sent" 
+                        variant="sent" 
                         type="submit" 
                         disabled={isLoading}/>
                 </div>
@@ -209,8 +209,8 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                     <span style={{color: "black"}}>{t('init_ses')}</span>
 
                     <div className="login-btn">
-                        <Btn onClick={() => handleOAuth('42')} msg="42 Network"/>
-                        <Btn onClick={() => handleOAuth('google')} msg="Google"/>
+                        <Btn variant="linkG" onClick={() => handleOAuth('42')} msg="42 Network"/>
+                        <Btn variant="linkB" onClick={() => handleOAuth('google')} msg="Google"/>
                     </div>
 
                     <div className="account login-elem">

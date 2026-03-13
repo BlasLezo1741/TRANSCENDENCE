@@ -721,8 +721,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         )}
 
                         <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                            <Btn msg={t('prof.save_btn')} onClick={handleUpdateProfile} />
-                            <Btn msg={t('prof.cancel')} onClick={handleCancelEdit} />
+                            <Btn variant='accept' msg={t('prof.save_btn')} onClick={handleUpdateProfile} />
+                            <Btn variant='cancel' msg={t('prof.cancel')} onClick={handleCancelEdit} />
                         </div>
                     </>
                 )}
@@ -803,7 +803,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                         {f.friend_nick}
                                     </span>
                                 </div>
-                                <Btn msg={t('prof.remove_btn')} 
+                                <Btn variant='del' msg={t('prof.remove_btn')} 
                                     onClick={() => handleRemoveFriend(f.id, f.friend_nick)} />
                             </li>
                         ))}
@@ -828,7 +828,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             <span>
                                 <strong>{r.nick}</strong> {t('prof.wants_friend')} {/* Added Translation key */}
                             </span>
-                            <Btn msg={t('prof.accept_btn')} onClick={() => handleAccept(r.id)} />
+                            <Btn variant='accept' msg={t('prof.accept_btn')} onClick={() => handleAccept(r.id)} />
                         </li>
                     ))}
                 </ul>

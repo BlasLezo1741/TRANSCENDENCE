@@ -299,8 +299,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 />
                 {/* Action Buttons */}
                 <div className="login-btn form-btn">
-                    <Btn msg={t('borrar_t')} onClick={handleReset}/>
-                    <Btn msg={isLoading ? t('enviando') : t('enviar')} disabled/>
+                    <Btn variant="del" msg={t('borrar_t')} onClick={handleReset}/>
+                    <Btn variant="sent" msg={isLoading ? t('enviando') : t('enviar')} disabled/>
                 </div>
 
                 <hr />
@@ -369,8 +369,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     <span style={{color: "black", marginBottom: "5px"}}>{t('crear_cuenta')} / {t('init_ses')}: </span>
 
                     <div className="login-btn">
-                        <Btn msg="42 Network" onClick={() => handleOAuth('42')}/>
-                        <Btn msg="Google" onClick={() => handleOAuth('google')}/>
+                        <Btn variant="linkG" msg="42 Network" onClick={() => handleOAuth('42')}/>
+                        <Btn variant="linkB" msg="Google" onClick={() => handleOAuth('google')}/>
                     </div>
                 </div>
                 )}
