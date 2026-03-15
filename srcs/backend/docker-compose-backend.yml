@@ -10,7 +10,8 @@ services:
 
     restart: on-failure
     depends_on:
-      - ${DB_CONTAINER_NAME}
+      dbserver:
+        condition: service_healthy
     # Elimino par no exponer el puerto
     # ports:
     #   - ${BE_CONTAINER_PORT}:${BE_CONTAINER_PORT} # Puerto para API y WebSockets
