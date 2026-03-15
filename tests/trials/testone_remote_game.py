@@ -455,7 +455,7 @@ def main():
         
         if use_csv:
             #csv_path = prompt("CSV file", "pong_users_ui.csv")
-            csv_path = "pong_users_ui.csv"
+            csv_path = "pong_nn_users.csv"
             users    = load_eligible(Path(csv_path))
             if len(users) < 2:
                 print(f"Need at least 2 eligible users in {csv_path}")

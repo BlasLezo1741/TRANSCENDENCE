@@ -58,7 +58,7 @@ from pathlib import Path
 # -------------------------------------------------------------------------------
 
 BASE_URL        = "https://{ip}:8443"
-INPUT_CSV       = "pong_users_ui.csv"
+INPUT_CSV       = "pong_nn_users.csv"
 OUTPUT_CSV      = "pong_games.csv"
 SCREENSHOT_DIR  = Path("screenshots_game")
 
@@ -262,11 +262,11 @@ async def run_pair(browser, base_url: str, pair_id: int,
 
     # Each player gets an isolated browser context (separate session/cookies)
     ctx1 = await browser.new_context(
-        viewport={"width": 1280, "height": 800},
+        viewport={"width": 640, "height": 400},
         ignore_https_errors=True,
     )
     ctx2 = await browser.new_context(
-        viewport={"width": 1280, "height": 800},
+        viewport={"width": 640, "height": 400},
         ignore_https_errors=True,
     )
 
