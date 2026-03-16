@@ -109,63 +109,83 @@ export class AuthController {
   }
 
   // ==================== GOOGLE OAUTH ====================
-  
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) {
 
-    // Passport automatically redirects to Google login page
-  }
+@Get('google')
+@UseGuards(AuthGuard('google'))
+async googleAuth(@Req() req) {
+  // Passport handles the redirect — nothing to do here
+}
 
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req, @Res() res: Response) {
-    const frontendUrl = this.configService.get<string>('VITE_FRONTEND_URL') || 'https://localhost:8443';
+@Get('google/callback')
+@UseGuards(AuthGuard('google'))
+async googleAuthRedirect(@Req() req, @Res() res: Response) {
+  const frontendUrl = this.configService.get<string>('VITE_FRONTEND_URL')
+                   || 'https://localhost:8443';
 
-    try {
-      // Returns the user if found, null if new, throws ConflictException if email conflict
-      const existing = await this.authService.findOAuthUser(req.user);
-      if (existing) {
-        // Returning user → login normally
-        const { accessToken } = this.authService.generateJwtToken(existing);
-        return res.redirect(`${frontendUrl}/?token=${accessToken}`);
-      }
-      // New user → send pending token, do NOT create account yet
-      const pendingToken = this.authService.generatePendingOAuthToken(req.user);
-      res.redirect(`${frontendUrl}/?oauth_pending=${pendingToken}`);
-    } catch (e: any) {
-      // Email already registered under a different account
-      const msg = encodeURIComponent(e?.status === 409 ? 'errors.userOrEmailExists' : 'errors.unknownError');
-      res.redirect(`${frontendUrl}/?oauth_error=${msg}`);
+  // Recover termsAccepted from the state Passport echoes back
+  let termsAccepted = false;
+  try {
+    const state = JSON.parse(
+      Buffer.from(req.query.state as string, 'base64').toString('utf-8')
+    );
+    termsAccepted = state.termsAccepted === true;
+  } catch { /* state absent or not JSON — treat as false */ }
+
+  try {
+    const existing = await this.authService.findOAuthUser(req.user);
+    if (existing) {
+      const { accessToken } = this.authService.generateJwtToken(existing);
+      return res.redirect(`${frontendUrl}/?token=${accessToken}`);
     }
+    const pendingToken = this.authService.generatePendingOAuthToken(req.user);
+    const termsParam = termsAccepted ? '&termsAccepted=true' : '';
+    res.redirect(`${frontendUrl}/?oauth_pending=${pendingToken}${termsParam}`);
+  } catch (e: any) {
+    const msg = encodeURIComponent(
+      e?.status === 409 ? 'errors.userOrEmailExists' : 'errors.unknownError'
+    );
+    res.redirect(`${frontendUrl}/?oauth_error=${msg}`);
   }
+}
 
-  // ==================== 42 SCHOOL OAUTH ====================
+// ==================== 42 SCHOOL OAUTH ====================
 
-  @Get('42')
-  @UseGuards(AuthGuard('42'))
-  async fortyTwoAuth(@Req() req) {
-    // Passport automatically redirects to 42 login page
-  }
+@Get('42')
+@UseGuards(AuthGuard('42'))
+async fortyTwoAuth(@Req() req) {
+  // Passport handles the redirect — nothing to do here
+}
 
-  @Get('42/callback')
-  @UseGuards(AuthGuard('42'))
-  async fortyTwoAuthRedirect(@Req() req, @Res() res: Response) {
-    const frontendUrl = this.configService.get<string>('VITE_FRONTEND_URL') || 'https://localhost:8443';
+@Get('42/callback')
+@UseGuards(AuthGuard('42'))
+async fortyTwoAuthRedirect(@Req() req, @Res() res: Response) {
+  const frontendUrl = this.configService.get<string>('VITE_FRONTEND_URL')
+                   || 'https://localhost:8443';
 
-    try {
-      const existing = await this.authService.findOAuthUser(req.user);
-      if (existing) {
-        const { accessToken } = this.authService.generateJwtToken(existing);
-        return res.redirect(`${frontendUrl}/?token=${accessToken}`);
-      }
-      const pendingToken = this.authService.generatePendingOAuthToken(req.user);
-      res.redirect(`${frontendUrl}/?oauth_pending=${pendingToken}`);
-    } catch (e: any) {
-      const msg = encodeURIComponent(e?.status === 409 ? 'errors.userOrEmailExists' : 'errors.unknownError');
-      res.redirect(`${frontendUrl}/?oauth_error=${msg}`);
+  let termsAccepted = false;
+  try {
+    const state = JSON.parse(
+      Buffer.from(req.query.state as string, 'base64').toString('utf-8')
+    );
+    termsAccepted = state.termsAccepted === true;
+  } catch { /* state absent or not JSON — treat as false */ }
+
+  try {
+    const existing = await this.authService.findOAuthUser(req.user);
+    if (existing) {
+      const { accessToken } = this.authService.generateJwtToken(existing);
+      return res.redirect(`${frontendUrl}/?token=${accessToken}`);
     }
+    const pendingToken = this.authService.generatePendingOAuthToken(req.user);
+    const termsParam = termsAccepted ? '&termsAccepted=true' : '';
+    res.redirect(`${frontendUrl}/?oauth_pending=${pendingToken}${termsParam}`);
+  } catch (e: any) {
+    const msg = encodeURIComponent(
+      e?.status === 409 ? 'errors.userOrEmailExists' : 'errors.unknownError'
+    );
+    res.redirect(`${frontendUrl}/?oauth_error=${msg}`);
   }
+}
   // ==================== OAUTH TERMS ACCEPTANCE ====================
 
   /**

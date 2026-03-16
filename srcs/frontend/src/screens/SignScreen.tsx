@@ -163,9 +163,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
             setError(t('errors.mustAcceptTerms'));
             return;
         }
-        console.log(`Redirigiendo a OAuth con ${provider}`);
-        //window.location.href = `http://localhost:3000/auth/${provider}`;
-        window.location.href = `/auth/${provider}?termsAccepted=true`; //to nginx and terms checked
+        // Persist the acceptance flag across the OAuth round-trip.
+        // sessionStorage survives the provider redirect and is cleared
+        // by App.tsx once consumed.
+        sessionStorage.setItem('oauthTermsAccepted', 'true');
+        window.location.href = `/auth/${provider}`;
     };
 
     return (

@@ -116,18 +116,24 @@ function App()
 
     // New OAuth user — two possible flows depending on where they came from:
     //
-    // A) SignScreen → user already accepted terms before clicking OAuth
-    //    → termsAccepted=true is appended to the provider URL by SignScreen
-    //    → call /auth/oauth-complete directly, skip OAuthTermsScreen
+    // A) SignScreen → user already accepted terms before clicking OAuth.
+    //    SignScreen sets 'oauthTermsAccepted' in sessionStorage before redirecting.
+    //    sessionStorage survives the provider round-trip (same tab) and is consumed
+    //    here exactly once, so subsequent flows are never affected.
+    //    → call /auth/oauth-complete directly, skip OAuthTermsScreen.
     //
-    // B) LoginScreen → user is new and has NOT accepted terms yet
-    //    → no termsAccepted flag in URL
-    //    → show OAuthTermsScreen to collect acceptance first
+    // B) LoginScreen → user is new and has NOT accepted terms yet.
+    //    No sessionStorage flag is set.
+    //    → show OAuthTermsScreen to collect acceptance first.
     const pendingToken = params.get('oauth_pending');
-    const termsAccepted = params.get('termsAccepted') === 'true';
 
     if (pendingToken) {
       window.history.replaceState({}, document.title, window.location.pathname);
+
+      // Read and immediately consume the flag — prevents it from affecting
+      // any future OAuth flow in the same browser tab.
+      const termsAccepted = sessionStorage.getItem('oauthTermsAccepted') === 'true';
+      sessionStorage.removeItem('oauthTermsAccepted');
 
       if (termsAccepted) {
         // Came from SignScreen — complete registration directly
