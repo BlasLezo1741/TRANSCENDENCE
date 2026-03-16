@@ -30,7 +30,6 @@ body.scroll
 main
 {
     color: white;
-    /* background-color: rgb(202, 237, 255); */
     background-color: black;
 }
 
@@ -46,10 +45,7 @@ h1
 
 button
 {
-    width: 125px;
-    height: 30px;
-    background-color: beige;
-    cursor: pointer;
+    @apply px-3 py-1 rounded-lg cursor-pointer
 }
 
 .language-switcher

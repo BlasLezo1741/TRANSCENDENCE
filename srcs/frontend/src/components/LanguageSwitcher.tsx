@@ -21,8 +21,8 @@ export function LanguageSwitcher() {
   const FlagIcon = ({ src, alt }: { src: string; alt: string }) => (
     <img 
       src={src} 
-      alt={alt} 
-      style={{ width: '20px', height: '15px' }} // proporción rectangular
+      alt={alt}
+      className="w-[20px] h-[15px] inline-block"
     />
   );
 
@@ -65,36 +65,50 @@ export function LanguageSwitcher() {
   }, []);
 
   return (
-    <div className="language-switcher" ref={dropdownRef}>
-
-      <button className="dropdown-btn" onClick={() => setOpen(!open)}>
+    <div
+      className="relative inline-block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000]"
+      ref={dropdownRef}
+    >
+      {/* Botón desplegable solo visible en móvil */}
+      <button
+        className="block md:hidden cursor-pointer"
+        onClick={() => setOpen(!open)}
+      >
         {getLanguageDisplay(activeLanguage)}
       </button>
 
-      <div className={`lang-but ${open ? 'show' : ''}`}>        
-        <button
-          onClick={() => changeLanguage('en')}
-          className={activeLanguage === 'en' ? 'lang-sel' : ''}>
-          {getLanguageDisplay('en')}
-        </button>
-
-        <button
-          onClick={() => changeLanguage('es')}
-          className={activeLanguage === 'es' ? 'lang-sel' : ''}>
-          {getLanguageDisplay('es')}
-        </button>
-
-        <button
-          onClick={() => changeLanguage('ca')}
-          className={`cat ${activeLanguage === 'ca' ? 'lang-sel' : ''}`}>
-          {getLanguageDisplay('ca')}
-        </button>
-
-        <button
-          onClick={() => changeLanguage('fr')}
-          className={activeLanguage === 'fr' ? 'lang-sel' : ''}>
-          {getLanguageDisplay('fr')}
-        </button>
+      {/* Botones de idioma */}
+      <div
+        className={`
+          ${open ? 'flex' : 'hidden'}
+          md:flex
+          flex-col md:flex-row    /* Vertical en móvil, horizontal en desktop */
+          absolute md:static
+          top-full left-1/2 md:left-auto
+          -translate-x-1/2 md:translate-x-0
+          shadow-md md:shadow-none
+          z-10 md:z-auto
+          bg-white border md:border-none
+          min-w-max
+        `}
+      >
+        {['en', 'es', 'ca', 'fr'].map((lang) => {
+          const isActive = activeLanguage === lang;
+          return (
+            <button
+              key={lang}
+              onClick={() => changeLanguage(lang)}
+              className={`
+                ${isActive
+                  ? 'bg-white text-black cursor-default'
+                  : 'bg-gray-400 text-black hover:bg-black hover:text-white cursor-pointer'
+                }
+              `}
+            >
+              {getLanguageDisplay(lang)}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

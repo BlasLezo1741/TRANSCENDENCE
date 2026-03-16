@@ -1,59 +1,19 @@
 header
 {
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    box-sizing: border-box;
-    background-color: rgb(0, 0, 42);
+    @apply relative z-50 flex justify-between items-center px-5 bg-[rgb(0,0,42)] text-white box-border
 }
 
-.letters
+.home
 {
-    /* color: yellow; */
-    margin-left: 5px;
+    @apply flex items-center cursor-pointer
 }
 
-.login, .home
+.dropdown
 {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
+    @apply absolute top-full right-0 w-[100px] bg-black border border-white z-5 list-none
 }
 
-ul.dropdown
+.dropdown a
 {
-    list-style: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 100px;
-    background-color: black;
-    border: 1px solid white;
-    z-index: 5;
-}
-
-ul.dropdown li a
-{
-    display: block;
-    padding: 10px 15px;
-    text-decoration: none;
-    color: white;
-}
-
-ul.dropdown li a:hover
-{
-    background-color: darkblue;
-}
-
-.home img, .avatarIcon
-{
-    width: 50px;
-    height: 50px;
-}
-
-.login p
-{
-    padding-right: 10px;
+    @apply block px-4 py-2 text-white no-underline hover:bg-[darkblue]
 }
