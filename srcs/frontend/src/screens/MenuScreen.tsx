@@ -122,19 +122,19 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
       <div className="flex justify-center gap-4 mb-6">
         <button
           onClick={() => setIa(true)}
-          className="px-4 py-2 bg-gray-300 hover:bg-white rounded"
+          className="btn bg-gray-300 hover:bg-white hover:text-black"
         >
           {t('player_vs_ia')}
         </button>
         <button
           onClick={() => handleMode("local")}
-          className="px-4 py-2 bg-gray-300 hover:bg-white rounded"
+          className="btn bg-gray-300 hover:bg-white hover:text-black"
         >
           {t('player_vs_player')}
         </button>
         <button
           onClick={() => handleMode("remote")}
-          className="px-4 py-2 bg-gray-300 hover:bg-white rounded"
+          className="btn bg-gray-300 hover:bg-white hover:text-black"
         >
           {t('player_vs_remote')}
         </button>
@@ -142,6 +142,8 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
     </>
   );
 };
+
+const imgClass = "cursor-pointer w-[300px] h-[200px] sm:w-[250px] sm:h-[220px] xs:w-[220px] xs:h-[190px] object-contain rounded-lg"
 
 const showImg = () => {
   return (
@@ -153,25 +155,25 @@ const showImg = () => {
           src={easy}
           alt={t('alt_easy')}
           onClick={() => handleDiff("easy")}
-          className="cursor-pointer w-[200px] h-[150px] sm:w-[150px] sm:h-[120px] xs:w-[100px] xs:h-[80px] object-cover rounded"
+          className={imgClass}
         />
         <img
           src={normal}
           alt={t('alt_normal')}
           onClick={() => handleDiff("normal")}
-          className="cursor-pointer w-[200px] h-[150px] sm:w-[150px] sm:h-[120px] xs:w-[100px] xs:h-[80px] object-cover rounded"
+          className={imgClass}
         />
         <img
           src={hard}
           alt={t('alt_hard')}
           onClick={() => handleDiff("hard")}
-          className="cursor-pointer w-[200px] h-[150px] sm:w-[150px] sm:h-[120px] xs:w-[100px] xs:h-[80px] object-cover rounded"
+          className={imgClass}
         />
         <img
           src={impossible}
           alt={t('alt_impossible')}
           onClick={() => handleDiff("impossible")}
-          className="cursor-pointer w-[200px] h-[150px] sm:w-[150px] sm:h-[120px] xs:w-[100px] xs:h-[80px] object-cover rounded"
+          className={imgClass}
         />
       </div>
     </>

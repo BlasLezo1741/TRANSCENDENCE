@@ -5,7 +5,6 @@ import homeIcon from '../assets/Home_chatgpt.png';
 import { useTranslation } from 'react-i18next';
 import { StatusBadge } from './StatusBadge'; // Importamos el nuevo badge
 import { Avatar } from './Avatar';
-import '../css/Header.css';
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;

@@ -27,7 +27,6 @@ import { Avatar } from '../components/Avatar';
 import { AvatarSelector } from '../components/AvatarSelector';
 import { firstcap } from '../ts/utils/string';
 import { sentence  } from '../ts/utils/string';
-import "../css/ProfileScreen.css";
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 import { Leaderboard } from '../components/Leaderboard';
 import { MatchHistory } from '../components/MatchHistory';
@@ -1020,35 +1019,37 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         );
     };
 
+    const liSelectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
+
     return (
-        <main className="profile">
-            <nav>
-                <ul>
+        <main className="w-full h-[79vh] bg-[#2d2979] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
+            <nav className="h-[79vh] bg-[hsl(139,68%,37%)]">
+                <ul className="pt-4">
                     <li
                         onClick={() => setActiveTab("info")}
-                        className={activeTab === "info" ? "selected" : ""}>
+                        className={`li ${activeTab === "info" ? liSelectedCss : ""}`}>
                         {t('prof.tab_info')} {/* Added Translation key */}
                     </li>
                     <li
                         onClick={() => setActiveTab("friends")}
-                        className={activeTab === "friends" ? "selected" : ""}>
+                        className={`li ${activeTab === "friends" ? liSelectedCss : ""}`}>
                         {t('prof.tab_friends', { count: friends.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("requests")}
-                        className={activeTab === "requests" ? "selected" : ""}>
+                        className={`li ${activeTab === "requests" ? liSelectedCss : ""}`}>
                         {t('prof.tab_requests', { count: requests.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("stats")}
-                        className={activeTab === "stats" ? "selected" : ""}>
+                        className={`li ${activeTab === "stats" ? liSelectedCss : ""}`}>
                         {t('prof.tab_stats')} {/* Added Translation key */}
                     </li>
                 </ul>
             </nav>
 
-            <section>
-                <div className="p-cont">
+            <section className="bg-white overflow-y-auto">
+                <div className="w-[90%] mx-auto text-[#a1bdf3]">
                     {activeTab === 'info' && renderInfoScreen()}
                     {activeTab === 'friends' && renderFriendScreen()}
                     {activeTab === 'requests' && renderRequestScreen()}

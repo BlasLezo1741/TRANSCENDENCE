@@ -3,8 +3,6 @@ import React, { useState, useEffect } from "react";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
 
-import "../css/Login.css";
-
 // Add prop for global state update
 type LoginScreenProps = ScreenProps & {
     setGlobalUser: (user: string) => void;
@@ -139,51 +137,45 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                 )}
             </div>
             
-            <form onSubmit={handleForm} className="login-form" noValidate>
+            <form onSubmit={handleForm} noValidate>
                 {/* ↑ Add noValidate to disable browser validation */}
                 
                 {error && (
-                    <div>
-                        <span style={{color: "red"}}>{error}</span>
-                    </div>
+                    <span className="text-red-500">{error}</span>
                 )}
 
                 {!showTotpInput ? (
-                    <div className="login-elem">      
-                        <div className="login-elem">
-                            <label htmlFor="user">
-                                {t('user')}
-                            </label>
-                            <input
-                                type="text"
-                                id="user"
-                                name="user"
-                                value={user}
-                                onChange={(e) => setUser(e.target.value)}
-                                onBlur={(e) => setUser(e.target.value.trim())}
-                                pattern="[\x21-\x7E]+"
-                                autoFocus
-                                // Remove 'required' attribute
-                            />
-                        </div>
+                    <>
+                        <label htmlFor="user">
+                            {t('user')}
+                        </label>
+                        <input
+                            type="text"
+                            id="user"
+                            name="user"
+                            value={user}
+                            onChange={(e) => setUser(e.target.value)}
+                            onBlur={(e) => setUser(e.target.value.trim())}
+                            pattern="[\x21-\x7E]+"
+                            autoFocus
+                            // Remove 'required' attribute
+                        />
 
-                        <div className="login-elem">
-                            <label htmlFor="pass">
-                                {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
-                            </label>
-                            <input
-                                type="password"
-                                id="pass"
-                                name="pass"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                onBlur={(e) => setPassword(e.target.value.trim())}
-                                // Remove 'required' attribute
-                            />
-                        </div>
-                    </div>
+                        <label htmlFor="pass">
+                            {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
+                        </label>
+                        <input
+                            type="password"
+                            id="pass"
+                            name="pass"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onBlur={(e) => setPassword(e.target.value.trim())}
+                            // Remove 'required' attribute
+                        />
+                    </>
                 ) : (
-                    <div>
+                    <>
                         <label htmlFor="totp">
                             {t('cod_2fa')}
                         </label>
@@ -204,18 +196,20 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             autoFocus
                             // Remove 'required' attribute
                         />
-                    </div>
+                    </>
                 )}
 
-                <div className="login-btn form-btn">
+                <div>
                     <button
                         type="button"
-                        onClick={handleBack}>
+                        onClick={handleBack}
+                        className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
                         {t('volver')}
                     </button>
                     <button
                         type="submit"
-                        disabled={isLoading}>
+                        disabled={isLoading}
+                        className="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50">
                         {isLoading ? t('enviando') : (showTotpInput ? t('verificar') : t('enviar'))}
                     </button>
                 </div>
@@ -223,24 +217,26 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                 <hr />
                            
                 {!showTotpInput && (
-                    <div className="login-elem">
-                        <span style={{color: "black"}}>{t('init_ses')}</span>
+                    <div className="flex-col">
+                        <span className="text-black">{t('init_ses')}</span>
 
-                        <div className="login-btn">
+                        <div className="flex-row">
                             <button
                                 type="button"
-                                onClick={() => handleOAuth('42')}>
-                                <span>42 Network</span>
+                                onClick={() => handleOAuth('42')}
+                                className="btn bg-black text-white hover:bg-gray-800">
+                                42 Network
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => handleOAuth('google')}>
+                                onClick={() => handleOAuth('google')}
+                                className="btn bg-red-500 text-white hover:bg-red-600">
                                 Google
                             </button>
                         </div>
 
-                        <div className="account login-elem">
+                        <div className="text-black mb-1 flex-col">
                             <p>
                                 {t('cuenta?')}{" "}
                             </p>
@@ -248,7 +244,8 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                                 onClick={(e) => {
                                     e.preventDefault();
                                     dispatch({ type: "SIGN" });
-                                }}>
+                                }}
+                                className="btn text-blue-500 hover:text-blue-600 underline">
                                 {t('crear_cuenta')}
                             </button>
                         </div>

@@ -3,6 +3,60 @@
 @tailwind components;
 @tailwind utilities;
 
+header
+{
+    @apply relative z-50 flex justify-between items-center px-5 bg-[rgb(0,0,42)] text-white box-border;
+}
+
+.home
+{
+    @apply flex items-center cursor-pointer;
+}
+
+.dropdown
+{
+    @apply absolute top-full right-0 w-[100px] bg-black border border-white z-5 list-none;
+}
+
+.dropdown a
+{
+    @apply block px-4 py-2 text-white no-underline hover:bg-[darkblue];
+}
+
+.btn
+{
+    @apply px-3 py-2 rounded-lg cursor-pointer;
+}
+
+form
+{
+    @apply flex flex-col mb-4 w-3/5 mx-auto p-5 bg-gray-100;
+}
+
+label
+{
+    @apply mb-1 mt-3 text-black;
+}
+
+input
+{
+    @apply p-2 mb-2 text-black border border-black rounded;
+}
+
+select
+{
+    @apply p-2 text-black border border-black;
+}
+
+.li
+{
+    @apply text-center cursor-pointer border-b-4 border-transparent text-[#bbf8dc] my-2 px-1 hover:bg-[#0077cc] hover:border-blue-500;
+}
+
+
+
+
+
 .app
 {
     width: 100%;
@@ -41,11 +95,6 @@ h1, h2, h3, p
 h1
 {
     margin: 20px auto;
-}
-
-button
-{
-    @apply px-3 py-1 rounded-lg cursor-pointer
 }
 
 .language-switcher

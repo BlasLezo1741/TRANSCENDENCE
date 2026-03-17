@@ -71,7 +71,7 @@ export function LanguageSwitcher() {
     >
       {/* Botón desplegable solo visible en móvil */}
       <button
-        className="block md:hidden cursor-pointer"
+        className="btn bg-white text-black block md:hidden"
         onClick={() => setOpen(!open)}
       >
         {getLanguageDisplay(activeLanguage)}
@@ -82,7 +82,7 @@ export function LanguageSwitcher() {
         className={`
           ${open ? 'flex' : 'hidden'}
           md:flex
-          flex-col md:flex-row    /* Vertical en móvil, horizontal en desktop */
+          flex-col md:flex-row
           absolute md:static
           top-full left-1/2 md:left-auto
           -translate-x-1/2 md:translate-x-0
@@ -100,8 +100,8 @@ export function LanguageSwitcher() {
               onClick={() => changeLanguage(lang)}
               className={`
                 ${isActive
-                  ? 'bg-white text-black cursor-default'
-                  : 'bg-gray-400 text-black hover:bg-black hover:text-white cursor-pointer'
+                  ? 'btn bg-white text-black cursor-default'
+                  : 'btn bg-gray-400 text-black hover:bg-black hover:text-white cursor-pointer'
                 }
               `}
             >
