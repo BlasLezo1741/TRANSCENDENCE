@@ -211,21 +211,22 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             // Ignorar si se desconectó el de la sala vieja
             if (data?.roomId && data.roomId !== roomId) return;
             
-            console.warn("⚠️ Rival desconectado");
+            console.warn("Rival desconectado");
             const winnerName = userName;
-            // AVISAMOS AL PONGSCREEN
-            if (onGameOver) {
-                onGameOver(winnerName);
-            } else {
-                showModal({
-                    title: t('game.disconnected'),
-                    message: t('game.messageDisconnected'),
-                    type: "info",
-                    onConfirm: () => {
+            //FORZAMOS SIEMPRE EL MENSAJE EMERGENTE PRIMERO
+            showModal({
+                title: t('game.disconnected', "Abandono"), // Título de la alerta
+                message: `El rival ha abandonado la partida. ¡${winnerName} gana por abandono!`,
+                type: "info",
+                onConfirm: () => {
+                    // Cuando el usuario pulse "Aceptar", le mandamos a las estadísticas
+                    if (onGameOver) {
+                        onGameOver(winnerName);
+                    } else {
                         dispatch({ type: "MENU" });
                     }
-                });
-            }
+                }
+            });
         };
 
         // Activamos listeners de eventos de juego

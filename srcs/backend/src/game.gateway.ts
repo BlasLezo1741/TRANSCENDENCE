@@ -164,8 +164,19 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     // Clean up active game 
     for (const [roomId, game] of this.games.entries()) {
         if (game.playerLeftId === client.id || game.playerRightId === client.id) {
-             this.stopGameLoop(roomId); 
-             this.server.to(roomId).emit('opponent_disconnected', { roomId: roomId });
+
+            // LÓGICA DE ABANDONO POR CAÍDA (Victoria 5-0)
+             if (client.id === game.playerLeftId) {
+                 game.score = [0, 5];
+             } else if (client.id === game.playerRightId) {
+                 game.score = [5, 0];
+             }
+             
+            // Guardamos en la base de datos el abandono
+            this.saveMatchToDb(game);
+            // Detenemos bucle y avisamos al que se queda
+            this.stopGameLoop(roomId); 
+            this.server.to(roomId).emit('opponent_disconnected', { roomId: roomId });
         }
     }
   }
@@ -312,6 +323,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (game) {
       console.log(`🚪 Jugador ${client.id} ha abandonado la sala ${roomId} a medias.`);
       
+      // LÓGICA DE ABANDONO (Victoria 5-0)
+      if (client.id === game.playerLeftId) {
+          game.score = [0, 5]; // Abandona izquierda, derecha gana
+      } else if (client.id === game.playerRightId) {
+          game.score = [5, 0]; // Abandona derecha, izquierda gana
+      }
+      
+      // Guardamos el resultado de abandono en la base de datos
+      this.saveMatchToDb(game);
+
+
       // 1. Detenemos el bucle de la partida para que deje de consumir recursos
       this.stopGameLoop(roomId);
 
