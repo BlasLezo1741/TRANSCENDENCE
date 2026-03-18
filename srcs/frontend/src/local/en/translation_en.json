@@ -215,7 +215,7 @@
         "codeRequired": "Please enter the authentication code",
         "userTooShort": "Username must be at least 3 characters.",
         "userTooLong": "Username must be at most 20 characters.",
-        "userInvalidChars": "Username can only contain letters, numbers and underscores.",
+        "userInvalidChars": "Username can only contain letters, numbers, hyphens, and underscores.",
         "mustBeLogged": "You must be logged in to play online."
     },
     "success": 
@@ -255,6 +255,7 @@
     {
         "ended": "🏆 MATCH ENDED",
         "winner": "🏆 Winner: {{name}}",
-        "disconnected": "🔌 Your opponent has lost connection. You won by forfeit!"
+        "disconnected": "🔌 Your opponent has lost connection. ",
+        "messageDisconnected": "{{name}} has left. You won by forfeit!"
     }
 }

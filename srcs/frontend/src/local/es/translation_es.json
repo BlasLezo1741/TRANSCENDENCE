@@ -215,7 +215,7 @@
         "codeRequired": "Por favor ingresa el código de autenticación",
         "userTooShort": "El nombre de usuario debe tener al menos 3 caracteres.",
         "userTooLong": "El nombre de usuario debe tener como máximo 20 caracteres.",
-        "userInvalidChars": "El nombre de usuario solo puede contener letras, números y guiones bajos.",
+        "userInvalidChars": "El nombre de usuario solo puede contener letras, números, guiones y guiones bajos.",
         "mustBeLogged": "Debes iniciar sesión para jugar online."
     },
     "success": 
@@ -256,6 +256,6 @@
         "ended": "🏆 ¡JUEGO TERMINADO!",
         "winner": "🏆 Ganador: {{name}}",
         "disconnected": "🔌 Rival Desconectado",
-        "messageDisconnected": "El rival ha perdido la conexión. ¡Has ganado por abandono!"
+        "messageDisconnected": "{{name}} ha perdido la conexión. ¡Has ganado por abandono!"
     }
 }

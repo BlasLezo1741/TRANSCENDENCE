@@ -215,8 +215,9 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             const winnerName = userName;
             //FORZAMOS SIEMPRE EL MENSAJE EMERGENTE PRIMERO
             showModal({
-                title: t('game.disconnected', "Abandono"), // Título de la alerta
-                message: `El rival ha abandonado la partida. ¡${winnerName} gana por abandono!`,
+                title: t('game.disconnected'), // Título de la alerta
+                // message: `El rival ha abandonado la partida. ¡${winnerName} gana por abandono!`,
+                message: t('game.messageDisconnected', { name: opponentName }),
                 type: "info",
                 onConfirm: () => {
                     // Cuando el usuario pulse "Aceptar", le mandamos a las estadísticas

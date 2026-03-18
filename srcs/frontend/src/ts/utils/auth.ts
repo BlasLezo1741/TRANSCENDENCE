@@ -14,7 +14,7 @@ export function checkForm(user: string, email: string, password: string, repeat:
     if (!user || !user.trim())
         return { ok: false, msg: 'errors.userRequired' };
 
-    const userPattern = /^[a-zA-Z0-9_]{3,20}$/;
+    const userPattern = /^[a-zA-Z0-9_-]{3,20}$/;
     if (!userPattern.test(user.trim())) {
         if (user.trim().length < 3)
             return { ok: false, msg: 'errors.userTooShort' };
