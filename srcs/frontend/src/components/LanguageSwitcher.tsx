@@ -13,6 +13,11 @@ export function LanguageSwitcher() {
   }, [i18n.language]);
 
   const changeLanguage = (lng: string) => {
+    // Mark that the user made a manual choice this session.
+    // App.tsx reads this flag in syncProfile to skip overwriting with the DB language
+    // on page refresh. The flag is cleared on logout so the next login resets to the
+    // user's DB language again.
+    sessionStorage.setItem('languageManuallySet', 'true');
     i18n.changeLanguage(lng);
     setActiveLanguage(lng);
     setOpen(false);
@@ -99,39 +104,3 @@ export function LanguageSwitcher() {
     </div>
   );
 }
-
-// import { useTranslation } from 'react-i18next';
-// import cataloniaFlag from '../assets/Flag_of_Catalonia.png';
-
-// export function LanguageSwitcher() {
-//   const { i18n } = useTranslation();
-
-//   const changeLanguage = (lng: string) => {
-//     i18n.changeLanguage(lng);
-//   };
-
-//   const FlagIcon = ({ src, alt }) => (
-//     <img 
-//       src={src} 
-//       alt={alt} 
-//       style={{ width: '20px', height: '15px'}}
-//     />
-//   )
-
-//   return (
-//     <div className="language-switcher">
-//       <div className="lang-but flex gap-2 items-center">        
-//         <button onClick={() => changeLanguage('en')}>🇬🇧 English</button>
-//         <button onClick={() => changeLanguage('es')}>🇪🇸 Español</button>
-
-//         <button 
-//           onClick={() => changeLanguage('ca')} 
-//           className="cat">
-//           <FlagIcon src={cataloniaFlag} alt="Català" />
-//           <span className="leading-none pb-[2px]"> Català</span>
-//         </button>
-//         <button onClick={() => changeLanguage('fr')}>🇫🇷 Français</button>
-//       </div>
-//     </div>
-//   );
-// }

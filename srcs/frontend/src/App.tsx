@@ -199,8 +199,13 @@ function App()
   // Runs whenever currentUser becomes truthy (login, OAuth, page refresh).
   // This is the single source of truth for avatarUrl — the JWT and
   // localStorage never carry it, so we always fetch it from the API.
-  // Language from the database is applied here too, overriding whatever
-  // was in localStorage, and falling back to English for unsupported codes.
+  //
+  // Language priority (Option B):
+  //   - On login: apply the DB language, unless the user already made a manual
+  //     choice this session (sessionStorage flag 'languageManuallySet').
+  //   - On refresh: if the user manually switched language this session, respect
+  //     that choice and skip the DB language.
+  //   - On logout: the flag is cleared, so the next login resets to DB language.
   // -----------------------------------------------------------
   useEffect(() => {
     if (!currentUser) return;
@@ -214,12 +219,11 @@ function App()
           // Also keep localStorage id in sync (matters after normal login)
           localStorage.setItem("pong_user_id", String(profile.id));
 
-          // Apply the user's language from the database.
-          // This overrides the browser/localStorage default so the user always
-          // sees their registered language on login. Unsupported codes fall back
-          // to English. After this call i18next caches the language in localStorage
-          // so page refreshes within the session keep the correct language.
-          applyUserLanguage(profile.lang);
+          // Apply the user's DB language only if they have not manually
+          // switched language during this session.
+          if (!sessionStorage.getItem('languageManuallySet')) {
+            applyUserLanguage(profile.lang);
+          }
         }
       } catch (err) {
         // Non-fatal: avatar just won't show until profile is visited
@@ -239,14 +243,16 @@ function App()
       localStorage.removeItem("pong_user_nick");
       localStorage.removeItem("pong_user_id");
       localStorage.removeItem("pong_token");
-      // 2. Desconectar Socket
+      // 2. Clear the manual language flag so the next login resets to DB language
+      sessionStorage.removeItem('languageManuallySet');
+      // 3. Desconectar Socket
       socket.disconnect();
-      // 3. Limpiar Estado
+      // 4. Limpiar Estado
       setCurrentUser("");
       setCurrentUserId(undefined);
       setCurrentUserAvatarUrl(null);
       setProfileSynced(false);
-      // 4. Cambiar Pantalla
+      // 5. Cambiar Pantalla
       dispatch({ type: "LOGOUT" });
   };
   
