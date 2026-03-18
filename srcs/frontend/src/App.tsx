@@ -19,6 +19,7 @@ import Footer from './components/Footer.tsx'
 import { socket, connectSocket, setMatchData } from './services/socketService';
 import { ChatSidebar } from './components/ChatSidebar.tsx';
 import { getMyProfile } from './services/user.service';
+import { applyUserLanguage } from './i18n.ts';
 
 import "./css/App.css";
 
@@ -194,10 +195,12 @@ function App()
   }, [currentUser]);
 
   // -----------------------------------------------------------
-  // 2. FETCH AVATAR + USER ID ON LOGIN / REFRESH
+  // 2. FETCH AVATAR + USER ID + LANGUAGE ON LOGIN / REFRESH
   // Runs whenever currentUser becomes truthy (login, OAuth, page refresh).
   // This is the single source of truth for avatarUrl — the JWT and
   // localStorage never carry it, so we always fetch it from the API.
+  // Language from the database is applied here too, overriding whatever
+  // was in localStorage, and falling back to English for unsupported codes.
   // -----------------------------------------------------------
   useEffect(() => {
     if (!currentUser) return;
@@ -210,6 +213,13 @@ function App()
           setCurrentUserAvatarUrl(profile.avatarUrl ?? null);
           // Also keep localStorage id in sync (matters after normal login)
           localStorage.setItem("pong_user_id", String(profile.id));
+
+          // Apply the user's language from the database.
+          // This overrides the browser/localStorage default so the user always
+          // sees their registered language on login. Unsupported codes fall back
+          // to English. After this call i18next caches the language in localStorage
+          // so page refreshes within the session keep the correct language.
+          applyUserLanguage(profile.lang);
         }
       } catch (err) {
         // Non-fatal: avatar just won't show until profile is visited
