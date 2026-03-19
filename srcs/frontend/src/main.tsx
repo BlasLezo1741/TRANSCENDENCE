@@ -1,6 +1,5 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './css/index.css'
 import App from './App.tsx'
 import './i18n';
 import { ModalProvider } from './context/ModalContext.tsx';
