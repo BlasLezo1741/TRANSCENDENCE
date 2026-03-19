@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { checkForm,  registUser } from "../ts/utils/auth";//checkPassword,
+import React, { useState, useEffect, useMemo } from "react";
+import { checkForm, registUser } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
-import { QRCodeSVG } from 'qrcode.react'; // Importamos el generador de QR
+import { QRCodeSVG } from 'qrcode.react';
 import TermsModal from "../components/TermsModal";
 import { sentence } from "../ts/utils/string";
+import { useCountryNames } from "../ts/utils/countryName";
 
 import '../css/Login.css';
 
@@ -14,8 +15,10 @@ interface Country {
 }
 
 const SignScreen = ({ dispatch }: ScreenProps) => {
-    // USE TRANSLATOR
     const { t } = useTranslation();
+
+    // Localised country name resolver — updates automatically when language changes
+    const countryName = useCountryNames();
 
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
@@ -31,46 +34,34 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     const [success, setSuccess] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // NEW: Countries state
+    // Countries state
     const [countries, setCountries] = useState<Country[]>([]);
     const [isLoadingCountries, setIsLoadingCountries] = useState(true);
-    // NEW: Accept policy
+    // Accept policy
     const [acceptPolicy, setAcceptPolicy] = useState(false);
-    // NEW: Modal visibility for Terms and Privacy
+    // Modal visibility for Terms and Privacy
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-    // NEW: QR Code state
+    // QR Code state
     const [qrCode, setQrCode] = useState<string | null>(null);
-    const [enabled2FA, setEnabled2FA] = useState(false);  //Por defecto no se activa
-    const [backupCodes, setBackupCodes] = useState<string[] | null>(null);  // Puede ser null inicialmente
-    // SHOW OAUTH BUTTONS FLAG
-    const [showOAuthButtons, setShowOAuthButtons] = useState(true)  ; // Cambia esto según tus necesidades
-    // ===========================================================================
+    const [enabled2FA, setEnabled2FA] = useState(false);
+    const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
+    // Show OAuth buttons flag
+    const [showOAuthButtons, setShowOAuthButtons] = useState(true);
 
-    // NEW: Fetch countries on component mount
+    // Fetch countries on component mount
     useEffect(() => {
         const fetchCountries = async () => {
             try {
-                
-                // const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-                // console.log(`reading  countries from ${API_URL}/countries`);
-                // const response = await fetch(`${API_URL}/countries`, 
-                // CAMBIO CLAVE: Usamos directamente la ruta relativa '/countries'
-                // El navegador le añadirá automáticamente 'https://tu-ip:8443' delante.
                 console.log(`reading countries from /countries (Ruta relativa)`);
-                
-                const response = await fetch('/countries',
-                    {
-                        method: 'GET',
-                        mode: 'cors', // Asegura que CORS esté habilitado en el backend
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        // IMPORTANTE: Si usas cookies o sesiones, añade esto:
-                        // credentials: 'include' 
-                    });
-                
+                const response = await fetch('/countries', {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setCountries(data);
@@ -83,20 +74,16 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 setIsLoadingCountries(false);
             }
         };
-
         fetchCountries();
     }, []);
-    // ===========================================================================
-    // FUNCIONES (handlers)
-    // ===========================================================================
-    
+
     const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setSuccess("");
         setQrCode(null);
         setBackupCodes(null);
-        setShowOAuthButtons(true); // Show OAuth buttons on form submission
+        setShowOAuthButtons(true);
 
         // 1. Check terms acceptance
         if (!acceptPolicy) {
@@ -104,7 +91,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
             return;
         }
 
-        // 2. Check local password syntax
+        // 2. Check local form validation
         const formResult = checkForm(user, email, password, repeat, birth);
         if (!formResult.ok) {
             setError(t(formResult.msg));
@@ -113,28 +100,22 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
             return;
         }
 
-        
         setIsLoading(true);
 
         try {
-            // 2. Check backend registration
-            // We now pass BOTH country and language separately
             const result = await registUser(user, password, email, birth, country, language, enabled2FA);
-            
             if (!result.ok) {
                 setError(t(result.msg));
                 setPassword("");
                 setRepeat("");
             } else {
-                setSuccess(t(result.msg));            
-                // If 2FA is enabled, set the QR code
+                setSuccess(t(result.msg));
                 if (enabled2FA && result.qrCode) {
                     setQrCode(result.qrCode);
                     console.log(result.backupCodes);
                     setBackupCodes(result.backupCodes);
-                    setShowOAuthButtons(false); // Show OAuth buttons on form submission
+                    setShowOAuthButtons(false);
                 }
-                //setTimeout(() => dispatch({ type: "MENU" }), 2000); // 2 Seg. de por favor
             }
         } catch (err) {
             setError(t('errors.connectionError'));
@@ -156,8 +137,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         setAcceptPolicy(false);
         setEnabled2FA(false);
         setBackupCodes(null);
-        setShowOAuthButtons(true); // Show OAuth buttons on form submission
+        setShowOAuthButtons(true);
     };
+
     const handleOAuth = (provider: 'google' | '42') => {
         if (!acceptPolicy) {
             setError(t('errors.mustAcceptTerms'));
@@ -212,14 +194,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     />
                 </div>
 
-                {/* Password Info Box */}
-                {/* <div>
-                    {t('pass_req')}
-                </div> */}
-
                 {/* Password */}
                 <div className="login-elem">
-                    <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">{sentence(t('password'))}</label>
+                    <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">
+                        {sentence(t('password'))}
+                    </label>
                     <input
                         type="password"
                         id="pass"
@@ -244,7 +223,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     />
                 </div>
 
-                {/* Birth date */}
+                {/* Birth date
+                    type="date" always returns YYYY-MM-DD to JavaScript regardless of
+                    how the browser displays it, so checkForm receives the correct format. */}
                 <div className="login-elem">
                     <label htmlFor="birth">{t('cumple')}</label>
                     <input
@@ -253,13 +234,15 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         id="birth"
                         value={birth}
                         onChange={(e) => setBirth(e.target.value)}
+                        max={new Date().toISOString().split('T')[0]}
                         required
                     />
                 </div>
 
-                {/* Country & Language Row */}
+                {/* Country — names localised to the active UI language via Intl.DisplayNames.
+                    The ISO code (c.code) is submitted; the label shown is locale-aware.
+                    Falls back to the English name from the DB if the code is unrecognised. */}
                 <div className="login-elem">
-                    {/* Country - UPDATED TO DROPDOWN */}
                     <label htmlFor="country">{t('cod_pais')}</label>
                     <select
                         id="country"
@@ -273,7 +256,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         </option>
                         {countries.map((c) => (
                             <option key={c.code} value={c.code}>
-                                {c.name} ({c.code})
+                                {countryName(c.code, c.name)} ({c.code})
                             </option>
                         ))}
                     </select>
@@ -309,6 +292,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     />
                     <label htmlFor="enabled2FA">{t('enable_2fa')}</label>
                 </div>
+
                 {/* Privacy policy + Terms of Use checkbox */}
                 <div className="login-btn">
                     <input
@@ -345,41 +329,34 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     title={t('info.privacy_policy')}
                     fileName="privacy"
                 />
+
                 {/* Action Buttons */}
                 <div className="login-btn form-btn">
-                    <button
-                        type="button"
-                        onClick={handleReset}>
+                    <button type="button" onClick={handleReset}>
                         {t('borrar_t')}
                     </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        // className={`flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-                        // ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
-                        // focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
-                        >
+                    <button type="submit" disabled={isLoading}>
                         {isLoading ? t('enviando') : t('enviar')}
                     </button>
                 </div>
 
                 <hr />
 
-                {/* CÓDIGO QR (solo si existe) */}
+                {/* QR Code (only if present) */}
                 {qrCode && (
                     <div style={{ marginTop: '20px' }}>
                         <h3>{t('qr_setup1')}</h3>
                         <div style={{ 
-                        background: 'white', 
-                        padding: '15px', 
-                        display: 'inline-block',
-                        borderRadius: '8px' 
+                            background: 'white', 
+                            padding: '15px', 
+                            display: 'inline-block',
+                            borderRadius: '8px' 
                         }}>
-                        <QRCodeSVG 
-                            value={qrCode} 
-                            size={256}
-                            level={"H"} // Alta recuperación de errores
-                        />
+                            <QRCodeSVG 
+                                value={qrCode} 
+                                size={256}
+                                level={"H"}
+                            />
                         </div>        
                         <p style={{ 
                             marginTop: '15px', 
@@ -389,16 +366,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         }}>
                             💡 <strong>{t('qr_setup2')}</strong> {t('qr_setup3')}
                         </p>
-                        
-                        {/* --- NUEVO BOTÓN DE CONFIRMACIÓN --- */}
                         <div>
                             <button
                                 type="button"
                                 onClick={() => {
-                                    // 1. Opcional: Mostrar un pequeño feedback visual de éxito
                                     setSuccess(t('registro_exitoso'));
-                                    
-                                    // 2. Esperar 2 segundos antes de cambiar al menú
                                     setTimeout(() => {
                                         dispatch({ type: "MENU" });
                                     }, 2000);
@@ -410,44 +382,37 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     </div>
                 )}
                 {backupCodes && backupCodes.length > 0 && (
-                <div>
-                    <h3>{t('backup_codes')}</h3>
-                    <p>{t('copy_codes')}</p>
-                    <ul>
-                     {backupCodes.map((code, index) => (
-                        <li key={index}>{code}</li>
-                    ))}
-                    </ul>
-                </div>
+                    <div>
+                        <h3>{t('backup_codes')}</h3>
+                        <p>{t('copy_codes')}</p>
+                        <ul>
+                            {backupCodes.map((code, index) => (
+                                <li key={index}>{code}</li>
+                            ))}
+                        </ul>
+                    </div>
                 )}
-                {/* Mensajes de Feedback */}
-                {/* {error && (
-                    <span style={{color: "red"}}>{t('error')}: {error}</span>
-                )} */}
                 {success && (
                     <div>
                         <p>{success}</p>
                     </div>
                 )}
-                {/* --- OAUTH BUTTONS --- */}
+
+                {/* OAuth buttons */}
                 {showOAuthButtons && (
-                <div className="login-elem">
-                    <span style={{color: "black", marginBottom: "5px"}}>{t('crear_cuenta')} / {t('init_ses')}: </span>
-
-                    <div className="login-btn">
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('42')}>
-                            <span>42 Network</span>
-                        </button>
-
-                        <button
-                                type="button"
-                                onClick={() => handleOAuth('google')}>
+                    <div className="login-elem">
+                        <span style={{color: "black", marginBottom: "5px"}}>
+                            {t('crear_cuenta')} / {t('init_ses')}:{" "}
+                        </span>
+                        <div className="login-btn">
+                            <button type="button" onClick={() => handleOAuth('42')}>
+                                <span>42 Network</span>
+                            </button>
+                            <button type="button" onClick={() => handleOAuth('google')}>
                                 Google
-                        </button>
+                            </button>
+                        </div>
                     </div>
-                </div>
                 )}
             </form>
         </div>

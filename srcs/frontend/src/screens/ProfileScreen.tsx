@@ -27,6 +27,7 @@ import { Avatar } from '../components/Avatar';
 import { AvatarSelector } from '../components/AvatarSelector';
 import { firstcap } from '../ts/utils/string';
 import { sentence  } from '../ts/utils/string';
+import { useCountryNames } from '../ts/utils/countryName';
 import "../css/ProfileScreen.css";
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 import { Leaderboard } from '../components/Leaderboard';
@@ -43,6 +44,9 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'info' | 'friends' | 'requests' | 'stats'>('info');
     
+    // Localised country name resolver — updates automatically when language changes
+    const countryName = useCountryNames();
+
     // Estados de datos sociales
     const [friends, setFriends] = useState<Friend[]>([]);
     const [requests, setRequests] = useState<PendingRequest[]>([]);
@@ -223,8 +227,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 
                 showModal({
-                    title: t('error'), // Added Translation key
-                    message: result.msg || t('prof.avatar_update_error'), // Added Translation key
+                    title: t('error'),
+                    message: result.msg || t('prof.avatar_update_error'),
                     type: "error"
                 });
             }
@@ -235,8 +239,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             
             showModal({
-                title: t('error'), // Added Translation key
-                message: t('prof.avatar_update_error2'), // Added Translation key
+                title: t('error'),
+                message: t('prof.avatar_update_error2'),
                 type: "error"
             });
         }
@@ -259,7 +263,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     
                     if (res.ok) {
                         console.log("✅ [ProfileScreen] Friend removed successfully");
-                        setStatusMsg(t('prof.friend_removed_msg', { name: friendName })); // Added Translation key
+                        setStatusMsg(t('prof.friend_removed_msg', { name: friendName }));
                     } else {
                         console.error("❌ [ProfileScreen] Failed to remove friend, reloading...");
                         loadSocialData(); 
@@ -277,18 +281,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         console.log("💾 [ProfileScreen] handleUpdateProfile() - Starting...");
         console.log("📝 [ProfileScreen] Form data:", editForm);
     
-/*         // 1. Required fields (nick & email present)
-        if (!editForm.nick || !editForm.email) {
-            console.warn("⚠️ [ProfileScreen] Validation failed: Missing required fields");
-            showModal({
-                title: t('error'),
-                message: t('prof.fields_required'),
-                type: "error"
-            });
-            return;
-        } */
-    
-        // 2. Format validation via checkForm (email format, birth date, new password strength)
+        // Format validation via checkForm (email format, birth date, new password strength)
         const formResult = checkForm(
             editForm.nick,
             editForm.email,
@@ -307,7 +300,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             return;
         }
     
-        // 3. Current password required if changing password
+        // Current password required if changing password
         if (editForm.newPassword && !editForm.currentPassword) {
             console.warn("⚠️ [ProfileScreen] Validation failed: Missing current password");
             showModal({
@@ -318,7 +311,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             return;
         }
     
-        // 4. Sync nick to localStorage and header if changed
+        // Sync nick to localStorage and header if changed
         if (editForm.nick !== userProfile?.nick) {
             console.log("🔄 [ProfileScreen] Updating localStorage with new nick:", editForm.nick);
             localStorage.setItem('pong_user_nick', editForm.nick);
@@ -441,7 +434,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             console.log("🤝 [SOCKET] Amistad aceptada");
             setTimeout(() => {
                 loadSocialData();
-                setStatusMsg(t('prof.friend_added')); // Added Translation key
+                setStatusMsg(t('prof.friend_added'));
             }, 300);
         };
 
@@ -469,26 +462,25 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             setFriends((prev: Friend[]) => {
                 const cantidadAntes = prev.length;
                 const nuevaLista = prev.filter(f => Number(f.id) !== idQueMeBorro);
-                
                 console.log(`📉 Cambio visual: ${cantidadAntes} amigos -> ${nuevaLista.length} amigos`);
                 return nuevaLista;
             });
             
             loadSocialData();
         };
-        //para el avatar
+
+        // para el avatar
         const handleFriendUpdate = (payload: any) => {
             console.log("♻️ [SOCKET] Evento friend_update recibido en Perfil:", payload);
 
             setFriends((prevFriends) => prevFriends.map((f) => {
-                // Comparamos IDs (asegurando tipo número)
                 if (Number(f.id) === Number(payload.id)) {
                     console.log(`🔄 Actualizando datos de amigo: ${f.friend_nick} -> ${payload.name}`);
                     return {
                         ...f,
-                        friend_nick: payload.name || f.friend_nick, // Actualizar Nick
-                        avatar: payload.avatar // 🔥 Actualizar Avatar (URL o ID)
-                    } as any; // 'as any' para evitar quejas si la interfaz Friend no tiene 'avatar' explícito aún
+                        friend_nick: payload.name || f.friend_nick,
+                        avatar: payload.avatar
+                    } as any;
                 }
                 return f;
             }));
@@ -520,7 +512,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         
         setIsLoadingCandidates(true);
         const res = await sendFriendRequest(parseInt(targetIdInput));
-        setStatusMsg(res.ok ? t('prof.request_sent') : t('error')); // Added Translation key
+        setStatusMsg(res.ok ? t('prof.request_sent') : t('error'));
         
         console.log("📬 [ProfileScreen] Friend request result:", res);
         
@@ -542,12 +534,9 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     // Función auxiliar para resolver la imagen (igual que en ChatSidebar)
     const getDisplayAvatar = (userId: number, avatarId?: string | null) => {
         if (!avatarId) return getDefaultAvatar(userId);
-        // Si es URL externa (42/Google)
         if (avatarId.startsWith('http') || avatarId.startsWith('/')) return avatarId;
-        // Si es un ID local (ej: dragon-egg)
         const customUrl = getAvatarUrlById(avatarId);
         if (customUrl) return customUrl;
-        // Fallback
         return getDefaultAvatar(userId);
     };
 
@@ -557,23 +546,20 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     const renderInfoScreen = () => {
         if (isLoadingProfile) {
             console.log("⏳ [InfoScreen] Loading profile...");
-            return <p>{t('prof.loading')}</p>; // Added Translation key
+            return <p>{t('prof.loading')}</p>;
         }
 
         if (!userProfile) {
             console.error("❌ [InfoScreen] No profile data available");
-            return <p>{t('prof.load_error')}</p>; // Added Translation key
+            return <p>{t('prof.load_error')}</p>;
         }
 
         const isOAuthUser = !!userProfile.oauthProvider;
         console.log("👤 [InfoScreen] Rendering profile. OAuth user:", isOAuthUser);
 
-        
-
-
         return (
             <>
-                <h1>{t('prof.title')}</h1> {/* Added Translation key */}
+                <h1>{t('prof.title')}</h1>
 
                 {/* Avatar with Edit Button */}
                     <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -611,7 +597,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     // MODO VISUALIZACIÓN
                     <>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>{t('prof.field_id')}:</strong> {userProfile.id} {/* Added Translation key */}
+                            <strong>{t('prof.field_id')}:</strong> {userProfile.id}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
                             <strong>{t('user')}:</strong> {userProfile.nick}
@@ -621,18 +607,21 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         </div>
                         {userProfile.birth && (
                             <div style={{ marginBottom: '10px' }}>
-                                <strong>{t('cumple')}:</strong> {userProfile.birth} {/* Added Translation key */}
+                                <strong>{t('cumple')}:</strong> {userProfile.birth}
                             </div>
                         )}
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>{t('prof.field_country')}:</strong> {userProfile.country} {/* Added Translation key */}
+                            {/* Show the localised country name for the 2-letter code stored in the DB.
+                                Falls back to the raw code if Intl.DisplayNames doesn't recognise it. */}
+                            <strong>{t('prof.field_country')}:</strong>{' '}
+                            {countryName(userProfile.country ?? '', userProfile.country ?? '')}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>{t('lang')}:</strong> {userProfile.lang} {/* Added Translation key */}
+                            <strong>{t('lang')}:</strong> {userProfile.lang}
                         </div>
                         {isOAuthUser && (
                             <div style={{ marginBottom: '10px' }}>
-                                <strong>{t('prof.field_oauth')}:</strong> {userProfile.oauthProvider} {/* Added Translation key */}
+                                <strong>{t('prof.field_oauth')}:</strong> {userProfile.oauthProvider}
                             </div>
                         )}
 
@@ -654,7 +643,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                     fontWeight: 'bold'
                                 }}
                             >
-                            {t('prof.edit_btn')} {/* Added Translation key */}
+                            {t('prof.edit_btn')}
                         </button>
                         <button
                                 onClick={() => {
@@ -673,14 +662,14 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                     fontWeight: 'bold'
                                 }}
                             >
-                                {sentence(t('prof.delete_btn'))} {/* Added Translation key */}
+                                {sentence(t('prof.delete_btn'))}
                         </button>
                     </>
                 ) : (
                     // MODO EDICIÓN
                     <>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong>{t('prof.field_id')}:</strong> {userProfile.id} <em>({t('prof.field_id_readonly')})</em> {/* Added Translation key */}
+                            <strong>{t('prof.field_id')}:</strong> {userProfile.id} <em>({t('prof.field_id_readonly')})</em>
                         </div>
 
                         <div style={{ marginBottom: '15px' }}>
@@ -709,7 +698,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>
-                                <strong>{t('cumple')}:</strong> {/* Added Translation key */}
+                                <strong>{t('cumple')}:</strong>
                                 <input
                                     type="date"
                                     value={editForm.birth}
@@ -719,20 +708,24 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             </label>
                         </div>
 
+                        {/* Country dropdown — names localised to the active UI language via
+                            Intl.DisplayNames. The ISO code (c.coun2_pk) is submitted as the
+                            value; only the displayed label changes with the language.
+                            Falls back to the English DB name if the code is unrecognised. */}
                         <div style={{ marginBottom: '15px' }}>
                             <label>
-                                <strong>{t('prof.field_country')}:</strong> {/* Added Translation key */}
+                                <strong>{t('prof.field_country')}:</strong>
                                 <select
                                     value={editForm.country}
                                     onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
                                     style={{ width: '100%', marginTop: '5px' }}
                                     disabled={isLoadingCountries}>
                                     <option value="">
-                                        {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')} {/* Added Translation key */}
+                                        {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')}
                                     </option>
                                     {countries.map((c) => (
                                         <option key={c.coun2_pk} value={c.coun2_pk}>
-                                            {c.coun_name}
+                                            {countryName(c.coun2_pk, c.coun_name)} ({c.coun2_pk})
                                         </option>
                                     ))}
                                 </select>
@@ -741,12 +734,12 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>
-                                <strong>{t('lang')}:</strong> {/* Added Translation key */}
+                                <strong>{t('lang')}:</strong>
                                 <select
                                     value={editForm.lang}
                                     onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}    
                                     style={{ width: '100%', marginTop: '5px' }}>
-                                    <option value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
+                                    <option value="">{t('prof.sel_lang')}</option>
                                     <option value="es">Español</option>
                                     <option value="ca">Català</option>
                                     <option value="en">English</option>
@@ -759,43 +752,43 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         {!isOAuthUser && (
                             <>
                                 <hr style={{ margin: '20px 0' }} />
-                                <h3>{t('prof.change_pass')}</h3> {/* Added Translation key */}
+                                <h3>{t('prof.change_pass')}</h3>
 
                                 <div style={{ marginBottom: '15px' }}>
                                     <label>
-                                        <strong>{t('prof.current_pass')}:</strong> {/* Added Translation key */}
+                                        <strong>{t('prof.current_pass')}:</strong>
                                         <input
                                             type="password"
                                             value={editForm.currentPassword}
                                             onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
                                             style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.current_pass_ph')} // Added Translation key
+                                            placeholder={t('prof.current_pass_ph')}
                                         />
                                     </label>
                                 </div>
 
                                 <div style={{ marginBottom: '15px' }}>
                                     <label>
-                                        <strong>{t('prof.new_pass')}:</strong> {/* Added Translation key */}
+                                        <strong>{t('prof.new_pass')}:</strong>
                                         <input
                                             type="password"
                                             value={editForm.newPassword}
                                             onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
                                             style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.new_pass_ph')} // Added Translation key
+                                            placeholder={t('prof.new_pass_ph')}
                                         />
                                     </label>
                                 </div>
 
                                 <div style={{ marginBottom: '15px' }}>
                                     <label>
-                                        <strong>{t('prof.confirm_pass')}:</strong> {/* Added Translation key */}
+                                        <strong>{t('prof.confirm_pass')}:</strong>
                                         <input
                                             type="password"
                                             value={editForm.confirmPassword}
                                             onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
                                             style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.confirm_pass_ph')} // Added Translation key
+                                            placeholder={t('prof.confirm_pass_ph')}
                                         />
                                     </label>
                                 </div>
@@ -804,10 +797,10 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
                         <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
                             <button onClick={handleUpdateProfile}>
-                                {t('prof.save_btn')} {/* Added Translation key */}
+                                {t('prof.save_btn')}
                             </button>
                             <button onClick={handleCancelEdit}>
-                                {t('prof.cancel')} {/* Added Translation key */}
+                                {t('prof.cancel')}
                             </button>
                         </div>
                     </>
@@ -892,10 +885,9 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                         }}>
                                     </div>
 
-                                    {/* 2. Avatar (NUEVO) */}
+                                    {/* 2. Avatar */}
                                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden' }}>
                                         <img 
-                                            // Asumimos que f tiene la propiedad 'avatar' gracias a nuestro arreglo en el backend
                                             src={getDisplayAvatar(f.id, (f as any).avatar)} 
                                             alt={f.friend_nick}
                                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -928,25 +920,22 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             </>
         );
     };   
-
+    
     const renderRequestScreen = () => (
         <>
-            <h1>{t('prof.requests_title')}</h1> {/* Added Translation key */}
-
-            <h3>{t('prof.requests_h3')}</h3> {/* Added Translation key */}
-
-            {requests.length === 0 && <p>{t('prof.no_requests')}</p>} {/* Added Translation key */}
-
+            <h1>{t('prof.requests_title')}</h1>
+            <h3>{t('prof.requests_h3')}</h3>
+            {requests.length === 0 && <p>{t('prof.no_requests')}</p>}
             {requests.length > 0 && (
                 <ul>
                     {requests.map((r) => (
                         <li key={r.id}>
                             <span>
-                                <strong>{r.nick}</strong> {t('prof.wants_friend')} {/* Added Translation key */}
+                                <strong>{r.nick}</strong> {t('prof.wants_friend')}
                             </span>
                             <div>
                                 <button onClick={() => handleAccept(r.id)}>
-                                    {sentence(t('prof.accept_btn'))} {/* Added Translation key */}
+                                    {sentence(t('prof.accept_btn'))}
                                 </button>
                             </div>
                         </li>
@@ -963,12 +952,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px', width: '100%' }}>
-                {/* Título de la sección */}
                 <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white', marginBottom: '20px' }}>
                     {t('prof.stats_title')}
                 </h1>
                 
-                {/* 🎛️ SUB-MENÚ DE BOTONES */}
+                {/* Sub-menu */}
                 <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
                     <button 
                         onClick={() => setStatView('leaderboard')}
@@ -993,16 +981,9 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     </button>
                 </div>
 
-                {/* 📺 CONTENIDO DINÁMICO QUE CAMBIA SEGÚN EL BOTÓN */}
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                    {statView === 'leaderboard' && (
-                        <Leaderboard />
-                    )}
-                    
-                    {statView === 'history' && (
-                        <MatchHistory myProfile={userProfile} />
-                    )}
-                    
+                    {statView === 'leaderboard' && <Leaderboard />}
+                    {statView === 'history' && <MatchHistory myProfile={userProfile} />}
                     {statView === 'grafana' && (
                         <div style={{ width: '100%', height: '700px', backgroundColor: '#111827', borderRadius: '12px', overflow: 'hidden', border: '1px solid #374151', marginTop: '10px' }}>
                             <iframe 
@@ -1027,7 +1008,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     <li
                         onClick={() => setActiveTab("info")}
                         className={activeTab === "info" ? "selected" : ""}>
-                        {t('prof.tab_info')} {/* Added Translation key */}
+                        {t('prof.tab_info')}
                     </li>
                     <li
                         onClick={() => setActiveTab("friends")}
@@ -1042,7 +1023,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     <li
                         onClick={() => setActiveTab("stats")}
                         className={activeTab === "stats" ? "selected" : ""}>
-                        {t('prof.tab_stats')} {/* Added Translation key */}
+                        {t('prof.tab_stats')}
                     </li>
                 </ul>
             </nav>
