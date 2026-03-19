@@ -1,59 +1,76 @@
 .game
 {
-    width: 100%;
-    height: 100%;
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    @apply w-full h-full mx-auto flex flex-col items-center justify-center;
 }
 
-.game h1
-{
-    margin-bottom: 10px;
-}
-
-.game-canvas
-{
-    width: 100%;
-    height: 100%;
-    border: 3px solid white;
-    background-color: black;
-}
-
-@media screen and (max-width: 600px)
+@media screen and (min-width: 0px) and (max-width: 360px)
 {
     .game
     {
         transform: 
-            translate(-17%, 0) 
+            translate(-30%, 0) 
             rotate(90deg) 
-            scale(0.75);
+            scale(0.4);
         transform-origin: center center;
     }
 }
 
-@media screen and (min-width: 601px) and (max-width: 660px)
+@media screen and (min-width: 361px) and (max-width: 414px)
 {
     .game
     {
         transform: 
-            translate(-5%, 0) 
+            translate(-26%, 0) 
             rotate(90deg) 
-            scale(0.75);
+            scale(0.5);
         transform-origin: center center;
     }
 }
 
-@media screen and (min-width: 661px) and (max-width: 750px)
+@media screen and (min-width: 415px) and (max-width: 476px)
 {
     .game
     {
         transform: 
-            translate(-7%, 0) 
-            rotate(0)
-            scale(0.75);
+            translate(-24%, 0) 
+            rotate(90deg) 
+            scale(0.6);
+        transform-origin: center center;
+    }
+}
+
+@media screen and (min-width: 477px) and (max-width: 540px)
+{
+    .game
+    {
+        transform: 
+            translate(-20%, 0) 
+            rotate(90deg) 
+            scale(0.7);
+        transform-origin: center center;
+    }
+}
+
+@media screen and (min-width: 541px) and (max-width: 640px)
+{
+    .game
+    {
+        transform: 
+            translate(-15%, 0) 
+            rotate(90deg) 
+            scale(0.7);
+        transform-origin: center center;
+    }
+}
+
+@media screen and (min-width: 641px) and (max-width: 750px)
+{
+    .game
+    {
+        transform: 
+            translate(-10%, 0) 
+            rotate(90deg) 
+            scale(0.8);
         transform-origin: center center;
     }
 }
@@ -63,14 +80,14 @@
     .game
     {
         transform: 
-            translate(0, 0) 
+            translate(-5%, 0) 
             rotate(0) 
-            scale(0.75);
+            scale(0.8);
         transform-origin: center center;
     }
 }
 
-@media screen and (min-width: 901px)
+@media screen and (min-width: 901px) and (max-width: 1020px)
 {
     .game
     {

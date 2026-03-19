@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
 import type { GameMode, GameDifficult } from '../ts/types.ts';
 import { Countdown } from '../components/Countdown';
-import '../css/PongScreen.css';
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 import { Leaderboard } from '../components/Leaderboard';
 import noAvatarUrl from '../assets/nouser_chatgpt.png';
+import '../css/PongScreen.css';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
@@ -66,45 +66,35 @@ return (
     <div className="game">
       
       {/* NUEVA CABECERA CON AVATARES */}
-      <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          width: '800px', // Mismo ancho que el canvas
-          marginBottom: '10px',
-          padding: '10px',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          borderRadius: '10px',
-          color: 'white'
-      }}>
+      <div className="flex justify-between items-center w-[800px] mb-2.5 p-2.5 bg-[rgba(0,0,0,0.5)] rounded-[10px] text-white">
           {/* JUGADOR IZQUIERDA */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="flex items-center gap-2.5">
               <img 
                   src={resolveAvatar(leftAvatarRaw, 1)} 
                   alt={leftPlayer} 
-                  style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px solid #007bff' }}
+                  className="w-[50px] h-[50px] rounded-full border-2 border-[#007bff]"
               />
-              <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{leftPlayer}</span>
+              <span className="text-[1.2rem] font-bold">{leftPlayer}</span>
           </div>
 
           {/* INFORMACIÓN CENTRAL */}
-          <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>{t('juego_mode')}{mode}</div>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', letterSpacing: '5px' }}>VS</div>
+          <div className="text-center">
+              <div className="text-[0.8rem] opacity-80">{t('juego_mode')}{mode}</div>
+              <div className="text-[2rem] font-bold tracking-[5px]">VS</div>
           </div>
 
           {/* JUGADOR DERECHA */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexDirection: 'row-reverse' }}>
+          <div className="flex items-center gap-2.5 flex-row-reverse">
               <img 
                   src={resolveAvatar(rightAvatarRaw, 2)} 
                   alt={rightPlayer} 
-                  style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px solid #ff4444' }}
+                  className="w-[50px] h-[50px] rounded-full border-2 border-[#ff4444]"
               />
-              <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{rightPlayer}</span>
+              <span className="text-[1.2rem] font-bold">{rightPlayer}</span>
           </div>
       </div>
       
-      <div style={{ position: 'relative', width: '800px', height: '600px' }}>
+      <div className="relative w-[800px] h-[600px]">
           {isCountingDown && !gameOver && (
               <Countdown onComplete={() => setIsCountingDown(false)} />
           )}
@@ -125,38 +115,18 @@ return (
 
           {/* NUEVO MODAL DE FIN DE PARTIDA */}
           {gameOver && (
-              <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: 'rgba(0,0,0,0.85)', // Un poco más oscuro para que resalte
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 50,
-                  color: 'white'
-              }}>
-                  <h1 style={{ fontSize: '3rem', marginBottom: '10px', color: '#4ade80' }}>
+              <div className="absolute top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.85)] flex flex-col items-center justify-center z-50 text-white">
+                  <h1 className="text-[3rem] mb-2.5 text-[#4ade80]">
                       {t('matchEnded')}
                   </h1>
                   {/* 🟢 NUEVO: Mostramos al gran campeón */}
-                  <h2 style={{ fontSize: '2rem', marginBottom: '20px', color: '#facc15' }}>
+                  <h2 className="text-[2rem] mb-5 text-[#facc15]">
                         {t('game.winner', { name : winnerName })}
                   </h2>
                   
                   {/* Mostramos el ranking directamente si es remoto */}
                   {mode.includes('remote') && (
-                      <div style={{ 
-                          maxHeight: '350px', 
-                          overflowY: 'auto', 
-                          marginBottom: '20px', 
-                          width: '100%', 
-                          display: 'flex', 
-                          justifyContent: 'center' 
-                      }}>
+                      <div className="max-h-[350px] overflow-y-auto mb-5 w-full flex justify-center">
                           <Leaderboard />
                       </div>
                   )}
@@ -164,26 +134,7 @@ return (
                   {/* Botón de volver al menú destacado */}
                   <button 
                       onClick={() => dispatch({ type: "MENU" })} 
-                      style={{
-                          backgroundColor: '#1f2937', // Fondo oscuro
-                          color: '#d1d5db', // Texto claro
-                          border: '1px solid #4b5563',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontSize: '1.1rem',
-                          fontWeight: 'bold',
-                          marginTop: '20px', // Un poco más de espacio arriba
-                          boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                          transition: 'all 0.2s ease',
-                          
-                          display: 'flex',             // Convierte el botón en una caja flexible
-                          alignItems: 'center',        // Centra el texto verticalmente
-                          justifyContent: 'center',    // Centra el texto horizontalmente
-                          padding: '15px 40px',        // Padding generoso para que respire
-                          whiteSpace: 'nowrap',        // Mantiene el texto en una línea
-                          width: 'auto',               // Deja que el ancho se adapte al contenido
-                          minWidth: '250px'            // Un ancho mínimo para que tenga presencia
-                      }}
+                      className="btn bg-[#1f2937] text-[#d1d5db] border border-[#4b5563] text-[1.1rem] mt-5 shadow-[0_4px_6px_rgba(0,0,0,0.3)] transition-all ease-in-out flex items-center justify-center whitespace-nowrap w-auto min-w-[250px]"
                       onMouseOver={(e) => {
                           e.currentTarget.style.backgroundColor = '#374151';
                           e.currentTarget.style.color = 'white';

@@ -640,69 +640,71 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         <div className="mb-3.5">
                             <label>
                                 <strong>{t('user')}:</strong>
-                                <input
-                                    type="text"
-                                    value={editForm.nick}
-                                    onChange={(e) => setEditForm({ ...editForm, nick: e.target.value })}
-                                />
                             </label>
+
+                            <input
+                                type="text"
+                                value={editForm.nick}
+                                onChange={(e) => setEditForm({ ...editForm, nick: e.target.value })}
+                            />
                         </div>
 
                         <div className="mb-3.5">
                             <label>
                                 <strong>{t('prof.field_email')}:</strong>
-                                <input
-                                    type="email"
-                                    value={editForm.email}
-                                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                />
                             </label>
+
+                            <input
+                                type="email"
+                                value={editForm.email}
+                                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                            />
                         </div>
 
                         <div className="mb-3.5">
                             <label>
                                 <strong>{t('cumple')}:</strong>
-                                <input
-                                    type="date"
-                                    value={editForm.birth}
-                                    onChange={(e) => setEditForm({ ...editForm, birth: e.target.value })}
-                                />
                             </label>
+                            <input
+                                type="date"
+                                value={editForm.birth}
+                                onChange={(e) => setEditForm({ ...editForm, birth: e.target.value })}
+                            />
                         </div>
 
                         <div className="mb-3.5">
                             <label>
                                 <strong>{t('prof.field_country')}:</strong>
-                                <select
-                                    value={editForm.country}
-                                    onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
-                                    disabled={isLoadingCountries}>
-                                    <option value="">
-                                        {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')}
-                                    </option>
-                                    {countries.map((c) => (
-                                        <option key={c.coun2_pk} value={c.coun2_pk}>
-                                            {countryName(c.coun2_pk, c.coun_name)} ({c.coun2_pk})
-                                        </option>
-                                    ))}
-                                </select>
                             </label>
+                            <select
+                                value={editForm.country}
+                                onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                                disabled={isLoadingCountries}>
+                                <option value="">
+                                    {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')}
+                                </option>
+                                {countries.map((c) => (
+                                    <option key={c.coun2_pk} value={c.coun2_pk}>
+                                        {countryName(c.coun2_pk, c.coun_name)} ({c.coun2_pk})
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="mb-3.5">
                             <label>
                                 <strong>{t('lang')}:</strong>
-                                <select
-                                    value={editForm.lang}
-                                    onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
-                                >    
-                                    <option value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
-                                    <option value="es">Español</option>
-                                    <option value="ca">Català</option>
-                                    <option value="en">English</option>
-                                    <option value="fr">Français</option>
-                                </select>
                             </label>
+                            <select
+                                value={editForm.lang}
+                                onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
+                            >    
+                                <option value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
+                                <option value="es">Español</option>
+                                <option value="ca">Català</option>
+                                <option value="en">English</option>
+                                <option value="fr">Français</option>
+                            </select>
                         </div>
 
                         {/* Cambio de contraseña - Solo para usuarios NO OAuth */}
@@ -714,37 +716,37 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 <div className="mb-3.5">
                                     <label>
                                         <strong>{t('prof.current_pass')}:</strong>
-                                        <input
-                                            type="password"
-                                            value={editForm.currentPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
-                                            placeholder={t('prof.current_pass_ph')} // Added Translation key
-                                        />
                                     </label>
+                                    <input
+                                        type="password"
+                                        value={editForm.currentPassword}
+                                        onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
+                                        placeholder={t('prof.current_pass_ph')} // Added Translation key
+                                    />
                                 </div>
 
                                 <div className="mb-3.5">
                                     <label>
                                         <strong>{t('prof.new_pass')}:</strong>
-                                        <input
-                                            type="password"
-                                            value={editForm.newPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
-                                            placeholder={t('prof.new_pass_ph')} // Added Translation key
-                                        />
                                     </label>
+                                    <input
+                                        type="password"
+                                        value={editForm.newPassword}
+                                        onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
+                                        placeholder={t('prof.new_pass_ph')} // Added Translation key
+                                    />
                                 </div>
 
                                 <div className="mb-3.5">
                                     <label>
                                         <strong>{t('prof.confirm_pass')}:</strong>
-                                        <input
-                                            type="password"
-                                            value={editForm.confirmPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
-                                            placeholder={t('prof.confirm_pass_ph')} // Added Translation key
-                                        />
                                     </label>
+                                    <input
+                                        type="password"
+                                        value={editForm.confirmPassword}
+                                        onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
+                                        placeholder={t('prof.confirm_pass_ph')} // Added Translation key
+                                    />
                                 </div>
                             </>
                         )}
@@ -942,30 +944,28 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         );
     };
 
-    const liSelectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
-
     return (
         <main className="w-full h-[79vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
             <nav className="h-[79vh] bg-[hsl(139,68%,37%)]">
                 <ul className="pt-4">
                     <li
                         onClick={() => setActiveTab("info")}
-                        className={`li ${activeTab === "info" ? liSelectedCss : ""}`}>
+                        className={`li ${activeTab === "info" ? "li-list" : ""}`}>
                         {t('prof.tab_info')} {/* Added Translation key */}
                     </li>
                     <li
                         onClick={() => setActiveTab("friends")}
-                        className={`li ${activeTab === "friends" ? liSelectedCss : ""}`}>
+                        className={`li ${activeTab === "friends" ? "li-list" : ""}`}>
                         {t('prof.tab_friends', { count: friends.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("requests")}
-                        className={`li ${activeTab === "requests" ? liSelectedCss : ""}`}>
+                        className={`li ${activeTab === "requests" ? "li-list" : ""}`}>
                         {t('prof.tab_requests', { count: requests.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("stats")}
-                        className={`li ${activeTab === "stats" ? liSelectedCss : ""}`}>
+                        className={`li ${activeTab === "stats" ? "li-list" : ""}`}>
                         {t('prof.tab_stats')} {/* Added Translation key */}
                     </li>
                 </ul>
