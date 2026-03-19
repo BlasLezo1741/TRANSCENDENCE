@@ -373,23 +373,24 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                 {/* OAuth buttons */}
                 {showOAuthButtons && (
-                <div className="flex-col">
-                    <span className="text-black mb-1">{t('crear_cuenta')} / {t('init_ses')}: </span>
+                    <div className="flex-col">
+                        <span className="text-black mb-1">{t('crear_cuenta')} / {t('init_ses')}: </span>
 
-                    <div className="flex-row">
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('42')}
-                            className="btn bg-black text-white hover:bg-gray-800">
-                            42 Network
-                        </button>
+                        <div className="flex-row">
+                            <button
+                                type="button"
+                                onClick={() => handleOAuth('42')}
+                                className="btn bg-black text-white hover:bg-gray-800">
+                                42 Network
+                            </button>
 
-                        <button
-                            type="button"
-                            onClick={() => handleOAuth('google')}
-                            className="btn bg-red-500 text-white hover:bg-red-600">
-                            Google
-                        </button>
+                            <button
+                                type="button"
+                                onClick={() => handleOAuth('google')}
+                                className="btn bg-red-500 text-white hover:bg-red-600">
+                                Google
+                            </button>
+                        </div>
                     </div>
                 )}
             </form>
