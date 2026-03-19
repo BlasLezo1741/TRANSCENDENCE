@@ -380,12 +380,11 @@ const handleInviteResponse = (accept: boolean) => {
 // --- RENDERIZADO DE PANTALLAS ---
 function renderScreen()
   {
-    document.body.classList.remove("scroll");
+    document.body.classList.add("scroll");
 
     switch (screen)
     {
       case "menu":
-        document.body.classList.add("scroll");
         return <MenuScreen 
           dispatch={dispatch}
           ia={ia}
@@ -403,6 +402,7 @@ function renderScreen()
       case "login":
         return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} oauthError={oauthError} clearOAuthError={() => setOAuthError("")} />;
       case "pong":
+        document.body.classList.remove("scroll");
         const finalUserAvatar = currentUserAvatarUrl || (currentUserId ? getDefaultAvatar(currentUserId) : null);
         const finalOpponentAvatar = opponentAvatar || (opponentId ? getDefaultAvatar(opponentId) : null);
         const PongScreenComp = PongScreen as any;
@@ -420,6 +420,7 @@ function renderScreen()
           chatOpen={chatOpen}
         />;
         case "profile":
+          document.body.classList.remove("scroll");
           return <ProfileScreen
             setGlobalUser={setCurrentUser}
             setGlobalUserId={setCurrentUserId}
@@ -428,6 +429,7 @@ function renderScreen()
         case "stats":
           return <StatsScreen />;
         case "info":
+          document.body.classList.remove("scroll");
           return <InfoScreen dispatch={dispatch} option={option} />;
         case "oauth_terms":
           // Only reached from LoginScreen OAuth flow (new user, terms not yet accepted)

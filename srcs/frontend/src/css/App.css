@@ -64,12 +64,7 @@ select
     @apply text-center cursor-pointer border-b-4 border-transparent text-[#bbf8dc] my-2 px-1 hover:bg-[#0077cc] hover:border-blue-500;
 }
 
-.li-list
-{
-    @apply bg-blue-500 border-b-4 border-azure pointer-events-none;
-}
-
 .scroll
 {
-    @apply overflow-y-scroll;
+    @apply overflow-y-auto;
 }

@@ -40,6 +40,8 @@ const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
         loadContent();
     }, [activeTab, i18n.language]);
 
+    const selectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
+
     return (
         <main className="w-full h-[79vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
             {/* Navigation */}
@@ -47,43 +49,45 @@ const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
                 <ul className="pt-4">
                     <li
                         onClick={() => setActiveTab("a")}
-                        className={`li ${activeTab === "a" ? "li-list" : ""}`}
+                        className={`li ${activeTab === "a" ? selectedCss : ""}`}
                     >
                         {t('info.privacy_policy')}
                     </li>
                     <li
                         onClick={() => setActiveTab("b")}
-                        className={`li ${activeTab === "b" ? "li-list" : ""}`}>
+                        className={`li ${activeTab === "b" ? selectedCss : ""}`}>
                         {t('info.terms_of_service')}
                     </li>
                     <li
                         onClick={() => setActiveTab("c")}
-                        className={`li ${activeTab === "c" ? "li-list" : ""}`}>
+                        className={`li ${activeTab === "c" ? selectedCss : ""}`}>
                         {t('info.about_project')}
                     </li>
                     <li
                         onClick={() => setActiveTab("d")}
-                        className={`li ${activeTab === "d" ? "li-list" : ""}`}>
+                        className={`li ${activeTab === "d" ? selectedCss : ""}`}>
                         {t('info.contact')}
                     </li>
                     <li
                         onClick={() => setActiveTab("e")}
-                        className={`li ${activeTab === "e" ? "li-list" : ""}`}>
+                        className={`li ${activeTab === "e" ? selectedCss : ""}`}>
                         {t('info.credits')}
                     </li>
                 </ul>
             </nav>
 
             {/* Content */}
-            <section>
-                <div className="w-9/12 mx-auto text-[#a1bdf3]">
+            <section className="bg-black">
+                <div className="w-full mx-auto text-[#a1bdf3]">
                     {loading ? (
                         <p>{t('info.loading')}</p>
                     ) : (
-                        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                        <div className="h-[79vh] w-full overflow-y-auto" dangerouslySetInnerHTML={{ __html: htmlContent }} />
                     )}
                 </div>
             </section>
+            <div className="bg-[#2d2979]"></div>
+
         </main>
     );
 };

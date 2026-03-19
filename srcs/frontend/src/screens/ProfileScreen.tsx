@@ -944,28 +944,30 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         );
     };
 
+    const selectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
+
     return (
         <main className="w-full h-[79vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
             <nav className="h-[79vh] bg-[hsl(139,68%,37%)]">
                 <ul className="pt-4">
                     <li
                         onClick={() => setActiveTab("info")}
-                        className={`li ${activeTab === "info" ? "li-list" : ""}`}>
+                        className={`li ${activeTab === "info" ? selectedCss : ""}`}>
                         {t('prof.tab_info')} {/* Added Translation key */}
                     </li>
                     <li
                         onClick={() => setActiveTab("friends")}
-                        className={`li ${activeTab === "friends" ? "li-list" : ""}`}>
+                        className={`li ${activeTab === "friends" ? selectedCss : ""}`}>
                         {t('prof.tab_friends', { count: friends.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("requests")}
-                        className={`li ${activeTab === "requests" ? "li-list" : ""}`}>
+                        className={`li ${activeTab === "requests" ? selectedCss : ""}`}>
                         {t('prof.tab_requests', { count: requests.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("stats")}
-                        className={`li ${activeTab === "stats" ? "li-list" : ""}`}>
+                        className={`li ${activeTab === "stats" ? selectedCss : ""}`}>
                         {t('prof.tab_stats')} {/* Added Translation key */}
                     </li>
                 </ul>
