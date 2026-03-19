@@ -30,30 +30,12 @@ export const Leaderboard = () => {
     if (loading) return <div className="text-white text-center p-4">{t('leader.loading')}</div>;
 
 return (
-        <div style={{
-            backgroundColor: '#111827', // Fondo súper oscuro para contrastar
-            borderRadius: '12px',
-            padding: '20px',
-            width: '100%',
-            maxWidth: '550px',
-            margin: '0 auto',
-            border: '1px solid #374151'
-        }}>
-            <h2 style={{ 
-                fontSize: '1.8rem', 
-                fontWeight: 'bold', 
-                color: '#06b6d4', // Color cyan para que coincida con tu título de "Estadísticas"
-                textAlign: 'center', 
-                marginBottom: '25px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px'
-            }}>
+        <div className="bg-[#111827] rounded-xl p-5 w-full max-w-[550px] mx-auto border border-[#374151]">
+            <h2 className="text-[1.8rem] font-bold text-[#06b6d4] text-center mb-6 flex items-center justify-center gap-2.5">
                 🏆 {t('leader.top10')}
             </h2>
 
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <ul className="list-none p-0 m-0">
                 {players.map((player, index) => {
                     // Colores especiales para los 3 primeros puestos
                     const rankColor = index === 0 ? '#fbbf24' : // Oro
@@ -62,49 +44,33 @@ return (
                                       '#9ca3af';                // Gris para el resto
 
                     return (
-                        <li key={player.id} style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '12px 20px',
-                            marginBottom: '10px',
-                            backgroundColor: '#1f2937', // Fondo gris oscuro para la fila
-                            borderRadius: '8px',
-                            borderLeft: `5px solid ${rankColor}`, // Línea de color a la izquierda
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                        }}>
+                        <li key={player.id} className="flex items-center justify-between p-3.5 mb-2.5 bg-[#1f2937] rounded-lg border-l-4" style={{ borderLeftColor: rankColor, boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)' }}>
                             {/* SECCIÓN IZQUIERDA: Puesto, Avatar y Nombre */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <div className="flex items-center gap-3.5">
                                 
                                 {/* 1. Rango (Puesto destacado) */}
-                                <span style={{ 
-                                    fontSize: '1.4rem', 
-                                    fontWeight: '900', 
-                                    color: rankColor,
-                                    width: '40px', // Ancho fijo para alinear todos los avatares
-                                    textAlign: 'center'
-                                }}>
+                                <span className="text-[1.4rem] font-extrabold text-[rankColor] w-[40px] text-center">
                                     #{index + 1}
                                 </span>
                                 
                                 {/* 2. Avatar */}
-                                <Avatar src={player.avatar} userId={player.id} size={45} />
+                                <Avatar src={player.avatar} userId={player.id} size={40} />
                                 
                                 {/* 3. Nick */}
-                                <span style={{ color: 'white', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                                <span className="text-white font-bold text-[1.2rem]">
                                     {player.nick}
                                 </span>
                             </div>
                             
                             {/* SECCIÓN DERECHA: Victorias */}
-                            <div style={{ color: '#4ade80', fontWeight: 'bold', fontSize: '1.2rem', textAlign: 'right' }}>
-                                {player.wins} <span style={{ fontSize: '0.85rem', color: '#9ca3af', fontWeight: 'normal', display: 'block' }}>{t('leader.wins')}</span>
+                            <div className="text-[#4ade80] font-bold text-[1.2rem] text-right">
+                                {player.wins} <span className="text-[0.85rem] text-[#9ca3af] font-normal block">{t('leader.wins')}</span>
                             </div>
                         </li>
                     );
                 })}
                 {players.length === 0 && (
-                    <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px 0' }}>{t('leader.noMatches')}</p>
+                    <p className="text-[#9ca3af] text-center py-5">{t('leader.noMatches')}</p>
                 )}
             </ul>
         </div>

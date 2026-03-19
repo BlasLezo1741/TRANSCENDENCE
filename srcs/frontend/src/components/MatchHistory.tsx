@@ -38,106 +38,59 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
             });
     }, []);
 
-    if (loading) return <div style={{ color: 'white', textAlign: 'center', padding: '20px' }}>{t('history.loading')}</div>;
+    if (loading) return <div className="text-white text-center p-5">{t('history.loading')}</div>;
 
     return (
-        <div style={{ width: '100%', maxWidth: '650px', margin: '0 auto' }}>
-            <h2 style={{ 
-                color: '#06b6d4', 
-                textAlign: 'center', 
-                marginBottom: '20px', 
-                fontSize: '1.5rem', 
-                fontWeight: 'bold' 
-            }}>
+        <div className="w-full max-w-[650px] mx-auto">
+            <h2 className="text-teal-400 text-center mb-5 text-2xl font-bold">
                 {t('history.lastMatches')}
             </h2>
             
             {history.length === 0 ? (
-                <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>
+                <p className="text-gray-400 text-center p-5">
                     {t('history.notYet')}
                 </p>
             ) : (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <ul class="list-none p-0 m-0">
                     {history.map((match) => (
-                        <li key={match.id} style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            backgroundColor: '#1f2937',
-                            marginBottom: '15px',
-                            borderRadius: '12px',
-                            borderLeft: `6px solid ${match.won ? '#4ade80' : '#ef4444'}`,
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                            overflow: 'hidden'
-                        }}>
+                        <li key={match.id} class={`flex flex-col bg-gray-800 mb-4 rounded-xl border-l-6 ${match.won ? 'border-l-green-400' : 'border-l-red-500'} shadow-lg overflow-hidden`}>
                             {/* BANDA SUPERIOR: Estado y Fecha */}
-                            <div style={{ 
-                                display: 'flex', 
-                                justifyContent: 'space-between', 
-                                padding: '8px 20px', 
-                                backgroundColor: 'rgba(0,0,0,0.2)',
-                                fontSize: '0.8rem',
-                                color: '#9ca3af',
-                                borderBottom: '1px solid rgba(255,255,255,0.05)'
-                            }}>
-                                <span style={{ 
-                                    fontWeight: '900', 
-                                    color: match.won ? '#4ade80' : '#ef4444',
-                                    letterSpacing: '1px'
-                                }}>
+                            <div class="flex justify-between p-2.5 px-5 bg-black/20 text-xs text-gray-400 border-b border-white/5">
+                                <span class={`font-extrabold ${match.won ? 'text-green-400' : 'text-red-500'} tracking-[1px]`}>
                                     {match.won ? t('history.win') : t('history.defeat')}
                                 </span>
                                 <span>{new Date(match.date).toLocaleDateString()}</span>
                             </div>
 
                             {/* CUERPO: El Enfrentamiento (Versus) */}
-                            <div style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'space-around', 
-                                padding: '15px 10px' 
-                            }}>
+                            <div class="flex items-center justify-around p-4 px-2.5">
                                 
                                 {/* LADO IZQUIERDO: TÚ */}
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '120px' }}>
+                                <div class="flex flex-col items-center gap-2.5 w-[120px]">
                                     <Avatar 
                                         src={myProfile?.avatarUrl} 
                                         userId={myProfile?.id || 0} 
                                         size={50} 
                                     />
-                                    <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 'bold' }}>{t('history.you')}</span>
+                                    <span class="text-xs text-gray-400 font-bold">{t('history.you')}</span>
                                 </div>
 
                                 {/* CENTRO: MARCADOR */}
-                                <div style={{ textAlign: 'center', minWidth: '100px' }}>
-                                    <div style={{ 
-                                        fontSize: '2rem', 
-                                        fontWeight: '900', 
-                                        color: 'white', 
-                                        letterSpacing: '4px',
-                                        textShadow: '0 2px 4px rgba(0,0,0,0.5)'
-                                    }}>
+                                <div class="text-center min-w-[100px]">
+                                    <div class="text-4xl font-extrabold text-white tracking-[4px] shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
                                         {match.myScore} - {match.opponentScore}
                                     </div>
-                                    <div style={{ fontSize: '0.65rem', color: '#4b5563', marginTop: '4px', fontWeight: 'bold' }}>vs</div>
+                                    <div class="text-[0.65rem] text-gray-600 mt-1 font-bold">vs</div>
                                 </div>
 
                                 {/* LADO DERECHO: RIVAL */}
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '120px' }}>
+                                <div class="flex flex-col items-center gap-2.5 w-[120px]">
                                     <Avatar 
                                         src={match.opponentAvatar} 
                                         userId={match.opponentId} 
                                         size={50} 
                                     />
-                                    <span style={{ 
-                                        fontSize: '0.85rem', 
-                                        color: '#d1d5db', 
-                                        fontWeight: 'bold',
-                                        maxWidth: '110px',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        textAlign: 'center'
-                                    }}>
+                                    <span class="text-[0.85rem] text-gray-300 font-bold max-w-[110px] whitespace-nowrap overflow-hidden text-ellipsis text-center">
                                         {match.opponentStatus === 6 ? t('history.deletedAccount') : match.opponent}
                                     </span>
                                 </div>

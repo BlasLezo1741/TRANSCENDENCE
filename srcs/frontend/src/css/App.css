@@ -44,19 +44,34 @@ form
     @apply flex flex-col mb-4 w-3/5 mx-auto p-5 bg-gray-100;
 }
 
-label
+.label-black
 {
     @apply mb-1 mt-3 text-black;
 }
 
-input
+.label-white
+{
+    @apply mb-1 mt-3 text-white;
+}
+
+.input-black
 {
     @apply p-2 mb-2 text-black border border-black rounded;
 }
 
-select
+.input-white
+{
+    @apply p-2 mb-2 text-white border border-white rounded;
+}
+
+.select-black
 {
     @apply p-2 text-black border border-black;
+}
+
+.select-white
+{
+    @apply p-2 text-white border border-white;
 }
 
 .li
@@ -67,4 +82,9 @@ select
 .scroll
 {
     @apply overflow-y-auto;
+}
+
+.no-scroll
+{
+    @apply overflow-y-hidden;
 }

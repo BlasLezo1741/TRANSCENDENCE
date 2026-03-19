@@ -557,7 +557,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         console.log("👤 [InfoScreen] Rendering profile. OAuth user:", isOAuthUser);
 
         return (
-            <>
+            <div className="h-[840px] w-full overflow-y-auto">
                 <h1>{t('prof.title')}</h1>
 
                 {/* Avatar with Edit Button */}
@@ -638,11 +638,12 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         </div>
 
                         <div className="mb-3.5">
-                            <label>
+                            <label className="label-white">
                                 <strong>{t('user')}:</strong>
                             </label>
 
                             <input
+                                className="input-white"
                                 type="text"
                                 value={editForm.nick}
                                 onChange={(e) => setEditForm({ ...editForm, nick: e.target.value })}
@@ -650,11 +651,12 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         </div>
 
                         <div className="mb-3.5">
-                            <label>
+                            <label className="label-white">
                                 <strong>{t('prof.field_email')}:</strong>
                             </label>
 
                             <input
+                                className="input-white"
                                 type="email"
                                 value={editForm.email}
                                 onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
@@ -662,10 +664,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         </div>
 
                         <div className="mb-3.5">
-                            <label>
+                            <label className="label-white">
                                 <strong>{t('cumple')}:</strong>
                             </label>
                             <input
+                                className="input-white"
                                 type="date"
                                 value={editForm.birth}
                                 onChange={(e) => setEditForm({ ...editForm, birth: e.target.value })}
@@ -673,10 +676,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         </div>
 
                         <div className="mb-3.5">
-                            <label>
+                            <label className="label-white">
                                 <strong>{t('prof.field_country')}:</strong>
                             </label>
                             <select
+                                className="select-white"
                                 value={editForm.country}
                                 onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
                                 disabled={isLoadingCountries}>
@@ -692,10 +696,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         </div>
 
                         <div className="mb-3.5">
-                            <label>
+                            <label className="label-white">
                                 <strong>{t('lang')}:</strong>
                             </label>
                             <select
+                                className="select-white"
                                 value={editForm.lang}
                                 onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
                             >    
@@ -714,10 +719,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 <h3>{t('prof.change_pass')}</h3> {/* Added Translation key */}
 
                                 <div className="mb-3.5">
-                                    <label>
+                                    <label className="label-white">
                                         <strong>{t('prof.current_pass')}:</strong>
                                     </label>
                                     <input
+                                        className="input-white"
                                         type="password"
                                         value={editForm.currentPassword}
                                         onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
@@ -726,10 +732,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 </div>
 
                                 <div className="mb-3.5">
-                                    <label>
+                                    <label className="label-white">
                                         <strong>{t('prof.new_pass')}:</strong>
                                     </label>
                                     <input
+                                        className="input-white"
                                         type="password"
                                         value={editForm.newPassword}
                                         onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
@@ -738,10 +745,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 </div>
 
                                 <div className="mb-3.5">
-                                    <label>
+                                    <label className="label-white">
                                         <strong>{t('prof.confirm_pass')}:</strong>
                                     </label>
                                     <input
+                                        className="input-white"
                                         type="password"
                                         value={editForm.confirmPassword}
                                         onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
@@ -752,16 +760,16 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         )}
 
                         <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                            <button className="btn" onClick={handleUpdateProfile}>
+                            <button className="btn bg-[hsl(139,68%,37%)] text-white" onClick={handleUpdateProfile}>
                                 {t('prof.save_btn')} {/* Added Translation key */}
                             </button>
-                            <button className="btn bg-red-500" onClick={handleCancelEdit}>
+                            <button className="btn bg-red-500 text-white" onClick={handleCancelEdit}>
                                 {t('prof.cancel')} {/* Added Translation key */}
                             </button>
                         </div>
                     </>
                 )}
-            </>
+            </div>
         );
     };
 
@@ -781,6 +789,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     <div className="flex items-center gap-3.5">
                         {/* Selector */}
                         <select
+                            className="select-black"
                             value={targetIdInput}
                             onChange={(e) => setTargetIdInput(e.target.value)}
                             disabled={isLoadingCandidates}

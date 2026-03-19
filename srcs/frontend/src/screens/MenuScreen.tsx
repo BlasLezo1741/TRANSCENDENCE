@@ -13,8 +13,6 @@ import normal from '../assets/Normal_chatgpt.png';
 import hard from '../assets/Hard_chatgpt.png';
 import impossible from '../assets/Impossible_chatgpt.png';
 
-import "../css/MenuScreen.css";
-
 type OptionsProps = ScreenProps & {
   ia: boolean;
   setIa: React.Dispatch<React.SetStateAction<boolean>>;
@@ -181,7 +179,7 @@ const showImg = () => {
 };
 
 return (
-  <section className="w-4/5 mx-auto flex flex-col justify-center items-center relative">
+  <section className="w-full mx-auto flex flex-col justify-center items-center relative">
     {bgImage && (
       <img
         className="w-[800px] h-[600px] sm:w-[600px] sm:h-[400px] xs:w-[300px] xs:h-[200px] mx-auto object-cover mb-6"

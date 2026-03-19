@@ -146,7 +146,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
 
                 {!showTotpInput ? (
                     <>
-                        <label htmlFor="user">
+                        <label className="label-black" htmlFor="user">
                             {t('user')}
                         </label>
                         <input
@@ -158,10 +158,11 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             onBlur={(e) => setUser(e.target.value.trim())}
                             pattern="[\x21-\x7E]+"
                             autoFocus
+                            className="input-black"
                             // Remove 'required' attribute
                         />
 
-                        <label htmlFor="pass">
+                        <label className="label-black" htmlFor="pass">
                             {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
                         </label>
                         <input
@@ -171,12 +172,13 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             onBlur={(e) => setPassword(e.target.value.trim())}
+                            className="input-black"
                             // Remove 'required' attribute
                         />
                     </>
                 ) : (
                     <>
-                        <label htmlFor="totp">
+                        <label className="label-black" htmlFor="totp">
                             {t('cod_2fa')}
                         </label>
                         <input
@@ -194,6 +196,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             placeholder={t('placeholder')}
                             title={t('2fa_setup')}
                             autoFocus
+                            className="input-black"
                             // Remove 'required' attribute
                         />
                     </>

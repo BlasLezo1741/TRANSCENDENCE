@@ -18,15 +18,7 @@ export function StatusBadge() {
   }, []);
 
   return (
-    <div style={{ 
-      padding: '5px 10px', 
-      borderRadius: '20px', 
-      background: isConnected ? '#4caf50' : '#f44336',
-      color: 'white',
-      display: 'inline-block',
-      fontSize: '0.8rem',
-      margin: '10px'
-    }}>
+    <div className={`p-1.5 px-2.5 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} text-white inline-block text-xs m-2`}>
       {isConnected ? '● Online' : '○ Offline'}
     </div>
   );

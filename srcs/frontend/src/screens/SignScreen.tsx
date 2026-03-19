@@ -161,7 +161,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 )}
 
                 {/* User */}
-                    <label htmlFor="user">{t('user')}</label>
+                    <label className="label-black" htmlFor="user">{t('user')}</label>
                     <input
                         type="text"
                         id="user"
@@ -172,10 +172,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         pattern="[a-zA-Z0-9_]{3,20}"
                         required
                         autoFocus
+                        className="input-black"
                     />
 
                 {/* Email */}
-                    <label htmlFor="email">{t('prof.field_email')}</label>
+                    <label className="label-black" htmlFor="email">{t('prof.field_email')}</label>
                     <input
                         type="email"
                         id="email"
@@ -184,10 +185,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         placeholder="abc@def.com"
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        className="input-black"
                     />
 
                 {/* Password */}
-                    <label htmlFor="pass">{sentence(t('password'))}</label>
+                    <label className="label-black" htmlFor="pass">{sentence(t('password'))}</label>
                     <input
                         type="password"
                         id="pass"
@@ -196,10 +198,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         placeholder="P@ssw0rd!"
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        className="input-black"
                     />
 
                 {/* Repeat Password */}
-                    <label htmlFor="passR">{t('rep_pass')}</label>
+                    <label className="label-black" htmlFor="passR">{t('rep_pass')}</label>
                     <input
                         type="password"
                         id="passR"
@@ -207,10 +210,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         value={repeat}
                         onChange={(e) => setRepeat(e.target.value)}
                         required
+                        className="input-black"
                     />
 
                 {/* Birth date */}
-                    <label htmlFor="birth">{t('cumple')}</label>
+                    <label className="label-black" htmlFor="birth">{t('cumple')}</label>
                     <input
                         type="date"
                         name="birth"
@@ -219,11 +223,12 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         onChange={(e) => setBirth(e.target.value)}
                         max={new Date().toISOString().split('T')[0]}
                         required
+                        className="input-black"
                     />
 
                 {/* Country & Language Row */}
                     {/* Country - UPDATED TO DROPDOWN */}
-                    <label htmlFor="country">{t('cod_pais')}</label>
+                    <label className="label-black" htmlFor="country">{t('cod_pais')}</label>
                     <select
                         id="country"
                         name="country"
@@ -242,7 +247,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     </select>
 
                 {/* Language */}
-                    <label htmlFor="lang">{t('lang')}</label>
+                    <label className="label-black" htmlFor="lang">{t('lang')}</label>
                     <select
                         name="lang"
                         id="lang"
@@ -265,8 +270,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         type="checkbox"
                         checked={enabled2FA}
                         onChange={(e) => setEnabled2FA(e.target.checked)}
+                        className="input-black"
                     />
-                    <label htmlFor="enabled2FA">{t('enable_2fa')}</label>
+                    <label className="label-black" htmlFor="enabled2FA">{t('enable_2fa')}</label>
                 </div>
 
                 {/* Privacy policy + Terms of Use checkbox */}
@@ -277,8 +283,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         type="checkbox"
                         checked={acceptPolicy}
                         onChange={(e) => setAcceptPolicy(e.target.checked)}
+                        className="input-black"
                     />
-                    <label htmlFor="acceptPolicy">
+                    <label className="label-black" htmlFor="acceptPolicy">
                         {t('privacy.prefix')}{" "}
                         <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }}>
                             <u>{t('info.terms_of_service')}</u>

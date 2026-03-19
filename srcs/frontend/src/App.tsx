@@ -2,14 +2,13 @@ import { useReducer, useState, useEffect } from 'react';
 import { screenReducer } from './ts/screenConf/screenReducer.ts';
 import { useTranslation } from 'react-i18next';
 
-import type { Screen, GameMode, GameDifficult } from "./ts/types.ts"
+import type { Screen, GameMode, GameDifficult, ScrollOpt } from "./ts/types.ts"
 
 import MenuScreen from './screens/MenuScreen.tsx'
 import SignScreen from './screens/SignScreen.tsx'
 import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
-import StatsScreen from './screens/StatsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
 import type { States } from './screens/InfoScreen.tsx';
 import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
@@ -67,6 +66,8 @@ function App()
   // Error message coming back from OAuth callback (e.g. email conflict)
   const [oauthError, setOAuthError] = useState<string>("");
 
+  const [scrollClass, setScroll] = useState<ScrollOpt>("scroll");
+
   // 🔥 ESTADO PARA LA INVITACIÓN MODAL
   const [inviteRequest, setInviteRequest] = useState<{fromUserId: number, fromUserName: string} | null>(null);
 
@@ -114,6 +115,8 @@ function App()
         console.error("❌ Error processing OAuth token:", err);
       }
     }
+
+    
 
     // New OAuth user — two possible flows depending on where they came from:
     //
@@ -180,6 +183,14 @@ function App()
     }
   }, []); // Run only once on mount
 
+  useEffect(() => {
+    const newScrollClass = ["pong", "profile", "info"].includes(screen) ? "no-scroll" : "scroll";
+    
+    // Solo actualizar el estado si realmente ha cambiado
+    if (scrollClass !== newScrollClass) {
+      setScroll(newScrollClass);
+    }
+  }, [screen, scrollClass]); 
 
   // -----------------------------------------------------------
   // 1. CONEXIÓN AUTOMÁTICA DEL SOCKET
@@ -380,8 +391,6 @@ const handleInviteResponse = (accept: boolean) => {
 // --- RENDERIZADO DE PANTALLAS ---
 function renderScreen()
   {
-    document.body.classList.add("scroll");
-
     switch (screen)
     {
       case "menu":
@@ -402,7 +411,6 @@ function renderScreen()
       case "login":
         return <LoginScreen dispatch={dispatch} setGlobalUser={setCurrentUser} oauthError={oauthError} clearOAuthError={() => setOAuthError("")} />;
       case "pong":
-        document.body.classList.remove("scroll");
         const finalUserAvatar = currentUserAvatarUrl || (currentUserId ? getDefaultAvatar(currentUserId) : null);
         const finalOpponentAvatar = opponentAvatar || (opponentId ? getDefaultAvatar(opponentId) : null);
         const PongScreenComp = PongScreen as any;
@@ -419,65 +427,47 @@ function renderScreen()
           roomId={roomId}
           chatOpen={chatOpen}
         />;
-        case "profile":
-          document.body.classList.remove("scroll");
-          return <ProfileScreen
-            setGlobalUser={setCurrentUser}
-            setGlobalUserId={setCurrentUserId}
-            setGlobalAvatarUrl={setCurrentUserAvatarUrl}
-          />;
-        case "stats":
-          return <StatsScreen />;
-        case "info":
-          document.body.classList.remove("scroll");
-          return <InfoScreen dispatch={dispatch} option={option} />;
-        case "oauth_terms":
-          // Only reached from LoginScreen OAuth flow (new user, terms not yet accepted)
-          return <OAuthTermsScreen
-            dispatch={dispatch}
-            pendingToken={pendingOAuthToken}
-            setGlobalUser={setCurrentUser}
-          />;
-        default:
-          return null;
+      case "profile":
+        return <ProfileScreen
+          setGlobalUser={setCurrentUser}
+          setGlobalUserId={setCurrentUserId}
+          setGlobalAvatarUrl={setCurrentUserAvatarUrl}
+        />;
+      case "info":
+        return <InfoScreen dispatch={dispatch} option={option} />;
+      case "oauth_terms":
+        // Only reached from LoginScreen OAuth flow (new user, terms not yet accepted)
+        return <OAuthTermsScreen
+          dispatch={dispatch}
+          pendingToken={pendingOAuthToken}
+          setGlobalUser={setCurrentUser}
+        />;
+      default:
+        return null;
     }
   }
 
   return (
-    <div className="app">
+    <div className={`w-full h-screen mx-auto border border-black bg-black grid grid-rows-[auto_50px_1fr_auto] min-h-screen ${scrollClass}`}>
       {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
       {/* 🔥🔥 MODAL DE INVITACIÓN 🔥🔥 */}
       {inviteRequest && (
-          <div style={{
-              position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-              backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999,
-              display: 'flex', justifyContent: 'center', alignItems: 'center'
-          }}>
-              <div style={{
-                  backgroundColor: '#222', padding: '30px', borderRadius: '10px',
-                  border: '2px solid #ea580c', textAlign: 'center', color: 'white',
-                  maxWidth: '400px', boxShadow: '0 0 20px rgba(234, 88, 12, 0.5)'
-              }}>
-                  <h2 style={{marginTop: 0}}>⚔️ {t('app.pongChallenge')}</h2>
-                  <p style={{fontSize: '18px', margin: '20px 0'}}>
+          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-70 z-50 flex justify-center items-center">
+              <div className="bg-gray-800 p-8 rounded-lg border-2 border-orange-600 text-center text-white max-w-sm shadow-xl">
+                  <h2 className="mt-0">⚔️ {t('app.pongChallenge')}</h2>
+                  <p className="text-base my-5">
                       <strong>{inviteRequest.fromUserName === 'app.afriend' ? t('app.afriend') : inviteRequest.fromUserName}</strong>{t('app.wantPlay')}
                   </p>
-                  <div style={{display: 'flex', gap: '20px', justifyContent: 'center'}}>
+                  <div className="flex gap-5 justify-center">
                       <button 
                           onClick={() => handleInviteResponse(true)}
-                          style={{
-                              backgroundColor: '#22c55e', color: 'white', border: 'none',
-                              padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
-                          }}
+                          class="btn bg-green-500 text-white border-none"
                       >
                         {t('modal.accept_btn')}
                       </button>
                       <button 
                           onClick={() => handleInviteResponse(false)}
-                          style={{
-                              backgroundColor: '#ef4444', color: 'white', border: 'none',
-                              padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
-                          }}
+                          className="btn bg-red-500 text-white border-none"
                       >
                           {t('modal.reject_btn')}
                       </button>
@@ -487,7 +477,7 @@ function renderScreen()
       )}
 
       <Header dispatch={dispatch} setIa={setIa} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
-      <main>{renderScreen()}</main>
+      <main className={scrollClass}>{renderScreen()}</main>
       <Footer dispatch={dispatch} setOption={setOption}/>
     </div>
   );

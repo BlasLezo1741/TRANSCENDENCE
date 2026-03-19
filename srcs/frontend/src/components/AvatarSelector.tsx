@@ -68,38 +68,13 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     };
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '20px'
-        }}>
-            <div style={{
-                backgroundColor: 'white',
-                borderRadius: '10px',
-                padding: '30px',
-                maxWidth: '800px',
-                maxHeight: '90vh',
-                overflow: 'auto',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-            }}>
-                <h2 style={{ marginTop: 0, marginBottom: '20px', textAlign: 'center' }}>
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-1000 p-5">
+            <div className="bg-white rounded-lg p-8 max-w-[800px] max-h-[90vh] overflow-auto shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <h2 className="mt-0 mb-5 text-center">
                     {t('prof.select_avatar')}
                 </h2>
 
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                    gap: '15px',
-                    marginBottom: '30px'
-                }}>
+                <div className="grid grid-cols-[repeat(auto-fill,_minmax(120px,_1fr))] gap-4 mb-7">
                     {avatars.map((avatar) => (
                         <div
                             key={avatar.id}
@@ -107,19 +82,7 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                                 console.log('👆 [AvatarSelector] Clicked avatar:', avatar.id);
                                 setSelectedAvatarId(avatar.id);
                             }}
-                            style={{
-                                cursor: 'pointer',
-                                padding: '10px',
-                                borderRadius: '10px',
-                                border: selectedAvatarId === avatar.id 
-                                    ? '3px solid #4CAF50' 
-                                    : '3px solid transparent',
-                                backgroundColor: selectedAvatarId === avatar.id 
-                                    ? '#e8f5e9' 
-                                    : '#f5f5f5',
-                                transition: 'all 0.2s ease',
-                                textAlign: 'center'
-                            }}
+                            className={`cursor-pointer p-2.5 rounded-xl ${selectedAvatarId === avatar.id ? 'border-3 border-[#4CAF50] bg-[#e8f5e9]' : 'border-3 border-transparent bg-[#f5f5f5]'} transition-all duration-200 ease-in-out text-center`}
                             onMouseEnter={(e) => {
                                 if (selectedAvatarId !== avatar.id) {
                                     e.currentTarget.style.backgroundColor = '#e0e0e0';
@@ -134,65 +97,33 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                             <img
                                 src={avatar.url}
                                 alt={avatar.name}
-                                style={{
-                                    width: '100px',
-                                    height: '100px',
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    display: 'block',
-                                    margin: '0 auto 8px'
-                                }}
+                                className="w-[100px] h-[100px] rounded-full object-cover block mx-auto mb-2"
                             />
-                            <div style={{
-                                fontSize: '12px',
-                                color: '#666',
-                                fontWeight: selectedAvatarId === avatar.id ? 'bold' : 'normal'
-                            }}>
+                            <div className={`text-[12px] text-[#666] ${selectedAvatarId === avatar.id ? 'font-bold' : 'font-normal'}`}>
                                 {avatar.name}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div style={{
-                    display: 'flex',
-                    gap: '10px',
-                    justifyContent: 'center'
-                }}>
+                <div className="flex gap-2 justify-center">
                     <button
                         onClick={handleSelect}
                         disabled={!selectedAvatarId}
-                        style={{
-                            padding: '12px 30px',
-                            fontSize: '16px',
-                            borderRadius: '5px',
-                            border: 'none',
-                            backgroundColor: selectedAvatarId ? '#4CAF50' : '#ccc',
-                            color: 'white',
-                            cursor: selectedAvatarId ? 'pointer' : 'not-allowed',
-                            fontWeight: 'bold'
-                        }}
+                        className={`btn text-[16px] border-0 ${selectedAvatarId ? 'bg-green-500' : 'bg-gray-400 cursor-not-allowed'} text-white`}
                     >
                         ✅ {t('prof.select')}
                     </button>
                     <button
                         onClick={onCancel}
-                        style={{
-                            padding: '12px 30px',
-                            fontSize: '16px',
-                            borderRadius: '5px',
-                            border: '1px solid #ccc',
-                            backgroundColor: 'white',
-                            color: '#666',
-                            cursor: 'pointer'
-                        }}
+                        className="btn text-base border border-gray-300 bg-white text-gray-600"
                     >
                         ❌ {t('prof.cancel')}
                     </button>
                 </div>
 
                 {avatars.length === 0 && (
-                    <p style={{ textAlign: 'center', color: '#999' }}>
+                    <p className="text-center text-gray-400">
                         {t('prof.no_avatars')}
                     </p>
                 )}

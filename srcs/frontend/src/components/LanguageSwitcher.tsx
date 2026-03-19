@@ -71,12 +71,12 @@ export function LanguageSwitcher() {
 
   return (
     <div
-      className="relative inline-block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000]"
+      className="relative inline-block absolute top-1/2 left-1/2 -translate-x-1/2 z-[1000]"
       ref={dropdownRef}
     >
       {/* Botón desplegable solo visible en móvil */}
       <button
-        className="btn bg-white text-black block md:hidden"
+        className="btn bg-gray-200 text-black block md:hidden"
         onClick={() => setOpen(!open)}
       >
         {getLanguageDisplay(activeLanguage)}
@@ -105,7 +105,7 @@ export function LanguageSwitcher() {
               onClick={() => changeLanguage(lang)}
               className={`
                 ${isActive
-                  ? 'btn bg-white text-black cursor-default'
+                  ? 'btn bg-gray-200 text-black cursor-default'
                   : 'btn bg-gray-400 text-black hover:bg-black hover:text-white cursor-pointer'
                 }
               `}

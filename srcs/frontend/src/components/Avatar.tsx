@@ -76,10 +76,11 @@ export const Avatar: React.FC<AvatarProps> = ({
             <img
                 src={avatarSrc}
                 alt={alt}
+                title={alt}
                 onLoadStart={handleLoadStart}
                 onError={handleError}
                 onLoad={handleLoad}
-                className={`w-full h-full object-cover ${loading ? 'none' : 'block'}`}
+                className={`w-[${size}px] h-[${size}px] object-cover ${loading ? 'none' : 'block'}`}
             />
         </div>
     );
