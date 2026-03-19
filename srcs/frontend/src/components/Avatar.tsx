@@ -62,30 +62,14 @@ export const Avatar: React.FC<AvatarProps> = ({
 
     return (
         <div 
-            style={{ 
-                width: size, 
-                height: size, 
-                position: 'relative',
-                borderRadius: '50%',
-                overflow: 'hidden',
-                backgroundColor: '#e0e0e0',
-                display: 'inline-block'
-            }}
+            className={`relative inline-block rounded-full overflow-hidden w-[${size}px] h-[${size}px]`}
+            style={{ backgroundColor: '#e0e0e0' }}
         >
             {loading && (
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#f0f0f0',
-                    fontSize: '12px',
-                    color: '#666'
-                }}>
+                <div
+                    className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-[12px] text-[#666]"
+                    style={{ backgroundColor: '#f0f0f0' }}
+                >
                     ...
                 </div>
             )}
@@ -95,12 +79,7 @@ export const Avatar: React.FC<AvatarProps> = ({
                 onLoadStart={handleLoadStart}
                 onError={handleError}
                 onLoad={handleLoad}
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: loading ? 'none' : 'block'
-                }}
+                className={`w-full h-full object-cover ${loading ? 'none' : 'block'}`}
             />
         </div>
     );

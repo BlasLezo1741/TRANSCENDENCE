@@ -7,8 +7,6 @@ import TermsModal from "../components/TermsModal";
 import { sentence } from "../ts/utils/string";
 import { useCountryNames } from "../ts/utils/countryName";
 
-import '../css/Login.css';
-
 interface Country {
     name: string;
     code: string;
@@ -154,18 +152,15 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
     return (
         <div>
-            <div>
-                <h1>{t('crear_cuenta')}</h1>
-            </div>
+            <h1>{t('crear_cuenta')}</h1>
 
-            <form onSubmit={handleForm} className="login-form" noValidate>
+            <form onSubmit={handleForm} noValidate>
                 {/* Error message */}
                 {error && (
-                    <span style={{color: "red"}}>{error}</span>
+                    <span className="text-red-500">{error}</span>
                 )}
 
                 {/* User */}
-                <div className="login-elem">
                     <label htmlFor="user">{t('user')}</label>
                     <input
                         type="text"
@@ -178,10 +173,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         required
                         autoFocus
                     />
-                </div>
 
                 {/* Email */}
-                <div className="login-elem">
                     <label htmlFor="email">{t('prof.field_email')}</label>
                     <input
                         type="email"
@@ -192,13 +185,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                     />
-                </div>
 
                 {/* Password */}
-                <div className="login-elem">
-                    <label htmlFor="pass" className="block text-sm font-medium text-gray-700 mb-1">
-                        {sentence(t('password'))}
-                    </label>
+                    <label htmlFor="pass">{sentence(t('password'))}</label>
                     <input
                         type="password"
                         id="pass"
@@ -208,10 +197,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-                </div>
 
                 {/* Repeat Password */}
-                <div className="login-elem">
                     <label htmlFor="passR">{t('rep_pass')}</label>
                     <input
                         type="password"
@@ -221,12 +208,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         onChange={(e) => setRepeat(e.target.value)}
                         required
                     />
-                </div>
 
-                {/* Birth date
-                    type="date" always returns YYYY-MM-DD to JavaScript regardless of
-                    how the browser displays it, so checkForm receives the correct format. */}
-                <div className="login-elem">
+                {/* Birth date */}
                     <label htmlFor="birth">{t('cumple')}</label>
                     <input
                         type="date"
@@ -237,12 +220,9 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         max={new Date().toISOString().split('T')[0]}
                         required
                     />
-                </div>
 
-                {/* Country — names localised to the active UI language via Intl.DisplayNames.
-                    The ISO code (c.code) is submitted; the label shown is locale-aware.
-                    Falls back to the English name from the DB if the code is unrecognised. */}
-                <div className="login-elem">
+                {/* Country & Language Row */}
+                    {/* Country - UPDATED TO DROPDOWN */}
                     <label htmlFor="country">{t('cod_pais')}</label>
                     <select
                         id="country"
@@ -260,10 +240,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                             </option>
                         ))}
                     </select>
-                </div>
 
                 {/* Language */}
-                <div className="login-elem">
                     <label htmlFor="lang">{t('lang')}</label>
                     <select
                         name="lang"
@@ -278,12 +256,10 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         <option value="en">English</option>
                         <option value="fr">Français</option>
                     </select>
-                </div>
                 
                 {/* QR Code check box */}
-                <div className="login-btn">
+                <div className="flex-row">
                     <input
-                        style={{ flexShrink: 0 }}
                         name="enabled2FA"
                         id="enabled2FA"
                         type="checkbox"
@@ -294,9 +270,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 </div>
 
                 {/* Privacy policy + Terms of Use checkbox */}
-                <div className="login-btn">
+                <div className="flex-row">
                     <input
-                        style={{ flexShrink: 0 }}
                         name="acceptPolicy"
                         id="acceptPolicy"
                         type="checkbox"
@@ -331,11 +306,21 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 />
 
                 {/* Action Buttons */}
-                <div className="login-btn form-btn">
-                    <button type="button" onClick={handleReset}>
+                <div className="py-5 flex-row jusitfy-end">
+                    <button
+                        type="button"
+                        onClick={handleReset}
+                        className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
                         {t('borrar_t')}
                     </button>
-                    <button type="submit" disabled={isLoading}>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
+                        // className={`flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
+                        // ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
+                        // focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+                        >
                         {isLoading ? t('enviando') : t('enviar')}
                     </button>
                 </div>
@@ -344,26 +329,16 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                 {/* QR Code (only if present) */}
                 {qrCode && (
-                    <div style={{ marginTop: '20px' }}>
+                    <div className="mt-5">
                         <h3>{t('qr_setup1')}</h3>
-                        <div style={{ 
-                            background: 'white', 
-                            padding: '15px', 
-                            display: 'inline-block',
-                            borderRadius: '8px' 
-                        }}>
+                        <div className="bg-white p-4 inline-block rounded-lg">
                             <QRCodeSVG 
                                 value={qrCode} 
                                 size={256}
-                                level={"H"}
+                                level={"H"} // Alta recuperación de errores
                             />
                         </div>        
-                        <p style={{ 
-                            marginTop: '15px', 
-                            fontSize: '14px',
-                            maxWidth: '350px',
-                            lineHeight: '1.5'
-                        }}>
+                        <p className="mt-2 text-sm max-w-[350px] leading-relaxed">
                             💡 <strong>{t('qr_setup2')}</strong> {t('qr_setup3')}
                         </p>
                         <div>
@@ -393,25 +368,28 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     </div>
                 )}
                 {success && (
-                    <div>
-                        <p>{success}</p>
-                    </div>
+                    <p>{success}</p>
                 )}
 
                 {/* OAuth buttons */}
                 {showOAuthButtons && (
-                    <div className="login-elem">
-                        <span style={{color: "black", marginBottom: "5px"}}>
-                            {t('crear_cuenta')} / {t('init_ses')}:{" "}
-                        </span>
-                        <div className="login-btn">
-                            <button type="button" onClick={() => handleOAuth('42')}>
-                                <span>42 Network</span>
-                            </button>
-                            <button type="button" onClick={() => handleOAuth('google')}>
-                                Google
-                            </button>
-                        </div>
+                <div className="flex-col">
+                    <span className="text-black mb-1">{t('crear_cuenta')} / {t('init_ses')}: </span>
+
+                    <div className="flex-row">
+                        <button
+                            type="button"
+                            onClick={() => handleOAuth('42')}
+                            className="btn bg-black text-white hover:bg-gray-800">
+                            42 Network
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => handleOAuth('google')}
+                            className="btn bg-red-500 text-white hover:bg-red-600">
+                            Google
+                        </button>
                     </div>
                 )}
             </form>
