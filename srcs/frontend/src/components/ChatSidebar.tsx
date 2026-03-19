@@ -264,7 +264,11 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
 
     if (!chatOpen) {
         return (
-            <button className="chat-floating-btn" onClick={() => setChatOpen(true)}>
+            // <button className="chat-floating-btn" onClick={() => setChatOpen(true)}>
+            <button 
+                className="fixed bottom-[20px] right-[20px] z-50 w-[60px] h-[60px] rounded-full bg-blue-600 text-white text-[24px] border-none shadow-[0_4px_6px_rgba(0,0,0,0.3)] cursor-pointer flex items-center justify-center transition-transform duration-200 hover:scale-110" 
+                onClick={() => setChatOpen(true)}
+            >
                 💬
             </button>
         );
@@ -308,13 +312,30 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
     };
 
     return (
-        <div className="chat-sidebar">
-            {/* CABECERA SIMPLE (Solo título) */}
-            <div className="chat-header">
-                <h2>{selectedChatId 
-                    ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
-                    : firstcap(t('chat.my_friends'))}</h2>
-                <button className="chat-close-btn" onClick={() => setChatOpen(false)}>✕</button>
+        // <div className="chat-sidebar">
+        //     {/* CABECERA SIMPLE (Solo título) */}
+        //     <div className="chat-header">
+        //         <h2>{selectedChatId 
+        //             ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
+        //             : firstcap(t('chat.my_friends'))}</h2>
+        //         <button className="chat-close-btn" onClick={() => setChatOpen(false)}>✕</button>
+        //     </div>
+        // --- CONTENEDOR PRINCIPAL (Sidebar) ---
+        <div className="fixed right-0 top-[115px] h-[calc(100vh-115px)] w-[320px] bg-[#06b6d4] border-l-4 border-[#374151] z-40 flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.5)] text-[#111827] font-sans">
+            
+            {/* --- CABECERA --- */}
+            <div className="h-[50px] bg-[#0e7490] flex items-center justify-between px-[16px] text-white shrink-0">
+                <h2 className="font-bold text-[16px] m-0">
+                    {selectedChatId 
+                        ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
+                        : firstcap(t('chat.my_friends'))}
+                </h2>
+                <button 
+                    className="w-[30px] bg-transparent border-none text-white text-[20px] cursor-pointer flex items-center justify-center p-0" 
+                    onClick={() => setChatOpen(false)}
+                >
+                    ✕
+                </button>
             </div>
 
             <div className="chat-body">

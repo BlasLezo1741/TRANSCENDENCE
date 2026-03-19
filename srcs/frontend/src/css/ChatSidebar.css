@@ -1,7 +1,7 @@
 /* src/components/ChatSidebar.css */
 
 /* --- BOTÓN FLOTANTE (Cerrado) --- */
-.chat-floating-btn {
+/* .chat-floating-btn {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -19,20 +19,20 @@
     align-items: center;
     justify-content: center;
     transition: transform 0.2s;
-}
+} */
 
-.chat-floating-btn:hover {
+/* .chat-floating-btn:hover {
     transform: scale(1.1);
-}
+} */
 
 /* --- CONTENEDOR PRINCIPAL (Sidebar) --- */
-.chat-sidebar {
+/* .chat-sidebar {
     position: fixed;
     right: 0;
-    top: 115px; /* Ajuste para no tapar el header */
+    top: 115px; 
     height: calc(100vh - 115px);
     width: 320px;
-    background-color: #06b6d4; /* Cyan 500 */
+    background-color: #06b6d4; 
     border-left: 4px solid #374151;
     z-index: 40;
     display: flex;
@@ -40,37 +40,37 @@
     box-shadow: -4px 0 15px rgba(0,0,0,0.5);
     color: #111827;
     font-family: sans-serif;
-}
+} */
 
 /* --- CABECERA --- */
-.chat-header {
+/* .chat-header {
     height: 50px;
-    background-color: #0e7490; /* Cyan 700 */
+    background-color: #0e7490;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 16px;
     color: white;
-}
+} */
 
-.chat-header button
+/* .chat-header button
 {
     width: 30px;
-}
+} */
 
-.chat-header h2 {
+/* .chat-header h2 {
     font-weight: bold;
     font-size: 16px;
     margin: 0;
-}
+} */
 
-.chat-close-btn {
+/* .chat-close-btn {
     background: none;
     border: none;
     color: white;
     font-size: 20px;
     cursor: pointer;
-}
+} */
 
 /* --- CUERPO DEL CHAT --- */
 .chat-body {
