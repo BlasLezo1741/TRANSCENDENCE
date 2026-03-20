@@ -450,32 +450,53 @@ function renderScreen()
   return (
     <div className={`w-full h-screen mx-auto border border-black bg-black grid grid-rows-[auto_50px_1fr_auto] min-h-screen ${scrollClass}`}>
       {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
-      {/* 🔥🔥 MODAL DE INVITACIÓN 🔥🔥 */}
+      {/* 🔥🔥 MODAL DE INVITACIÓN (Estilo Unificado Premium) 🔥🔥 */}
       {inviteRequest && (
-          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-70 z-50 flex justify-center items-center">
-              <div className="bg-gray-800 p-8 rounded-lg border-2 border-orange-600 text-center text-white max-w-sm shadow-xl">
-                  <h2 className="mt-0">⚔️ {t('app.pongChallenge')}</h2>
-                  <p className="text-base my-5">
-                      <strong>{inviteRequest.fromUserName === 'app.afriend' ? t('app.afriend') : inviteRequest.fromUserName}</strong>{t('app.wantPlay')}
-                  </p>
-                  <div className="flex gap-5 justify-center">
-                      <button 
-                          onClick={() => handleInviteResponse(true)}
-                          class="btn bg-green-500 text-white border-none"
-                      >
-                        {t('modal.accept_btn')}
-                      </button>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center !bg-black/80 backdrop-blur-sm !p-6">
+              
+              {/* Contenedor principal idéntico al ModalContext */}
+              <div className="!bg-[#111827] !border-2 !border-orange-600 !rounded-3xl !shadow-[0_0_30px_rgba(234,88,12,0.5)] !w-full !max-w-xl flex flex-col overflow-hidden">
+                  
+                  {/* Cabecera */}
+                  <div className="!p-6 !border-b !border-orange-600/30 text-center !bg-black/30">
+                      <h2 className="!m-0 !text-2xl !font-extrabold !text-white !tracking-wider !uppercase !leading-tight">
+                          ⚔️ {t('app.pongChallenge')}
+                      </h2>
+                  </div>
+
+                  {/* Cuerpo del Mensaje */}
+                  <div className="!px-10 !pt-12 !pb-8 text-center">
+                      <p className="!text-gray-100 !text-base !leading-loose !tracking-wide !m-0">
+                          {/* He puesto el nombre del retador en color naranja para destacarlo */}
+                          <strong className="text-orange-500">
+                              {inviteRequest.fromUserName === 'app.afriend' ? t('app.afriend') : inviteRequest.fromUserName}
+                          </strong> {t('app.wantPlay')}
+                      </p>
+                  </div>
+
+                  {/* Botones (Gris y Naranja) */}
+                  <div className="!px-10 !pb-10 !pt-4 flex justify-center !gap-6">
+                      
+                      {/* Botón Rechazar (Gris Neutro) */}
                       <button 
                           onClick={() => handleInviteResponse(false)}
-                          className="btn bg-red-500 text-white border-none"
+                          className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-gray-700/50 hover:!bg-gray-600 !text-white !font-bold !text-sm !uppercase !tracking-wider !transition-colors !border !border-gray-600 !m-0"
                       >
                           {t('modal.reject_btn')}
                       </button>
+
+                      {/* Botón Aceptar (Naranja Premium) */}
+                      <button 
+                          onClick={() => handleInviteResponse(true)}
+                          className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-orange-600 hover:!bg-orange-700 !text-white !font-extrabold !text-sm !uppercase !tracking-wider !transition-transform hover:scale-105 !shadow-lg !shadow-orange-600/30 !m-0 !border-none"
+                      >
+                          {t('modal.accept_btn')}
+                      </button>
+                      
                   </div>
               </div>
           </div>
       )}
-
       <Header dispatch={dispatch} setIa={setIa} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
       <main className={scrollClass}>{renderScreen()}</main>
       <Footer dispatch={dispatch} setOption={setOption}/>

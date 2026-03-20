@@ -60,7 +60,7 @@ const TermsModal = ({ isOpen, onClose, title, fileName }: TermsModalProps) => {
                     <h2 className="m-0 text-base">{title}</h2>
                     <button
                         onClick={onClose}
-                        class="btn bg-transparent border-0 text-xl leading-none text-gray-600"
+                        className="btn bg-transparent border-0 text-xl leading-none text-gray-600"
                         aria-label="Close"
                     >
                         ✕

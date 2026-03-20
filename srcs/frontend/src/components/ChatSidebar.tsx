@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { socket, sendDirectMessage } from '../services/socketService';
-import '../css/ChatSidebar.css'; 
 import { useModal } from '../context/ModalContext';
 import { useTranslation } from 'react-i18next';
 import { firstcap } from '../ts/utils/string';
@@ -262,11 +261,28 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
 
     // --- RENDERIZADO ---
 
+    // if (!chatOpen) {
+    //     return (
+    //         //<button className="chat-floating-btn" onClick={() => setChatOpen(true)}>
+    //         <button 
+    //             className="fixed bottom-[20px] right-[20px] z-50 w-[60px] h-[60px] rounded-full bg-blue-600 text-white text-[24px] border-none shadow-[0_4px_6px_rgba(0,0,0,0.3)] cursor-pointer flex items-center justify-center transition-transform duration-200 hover:scale-110" 
+    //             onClick={() => setChatOpen(true)}
+    //         >
+    //             💬
+    //         </button>
+    //     );
+    // }
+    
     if (!chatOpen) {
         return (
-            <button className="chat-floating-btn" onClick={() => setChatOpen(true)}>
+            // CAMBIO: div en lugar de button y clases estándar (w-16 h-16)
+            <div 
+                role="button"
+                className="fixed bottom-5 right-5 z-50 w-16 h-16 rounded-full bg-blue-600 text-white text-3xl shadow-lg cursor-pointer flex items-center justify-center transition-transform duration-200 hover:scale-110" 
+                onClick={() => setChatOpen(true)}
+            >
                 💬
-            </button>
+            </div>
         );
     }
 
@@ -307,169 +323,182 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
         return getDefaultAvatar(contactId);
     };
 
-    return (
-        <div className="chat-sidebar">
-            {/* CABECERA SIMPLE (Solo título) */}
-            <div className="chat-header">
-                <h2>{selectedChatId 
-                    ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
-                    : firstcap(t('chat.my_friends'))}</h2>
-                <button className="chat-close-btn" onClick={() => setChatOpen(false)}>✕</button>
+
+return (
+        <div className="chat-layout fixed right-0 w-80 bg-cyan-500 border-l-4 border-gray-700 z-40 flex flex-col shadow-2xl text-gray-900 font-sans">
+            
+            {/* --- CABECERA PRINCIPAL (Mis Amigos / Chat con...) --- */}
+            <div className="h-12 bg-cyan-700 flex items-center justify-between !px-5 text-white shrink-0">
+                <h2 className="!m-0 text-base font-bold">
+                    {selectedChatId 
+                        ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
+                        : firstcap(t('chat.my_friends'))}
+                </h2>
+                <div 
+                    role="button"
+                    className="!w-8 !h-8 bg-transparent text-white text-xl cursor-pointer flex items-center justify-center hover:opacity-80 !p-0 !m-0 !border-none" 
+                    onClick={() => setChatOpen(false)}
+                >
+                    ✕
+                </div>
             </div>
 
-            <div className="chat-body">
+            <div className="flex-1 overflow-y-auto bg-cyan-100 flex flex-col">
                 
                 {selectedChatId === null ? (
-                    <>
-                        {/* SIN TABS, SOLO LISTA DIRECTA */}
-                        <div className="chat-list">
-                            {contacts.length === 0 && (
-                                <p style={{textAlign: 'center', padding: '20px', color: '#666'}}>
-                                    {t('chat.noFriends')}<br/>{t('chat.addFriends')}
-                                </p>
-                            )}
+                    
+                    /* --- VISTA 1: LISTA DE AMIGOS --- */
+                    <div className="p-2 !px-3">
+                        {contacts.length === 0 && (
+                            <p className="text-center p-5 text-gray-500">
+                                {t('chat.noFriends')}<br/>{t('chat.addFriends')}
+                            </p>
+                        )}
 
-                            {contacts.map((chat) => (
-                                <div 
-                                    key={chat.id} 
-                                    onClick={() => {
-                                        setSelectedChatId(chat.id);
-                                        // 1. UI: Limpiar bolita
-                                        setContacts((prev: ChatContact[]) => prev.map((c: ChatContact) => 
-                                            c.id === chat.id ? { ...c, unread: 0 } : c
-                                        ));
-                                        // 2. API: Marcar leído
-                                        fetch('/chat/read', {
-                                            method: 'PATCH',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                senderId: Number(chat.id),
-                                                receiverId: Number(CURRENT_USER_ID)
-                                            })
-                                        }).catch(console.error);
-                                    }}
-                                    className="chat-contact-row"
-                                >
-                                    {/* <div className="chat-avatar">
-                                        {chat.name.charAt(0)}
-                                    </div> */}
-                                    <div className="chat-avatar">
-                                        <img 
-                                            src={getDisplayAvatar(chat.id, chat.avatarId)} // <--- USO DE LA NUEVA FUNCIÓN
-                                            alt={chat.name}
-                                            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                                        />
-                                    </div>
-                                    <div className="chat-info">
-                                        <div className="chat-name-row">
-                                            <span className="chat-name">{chat.name}</span>
-                                            {chat.unread > 0 && (
-                                                <span className="chat-badge">{chat.unread}</span>
-                                            )}
-                                        </div>
-                                        {/* Aquí mostramos el estado en lugar de "clic para hablar" */}
-                                        <p className="chat-preview" style={{color: chat.status === 'online' ? 'green' : 'gray'}}>
-                                            {chat.status === 'online' ? '🟢 Online' : '⚫ Offline'}
-                                        </p>
-                                    </div>
+                        {contacts.map((chat) => (
+                            <div 
+                                key={chat.id} 
+                                onClick={() => {
+                                    setSelectedChatId(chat.id);
+                                    setContacts((prev: ChatContact[]) => prev.map((c: ChatContact) => 
+                                        c.id === chat.id ? { ...c, unread: 0 } : c
+                                    ));
+                                    fetch('/chat/read', {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ senderId: Number(chat.id), receiverId: Number(CURRENT_USER_ID) })
+                                    }).catch(console.error);
+                                }}
+                                className="flex items-center !p-2.5 !my-2 bg-white rounded-lg cursor-pointer shadow-sm border border-cyan-100 transition-colors duration-200 hover:bg-sky-50 !w-full"
+                            > 
+                                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3 font-bold text-gray-700 border border-gray-300 shrink-0 overflow-hidden">
+                                    <img 
+                                        src={getDisplayAvatar(chat.id, chat.avatarId)} 
+                                        alt={chat.name}
+                                        className="w-full h-full rounded-full object-cover"
+                                    />
                                 </div>
-                            ))}
-                        </div>
-                    </>
-                ) : (
-                    // VISTA DE CONVERSACIÓN
-                    <div className="chat-conversation">
+                                
+                                <div className="flex-1 overflow-hidden">
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-bold text-sm">{chat.name}</span>
+                                        {chat.unread > 0 && (
+                                            <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                                                {chat.unread}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className={`text-xs m-0 whitespace-nowrap overflow-hidden text-ellipsis ${chat.status === 'online' ? 'text-green-600' : 'text-gray-500'}`}>
+                                        {chat.status === 'online' ? '🟢 Online' : '⚫ Offline'}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+            ) : (
+
+                    /* --- VISTA 2: CONVERSACIÓN ABIERTA (CORREGIDA) --- */
+                    <div className="flex flex-col h-full">
                         
-                        <div className="chat-subheader">
-                            <button onClick={() => setSelectedChatId(null)} className="chat-back-btn">
-                                ⬅ {t('volver')}
-                            </button>
-
-                            {/* 👇👇👇 AQUI INSERTAMOS EL AVATAR EN LA CABECERA 👇👇👇 */}
-                            <div style={{ width: '35px', height: '35px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, marginLeft: '10px' }}>
-                                <img 
-                                    src={(() => {
-                                        const contact = contacts.find(c => c.id === selectedChatId);
-                                        return contact ? getDisplayAvatar(contact.id, contact.avatarId) : '';
-                                    })()}
-                                    alt="Avatar"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                            </div>
+                        {/* --- Sub-cabecera de chat activo --- */}
+                        <div className="flex items-center justify-between !px-3 !py-2.5 bg-[#0c6b85] text-white shrink-0 shadow-md z-10 border-t border-[#085a72]">
                             
-                            {/* 1. INFORMACIÓN DEL CONTACTO (Nombre y Estado) */}
-                            <div style={{flex: 1, marginLeft: '10px'}}>
-                                 <div style={{fontWeight: 'bold'}}>
-                                     {contacts.find(c => c.id === selectedChatId)?.name || 'Chat'}
-                                 </div>
-                                 <div style={{fontSize: '10px', color: '#666'}}>
-                                    {contacts.find(c => c.id === selectedChatId)?.status === 'online' ? '🟢 Online' : '⚫ Offline'}
-                                 </div>
+                            {/* Grupo Izquierdo: Volver + Avatar + Textos */}
+                            <div className="flex items-center !gap-3">
+                                
+                                {/* BOTÓN VOLVER (Usamos &larr; para evitar el feo emoji azul de Windows) */}
+                                <div 
+                                    role="button"
+                                    onClick={() => setSelectedChatId(null)} 
+                                    className="cursor-pointer font-bold hover:text-cyan-200 transition-colors !text-sm flex items-center !gap-1"
+                                >
+                                    <span className="!text-xl leading-none !mb-[2px]">&larr;</span> {t('volver')}
+                                </div>
+
+                                {/* AVATAR */}
+                                <div className="!w-9 !h-9 rounded-full overflow-hidden shrink-0 border-2 border-white/80 shadow-sm">
+                                    <img 
+                                        src={(() => {
+                                            const contact = contacts.find(c => c.id === selectedChatId);
+                                            return contact ? getDisplayAvatar(contact.id, contact.avatarId) : '';
+                                        })()}
+                                        alt="Avatar"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                
+                                {/* NOMBRE Y ESTADO (Con punto CSS en lugar de emoji) */}
+                                <div className="flex flex-col justify-center">
+                                     <span className="font-bold !text-[14px] !leading-none !mb-1">
+                                         {contacts.find(c => c.id === selectedChatId)?.name || 'Chat'}
+                                     </span>
+                                     <span className="!text-[11px] text-cyan-100 flex items-center !gap-1.5 !leading-none">
+                                        <span className={`inline-block !w-2 !h-2 rounded-full shadow-sm ${contacts.find(c => c.id === selectedChatId)?.status === 'online' ? 'bg-[#4ade80]' : 'bg-gray-400'}`}></span>
+                                        {contacts.find(c => c.id === selectedChatId)?.status === 'online' ? 'Online' : 'Offline'}
+                                     </span>
+                                </div>
                             </div>
 
-                            {/* 2. BOTÓN DE RETAR (Solo visible si está Online) */}
+                            {/* Grupo Derecho: BOTÓN DESAFIAR */}
                             {contacts.find(c => c.id === selectedChatId)?.status === 'online' && (
-                                <button 
+                                <div 
+                                    role="button"
                                     onClick={handleInviteClick}
                                     title={t('chat.invitePlay')}
-                                    style={{
-                                        backgroundColor: '#ea580c', // Naranja vibrante
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        padding: '6px 12px',
-                                        cursor: 'pointer',
-                                        fontSize: '12px',
-                                        fontWeight: 'bold',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                                        transition: 'background 0.2s'
-                                    }}
+                                    className="!px-3 !py-1.5 rounded-lg cursor-pointer font-bold bg-[#ea580c] text-white !text-xs shadow-md transition-colors hover:bg-[#c2410c]"
                                 >
                                     {t('chat.challenge')}
-                                </button>
+                                </div>
                             )}
                         </div>
 
-                        {/* LISTA DE MENSAJES */}
-                        <div className="chat-messages-area" style={{ flex: 1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {/* CUERPO DE MENSAJES: bg-#f3f4f6 (Gris muy claro) */}
+                        <div className="flex-1 flex flex-col !gap-2 !p-3 overflow-y-auto bg-[#f3f4f6]">
                             {messages.map((msg) => {
                                 const isMine = msg.senderId === Number(CURRENT_USER_ID);
                                 return (
-                                    <div key={msg.id} style={{
-                                        display: 'flex',
-                                        justifyContent: isMine ? 'flex-end' : 'flex-start'
-                                    }}>
-                                        <div style={{
-                                            backgroundColor: isMine ? '#007bff' : '#f1f0f0', // Azul para mí, gris para el otro
-                                            color: isMine ? 'white' : 'black',
-                                            padding: '8px 12px',
-                                            borderRadius: '12px',
-                                            maxWidth: '75%',
-                                            wordWrap: 'break-word',
-                                            fontSize: '14px'
-                                        }}>
+                                    <div key={msg.id} className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}>
+                                        <div className={`max-w-[85%] break-words !text-sm !px-3 !py-2 shadow-sm ${
+                                            isMine 
+                                            ? 'bg-[#0891b2] text-white rounded-xl rounded-br-none' 
+                                            : 'bg-white text-black border border-gray-200 rounded-xl rounded-bl-none'
+                                        }`}>
                                             <div>{msg.text}</div>
-                                            <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '4px', textAlign: 'right' }}>
+                                            <div className={`!text-[10px] !mt-1 text-right ${isMine ? 'text-cyan-100' : 'text-gray-400'}`}>
                                                 {msg.time}
                                             </div>
                                         </div>
                                     </div>
                                 );
                             })}
-                            {/* Elemento invisible para auto-scroll */}
                             <div ref={messagesEndRef} />
                         </div>
 
-                        <div className="chat-input-area">
-                            <form className="chat-form" onSubmit={handleSendSubmit}>
+                        {/* ÁREA DE ESCRITURA: bg-white */}
+                        <div className="!p-3 bg-white border-t border-gray-200 shrink-0">
+                            <div className="flex flex-row items-center !gap-2 w-full !m-0 !p-0 bg-transparent">
                                 <input 
-                                    className="chat-input"
+                                    className="flex-1 !m-0 !px-4 !py-2 !bg-gray-100 text-black rounded-full !border !border-gray-300 outline-none focus:!border-cyan-600 !text-sm"
                                     placeholder={sentence(t('chat.write'))+'...'}
                                     value={msgInput}
                                     onChange={e => setMsgInput(e.target.value)}
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            handleSendSubmit(e as any);
+                                        }
+                                    }}
                                 />
-                                <button type="submit" className="chat-send-btn">➤</button>
-                            </form>
+                                {/* BOTÓN ENVIAR: Circular 40px */}
+                                <div 
+                                    role="button"
+                                    onClick={handleSendSubmit as any}
+                                    className="!w-10 !h-10 rounded-full bg-cyan-600 text-white flex items-center justify-center cursor-pointer hover:bg-cyan-700 transition-colors shrink-0 !p-0 !border-none"
+                                >
+                                    ➤
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -477,3 +506,5 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
         </div>
     );
 };
+
+export default ChatSidebar;
