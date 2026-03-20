@@ -67,7 +67,7 @@ LOGIN_TIMEOUT  = 15_000   # ms
 MENU_TIMEOUT   = 10_000   # ms
 MATCH_TIMEOUT  = 60_000   # ms  -- queue may take longer with many users
 GAME_TIMEOUT   = 300      # seconds -- generous upper bound for best-of-5
-STAGGER_MS     = 100      # ms between session startups (avoids WS handshake flood)
+STAGGER_MS     = 300      # ms between session startups (avoids WS handshake flood)
 
 # 3x2 grid of non-overlapping 640x400 slots
 WINDOW_W = 640
@@ -377,7 +377,7 @@ async def async_main(base_url: str, users: list[dict],
     print("=" * 57)
     print(f"  Users launched   : {n}")
     print(f"  Logged in        : {sum(1 for r in results if r.logged_in)}")
-    print(f"  Matched          : {matched_count}  ({matched_count*2} players paired)")
+    print(f"  Matched          : {matched_count}  ({matched_count/2} matches playeed)")
     print(f"  Game over        : {gameover_count}")
     print(f"  Full OK          : {ok}")
     print(f"  Failed           : {n - ok}")
