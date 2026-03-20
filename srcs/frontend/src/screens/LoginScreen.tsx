@@ -209,7 +209,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             type="button"
                             onClick={handleBack}
                             className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
-                            {t('volver')}
+                            {t('borrar_t')}
                         </button>
                         <button
                             type="submit"

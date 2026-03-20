@@ -69,16 +69,16 @@ const Header = ({dispatch, setIa, userName, userId, userAvatarUrl, profileSynced
         <>
             <StatusBadge />
             <header>
-                <div className="home" onClick={() => { setIa(false); dispatch({ type: "MENU" });}}>
+                <div className="home w-[160px]" onClick={() => { setIa(false); dispatch({ type: "MENU" });}}>
                     <img src={homeIcon} alt="Logo" className="w-[50px] h-[50px]"/>
                     <p className="ml-1">Okinawa</p>
                 </div>
                 
-                <div>
+                <div className="w-[420px]">
                      <LanguageSwitcher />
                 </div>
 
-                <div className="signin">
+                <div className="w-[160px] flex justify-end">
                     {/* ESTADO: NO LOGUEADO */}
                     {!isLogged && (
                         <div className="home" ref={dropdownRef} onClick={() => dispatch({ type: "LOGIN" })}>
