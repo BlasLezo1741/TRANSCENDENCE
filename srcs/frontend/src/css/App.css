@@ -44,6 +44,18 @@ form
     @apply flex flex-col mb-4 w-3/5 mx-auto p-5 bg-gray-100;
 }
 
+/* --- EXCEPCIÓN PARA EL FORMULARIO DEL CHAT --- */
+/* Esta regla es más específica que la regla 'form' global, pasa por encima de form*/
+form.chat-form {
+    @apply !flex-row !w-full !m-0 !p-0 !bg-transparent !shadow-none;
+}
+
+/* Posicionamiento exacto del Chat Sidebar */
+.chat-layout {
+    top: 115px;
+    height: calc(100vh - 115px);
+}
+
 .label-black
 {
     @apply mb-1 mt-3 text-black;
