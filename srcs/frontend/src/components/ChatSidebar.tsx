@@ -328,15 +328,15 @@ return (
         <div className="chat-layout fixed right-0 w-80 bg-cyan-500 border-l-4 border-gray-700 z-40 flex flex-col shadow-2xl text-gray-900 font-sans">
             
             {/* --- CABECERA PRINCIPAL (Mis Amigos / Chat con...) --- */}
-            <div className="h-12 bg-cyan-700 flex items-center justify-between px-4 text-white shrink-0">
-                <h2 className="m-0 text-base font-bold">
+            <div className="h-12 bg-cyan-700 flex items-center justify-between !px-5 text-white shrink-0">
+                <h2 className="!m-0 text-base font-bold">
                     {selectedChatId 
                         ? firstcap(t('chat.with', { name: contacts.find(c => c.id === selectedChatId)?.name || '...' })) 
                         : firstcap(t('chat.my_friends'))}
                 </h2>
                 <div 
                     role="button"
-                    className="!w-8 !h-8 bg-transparent text-white text-xl cursor-pointer flex items-center justify-center hover:opacity-80 !p-0" 
+                    className="!w-8 !h-8 bg-transparent text-white text-xl cursor-pointer flex items-center justify-center hover:opacity-80 !p-0 !m-0 !border-none" 
                     onClick={() => setChatOpen(false)}
                 >
                     ✕
@@ -401,46 +401,52 @@ return (
                     /* --- VISTA 2: CONVERSACIÓN ABIERTA (CORREGIDA) --- */
                     <div className="flex flex-col h-full">
                         
-                        {/* Cabecera del chat activo: bg-cyan-700 */}
-                        <div className="flex items-center !p-3 bg-cyan-700 text-white shrink-0 border-t border-cyan-800">
-                            {/* BOTÓN VOLVER: Forzamos tamaño auto para que no sea un bloque de 125px */}
-                            <div 
-                                role="button"
-                                onClick={() => setSelectedChatId(null)} 
-                                className="cursor-pointer font-bold hover:opacity-80 !mr-4 !text-sm !w-auto !h-auto !p-0 !bg-transparent !border-none"
-                            >
-                                ⬅ {t('volver')}
-                            </div>
-
-                            {/* AVATAR: w-8 h-8 (32px) */}
-                            <div className="!w-8 !h-8 rounded-full overflow-hidden shrink-0 border border-white">
-                                <img 
-                                    src={(() => {
-                                        const contact = contacts.find(c => c.id === selectedChatId);
-                                        return contact ? getDisplayAvatar(contact.id, contact.avatarId) : '';
-                                    })()}
-                                    alt="Avatar"
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
+                        {/* --- Sub-cabecera de chat activo --- */}
+                        <div className="flex items-center justify-between !px-3 !py-2.5 bg-[#0c6b85] text-white shrink-0 shadow-md z-10 border-t border-[#085a72]">
                             
-                            {/* NOMBRE Y ESTADO */}
-                            <div className="flex-1 !ml-3">
-                                 <div className="font-bold !text-sm !leading-tight">
-                                     {contacts.find(c => c.id === selectedChatId)?.name || 'Chat'}
-                                 </div>
-                                 <div className="!text-[10px] text-cyan-200">
-                                    {contacts.find(c => c.id === selectedChatId)?.status === 'online' ? '🟢 Online' : '⚫ Offline'}
-                                 </div>
+                            {/* Grupo Izquierdo: Volver + Avatar + Textos */}
+                            <div className="flex items-center !gap-3">
+                                
+                                {/* BOTÓN VOLVER (Usamos &larr; para evitar el feo emoji azul de Windows) */}
+                                <div 
+                                    role="button"
+                                    onClick={() => setSelectedChatId(null)} 
+                                    className="cursor-pointer font-bold hover:text-cyan-200 transition-colors !text-sm flex items-center !gap-1"
+                                >
+                                    <span className="!text-xl leading-none !mb-[2px]">&larr;</span> {t('volver')}
+                                </div>
+
+                                {/* AVATAR */}
+                                <div className="!w-9 !h-9 rounded-full overflow-hidden shrink-0 border-2 border-white/80 shadow-sm">
+                                    <img 
+                                        src={(() => {
+                                            const contact = contacts.find(c => c.id === selectedChatId);
+                                            return contact ? getDisplayAvatar(contact.id, contact.avatarId) : '';
+                                        })()}
+                                        alt="Avatar"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                
+                                {/* NOMBRE Y ESTADO (Con punto CSS en lugar de emoji) */}
+                                <div className="flex flex-col justify-center">
+                                     <span className="font-bold !text-[14px] !leading-none !mb-1">
+                                         {contacts.find(c => c.id === selectedChatId)?.name || 'Chat'}
+                                     </span>
+                                     <span className="!text-[11px] text-cyan-100 flex items-center !gap-1.5 !leading-none">
+                                        <span className={`inline-block !w-2 !h-2 rounded-full shadow-sm ${contacts.find(c => c.id === selectedChatId)?.status === 'online' ? 'bg-[#4ade80]' : 'bg-gray-400'}`}></span>
+                                        {contacts.find(c => c.id === selectedChatId)?.status === 'online' ? 'Online' : 'Offline'}
+                                     </span>
+                                </div>
                             </div>
 
-                            {/* BOTÓN DESAFIAR: Forzamos que sea un botón pequeño y naranja */}
+                            {/* Grupo Derecho: BOTÓN DESAFIAR */}
                             {contacts.find(c => c.id === selectedChatId)?.status === 'online' && (
                                 <div 
                                     role="button"
                                     onClick={handleInviteClick}
                                     title={t('chat.invitePlay')}
-                                    className="!px-3 !py-1.5 rounded-lg cursor-pointer font-bold bg-orange-600 text-white !text-[11px] shadow-md transition-colors hover:bg-orange-700 !w-auto !h-auto !flex !items-center !justify-center !border-none !m-0"
+                                    className="!px-3 !py-1.5 rounded-lg cursor-pointer font-bold bg-[#ea580c] text-white !text-xs shadow-md transition-colors hover:bg-[#c2410c]"
                                 >
                                     {t('chat.challenge')}
                                 </div>
