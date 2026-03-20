@@ -51,46 +51,46 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
                     {t('history.notYet')}
                 </p>
             ) : (
-                <ul class="list-none p-0 m-0">
+                <ul className="list-none p-0 m-0">
                     {history.map((match) => (
-                        <li key={match.id} class={`flex flex-col bg-gray-800 mb-4 rounded-xl border-l-6 ${match.won ? 'border-l-green-400' : 'border-l-red-500'} shadow-lg overflow-hidden`}>
+                        <li key={match.id} className={`flex flex-col bg-gray-800 mb-4 rounded-xl border-l-6 ${match.won ? 'border-l-green-400' : 'border-l-red-500'} shadow-lg overflow-hidden`}>
                             {/* BANDA SUPERIOR: Estado y Fecha */}
-                            <div class="flex justify-between p-2.5 px-5 bg-black/20 text-xs text-gray-400 border-b border-white/5">
-                                <span class={`font-extrabold ${match.won ? 'text-green-400' : 'text-red-500'} tracking-[1px]`}>
+                            <div className="flex justify-between p-2.5 px-5 bg-black/20 text-xs text-gray-400 border-b border-white/5">
+                                <span className={`font-extrabold ${match.won ? 'text-green-400' : 'text-red-500'} tracking-[1px]`}>
                                     {match.won ? t('history.win') : t('history.defeat')}
                                 </span>
                                 <span>{new Date(match.date).toLocaleDateString()}</span>
                             </div>
 
                             {/* CUERPO: El Enfrentamiento (Versus) */}
-                            <div class="flex items-center justify-around p-4 px-2.5">
+                            <div className="flex items-center justify-around p-4 px-2.5">
                                 
                                 {/* LADO IZQUIERDO: TÚ */}
-                                <div class="flex flex-col items-center gap-2.5 w-[120px]">
+                                <div className="flex flex-col items-center gap-2.5 w-[120px]">
                                     <Avatar 
                                         src={myProfile?.avatarUrl} 
                                         userId={myProfile?.id || 0} 
                                         size={50} 
                                     />
-                                    <span class="text-xs text-gray-400 font-bold">{t('history.you')}</span>
+                                    <span className="text-xs text-gray-400 font-bold">{t('history.you')}</span>
                                 </div>
 
                                 {/* CENTRO: MARCADOR */}
-                                <div class="text-center min-w-[100px]">
-                                    <div class="text-4xl font-extrabold text-white tracking-[4px] shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                                <div className="text-center min-w-[100px]">
+                                    <div className="text-4xl font-extrabold text-white tracking-[4px] shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
                                         {match.myScore} - {match.opponentScore}
                                     </div>
-                                    <div class="text-[0.65rem] text-gray-600 mt-1 font-bold">vs</div>
+                                    <div className="text-[0.65rem] text-gray-600 mt-1 font-bold">vs</div>
                                 </div>
 
                                 {/* LADO DERECHO: RIVAL */}
-                                <div class="flex flex-col items-center gap-2.5 w-[120px]">
+                                <div className="flex flex-col items-center gap-2.5 w-[120px]">
                                     <Avatar 
                                         src={match.opponentAvatar} 
                                         userId={match.opponentId} 
                                         size={50} 
                                     />
-                                    <span class="text-[0.85rem] text-gray-300 font-bold max-w-[110px] whitespace-nowrap overflow-hidden text-ellipsis text-center">
+                                    <span className="text-[0.85rem] text-gray-300 font-bold max-w-[110px] whitespace-nowrap overflow-hidden text-ellipsis text-center">
                                         {match.opponentStatus === 6 ? t('history.deletedAccount') : match.opponent}
                                     </span>
                                 </div>
