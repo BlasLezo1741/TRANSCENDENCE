@@ -154,7 +154,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         <div>
             <h1>{t('crear_cuenta')}</h1>
 
-            <form onSubmit={handleForm} noValidate>
+            <form className="form" onSubmit={handleForm} noValidate>
                 {/* Error message */}
                 {error && (
                     <span className="text-red-500">{error}</span>
@@ -230,6 +230,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     {/* Country - UPDATED TO DROPDOWN */}
                     <label className="label-black" htmlFor="country">{t('cod_pais')}</label>
                     <select
+                        className="select-black"
                         id="country"
                         name="country"
                         value={country}
@@ -249,6 +250,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 {/* Language */}
                     <label className="label-black" htmlFor="lang">{t('lang')}</label>
                     <select
+                        className="select-black"
                         name="lang"
                         id="lang"
                         value={language}
@@ -276,7 +278,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 </div>
 
                 {/* Privacy policy + Terms of Use checkbox */}
-                <div className="flex-row">
+                <div>
                     <input
                         name="acceptPolicy"
                         id="acceptPolicy"
@@ -313,26 +315,30 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 />
 
                 {/* Action Buttons */}
-                <div className="py-5 flex-row jusitfy-end">
-                    <button
-                        type="button"
-                        onClick={handleReset}
-                        className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
-                        {t('borrar_t')}
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
-                        // className={`flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-                        // ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
-                        // focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+                <div className="flex flex-col gap-2">
+                    <div className="py-5 flex flex-row justify-end gap-2 mb-5">
+                        <button
+                            type="button"
+                            onClick={handleReset}
+                            className="btn bg-gray-200 text-gray-800 hover:bg-gray-300"
                         >
-                        {isLoading ? t('enviando') : t('enviar')}
-                    </button>
+                            {t('borrar_t')}
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
+                            // className={`flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
+                            // ${isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} 
+                            // focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+                            >
+                            {isLoading ? t('enviando') : t('enviar')}
+                        </button>
+                    </div>
+                    
+                    <hr />
                 </div>
-
-                <hr />
+                
 
                 {/* QR Code (only if present) */}
                 {qrCode && (
@@ -348,19 +354,18 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         <p className="mt-2 text-sm max-w-[350px] leading-relaxed">
                             💡 <strong>{t('qr_setup2')}</strong> {t('qr_setup3')}
                         </p>
-                        <div>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setSuccess(t('registro_exitoso'));
-                                    setTimeout(() => {
-                                        dispatch({ type: "MENU" });
-                                    }, 2000);
-                                }}
-                            >
-                                ✅ {t('ya_escaneado')}
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            className="btn"
+                            onClick={() => {
+                                setSuccess(t('registro_exitoso'));
+                                setTimeout(() => {
+                                    dispatch({ type: "MENU" });
+                                }, 2000);
+                            }}
+                        >
+                            ✅ {t('ya_escaneado')}
+                        </button>
                     </div>
                 )}
                 {backupCodes && backupCodes.length > 0 && (
@@ -380,10 +385,10 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
                 {/* OAuth buttons */}
                 {showOAuthButtons && (
-                    <div className="flex-col">
+                    <div className="flex flex-col">
                         <span className="text-black mb-1">{t('crear_cuenta')} / {t('init_ses')}: </span>
 
-                        <div className="flex-row">
+                        <div className="flex flex-row gap-2">
                             <button
                                 type="button"
                                 onClick={() => handleOAuth('42')}

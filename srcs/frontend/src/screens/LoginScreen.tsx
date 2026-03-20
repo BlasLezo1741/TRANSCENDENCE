@@ -115,6 +115,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
         setShowTotpInput(false);
         setTotpCode("");
         setPassword("");
+        setUser("");
         setUserId(null);
         setError(""); // Clear error when going back
     }
@@ -137,7 +138,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                 )}
             </div>
             
-            <form onSubmit={handleForm} noValidate>
+            <form className="form" onSubmit={handleForm} noValidate>
                 {/* ↑ Add noValidate to disable browser validation */}
                 
                 {error && (
@@ -202,28 +203,31 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                     </>
                 )}
 
-                <div>
-                    <button
-                        type="button"
-                        onClick={handleBack}
-                        className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
-                        {t('volver')}
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50">
-                        {isLoading ? t('enviando') : (showTotpInput ? t('verificar') : t('enviar'))}
-                    </button>
-                </div>
+                <div className="flex flex-col gap-1">
+                    <div className="flex justify-end gap-2">
+                        <button
+                            type="button"
+                            onClick={handleBack}
+                            className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
+                            {t('volver')}
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50">
+                            {isLoading ? t('enviando') : (showTotpInput ? t('verificar') : t('enviar'))}
+                        </button>
+                    </div>
 
-                <hr />
+                    <hr />
+                </div>
+               
                            
                 {!showTotpInput && (
                     <div className="flex-col">
                         <span className="text-black">{t('init_ses')}</span>
 
-                        <div className="flex-row">
+                        <div className="flex flex-row gap-2">
                             <button
                                 type="button"
                                 onClick={() => handleOAuth('42')}
