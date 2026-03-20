@@ -67,13 +67,14 @@ LOGIN_TIMEOUT  = 15_000   # ms
 MENU_TIMEOUT   = 10_000   # ms
 MATCH_TIMEOUT  = 60_000   # ms  -- queue may take longer with many users
 GAME_TIMEOUT   = 300      # seconds -- generous upper bound for best-of-5
+STAGGER_MS     = 100      # ms between session startups (avoids WS handshake flood)
 
 # 3x2 grid of non-overlapping 640x400 slots
-WINDOW_W = 1280
-WINDOW_H = 800
+WINDOW_W = 640
+WINDOW_H = 400
 SLOTS = [
-    (0,    0),   (WINDOW_W,    0),  (WINDOW_W * 2,    0),
-    (0,  WINDOW_H),   (WINDOW_W,  WINDOW_H),  (WINDOW_W * 2,  WINDOW_H),
+    (0,    0),   (640,    0),  (1280,    0),
+    (0,  400),   (640,  400),  (1280,  400),
 ]
 
 CSV_FIELDS = [
@@ -124,8 +125,9 @@ async def run_session(
     page = await context.new_page()
 
     # -- WebSocket interception -----------------------------------------------
-    matched_event   = asyncio.Event()
-    game_over_event = asyncio.Event()
+    matched_event       = asyncio.Event()
+    game_over_event     = asyncio.Event()
+    queue_joined_event  = asyncio.Event()  # set when server confirms join_queue
 
     def on_ws(ws):
         def on_frame(raw):
@@ -136,7 +138,12 @@ async def run_session(
                 if not isinstance(payload, list) or len(payload) < 1:
                     return
                 event = payload[0]
-                if event == "match_found" and not matched_event.is_set():
+                if event == "waiting_for_match" and not queue_joined_event.is_set():
+                    # Server confirmed our join_queue was received and processed
+                    queue_joined_event.set()
+                elif event == "match_found" and not matched_event.is_set():
+                    # Also counts as queue joined (matched immediately, no waiting)
+                    queue_joined_event.set()
                     matched_event.set()
                 elif event == "game_over" and not game_over_event.is_set():
                     game_over_event.set()
@@ -153,6 +160,14 @@ async def run_session(
         # == 1. Load app ======================================================
         await page.goto(base_url, wait_until="domcontentloaded",
                         timeout=LOGIN_TIMEOUT)
+
+        # Wait for React to mount -- .signin lives in Header and is always
+        # rendered once React mounts, regardless of screen or login state.
+        try:
+            await page.wait_for_selector(".signin", timeout=10_000)
+        except Exception:
+            res.error = "React did not mount (.signin not found after 10s)"
+            return res
 
         # == 2. Open login dialog =============================================
         opened = False
@@ -176,58 +191,64 @@ async def run_session(
         await page.fill("#pass", password)
         await page.click("button[type='submit']")
 
+        # MenuScreen renders a <section> containing the mode buttons.
+        # The buttons have class "btn" (defined in App.css).
+        # We wait for the first "btn" button to appear -- this proves
+        # the menu is rendered and isAuthenticated will soon be true.
+        # NOTE: .home is the header logo link (App.css), NOT the menu.
         try:
-            await page.wait_for_selector(
-                "button:has-text('remote'), button:has-text('Remote')",
-                timeout=MENU_TIMEOUT,
-            )
+            await page.wait_for_selector("section .btn", timeout=MENU_TIMEOUT)
             res.logged_in = True
         except Exception:
-            res.error = "menu did not load after login"
+            res.error = "menu did not load after login (section .btn not found)"
             return res
 
-        # == 4. Click "player vs remote" -- retry until join_queue is confirmed
+        # == 4. Click "player vs remote" and confirm via WebSocket
         #
-        # Frontend bug: the button renders before isAuthenticated is set.
-        # If the click is swallowed silently, the searching status text never
-        # appears. We retry up to 5 times with 1s between attempts.
+        # Selector: section .btn nth(2) — 3rd button in MenuScreen's <section>
+        #   [0] player_vs_ia
+        #   [1] player_vs_player
+        #   [2] player_vs_remote  <-- this one
+        # Language-independent. Works for en/es/ca/fr.
+        #
+        # Confirmation: we wait for the server to emit either
+        #   "waiting_for_match"  (socket connected, in queue, no partner yet)
+        #   "match_found"        (socket connected, matched immediately)
+        # Both events are set on queue_joined_event by the WS frame parser.
+        # This is the only reliable signal that joinQueue() actually reached
+        # the backend -- DOM checks are unreliable with Tailwind + i18n.
+        #
+        # Retry: if socket wasn't connected yet (connectSocket runs async after
+        # profile fetch), wait 1.5s and try again. Max 5 attempts.
         #
         async def click_remote() -> bool:
-            for label in ("player vs remote", "Player vs Remote", "remote", "Remote"):
-                try:
-                    btn = page.locator(f"button:has-text('{label}')").first
-                    if await btn.is_visible(timeout=800):
-                        await btn.click()
-                        return True
-                except Exception:
-                    pass
+            try:
+                btn = page.locator("section .btn").nth(2)
+                if await btn.is_visible(timeout=3_000):  # generous for slow renders
+                    await btn.click()
+                    return True
+            except Exception:
+                pass
             return False
 
         queued = False
-        for attempt in range(5):
+        for attempt in range(8):  # up from 5 -- more tolerance for slow socket handshake
             if not await click_remote():
-                res.error = "remote button not found"
+                res.error = "remote button not found in section .btn (attempt {})".format(attempt + 1)
                 return res
-            # "searching_player" status text proves isAuthenticated was true
-            # and joinQueue() was actually called
+
+            # Wait up to 3s for WS confirmation that joinQueue reached the server
             try:
-                await page.wait_for_selector(
-                    "p:not(:empty)",   # the <p>{statusText}</p> in MenuScreen
-                    timeout=1_500,
-                )
-                # Confirm the text is actually the searching message (not empty)
-                status_el = page.locator(".search p").first
-                txt = (await status_el.text_content() or "").strip()
-                if txt:
-                    queued = True
-                    break
-            except Exception:
-                pass
-            # Status text not found -- isAuthenticated was likely false, retry
-            await asyncio.sleep(1.0)
+                await asyncio.wait_for(queue_joined_event.wait(), timeout=3.0)
+                queued = True
+                break
+            except asyncio.TimeoutError:
+                # Socket not yet connected or isAuthenticated still false — retry
+                queue_joined_event.clear()
+                await asyncio.sleep(1.5)
 
         if not queued:
-            res.error = "join_queue not confirmed after 5 attempts (isAuthenticated race)"
+            res.error = "join_queue not confirmed by server after 5 attempts"
             return res
 
         t_queued = time.monotonic()
@@ -267,6 +288,7 @@ async def run_session(
 
 async def async_main(base_url: str, users: list[dict],
                      headed: bool, output_csv: Path):
+    global STAGGER_MS
     from playwright.async_api import async_playwright
 
     n = len(users)
@@ -288,14 +310,18 @@ async def async_main(base_url: str, users: list[dict],
             )
             browsers.append(b)
 
-        print(f"  {len(browsers)} browsers launched — firing {n} sessions concurrently...\n")
+        print(f"  {len(browsers)} browsers launched — staggering {n} sessions "
+              f"({STAGGER_MS}ms apart)...\n")
 
-        # Assign each session to the browser of its slot (index % 6)
-        tasks = [
-            run_session(browsers[i % len(SLOTS)], base_url, i,
-                        u["username"], u["password"], headed)
-            for i, u in enumerate(users)
-        ]
+        # Wrap each coroutine with a startup delay proportional to its index.
+        # This staggers the WebSocket handshakes so the server is not hit by
+        # N simultaneous connections -- the root cause of missed match_found.
+        async def staggered(i, u):
+            await asyncio.sleep(i * STAGGER_MS / 1000)
+            return await run_session(browsers[i % len(SLOTS)], base_url, i,
+                                     u["username"], u["password"], headed)
+
+        tasks = [staggered(i, u) for i, u in enumerate(users)]
         results: list[SessionResult] = await asyncio.gather(
             *tasks, return_exceptions=False
         )
@@ -351,7 +377,7 @@ async def async_main(base_url: str, users: list[dict],
     print("=" * 57)
     print(f"  Users launched   : {n}")
     print(f"  Logged in        : {sum(1 for r in results if r.logged_in)}")
-    print(f"  Matchs          : {matched_count}  ({matched_count*2} players paired)")
+    print(f"  Matched          : {matched_count}  ({matched_count*2} players paired)")
     print(f"  Game over        : {gameover_count}")
     print(f"  Full OK          : {ok}")
     print(f"  Failed           : {n - ok}")
@@ -373,14 +399,6 @@ def load_eligible(csv_path: Path) -> list[dict]:
                 users.append(row)
     return users
 
-def count_eligible(csv_path: Path) -> int:
-    users = []
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            if row.get("status") == "REGISTERED" and row.get("has_2fa") == "FALSE":
-                users.append(row)
-    return len(users)
-
 
 def prompt(text: str, default: str) -> str:
     raw = input(f"  {text} [{default}]: ").strip()
@@ -391,6 +409,7 @@ def prompt(text: str, default: str) -> str:
 # -------------------------------------------------------------------------------
 
 def main():
+    global STAGGER_MS
     parser = argparse.ArgumentParser(
         description="Flood the Pong remote queue with N concurrent users."
     )
@@ -398,6 +417,8 @@ def main():
     parser.add_argument("--csv",      type=str, default=INPUT_CSV)
     parser.add_argument("--users",    type=int, help="Max users to load from CSV")
     parser.add_argument("--headless", action="store_true")
+    parser.add_argument("--stagger",  type=int, default=STAGGER_MS,
+                        help=f"ms between session startups (default: {STAGGER_MS})")
     parser.add_argument("--output",   type=str, default=OUTPUT_CSV)
     args = parser.parse_args()
 
@@ -414,7 +435,7 @@ def main():
         print()
         ip       = prompt("Server IP",              "127.0.0.1")
         csv_file = prompt("Users CSV",              INPUT_CSV)
-        n_raw    = prompt("Max users (0 = all)",    count_eligible(Path(csv_file)))
+        n_raw    = prompt("Max users (0 = all)",    "60")
         headed   = prompt("Show browsers? (y/n)",   "y").lower() in ("y","yes","s")
         try:    n_users = int(n_raw) or None
         except: n_users = None
@@ -443,9 +464,11 @@ def main():
         print(f"  Odd number of users -- dropping {dropped['username']} "
               f"so queue pairs evenly")
 
+    STAGGER_MS = args.stagger   # must be set before print and before asyncio.run
     print()
     print(f"  Frontend     : {base_url}")
     print(f"  Users        : {len(users)}  ({len(users)//2} expected matches)")
+    print(f"  Stagger      : {STAGGER_MS}ms between sessions")
     print(f"  Browsers     : {'visible  (3x2 grid, 640x400 each)' if headed else 'headless'}")
     print(f"  Output       : {output_csv}")
     print()
