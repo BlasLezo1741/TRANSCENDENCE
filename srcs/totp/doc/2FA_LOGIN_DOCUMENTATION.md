@@ -11,6 +11,8 @@ This document details the **actual implementation** of the login flow with 2FA b
 ### State Management
 
 ```typescript
+const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: LoginScreenProps) => {
+const { t } = useTranslation();
 const [user, setUser] = useState("");
 const [password, setPassword] = useState("");
 const [totpCode, setTotpCode] = useState("");
@@ -30,77 +32,104 @@ const [userId, setUserId] = useState<number | null>(null);
 const handleForm = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
-        setIsLoading(true);
 
-        try 
-        {
-            if (showTotpInput) {
-                const result = await send2FACode(userId, totpCode);               
+        // CUSTOM VALIDATION - Check if fields are filled
+        if (!showTotpInput) {
+            const trimmedUser = user.trim();
+            const trimmedPassword = password.trim();
+
+            if (!trimmedUser) {
+                setError(t('errors.userRequired'));
+                return;
+            }
+            if (!trimmedPassword) {
+                setError(t('errors.passwordRequired'));
+                return;
+            }
+
+            setIsLoading(true);
+
+            try {
+                const result = await checkLogin(trimmedUser, trimmedPassword);
                 if (!result.ok) {
-                    setError("Código 2FA incorrecto");
-                    setTotpCode("");
-                    return;
-                } else {    
-                
-                // If verification is successful
-                localStorage.setItem("pong_user_nick", user);
-                localStorage.setItem("pong_user_id", userId!.toString());
-                localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
-                setGlobalUser(user);
-                dispatch({ type: "MENU" });
-                }
-            } else {
-                // AWAIT the backend response
-                const result = await checkLogin(user, password);           
-                if (!result.ok) {
-                    setError(result.msg || "Error desconocido");
+                    setError(t(result.msg) || t('errors.unknownError'));
                     setPassword("");
+                    return;
                 } else {
                     if (result.user.totp) {
                         // 2FA enabled, show TOTP input
                         setShowTotpInput(true);
                         setUserId(result.user.id);
-                        setPassword(""); // Clear password for security
+                        setPassword("");
                     } else {
-                        // 1. We save in LocalStorage so it persists on refresh
                         localStorage.setItem("pong_user_nick", result.user.name);
                         localStorage.setItem("pong_user_id", result.user.id.toString());
-                        localStorage.setItem("pong_token", result.token); // ✅ SAVE THE TOKEN!
-
-                        // 2. We update the global state in App.tsx
+                        localStorage.setItem("pong_token", result.token);
                         setGlobalUser(result.user.name);
-                        
-                        // 3. Wait a tiny bit to ensure localStorage is flushed, then go to menu
                         await new Promise(resolve => setTimeout(resolve, 10));
                         dispatch({ type: "MENU" });
-                    } //else no 2FA
-                } //
-            } //showTotpInput
+                    }
+                }
+            } catch (err) {
+                setError(t('errors.connectionError'));
+            } finally {
+                setIsLoading(false);
+            }
 
-        } catch (err) {
-            setError("Error de conexión");
-        } finally {
-            setIsLoading(false);
+        } else {
+            if (!totpCode.trim()) {
+                setError(t('errors.codeRequired'));
+                return;
+            }
+
+            setIsLoading(true);
+
+            try {
+                // Check if userId exists before sending 2FA code
+                if (!userId) {
+                    setError(t('errors.unknownError'));
+                    return;
+                }
+                const result = await send2FACode(userId, totpCode);
+                if (!result.ok) {
+                    setError(t('errors.invalid2faCode'));
+                    setTotpCode("");
+                    return;
+                } else {
+                    // If verification is successful
+                    localStorage.setItem("pong_user_nick", user);
+                    localStorage.setItem("pong_user_id", userId.toString());
+                    localStorage.setItem("pong_token", result.token);
+                    setGlobalUser(user);
+                    dispatch({ type: "MENU" });
+                }
+            } catch (err) {
+                setError(t('errors.connectionError'));
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
-```
 
-**Spanish Comments Translation:**
-- "Código 2FA incorrecto" = Incorrect 2FA code
-- "Error desconocido" = Unknown error
-- "Error de conexión" = Connection error
+```
 
 ---
 
 ### Back Button Handler
 
 ```typescript
-const handleBack = () => {
-    setShowTotpInput(false);
-    setTotpCode("");
-    setPassword("");
-    setUserId(null);
-}
+
+    const handleBack = () => {
+        setShowTotpInput(false);
+        setTotpCode("");
+        setPassword("");
+        setUserId(null);
+        setError(""); // Clear error when going back
+    }
+
+    const handleOAuth = (provider: 'google' | '42') => {
+        window.location.href = `/auth/${provider}`;
+    };
 ```
 
 ---
@@ -119,7 +148,7 @@ export async function checkLogin(user: string, pass: string) {
         });
         return await response.json(); 
     } catch (e) {
-        return { ok: false, msg: "Error de conexión" };
+        return { ok: false, msg: "errors.connectionError" };
     }
 }
 ```
@@ -151,8 +180,8 @@ export async function send2FACode(userId: number, totpCode: string) {
     try {
         // Determine the endpoint based on code length
         const endpoint = totpCode.length === 6 
-            ? `${API_URL}/auth/verify-totp`
-            : `${API_URL}/auth/verify-backup`;
+            ? `/auth/verify-totp`
+            : `/auth/verify-backup`;
 
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -162,7 +191,7 @@ export async function send2FACode(userId: number, totpCode: string) {
 
         return await response.json();
     } catch (e) {
-        return { ok: false, msg: "Error de conexión" };
+        return { ok: false, msg: "errors.connectionError" };
     }
 }
 ```
@@ -177,8 +206,8 @@ export async function send2FACode(userId: number, totpCode: string) {
 
 ```typescript
 <div>
-    <label htmlFor="totp" className="block text-sm font-medium text-gray-700 mb-1">
-        {t('cod_2fa') || 'Código de autenticación'}
+    <label className="label-black" htmlFor="totp">
+        {t('cod_2fa')}
     </label>
     <input
         type="text"
@@ -190,21 +219,17 @@ export async function send2FACode(userId: number, totpCode: string) {
             const filtered = value.replace(/[^A-Z0-9]/g, '');
             setTotpCode(filtered);
         }}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest"
-        maxLength={8} // Allow up to 8 characters for Alphanumeric backup codes (6 for numeric TOTP)
-        pattern="(\d{6}|[A-Z0-9]{8})" // 6 digits OR 8 alphanumeric
-        placeholder={(t('placeholder') || '123456 o ABCD1234')}
-        title={t('qr_setup1') ?? 'Ingresa 6 dígitos numéricos o 8 caracteres alfanuméricos'}                                    
-        required
+        maxLength={8}
+        pattern="(\d{6}|[A-Z0-9]{8})"
+        placeholder={t('placeholder')}
+        title={t('2fa_setup')}
         autoFocus
+        className="input-black"
+        // Remove 'required' attribute
     />
 </div>
 ```
 
-**Spanish Comments:**
-- "Código de autenticación" = Authentication code
-- "123456 o ABCD1234" = 123456 or ABCD1234
-- "Ingresa 6 dígitos numéricos o 8 caracteres alfanuméricos" = Enter 6 numeric digits or 8 alphanumeric characters
 
 **Features:**
 - Auto-uppercase conversion
@@ -222,17 +247,27 @@ export async function send2FACode(userId: number, totpCode: string) {
 // User enters: username + password
 // Form submission triggers handleForm()
 // showTotpInput === false
+const result = await checkLogin(trimmedUser, trimmedPassword);
+    if (!result.ok) {
+        setError(t(result.msg) || t('errors.unknownError'));
+        setPassword("");
+        return;
+    } else {
+        if (result.user.totp) {
+            // 2FA enabled, show TOTP input
+            setShowTotpInput(true);
+            setUserId(result.user.id);
+            setPassword("");
+        } else {
+            localStorage.setItem("pong_user_nick", result.user.name);
+            localStorage.setItem("pong_user_id", result.user.id.toString());
+            localStorage.setItem("pong_token", result.token);
+            setGlobalUser(result.user.name);
+            await new Promise(resolve => setTimeout(resolve, 10));
+            dispatch({ type: "MENU" });
+        }
+    }
 
-const result = await checkLogin(user, password);
-
-// If result.user.totp === false
-localStorage.setItem("pong_user_nick", result.user.name);
-localStorage.setItem("pong_user_id", result.user.id.toString());
-localStorage.setItem("pong_token", result.token);
-setGlobalUser(result.user.name);
-
-await new Promise(resolve => setTimeout(resolve, 10));
-dispatch({ type: "MENU" });
 ```
 
 **Result:** Direct login, token stored, redirect to menu.

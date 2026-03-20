@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Two-Factor Authentication (2FA) system implements Time-based One-Time Password (TOTP) authentication following RFC 6238 standards. Users can optionally enhance their account security during registration by enabling 2FA, which requires them to provide a time-sensitive six-digit code from an authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.) in addition to their password during login.
+The Two-Factor Authentication (2FA) system implements Time-based One-Time Password (TOTP) authentication following RFC 6238 standards. Users can optionally enhance their account security during registration by enabling 2FA, which requires them to provide a time-sensitive six-digit code from an authenticator app (Google Authenticator, Microsoft Authenticator, etc.) in addition to their password during login.
 
 The system architecture employs a microservices approach: a dedicated **FastAPI service (container named `totp`)** handles all TOTP cryptographic operations, while the **NestJS backend** manages user authentication flow and database interactions.
 
@@ -85,9 +85,10 @@ sequenceDiagram
         TOTP_Server-->>NestJS_Backend: {qr_text: [uri, [codes]]}
         Note right of TOTP_Server: generate_qr() + generate_backup_codes()<br/>Returns (qr_data, codes)
         
-        NestJS_Backend->>NestJS_Backend: Parse qr_text[1].split(',')
-        NestJS_Backend->>Database: UPDATE player SET pTotpBackupCodes
-        Note right of NestJS_Backend: Store as TEXT[] array (plain text!)
+        NestJS_Backend->>NestJS_Backend: backupCodesArray= qr_text[1].split(',')
+        NestJS_Backend->>NestJS_Backend: backupCodesHashedArray = bcrypt.hash(backupCodesArray)
+        NestJS_Backend->>Database: UPDATE player SET backupCodesHashedArray
+        Note right of NestJS_Backend: Store as TEXT[] array (hashed text!)
         
         NestJS_Backend-->>Frontend: {ok: true, qrCode: qr_text[0], backupCodes: array}
     else enabled2FA === false
@@ -265,7 +266,8 @@ class TotpVerifyRequest(BaseModel):
     user_totp_secret: str # String Base32: "I5NGEPK4GJ..."
     totp_code: str  # NestJS envía el código TOTP que el usuario ingresa para verificar
 
-
+class TotpBackupCode(BaseModel):
+    totp_backup_code : str # String plain text provided by user
 
 @app.get("/")
 async def root():
@@ -299,19 +301,29 @@ async def verify_totp(request: TotpVerifyRequest):
     print(f"type(currentcode) = {type(currentcode)} - currentcode = {currentcode} ")
     
     if currentcode == request.totp_code:
-        print(f"correcta Verificando TOTP para {request.totp_code} con {request.user_totp_secret}")
+        print(f"Right TOTP verification for {request.totp_code} with {request.user_totp_secret}")
         return {"status": "ok", "verified": True}
     else:
-        print(f"incorrecta Verificando TOTP para {request.totp_code} con {request.user_totp_secret}")
-        return {"status": "error", "verified": False}
+        print(f"Wrong TOTP verification for {request.totp_code} with {request.user_totp_secret}")
+        return {"status": "error", "verified": False    }
+
+@app.post("/encrypt")
+async def encrypt_back_code(request: TotpBackupCode):
+    try:
+        encrypted_backup_code = totp.encrypt_secret(request.totp_backup_code.encode())
+        print(request.totp_backup_code)
+        print(encrypted_backup_code)
+        return {"status": "ok", "encrypted_backup_code": encrypted_backup_code }
+    except:
+        return {"status": "error", "encrypted_backup_code": encrypted_backup_code }
 ```
 
 **Key Points:**
-- Pydantic models with Spanish comments explaining what NestJS sends
-- Response key is `totpkey` not `secret`
+- Pydantic models with comments explaining what NestJS sends
+- `/random` returns encrypted `totpkey` which is a text
 - `/qrtext` returns `qr_text` which is a tuple/array
-- `/verify` prints debug info in Spanish to console
-- Simple string comparison for TOTP verification
+- `/verify` Checks user entered totp code 's correctness
+
 
 ---
 
@@ -513,7 +525,7 @@ def generate_backup_codes(num_codes=10, length=8):
     """
     codes = []
     alphabet = string.ascii_uppercase + string.digits
-    #alphabet = string.digits
+    alphabet = alphabet.replace('O', '').replace('I', '').replace('0', '')  # Remove confusing chars
     
     for _ in range(num_codes):
         # secrets.choice es criptográficamente seguro (mejor que random)
@@ -524,8 +536,6 @@ def generate_backup_codes(num_codes=10, length=8):
 ```
 
 **Features:**
-- Spanish docstring explaining the function
-- Detailed Spanish comment about CSPRNG security
 - Generates 10 codes by default (num_codes=10)
 - Each code is 8 characters (length=8)
 - Alphabet: uppercase letters + digits
@@ -1436,25 +1446,54 @@ const handleBack = () => {
 **Complete Implementation:**
 
 ```typescript
-// Base de datos simulada
+// Simulated database
 
 // srcs/frontend/src/ts/utils/auth.ts
 
-// Recuperamos la URL del entorno (igual que en socketService)
+// We retrieve the URL from the environment (same as in socketService)
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
-export function checkPassword(password: string, repeat: string) {
-    // ... (Tu código de validación igual que antes) ...
-    const lower = /[a-z]/;
-    const upper = /[A-Z]/;
-    const digit = /[0-9]/;
-    const min = /^.{8,100}$/;
-    if (!lower.test(password)) return { ok: false, msg: "La contraseña no tiene minusculas" };
-    if (!upper.test(password)) return { ok: false, msg: "La contraseña no tiene mayusculas" };
-    if (!digit.test(password)) return { ok: false, msg: "La contraseña no tiene numeros" };
-    if (!min.test(password)) return { ok: false, msg: "La contraseña ha de tener de 8 a 100 caracteres" };
-    if (password !== repeat) return { ok: false, msg: "Las contraseñas son diferentes" };
-    return { ok: true, msg: "Contraseña válida" };
+export function checkForm(user: string, email: string, password: string, repeat: string, birth: string, options: CheckFormOptions = { requirePassword: true }) {
+    
+    if (!user || !user.trim())
+        return { ok: false, msg: 'errors.userRequired' };
+
+    const userPattern = /^[a-zA-Z0-9_-]{3,20}$/;
+    if (!userPattern.test(user.trim())) {
+        if (user.trim().length < 3)
+            return { ok: false, msg: 'errors.userTooShort' };
+        if (user.trim().length > 20)
+            return { ok: false, msg: 'errors.userTooLong' };
+        return { ok: false, msg: 'errors.userInvalidChars' };
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email))
+        return { ok: false, msg: 'errors.invalidEmail' };
+
+    const birthDate = new Date(birth);
+    const today = new Date();
+    const minDate = new Date();
+    minDate.setFullYear(today.getFullYear() - 150);
+
+    if (!birthDate || isNaN(birthDate.getTime()))
+        return { ok: false, msg: 'errors.noBirthDate'};
+    if (birthDate > today)
+        return { ok: false, msg: 'errors.birthFuture' };
+    if (birthDate < minDate)
+        return { ok: false, msg: 'errors.birthTooOld' };
+    if (options.requirePassword || password) {
+        const lower = /[a-z]/;
+        const upper = /[A-Z]/;
+        const digit = /[0-9]/;
+        const min = /^.{8,100}$/;
+        if (!lower.test(password)) return { ok: false, msg: "errors.noLowercasePassword" };
+        if (!upper.test(password)) return { ok: false, msg: "errors.noUppercasePassword" };
+        if (!digit.test(password)) return { ok: false, msg: "errors.noNumPassword" };
+        if (!min.test(password)) return { ok: false, msg: "errors.badLengthPassword" };
+        if (password !== repeat) return { ok: false, msg: "errors.noMatchPassword" };
+    }
+    return { ok: true, msg: "success.password" };
 }
 
 export async function registUser(
@@ -1466,12 +1505,12 @@ export async function registUser(
     language: string, 
     enabled2FA: boolean) {
     try {
-        console.log(`Intento de registro en ${API_URL}/auth/register`);
+        console.log(`Registration attempt at${API_URL}/auth/register`);
         console.log(`Datos: ${user}, ${email}, ${birth}, ${country}, ${language}, 2FA: ${enabled2FA}`);
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // Enviamos nombres claros
+            // We send clear names
             body: JSON.stringify({ 
                 username: user, 
                 password: pass, 
@@ -1485,7 +1524,7 @@ export async function registUser(
         return await response.json(); 
     } catch (e) {
         console.error(e);
-        return { ok: false, msg: "Error de conexión" };
+        return { ok: false, msg: "errors.connectionError" };
     }
 }
 
@@ -1498,13 +1537,13 @@ export async function checkLogin(user: string, pass: string) {
         });
         return await response.json(); 
     } catch (e) {
-        return { ok: false, msg: "Error de conexión" };
+        return { ok: false, msg: "errors.connectionError" };
     }
 }
 
 export async function send2FACode(userId: number, totpCode: string) {
     try {
-        // Determinar el endpoint según la longitud del código
+        // Determine the endpoint based on code length
         const endpoint = totpCode.length === 6 
             ? `${API_URL}/auth/verify-totp`
             : `${API_URL}/auth/verify-backup`;
@@ -1517,26 +1556,10 @@ export async function send2FACode(userId: number, totpCode: string) {
 
         return await response.json();
     } catch (e) {
-        return { ok: false, msg: "Error de conexión" };
+        return { ok: false, msg: "errors.connectionError" };
     }
 }
 ```
-
-**Spanish Comments:**
-- "Base de datos simulada" = Simulated database
-- "Recuperamos la URL del entorno (igual que en socketService)" = We retrieve the URL from the environment (same as in socketService)
-- "Tu código de validación igual que antes" = Your validation code same as before
-- "La contraseña no tiene minusculas" = The password doesn't have lowercase letters
-- "La contraseña no tiene mayusculas" = The password doesn't have uppercase letters
-- "La contraseña no tiene numeros" = The password doesn't have numbers
-- "La contraseña ha de tener de 8 a 100 caracteres" = The password must have 8 to 100 characters
-- "Las contraseñas son diferentes" = The passwords are different
-- "Contraseña válida" = Valid password
-- "Intento de registro en" = Registration attempt at
-- "Datos:" = Data:
-- "Enviamos nombres claros" = We send clear names
-- "Error de conexión" = Connection error
-- "Determinar el endpoint según la longitud del código" = Determine the endpoint based on code length
 
 ---
 
@@ -1551,44 +1574,18 @@ export async function send2FACode(userId: number, totpCode: string) {
 CREATE TABLE player (
     -- ... other columns ...
     
-    p_totp_secret VARCHAR(255),           -- Base32 TOTP secret (plain text)
+    p_totp_secret BYTEA       ,           -- Base32 TOTP secret (encrypted)
     p_totp_enabled BOOLEAN DEFAULT FALSE, -- 2FA enabled flag
     p_totp_enabled_at TIMESTAMP,          -- When 2FA was enabled
-    p_totp_backup_codes TEXT[],           -- Array of backup codes (plain text!)
+    p_totp_backup_codes TEXT[],           -- Array of backup codes (hashed)
     p_profile_complete BOOLEAN DEFAULT TRUE
 );
 ```
-
-**Important:** Backup codes are stored as **plain text** in a TEXT[] array, not hashed.
 
 ---
 
 ## Security Considerations
 
-### ⚠️ CRITICAL: Backup Code Storage
-
-**Current Implementation:**
-```typescript
-// Plain text storage
-backupCodesArray = String(totpqr.qr_text[1])
-  .split(',')
-  .map((code: string) => code.trim());
-
-await this.db
-  .update(player)
-  .set({ pTotpBackupCodes: backupCodesArray })  // ← Plain text!
-
-// Verification - direct comparison
-sql`${player.pTotpBackupCodes} @> ARRAY[${totpCode}]`  // ← No hashing
-```
-
-**Security Risk:**
-- ❌ Database compromise exposes all backup codes
-- ❌ Anyone with database access can use codes
-- ❌ No protection if database backup is stolen
-
-**Recommendation:**
-Hash backup codes with bcrypt before storage (like passwords).
 
 ---
 
@@ -1631,7 +1628,6 @@ Complete 2FA documentation using YOUR exact code with all Spanish comments prese
 ✅ Multi-language support (4 languages)  
 
 ⚠️ Security issues identified:
-1. Backup codes stored as plain text (should be hashed)
 2. No time window tolerance (strict 30-second expiry)
 3. No rate limiting
 

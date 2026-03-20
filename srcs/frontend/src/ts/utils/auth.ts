@@ -1,8 +1,8 @@
-// Base de datos simulada
+// Simulated database
 
 // srcs/frontend/src/ts/utils/auth.ts
 
-// Recuperamos la URL del entorno (igual que en socketService)
+// We retrieve the URL from the environment (same as in socketService)
 //const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 interface CheckFormOptions {
@@ -61,12 +61,12 @@ export async function registUser(
     language: string, 
     enabled2FA: boolean) {
     try {
-        console.log(`Intento de registro en /auth/register`);
+        console.log(`Registration attempt at /auth/register`);
         console.log(`Datos: ${user}, ${email}, ${birth}, ${country}, ${language}, 2FA: ${enabled2FA}`);
         const response = await fetch(`/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // Enviamos nombres claros
+            // We send clear names
             body: JSON.stringify({ 
                 username: user, 
                 password: pass, 
