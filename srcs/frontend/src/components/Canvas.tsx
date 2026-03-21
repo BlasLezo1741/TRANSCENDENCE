@@ -90,7 +90,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
         } 
         else {
             leftName = userName;
-            rightName = "Invitado";
+            rightName = t('guest');
         }
 
 
