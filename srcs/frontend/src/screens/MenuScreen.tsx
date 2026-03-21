@@ -190,17 +190,29 @@ return (
 
     {ia ? showImg() : showBtn()}
 
-    <div className="flex justify-center items-center mt-4">
-      <p className="mr-2">{statusText}</p>
-      {modeActive && (
-        <img
-          className="w-8 h-8 cursor-pointer"
-          src={cross}
-          alt={t('alt_cancel')}
-          onClick={cancelProcess}
-        />
-      )}
-    </div>
+    {statusText && (
+      <div className="!mt-8 flex flex-row items-center justify-center">
+        
+        {/* TEXTO: Mantiene el color naranja, el grosor y el parpadeo (animate-pulse) */}
+        <p className="text-orange-400 font-extrabold text-2xl !m-0 tracking-widest animate-pulse text-center">
+          {statusText}
+        </p>
+
+        {/* BOTÓN CANCELAR: Separado a la derecha (!ml-8) con más padding interno (!p-3) */}
+        {modeActive && (
+          <div className="!ml-8 flex items-center justify-center">
+            <div 
+              role="button" 
+              onClick={cancelProcess} 
+              title={t('alt_cancel')} 
+              className="bg-gray-800/80 hover:bg-red-600 !rounded-full !p-2 transition-colors cursor-pointer border border-gray-600 hover:border-red-400 flex items-center justify-center !w-10 !h-10"
+            >
+              <img className="w-5 h-5 object-contain brightness-200" src={cross} alt="Cancelar" />
+            </div>
+          </div>
+        )}
+      </div>
+    )}
   </section>
 );
 }
