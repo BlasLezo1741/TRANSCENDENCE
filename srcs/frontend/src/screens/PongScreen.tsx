@@ -78,9 +78,12 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
           </div>
 
           {/* INFORMACIÓN CENTRAL */}
-          <div className="text-center">
-              <div className="text-[0.8rem] opacity-80">{t('juego_mode')}{mode}</div>
-              <div className="text-[2rem] font-bold tracking-[5px]">VS</div>
+          <div className="flex flex-col items-center justify-center">
+              {/* Cartel de Modo de Juego (Tamaño aumentado y estilizado) */}
+              <div className="!text-[1.1rem] !font-semibold !px-4 !py-1.5 !bg-black/60 !rounded-lg !border !border-gray-500/50 !text-gray-200 !mb-1 !tracking-wide">
+                  {t('juego_mode')}{mode}
+              </div>
+              <div className="!text-[2rem] !font-bold !tracking-[5px] !mt-1">VS</div>
           </div>
 
           {/* JUGADOR DERECHA */}
