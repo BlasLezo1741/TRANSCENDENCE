@@ -1615,7 +1615,7 @@
         "label": "Branch",
         "name": "branch",
         "options": [],
-        "query": "main, develop, feb_21, feb_11, feb_07, feb_02, chat_avatar, natalia_6, natalia_chat, natalia_ports, nginx, pre_fusion_from_venezuela, prometheus, prometheus_2, stats, authenticator, css, delete_user, entrenador_commits, 53_game, 53_game_nata, 53_nata, 53-docker-dbserver, 51-mgmt-definicion-tablas-para-idions, 48-create-makefile-and-main-docker-compose, 46-define-messages-protocols, 54-implementación-de-dtos-y-validación-de-protocolo-websocket",
+        "query": "main, develop, feb_21, fusionwind",
         "type": "custom",
         "valuesFormat": "csv"
       },
