@@ -106,16 +106,20 @@ update-env:
 		echo "srcs/.env ya existe, omitiendo configuración."; \
 	else \
 		cp srcs/.env.example srcs/.env ;\
-		printf "POSTGRES_USER: ";            read POSTGRES_USER; \
-		printf "POSTGRES_PASSWORD: ";        stty -echo; read POSTGRES_PASSWORD;          stty echo; echo ""; \
+		printf "POSTGRES_USER: ";                          read POSTGRES_USER; \
+		printf "POSTGRES_PASSWORD: ";          stty -echo; read POSTGRES_PASSWORD;          stty echo; echo ""; \
+		printf "OAUTH_GOOGLE_CLIENT_ID: ";                 read OAUTH_GOOGLE_CLIENT_ID;                echo ""; \
 		printf "OAUTH_GOOGLE_CLIENT_SECRET: "; stty -echo; read OAUTH_GOOGLE_CLIENT_SECRET; stty echo; echo ""; \
+		printf "OAUTH_42_CLIENT_ID: ";                     read OAUTH_42_CLIENT_ID;                    echo ""; \
 		printf "OAUTH_42_CLIENT_SECRET: ";     stty -echo; read OAUTH_42_CLIENT_SECRET;     stty echo; echo ""; \
-		printf "GITHUB_TOKEN: ";     stty -echo; read OAUTH_42_CLIENT_SECRET;     stty echo; echo ""; \		
+		printf "GITHUB_TOKEN: ";               stty -echo; read GITHUB_TOKEN;               stty echo; echo ""; \
 		sed -i.bak "s|^POSTGRES_USER=.*|POSTGRES_USER=$$POSTGRES_USER|"                        srcs/.env; \
 		sed -i.bak "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$$POSTGRES_PASSWORD|"            srcs/.env; \
+		sed -i.bak "s|^OAUTH_GOOGLE_CLIENT_ID=.*|OAUTH_GOOGLE_CLIENT_ID=$$OAUTH_GOOGLE_CLIENT_ID|" srcs/.env; \
 		sed -i.bak "s|^OAUTH_GOOGLE_CLIENT_SECRET=.*|OAUTH_GOOGLE_CLIENT_SECRET=$$OAUTH_GOOGLE_CLIENT_SECRET|" srcs/.env; \
+		sed -i.bak "s|^OAUTH_42_CLIENT_ID=.*|OAUTH_42_CLIENT_ID=$$OAUTH_42_CLIENT_ID|" srcs/.env; \
 		sed -i.bak "s|^OAUTH_42_CLIENT_SECRET=.*|OAUTH_42_CLIENT_SECRET=$$OAUTH_42_CLIENT_SECRET|" srcs/.env; \
-		sed -i.bak "s|^GITHUB_TOKEN=.*|GITHUB_TOKEN=$$GITHUB_TOKEN|" srcs/.env; \		
+		sed -i.bak "s|^GITHUB_TOKEN=.*|GITHUB_TOKEN=$$GITHUB_TOKEN|" srcs/.env; \
 		rm -f srcs/.env.bak; \
 		echo "✔  .env actualizado correctamente." ; \
 	fi ; \
