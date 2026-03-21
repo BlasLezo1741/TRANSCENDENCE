@@ -52,7 +52,7 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
 
   // Para las estadisticas
   const [gameOver, setGameOver] = useState(false);
-  //const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   //Para mostrar el ganador
   const [winnerName, setWinnerName] = useState<string>("");
 
@@ -62,10 +62,10 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
     setWinnerName(winner);
   };
 
-return (
+  return (
     <div className="game">
       
-      {/* NUEVA CABECERA CON AVATARES */}
+      {/* CABECERA CON AVATARES */}
       <div className="flex justify-between items-center w-[800px] mb-2.5 p-2.5 bg-[rgba(0,0,0,0.5)] rounded-[10px] text-white">
           {/* JUGADOR IZQUIERDA */}
           <div className="flex items-center gap-2.5">
@@ -109,47 +109,63 @@ return (
             playerSide={playerSide} 
             roomId={roomId}
             isGameActive={!isCountingDown && !gameOver}
-            onGameOver={handleGameOver} // Pasamos la función al Canvas
+            onGameOver={handleGameOver} 
             chatOpen={chatOpen}
           />
 
-          {/* NUEVO MODAL DE FIN DE PARTIDA */}
+          {/* --- LÓGICA DE FIN DE PARTIDA SECUENCIAL --- */}
           {gameOver && (
-              <div className="absolute top-0 left-0 w-full h-full bg-[rgba(0,0,0,0.85)] flex flex-col items-center justify-center z-50 text-white">
-                  <h1 className="text-[3rem] mb-2.5 text-[#4ade80]">
-                      {t('matchEnded')}
-                  </h1>
-                  {/* 🟢 NUEVO: Mostramos al gran campeón */}
-                  <h2 className="text-[2rem] mb-5 text-[#facc15]">
-                        {t('game.winner', { name : winnerName })}
-                  </h2>
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center !bg-black/80 backdrop-blur-md !p-6">
                   
-                  {/* Mostramos el ranking directamente si es remoto */}
-                  {mode.includes('remote') && (
-                      <div className="max-h-[350px] overflow-y-auto mb-5 w-full flex justify-center">
-                          <Leaderboard />
+                  {/* --- PASO 1: MODAL DEL GANADOR (showLeaderboard === false) --- */}
+                  {!showLeaderboard ? (
+                      <div className="!bg-[#111827] !border-2 !border-orange-600 !rounded-3xl !shadow-[0_0_40px_rgba(234,88,12,0.6)] !w-full !max-w-xl flex flex-col items-center justify-center !p-12 !overflow-hidden relative">
+                          
+                          {/* Títulos de Victoria LIMPIOS y ajustados */}
+                          {/* Aumentado mb-16 para separar drásticamente el botón */}
+                          <div className="text-center !mb-0 mt-4 !py-16">
+                              <h1 className="!m-0 text-[2.2rem] font-extrabold text-[#4ade80] uppercase tracking-widest drop-shadow-md leading-tight">
+                                  {t('matchEnded')}
+                              </h1>
+                              <h2 className="!m-0 mt-8 text-[1.8rem] font-bold text-[#facc15] tracking-wide leading-snug">
+                                  🏆 {t('game.winner', { name : winnerName })} 🏆
+                              </h2>
+                          </div>
+                          
+                          {/* Botón Cambiado a ACEPTAR (Clave t('modal.accept_btn')) */}
+                          <button 
+                              onClick={() => setShowLeaderboard(true)} 
+                              className="!px-12 !py-3 !min-w-[240px] !rounded-full !bg-orange-600 hover:!bg-orange-700 !text-white !font-extrabold !text-sm !uppercase !tracking-wider !transition-transform hover:scale-105 !shadow-lg !shadow-orange-600/30 !m-0 !border-none"
+                          >
+                              {t('modal.accept_btn', 'ACEPTAR')}
+                          </button>
+                      </div>
+
+                  ) : (
+                      
+                      /* --- PASO 2: MODAL DE ESTADÍSTICAS (showLeaderboard === true) --- */
+                      <div className="!bg-[#111827] !border-2 !border-orange-600 !rounded-3xl !shadow-[0_0_40px_rgba(234,88,12,0.6)] !w-full !max-w-3xl flex flex-col items-center justify-center !p-12 !overflow-hidden relative">
+                          
+                          {/* Eliminado el título externo que añadí yo anteriormente, recuperando la estructura original */}
+                          
+                          {mode.includes('remote') && (
+                              <div className="w-full bg-black/40 rounded-xl border border-gray-700 p-4 custom-scrollbar !mb-12">
+                                  {/* !max-h-[35vh] overflow-y-auto custom-scrollbar para el scroll interno */}
+                                  <div className="!max-h-[35vh] !overflow-y-auto custom-scrollbar">
+                                      <Leaderboard />
+                                  </div>
+                              </div>
+                          )}
+                          
+                          {/* Botón de volver al menú (ESTILO GRIS UNIFICADO) */}
+                          <button 
+                              onClick={() => dispatch({ type: "MENU" })} 
+                              className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-gray-700/50 hover:!bg-gray-600 !text-white !font-bold !text-sm !uppercase !tracking-wider !transition-colors !border !border-gray-600 !m-0"
+                          >
+                              &larr; {t('back2Menu')}
+                          </button>
                       </div>
                   )}
-                  
-                  {/* Botón de volver al menú destacado */}
-                  <button 
-                      onClick={() => dispatch({ type: "MENU" })} 
-                      className="btn bg-[#1f2937] text-[#d1d5db] border border-[#4b5563] text-[1.1rem] mt-5 shadow-[0_4px_6px_rgba(0,0,0,0.3)] transition-all ease-in-out flex items-center justify-center whitespace-nowrap w-auto min-w-[250px]"
-                      onMouseOver={(e) => {
-                          e.currentTarget.style.backgroundColor = '#374151';
-                          e.currentTarget.style.color = 'white';
-                          e.currentTarget.style.borderColor = '#6b7280';
-                          e.currentTarget.style.transform = 'translateY(-2px)'; // Pequeño efecto de elevación
-                      }}
-                      onMouseOut={(e) => {
-                          e.currentTarget.style.backgroundColor = '#1f2937';
-                          e.currentTarget.style.color = '#d1d5db';
-                          e.currentTarget.style.borderColor = '#4b5563';
-                          e.currentTarget.style.transform = 'translateY(0)';
-                      }}
-                  >
-                      {t('back2Menu')}
-                  </button>
               </div>
           )}
       </div>
