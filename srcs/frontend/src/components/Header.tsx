@@ -5,7 +5,6 @@ import homeIcon from '../assets/Home_chatgpt.png';
 import { useTranslation } from 'react-i18next';
 import { StatusBadge } from './StatusBadge'; // Importamos el nuevo badge
 import { Avatar } from './Avatar';
-import '../css/Header.css';
 
 type HeaderProps = {
     dispatch: React.Dispatch<any>;
@@ -69,10 +68,10 @@ const Header = ({dispatch, setIa, userName, userId, userAvatarUrl, profileSynced
     return (
         <>
             <StatusBadge />
-            <header style={{ position: 'relative', zIndex: 50 }}>
+            <header>
                 <div className="home" onClick={() => { setIa(false); dispatch({ type: "MENU" });}}>
-                    <img src={homeIcon} alt="Logo" />
-                    <p className="letters">Okinawa</p>
+                    <img src={homeIcon} alt="Logo" className="w-[50px] h-[50px]"/>
+                    <p className="ml-1">Okinawa</p>
                 </div>
                 
                 <div>
@@ -82,18 +81,15 @@ const Header = ({dispatch, setIa, userName, userId, userAvatarUrl, profileSynced
                 <div className="signin">
                     {/* ESTADO: NO LOGUEADO */}
                     {!isLogged && (
-                        // <button onClick={() => dispatch({ type: "LOGIN" })}>
-                        //     Login
-                        // </button>
-                        <div className="login" ref={dropdownRef} onClick={() => dispatch({ type: "LOGIN" })}>
-                            <img className="avatarIcon" src={noAvatarUrl} alt="Local" />
-                            <p className="letters"><strong>{t('init_ses')}</strong></p>
+                        <div className="home" ref={dropdownRef} onClick={() => dispatch({ type: "LOGIN" })}>
+                            <img className="w-[50px] h-[50px]" src={noAvatarUrl} alt="Local" />
+                            <p className="ml-1"><strong>{t('init_ses')}</strong></p>
                         </div>
                     )}
 
                     {/* ESTADO: LOGUEADO */}
                     {isLogged && (
-                        <div className="login" ref={dropdownRef} onClick={() => setOpen(!open)}>
+                        <div className="home relative" ref={dropdownRef} onClick={() => setOpen(!open)}>
                             
                             {profileSynced
                                 ? <Avatar
@@ -102,13 +98,9 @@ const Header = ({dispatch, setIa, userName, userId, userAvatarUrl, profileSynced
                                     size={36}
                                     alt={userName}
                                   />
-                                : <div style={{
-                                    width: 36, height: 36,
-                                    borderRadius: '50%',
-                                    backgroundColor: '#d1d5db'
-                                  }} />
+                                : <div className="w-[36px] h-[36px] rounded-full bg-gray-300"/>
                             }
-                            <p className="letters"><strong>{userName}</strong></p>
+                            <p className="ml-1"><strong>{userName}</strong></p>
 
                             {/* Dropdown */}
                             {open && (
@@ -124,5 +116,5 @@ const Header = ({dispatch, setIa, userName, userId, userAvatarUrl, profileSynced
         </>
     );
 }
-    
+     
 export default Header;

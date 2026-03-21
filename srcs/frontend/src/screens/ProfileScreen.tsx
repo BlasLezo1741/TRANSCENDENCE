@@ -13,7 +13,7 @@ import {
     removeFriend
 } from '../services/friend.service';
 import { checkForm } from '../ts/utils/auth';
-import { 
+import {
     getMyProfile, 
     updateMyProfile, 
     getCountries,
@@ -28,7 +28,6 @@ import { AvatarSelector } from '../components/AvatarSelector';
 import { firstcap } from '../ts/utils/string';
 import { sentence  } from '../ts/utils/string';
 import { useCountryNames } from '../ts/utils/countryName';
-import "../css/ProfileScreen.css";
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 import { Leaderboard } from '../components/Leaderboard';
 import { MatchHistory } from '../components/MatchHistory';
@@ -562,7 +561,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 <h1>{t('prof.title')}</h1>
 
                 {/* Avatar with Edit Button */}
-                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <div className="text-center mb-[20px]">
                         <Avatar 
                             src={userProfile.avatarUrl}
                             userId={userProfile.id}
@@ -570,23 +569,13 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             alt={userProfile.nick}
                         />
                         
-                        <div style={{ marginTop: '15px' }}>
+                        <div className="mt-4">
                             <button
                                 onClick={() => {
                                     console.log("🖼️ [ProfileScreen] Opening avatar selector");
                                     setIsSelectingAvatar(true);
                                 }}
-                                style={{
-                                    width: '200px',
-                                    padding: '8px 20px',
-                                    fontSize: '14px',
-                                    borderRadius: '5px',
-                                    border: '1px solid #4CAF50',
-                                    backgroundColor: 'white',
-                                    color: '#4CAF50',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
+                                className="btn border border-[#4CAF50] bg-white text-[#4CAF50] font-bold"
                             >
                                 {t('prof.edit_image')}
                             </button>
@@ -596,71 +585,47 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 {!isEditing ? (
                     // MODO VISUALIZACIÓN
                     <>
-                        <div style={{ marginBottom: '10px' }}>
-                            <strong>{t('prof.field_id')}:</strong> {userProfile.id}
+                        <div className="mb-2.5">
+                            <strong>{t('prof.field_id')}:</strong> {userProfile.id} {/* Added Translation key */}
                         </div>
-                        <div style={{ marginBottom: '10px' }}>
+                        <div className="mb-2.5">
                             <strong>{t('user')}:</strong> {userProfile.nick}
                         </div>
-                        <div style={{ marginBottom: '10px' }}>
+                        <div className="mb-2.5">
                             <strong>{t('prof.field_email')}:</strong> {userProfile.email}
                         </div>
                         {userProfile.birth && (
-                            <div style={{ marginBottom: '10px' }}>
-                                <strong>{t('cumple')}:</strong> {userProfile.birth}
+                            <div className="mb-2.5">
+                                <strong>{t('cumple')}:</strong> {userProfile.birth} {/* Added Translation key */}
                             </div>
                         )}
-                        <div style={{ marginBottom: '10px' }}>
-                            {/* Show the localised country name for the 2-letter code stored in the DB.
-                                Falls back to the raw code if Intl.DisplayNames doesn't recognise it. */}
-                            <strong>{t('prof.field_country')}:</strong>{' '}
-                            {countryName(userProfile.country ?? '', userProfile.country ?? '')}
+                        <div className="mb-2.5">
+                            <strong>{t('prof.field_country')}:</strong> {userProfile.country} {/* Added Translation key */}
                         </div>
-                        <div style={{ marginBottom: '10px' }}>
-                            <strong>{t('lang')}:</strong> {userProfile.lang}
+                        <div className="mb-2.5">
+                            <strong>{t('lang')}:</strong> {userProfile.lang} {/* Added Translation key */}
                         </div>
                         {isOAuthUser && (
-                            <div style={{ marginBottom: '10px' }}>
-                                <strong>{t('prof.field_oauth')}:</strong> {userProfile.oauthProvider}
+                            <div className="mb-2.5">
+                                <strong>{t('prof.field_oauth')}:</strong> {userProfile.oauthProvider} {/* Added Translation key */}
                             </div>
                         )}
 
                         <button
-                                onClick={() => {
-                                console.log("✏️ [InfoScreen] Entering edit mode");
-                                setIsEditing(true);
-                                }}
-                                style={{
-                                    width: '200px',
-                                    padding: '8px 20px',
-                                    marginTop: '20px',
-                                    fontSize: '14px',
-                                    borderRadius: '5px',
-                                    border: '1px solid #4CAF50',
-                                    backgroundColor: 'white',
-                                    color: '#4CAF50',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                            {t('prof.edit_btn')}
+                            onClick={() => {
+                            console.log("✏️ [InfoScreen] Entering edit mode");
+                            setIsEditing(true);
+                            }}
+                            className="btn mt-5 text-sm border border-[#4CAF50] bg-white text-[#4CAF50]"
+                        >
+                            {t('prof.edit_btn')} {/* Added Translation key */}
                         </button>
                         <button
                                 onClick={() => {
                                     handleDeleteAccount();
                                 }}
-                                style={{
-                                    width: '200px',
-                                    padding: '8px 20px',
-                                    marginLeft: '5px',
-                                    fontSize: '14px',
-                                    borderRadius: '5px',
-                                    border: '1px solid #D93814',
-                                    backgroundColor: 'white',
-                                    color: '#D93814',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
+                                className="btn ml-1 text-sm border border-[#D93814] bg-white text-[#D93814]"
+                                
                             >
                                 {sentence(t('prof.delete_btn'))}
                         </button>
@@ -668,57 +633,49 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 ) : (
                     // MODO EDICIÓN
                     <>
-                        <div style={{ marginBottom: '10px' }}>
-                            <strong>{t('prof.field_id')}:</strong> {userProfile.id} <em>({t('prof.field_id_readonly')})</em>
+                        <div className="mb-2.5">
+                            <strong>{t('prof.field_id')}:</strong> {userProfile.id} <em>({t('prof.field_id_readonly')})</em> {/* Added Translation key */}
                         </div>
 
-                        <div style={{ marginBottom: '15px' }}>
+                        <div className="mb-3.5">
                             <label>
                                 <strong>{t('user')}:</strong>
                                 <input
                                     type="text"
                                     value={editForm.nick}
                                     onChange={(e) => setEditForm({ ...editForm, nick: e.target.value })}
-                                    style={{ width: '100%', marginTop: '5px' }}
                                 />
                             </label>
                         </div>
 
-                        <div style={{ marginBottom: '15px' }}>
+                        <div className="mb-3.5">
                             <label>
                                 <strong>{t('prof.field_email')}:</strong>
                                 <input
                                     type="email"
                                     value={editForm.email}
                                     onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                    style={{ width: '100%', marginTop: '5px' }}
                                 />
                             </label>
                         </div>
 
-                        <div style={{ marginBottom: '15px' }}>
+                        <div className="mb-3.5">
                             <label>
                                 <strong>{t('cumple')}:</strong>
                                 <input
                                     type="date"
                                     value={editForm.birth}
                                     onChange={(e) => setEditForm({ ...editForm, birth: e.target.value })}
-                                    style={{ width: '100%', marginTop: '5px' }}
                                 />
                             </label>
                         </div>
 
-                        {/* Country dropdown — names localised to the active UI language via
-                            Intl.DisplayNames. The ISO code (c.coun2_pk) is submitted as the
-                            value; only the displayed label changes with the language.
-                            Falls back to the English DB name if the code is unrecognised. */}
-                        <div style={{ marginBottom: '15px' }}>
+                        <div className="mb-3.5">
                             <label>
                                 <strong>{t('prof.field_country')}:</strong>
                                 <select
                                     value={editForm.country}
                                     onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
-                                    style={{ width: '100%', marginTop: '5px' }}
                                     disabled={isLoadingCountries}>
                                     <option value="">
                                         {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')}
@@ -732,14 +689,14 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             </label>
                         </div>
 
-                        <div style={{ marginBottom: '15px' }}>
+                        <div className="mb-3.5">
                             <label>
                                 <strong>{t('lang')}:</strong>
                                 <select
                                     value={editForm.lang}
-                                    onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}    
-                                    style={{ width: '100%', marginTop: '5px' }}>
-                                    <option value="">{t('prof.sel_lang')}</option>
+                                    onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
+                                >    
+                                    <option value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
                                     <option value="es">Español</option>
                                     <option value="ca">Català</option>
                                     <option value="en">English</option>
@@ -751,44 +708,41 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         {/* Cambio de contraseña - Solo para usuarios NO OAuth */}
                         {!isOAuthUser && (
                             <>
-                                <hr style={{ margin: '20px 0' }} />
-                                <h3>{t('prof.change_pass')}</h3>
+                                <hr className="my-5"/>
+                                <h3>{t('prof.change_pass')}</h3> {/* Added Translation key */}
 
-                                <div style={{ marginBottom: '15px' }}>
+                                <div className="mb-3.5">
                                     <label>
                                         <strong>{t('prof.current_pass')}:</strong>
                                         <input
                                             type="password"
                                             value={editForm.currentPassword}
                                             onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
-                                            style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.current_pass_ph')}
+                                            placeholder={t('prof.current_pass_ph')} // Added Translation key
                                         />
                                     </label>
                                 </div>
 
-                                <div style={{ marginBottom: '15px' }}>
+                                <div className="mb-3.5">
                                     <label>
                                         <strong>{t('prof.new_pass')}:</strong>
                                         <input
                                             type="password"
                                             value={editForm.newPassword}
                                             onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
-                                            style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.new_pass_ph')}
+                                            placeholder={t('prof.new_pass_ph')} // Added Translation key
                                         />
                                     </label>
                                 </div>
 
-                                <div style={{ marginBottom: '15px' }}>
+                                <div className="mb-3.5">
                                     <label>
                                         <strong>{t('prof.confirm_pass')}:</strong>
                                         <input
                                             type="password"
                                             value={editForm.confirmPassword}
                                             onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
-                                            style={{ width: '100%', marginTop: '5px' }}
-                                            placeholder={t('prof.confirm_pass_ph')}
+                                            placeholder={t('prof.confirm_pass_ph')} // Added Translation key
                                         />
                                     </label>
                                 </div>
@@ -796,11 +750,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         )}
 
                         <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                            <button onClick={handleUpdateProfile}>
-                                {t('prof.save_btn')}
+                            <button className="btn" onClick={handleUpdateProfile}>
+                                {t('prof.save_btn')} {/* Added Translation key */}
                             </button>
-                            <button onClick={handleCancelEdit}>
-                                {t('prof.cancel')}
+                            <button className="btn bg-red-500" onClick={handleCancelEdit}>
+                                {t('prof.cancel')} {/* Added Translation key */}
                             </button>
                         </div>
                     </>
@@ -817,18 +771,18 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             <>
                 <h1>{firstcap(t('prof.friends_title'))}</h1>
 
-                <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-                    <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+                <div className="mb-7.5 p-4 bg-[#f5f5f5] rounded-lg">
+                    <label>
                         {t('prof.invite_label')}
                     </label>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div className="flex items-center gap-3.5">
                         {/* Selector */}
                         <select
                             value={targetIdInput}
                             onChange={(e) => setTargetIdInput(e.target.value)}
                             disabled={isLoadingCandidates}
-                            style={{ flex: 1, padding: '8px' }}>
+                        >
                             <option value="">
                                 {isLoadingCandidates ? t('prof.loading_users') : t('prof.sel_player')}
                             </option>
@@ -841,11 +795,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
                         {/* Previsualización del Avatar Seleccionado */}
                         {selectedCandidate && (
-                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #ddd' }}>
+                            <div className="w-[40px] h-[40px] rounded-full overflow-hidden border-2 border-[#ddd]">
                                 <img 
                                     src={getDisplayAvatar(selectedCandidate.id, (selectedCandidate as any).avatar)} 
                                     alt="Preview"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    className="w-full h-full object-cover"
                                 />
                             </div>
                         )}
@@ -853,63 +807,45 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         <button
                             onClick={handleSendRequest}
                             disabled={!targetIdInput || isLoadingCandidates}
-                            style={{ padding: '8px 16px' }}>
+                            className="btn"
+                        >
                             {t('prof.send_request_btn')}
                         </button>
                     </div>
                 </div>
 
-                {statusMsg && <p style={{ marginBottom: '15px', color: '#22c55e' }}>{statusMsg}</p>}
+                {statusMsg && <p className="mb-3.5 text-[#22c55e]">{statusMsg}</p>}
 
                 <h3>{sentence(t('prof.friends_title'))}</h3>
                 
                 {friends.length === 0 ? (
                     <p>{t('prof.no_friends')}</p>
                 ) : (
-                    <ul className="list-friend" style={{ listStyle: 'none', padding: 0 }}>
+                    <ul className="list-none p-0 mt-5">
                         {friends.map((f, i) => (
-                            <li key={i} className="amigo" style={{ 
-                                display: 'flex', 
-                                justifyContent: 'space-between', 
-                                alignItems: 'center', 
-                                padding: '10px', 
-                                borderBottom: '1px solid #eee' 
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <li key={i} className="list-none flex justify-between items-center p-2.5 border-b border-[#eee]">
+                                <div className="flex items-center gap-[12px]">
                                     {/* 1. Semáforo */}
-                                    <div className="semaforo"
-                                        style={{
-                                            width: '10px', height: '10px', borderRadius: '50%',
-                                            backgroundColor: f.status === 'online' ? '#22c55e' : '#6b7280',
-                                            boxShadow: f.status === 'online' ? '0 0 8px #22c55e' : 'none'
-                                        }}>
-                                    </div>
+                                    <div className={`w-[10px] h-[10px] rounded-full ${f.status === 'online' ? 'bg-[#22c55e] shadow-[0_0_8px_#22c55e]' : 'bg-[#6b7280] shadow-none'}`}></div>
 
-                                    {/* 2. Avatar */}
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden' }}>
+                                    {/* 2. Avatar (NUEVO) */}
+                                    <div className="w-[40px] h-[40px] rounded-full overflow-hidden">
                                         <img 
                                             src={getDisplayAvatar(f.id, (f as any).avatar)} 
                                             alt={f.friend_nick}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            className="w-full h-full object-cover"
                                         />
                                     </div>
 
                                     {/* 3. Nombre */}
-                                    <span style={{ fontWeight: '500', fontSize: '1.1rem' }}>
+                                    <span className="font-medium text-[1.1rem]">
                                         {f.friend_nick}
                                     </span>
                                 </div>
 
                                 <button 
                                     onClick={() => handleRemoveFriend(f.id, f.friend_nick)}
-                                    style={{ 
-                                        backgroundColor: '#ef4444', 
-                                        color: 'white', 
-                                        border: 'none', 
-                                        padding: '5px 10px', 
-                                        borderRadius: '4px',
-                                        cursor: 'pointer' 
-                                    }}
+                                    className="btn bg-[#ef4444] text-white border-0"
                                 >
                                     {t('prof.remove_btn')}
                                 </button>
@@ -934,8 +870,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 <strong>{r.nick}</strong> {t('prof.wants_friend')}
                             </span>
                             <div>
-                                <button onClick={() => handleAccept(r.id)}>
-                                    {sentence(t('prof.accept_btn'))}
+                                <button className="btn" onClick={() => handleAccept(r.id)}>
+                                    {sentence(t('prof.accept_btn'))} {/* Added Translation key */}
                                 </button>
                             </div>
                         </li>
@@ -951,48 +887,53 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         const btnInactiveStyle = "bg-gray-800 text-gray-400 border border-gray-600 hover:bg-gray-700 hover:text-white";
 
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px', width: '100%' }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white', marginBottom: '20px' }}>
+            <div className="flex flex-col items-center mt-5 w-full">
+                {/* Título de la sección */}
+                <h1 className="text-[2rem] font-bold text-white mb-5">
                     {t('prof.stats_title')}
                 </h1>
                 
-                {/* Sub-menu */}
-                <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                {/* 🎛️ SUB-MENÚ DE BOTONES */}
+                <div className="flex gap-[15px] mb-[30px] flex-wrap justify-center">
                     <button 
                         onClick={() => setStatView('leaderboard')}
                         className={`${btnBaseStyle} ${statView === 'leaderboard' ? btnActiveStyle : btnInactiveStyle}`}
-                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
                     >
                         🏆 Top 10
                     </button>
                     <button 
                         onClick={() => setStatView('history')}
                         className={`${btnBaseStyle} ${statView === 'history' ? btnActiveStyle : btnInactiveStyle}`}
-                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
                     >
                         📜 {t('prof.history')}
                     </button>
                     <button 
                         onClick={() => setStatView('grafana')}
                         className={`${btnBaseStyle} ${statView === 'grafana' ? btnActiveStyle : btnInactiveStyle}`}
-                        style={{ padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
                     >
                         📊 {t('prof.analytics')}
                     </button>
                 </div>
 
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                    {statView === 'leaderboard' && <Leaderboard />}
-                    {statView === 'history' && <MatchHistory myProfile={userProfile} />}
+                {/* 📺 CONTENIDO DINÁMICO QUE CAMBIA SEGÚN EL BOTÓN */}
+                <div className="w-full flex justify-center">
+                    {statView === 'leaderboard' && (
+                        <Leaderboard />
+                    )}
+                    
+                    {statView === 'history' && (
+                        <MatchHistory myProfile={userProfile} />
+                    )}
+                    
                     {statView === 'grafana' && (
-                        <div style={{ width: '100%', height: '700px', backgroundColor: '#111827', borderRadius: '12px', overflow: 'hidden', border: '1px solid #374151', marginTop: '10px' }}>
+                        <div className="w-full h-[700px] bg-[#111827] rounded-lg overflow-hidden border border-[#374151] mt-2.5">
                             <iframe 
                                 src="https://localhost:8443/grafana/d/grhk4qc/transcendence-db-pong?orgId=1&from=now-6h&to=now&timezone=browser&kiosk=tv" 
                                 width="100%" 
                                 height="100%" 
                                 frameBorder="0"
                                 title="Grafana Analytics"
-                                style={{ pointerEvents: 'auto' }}
+                                className="pointer-events-auto"
                             ></iframe>
                         </div>
                     )}
@@ -1001,41 +942,45 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         );
     };
 
+    const liSelectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
+
     return (
-        <main className="profile">
-            <nav>
-                <ul>
+        <main className="w-full h-[79vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
+            <nav className="h-[79vh] bg-[hsl(139,68%,37%)]">
+                <ul className="pt-4">
                     <li
                         onClick={() => setActiveTab("info")}
-                        className={activeTab === "info" ? "selected" : ""}>
-                        {t('prof.tab_info')}
+                        className={`li ${activeTab === "info" ? liSelectedCss : ""}`}>
+                        {t('prof.tab_info')} {/* Added Translation key */}
                     </li>
                     <li
                         onClick={() => setActiveTab("friends")}
-                        className={activeTab === "friends" ? "selected" : ""}>
+                        className={`li ${activeTab === "friends" ? liSelectedCss : ""}`}>
                         {t('prof.tab_friends', { count: friends.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("requests")}
-                        className={activeTab === "requests" ? "selected" : ""}>
+                        className={`li ${activeTab === "requests" ? liSelectedCss : ""}`}>
                         {t('prof.tab_requests', { count: requests.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("stats")}
-                        className={activeTab === "stats" ? "selected" : ""}>
-                        {t('prof.tab_stats')}
+                        className={`li ${activeTab === "stats" ? liSelectedCss : ""}`}>
+                        {t('prof.tab_stats')} {/* Added Translation key */}
                     </li>
                 </ul>
             </nav>
 
-            <section>
-                <div className="p-cont">
+            <section className="bg-black overflow-y-auto">
+                <div className="w-[90%] mx-auto text-[#a1bdf3]">
                     {activeTab === 'info' && renderInfoScreen()}
                     {activeTab === 'friends' && renderFriendScreen()}
                     {activeTab === 'requests' && renderRequestScreen()}
                     {activeTab === 'stats' && renderStatScreen()}
                 </div>
             </section>
+
+            <div className="bg-[#2d2979]"></div>
             {/* Avatar Selector Modal */}
             {isSelectingAvatar && (
                 <AvatarSelector
