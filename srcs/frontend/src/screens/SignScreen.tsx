@@ -154,7 +154,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         <div className="flex flex-col items-center">
             <h1>{t('crear_cuenta')}</h1>
 
-            <form className="form" onSubmit={handleForm} noValidate>
+            <form className="form" onSubmit={handleForm}>
                 {/* Error message */}
                 {error && (
                     <span className="text-red-500">{error}</span>
@@ -368,8 +368,8 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     </div>
                 )}
                 {success && (
-		<>
-                    <strong className="text-green-500">{success}</strong>
+		            <>
+                        <strong className="text-green-500">{success}</strong>
                         <button
                             type="button"
                             className="btn bg-blue-500 text-white"
@@ -382,7 +382,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         >
                             ✅ {t('ya_escaneado')}
                         </button>
-	</>
+	                </>
                 )}
 
                 {/* OAuth buttons */}
