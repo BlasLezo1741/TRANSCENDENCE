@@ -42,7 +42,7 @@ export const MatchHistory = ({ myProfile }: MatchHistoryProps) => {
 
     return (
         <div className="w-full max-w-[650px] mx-auto">
-            <h2 className="text-teal-400 text-center mb-5 text-2xl font-bold">
+            <h2 className="text-teal-400 text-center !mb-3 text-2xl font-bold">
                 {t('history.lastMatches')}
             </h2>
             

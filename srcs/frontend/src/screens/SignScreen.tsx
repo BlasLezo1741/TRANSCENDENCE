@@ -151,7 +151,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     };
 
     return (
-        <div>
+        <div className="flex flex-col items-center">
             <h1>{t('crear_cuenta')}</h1>
 
             <form className="form" onSubmit={handleForm} noValidate>
@@ -354,9 +354,25 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         <p className="mt-2 text-sm max-w-[350px] leading-relaxed">
                             💡 <strong>{t('qr_setup2')}</strong> {t('qr_setup3')}
                         </p>
+                    </div>
+                )}
+                {backupCodes && backupCodes.length > 0 && (
+                    <div>
+                        <h3><strong>{t('backup_codes')}</strong></h3>
+                        <strong className="text-red-500">{t('copy_codes')}</strong>
+                        <ul>
+                            {backupCodes.map((code, index) => (
+                                <li key={index}>{code}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                {success && (
+		<>
+                    <strong className="text-green-500">{success}</strong>
                         <button
                             type="button"
-                            className="btn"
+                            className="btn bg-blue-500 text-white"
                             onClick={() => {
                                 setSuccess(t('registro_exitoso'));
                                 setTimeout(() => {
@@ -366,21 +382,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         >
                             ✅ {t('ya_escaneado')}
                         </button>
-                    </div>
-                )}
-                {backupCodes && backupCodes.length > 0 && (
-                    <div>
-                        <h3>{t('backup_codes')}</h3>
-                        <p>{t('copy_codes')}</p>
-                        <ul>
-                            {backupCodes.map((code, index) => (
-                                <li key={index}>{code}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-                {success && (
-                    <p>{success}</p>
+	</>
                 )}
 
                 {/* OAuth buttons */}

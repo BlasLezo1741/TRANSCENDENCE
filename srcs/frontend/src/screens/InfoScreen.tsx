@@ -43,9 +43,9 @@ const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
     const selectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
 
     return (
-        <main className="w-full h-[79vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
+        <main className="w-full h-[82vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
             {/* Navigation */}
-            <nav className="h-[79vh] bg-[hsl(139,68%,37%)]">
+            <nav className="h-[82vh] bg-[hsl(139,68%,37%)]">
                 <ul className="pt-4">
                     <li
                         onClick={() => setActiveTab("a")}
@@ -82,7 +82,7 @@ const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
                     {loading ? (
                         <p>{t('info.loading')}</p>
                     ) : (
-                        <div className="h-[79vh] w-full overflow-y-auto" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                        <div className="h-[76vh] w-full overflow-y-auto" dangerouslySetInnerHTML={{ __html: htmlContent }} />
                     )}
                 </div>
             </section>

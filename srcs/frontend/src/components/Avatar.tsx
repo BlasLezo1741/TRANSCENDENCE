@@ -62,8 +62,8 @@ export const Avatar: React.FC<AvatarProps> = ({
 
     return (
         <div 
-            className={`relative inline-block rounded-full overflow-hidden w-[${size}px] h-[${size}px]`}
-            style={{ backgroundColor: '#e0e0e0' }}
+            className={`relative inline-block rounded-full overflow-hidden`}
+            style={{ width: size, height: size, backgroundColor: '#e0e0e0' }}
         >
             {loading && (
                 <div
@@ -80,7 +80,7 @@ export const Avatar: React.FC<AvatarProps> = ({
                 onLoadStart={handleLoadStart}
                 onError={handleError}
                 onLoad={handleLoad}
-                className={`w-[${size}px] h-[${size}px] object-cover ${loading ? 'none' : 'block'}`}
+                className={`w-full h-full object-cover ${loading ? 'none' : 'block'}`}
             />
         </div>
     );

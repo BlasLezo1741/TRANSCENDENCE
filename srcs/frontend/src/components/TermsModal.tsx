@@ -55,7 +55,7 @@ const TermsModal = ({ isOpen, onClose, title, fileName }: TermsModalProps) => {
             >
                 {/* Header */}
                 <div className="border-b border-gray-300 flex justify-between items-center">
-                    <h2 className="text-base">{title}</h2>
+                    <h2 className="text-base text-[20px]"><strong>{title}</strong></h2>
                     <button
                         onClick={onClose}
                         className="btn bg-transparent border-0 text-xl leading-none text-gray-600"

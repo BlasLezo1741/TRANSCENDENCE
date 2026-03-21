@@ -100,3 +100,8 @@ form.chat-form {
 {
     @apply overflow-y-hidden;
 }
+
+h1
+{
+	@apply text-[30px] text-white font-bold mb-3;
+}

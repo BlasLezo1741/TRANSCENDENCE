@@ -116,7 +116,7 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                     </button>
                     <button
                         onClick={onCancel}
-                        className="btn text-base border border-gray-300 bg-white text-gray-600"
+                        className="btn text-base border border-gray-300 bg-white text-red-500"
                     >
                         ❌ {t('prof.cancel')}
                     </button>
