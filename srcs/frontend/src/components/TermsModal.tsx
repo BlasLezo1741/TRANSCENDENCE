@@ -54,10 +54,8 @@ const TermsModal = ({ isOpen, onClose, title, fileName }: TermsModalProps) => {
                 className="bg-white text-black rounded-lg w-[min(90vw,680px)] max-h-[80vh] flex flex-col shadow-lg"
             >
                 {/* Header */}
-                <div
-                    className="p-4 px-5 border-b border-gray-300 flex justify-between items-center"
-                >
-                    <h2 className="m-0 text-base">{title}</h2>
+                <div className="border-b border-gray-300 flex justify-between items-center">
+                    <h2 className="text-base">{title}</h2>
                     <button
                         onClick={onClose}
                         className="btn bg-transparent border-0 text-xl leading-none text-gray-600"
@@ -69,19 +67,19 @@ const TermsModal = ({ isOpen, onClose, title, fileName }: TermsModalProps) => {
 
                 {/* Scrollable body */}
                 <div
-                    className="p-4 px-5 overflow-y-auto flex-1 text-sm leading-6"
+                    className="py-4 px-5 overflow-y-auto flex-1 text-sm leading-6"
                 >
                     {isLoading
                         ? <p>{t("modal.loading")}</p>
-                        : <div dangerouslySetInnerHTML={{ __html: content }} />
+                        : <div className="" dangerouslySetInnerHTML={{ __html: content }} />
                     }
                 </div>
 
                 {/* Footer */}
                 <div
-                    className="p-3 px-5 border-t border-gray-300 flex justify-end"
+                    className="py-3 px-5 border-t border-gray-300 flex justify-end"
                 >
-                    <button className="btn" onClick={onClose}>
+                    <button className="btn bg-red-500 text-white" onClick={onClose}>
                         {t("modal.cancel_btn")}
                     </button>
                 </div>

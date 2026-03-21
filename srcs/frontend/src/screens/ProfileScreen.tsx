@@ -983,7 +983,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             </nav>
 
             <section className="bg-black overflow-y-auto">
-                <div className="w-[90%] mx-auto text-[#a1bdf3]">
+                <div className="w-full mx-auto text-[#a1bdf3] !p-8 md:!p-12 box-border">
                     {activeTab === 'info' && renderInfoScreen()}
                     {activeTab === 'friends' && renderFriendScreen()}
                     {activeTab === 'requests' && renderRequestScreen()}

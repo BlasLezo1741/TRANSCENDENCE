@@ -78,7 +78,7 @@ const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
 
             {/* Content */}
             <section>
-                <div className="w-full mx-auto text-[#a1bdf3]">
+            <div className="w-full mx-auto text-[#a1bdf3] !p-8 md:!p-12 box-border">
                     {loading ? (
                         <p>{t('info.loading')}</p>
                     ) : (
