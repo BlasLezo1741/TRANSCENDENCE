@@ -78,6 +78,140 @@ graph TB
 | **Containers** | Docker + docker-compose | Service isolation & deployment |
 
 ---
+## Complete Flow Diagrams
+
+### Phase 1: Registration with 2FA
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant NestJS_Backend
+    participant TOTP_Server
+    participant Database
+
+    Note over User, Database: User Registration with 2FA
+
+    User->>Frontend: Fill form + Check "Enable 2FA"
+    Frontend->>NestJS_Backend: POST /auth/register
+    Note right of Frontend: {username, password, email,<br/>birth, country, lang, enabled2FA: true}
+    
+    Note over NestJS_Backend: Hash password with bcrypt (cost 10)
+    
+    alt enabled2FA === true
+        NestJS_Backend->>TOTP_Server: GET http://totp:8070/random
+        TOTP_Server-->>NestJS_Backend: {totpkey: "JBSWY3DPEH..."}
+        Note right of TOTP_Server: create_random_key(length=40)<br/>Base32 encoded
+        
+        NestJS_Backend->>Database: INSERT INTO player
+        Note right of NestJS_Backend: pTotpSecret: totpsecret,<br/>pTotpEnabled: true,<br/>pTotpEnabledAt: now
+        Database-->>NestJS_Backend: newUser with pPk
+        
+        NestJS_Backend->>TOTP_Server: POST http://totp:8070/qrtext
+        Note right of NestJS_Backend: {user_totp_secret, user_nick, user_mail}
+        TOTP_Server-->>NestJS_Backend: {qr_text: [uri, [codes]]}
+        Note right of TOTP_Server: generate_qr() + generate_backup_codes()<br/>Returns (qr_data, codes)
+        
+        NestJS_Backend->>NestJS_Backend: backupCodesArray= qr_text[1].split(',')
+        NestJS_Backend->>NestJS_Backend: backupCodesHashedArray = bcrypt.hash(backupCodesArray)
+        NestJS_Backend->>Database: UPDATE player SET backupCodesHashedArray
+        Note right of NestJS_Backend: Store as TEXT[] array (hashed text!)
+        
+        NestJS_Backend-->>Frontend: {ok: true, qrCode: qr_text[0], backupCodes: array}
+    else enabled2FA === false
+        NestJS_Backend->>Database: INSERT player (no TOTP)
+        NestJS_Backend-->>Frontend: {ok: true, msg}
+    end
+    
+    Frontend->>User: Display QR Code + Backup Codes
+    User->>User: Scan QR with authenticator app
+    User->>Frontend: Click "Ya lo he escaneado, ir al menú"
+    Frontend->>Frontend: dispatch({ type: "MENU" })
+```
+
+### Phase 2: Login with 2FA
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant NestJS_Backend
+    participant TOTP_Server
+    participant Database
+
+    Note over User, Database: Login Flow with 2FA
+
+    User->>Frontend: Enter username + password
+    Frontend->>NestJS_Backend: POST /auth/login
+    Note right of Frontend: {username, password}
+    
+    NestJS_Backend->>Database: SELECT FROM player WHERE pNick
+    Database-->>NestJS_Backend: User record
+    
+    NestJS_Backend->>NestJS_Backend: bcrypt.compare(plainPassword, pPass)
+    
+    alt Password Invalid
+        NestJS_Backend-->>Frontend: {ok: false, msg: "Contraseña incorrecta"}
+    else Password Valid
+        NestJS_Backend->>NestJS_Backend: generateJwtToken()
+        NestJS_Backend-->>Frontend: {ok: true, user: {totp: pTotpEnabled}, token}
+        
+        alt user.totp === true
+            Frontend->>Frontend: setShowTotpInput(true)
+            Frontend->>User: Prompt for TOTP/Backup code
+            User->>Frontend: Enter code
+            
+            alt Code length === 6
+                Frontend->>NestJS_Backend: POST /auth/verify-totp
+            else Code length === 8
+                Frontend->>NestJS_Backend: POST /auth/verify-backup
+            end
+            
+            Note right of Frontend: {userId, totpCode}
+            
+            NestJS_Backend->>Database: SELECT pTotpSecret FROM users
+            Database-->>NestJS_Backend: totpSecret (Base32)
+            
+            alt TOTP Code (6 digits)
+                NestJS_Backend->>TOTP_Server: POST http://totp:8070/verify
+                Note right of NestJS_Backend: {user_totp_secret, totp_code}
+                
+                TOTP_Server->>TOTP_Server: get_totp_token(secret)
+                Note right of TOTP_Server: Compares with current window only
+                
+                alt Code matches
+                    TOTP_Server-->>NestJS_Backend: {status: "ok", verified: true}
+                    NestJS_Backend->>NestJS_Backend: generateJwtToken()
+                    NestJS_Backend-->>Frontend: {ok: true, token}
+                    Frontend->>Frontend: localStorage.setItem("pong_token", token)
+                    Frontend-->>User: ✅ Login successful
+                else Code mismatch
+                    TOTP_Server-->>NestJS_Backend: {status: "error", verified: false}
+                    NestJS_Backend-->>Frontend: {ok: false, msg: "Código 2FA inválido"}
+                    Frontend-->>User: ❌ Invalid code
+                end
+            else Backup Code (8 chars)
+                NestJS_Backend->>Database: UPDATE array_remove(pTotpBackupCodes, code)
+                Note right of NestJS_Backend: WHERE pTotpBackupCodes @> ARRAY[code]
+                
+                alt Code exists and removed
+                    Database-->>NestJS_Backend: Row updated
+                    NestJS_Backend->>Database: SELECT cardinality(pTotpBackupCodes)
+                    Database-->>NestJS_Backend: codesLeft
+                    NestJS_Backend->>NestJS_Backend: generateJwtToken()
+                    NestJS_Backend-->>Frontend: {ok: true, token, msg: "X códigos restantes"}
+                    Frontend-->>User: ✅ Login + warning
+                else Code invalid/used
+                    Database-->>NestJS_Backend: No rows updated
+                    NestJS_Backend-->>Frontend: {ok: false, msg: "Código inválido"}
+                end
+            end
+        else user.totp === false
+            Frontend->>Frontend: localStorage.setItem("pong_token", result.token)
+            Frontend-->>User: ✅ Login successful
+        end
+    end
+```
 
 ## Security Enhancements
 
