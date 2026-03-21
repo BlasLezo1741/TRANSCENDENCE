@@ -188,7 +188,7 @@
         "noMatchPassword": "Las contraseñas no coinciden",
         "inactiveAccount": "Esta cuenta está inactiva",
         "userOrEmailExists": "El usuario o el correo electrónico ya existe",
-        "useOAuthProvider": "Por favor, inicia sesión con tu proveedor OAuth (42 o Google)",
+        "useOAuthProvider": "Por favor, inicia sesión con OAuth (haz clic en 42 o Google)",
         "useOAuthProviderShort": "Por favor, inicia sesión con tu proveedor OAuth",
         "noAuthToken": "Falta el token de autenticación",
         "sessionExpired": "Sesión expirada",

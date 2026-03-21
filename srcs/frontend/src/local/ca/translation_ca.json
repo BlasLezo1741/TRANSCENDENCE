@@ -188,7 +188,7 @@
         "noMatchPassword": "Les contrasenyes no coincideixen",
         "inactiveAccount": "Aquest compte està inactiu",
         "userOrEmailExists": "L'usuari o el correu electrònic ja existeix",
-        "useOAuthProvider": "Si us plau, inicia sessió amb el teu proveïdor OAuth (42 o Google)",
+        "useOAuthProvider": "Si us plau, inicia sessió amb OAuth (clica a 42 o Google)",
         "useOAuthProviderShort": "Si us plau, inicia sessió amb el teu proveïdor OAuth",
         "noAuthToken": "Falta el token d'autenticació",
         "sessionExpired": "Sessió expirada",
