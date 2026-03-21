@@ -48,7 +48,12 @@ Key features at a glance:
    ```bash
    make
    ```
+   Makefile requests secrets. Ask developer for oath information to authenticate wiht 42 network or Google.
+   
+   
    The Makefile populates the `.env` file with defaults where applicable and calls `docker compose up --build`. All services (frontend, backend, database, Prometheus, Grafana, TOTP, Adminer) start automatically.
+
+
 
 4. **Access the application:**
    - Main app: `https://localhost`
