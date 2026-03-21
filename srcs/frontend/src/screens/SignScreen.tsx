@@ -90,7 +90,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         }
 
         // 2. Check local form validation
-        const formResult = checkForm(user, email, password, repeat, birth);
+        const formResult = checkForm(user, email, password, repeat, birth, language, country);
         if (!formResult.ok) {
             setError(t(formResult.msg));
             setPassword("");
@@ -154,7 +154,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         <div className="flex flex-col items-center">
             <h1>{t('crear_cuenta')}</h1>
 
-            <form className="form" onSubmit={handleForm}>
+            <form className="form" onSubmit={handleForm} noValidate>
                 {/* Error message */}
                 {error && (
                     <span className="text-red-500">{error}</span>
@@ -170,7 +170,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         onChange={(e) => setUser(e.target.value)}
                         placeholder="John_Wick123"
                         pattern="[a-zA-Z0-9_]{3,20}"
-                        required
                         autoFocus
                         className="input-black"
                     />
@@ -184,7 +183,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         value={email}
                         placeholder="abc@def.com"
                         onChange={(e) => setEmail(e.target.value)}
-                        required
                         className="input-black"
                     />
 
@@ -197,7 +195,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         value={password}
                         placeholder="P@ssw0rd!"
                         onChange={(e) => setPassword(e.target.value)}
-                        required
                         className="input-black"
                     />
 
@@ -209,7 +206,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         name="passR"
                         value={repeat}
                         onChange={(e) => setRepeat(e.target.value)}
-                        required
                         className="input-black"
                     />
 
@@ -222,7 +218,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         value={birth}
                         onChange={(e) => setBirth(e.target.value)}
                         max={new Date().toISOString().split('T')[0]}
-                        required
                         className="input-black"
                     />
 
@@ -235,7 +230,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         name="country"
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
-                        required
                         disabled={isLoadingCountries}>
                         <option value="">
                             {isLoadingCountries ? t('prof.loading_countries') : t('sel_pais')}
@@ -255,7 +249,6 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         id="lang"
                         value={language}
                         onChange={(e) => setLanguage(e.target.value)}
-                        required
                     >
                         <option value="">{t('sel_lang')}</option>
                         <option value="es">Español</option>
@@ -368,21 +361,22 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     </div>
                 )}
                 {success && (
-		            <>
-                        <strong className="text-green-500">{success}</strong>
-                        <button
-                            type="button"
-                            className="btn bg-blue-500 text-white"
-                            onClick={() => {
-                                setSuccess(t('registro_exitoso'));
-                                setTimeout(() => {
-                                    dispatch({ type: "MENU" });
-                                }, 2000);
-                            }}
-                        >
-                            ✅ {t('ya_escaneado')}
-                        </button>
-	                </>
+                    <strong className="text-green-500">{success}</strong>
+                )}
+
+                {success && enabled2FA && (
+                    <button
+                        type="button"
+                        className="btn bg-blue-500 text-white"
+                        onClick={() => {
+                            setSuccess(t('registro_exitoso'));
+                            setTimeout(() => {
+                                dispatch({ type: "MENU" });
+                            }, 2000);
+                        }}
+                    >
+                        ✅ {t('ya_escaneado')}
+                    </button>
                 )}
 
                 {/* OAuth buttons */}

@@ -181,6 +181,8 @@
         "mustAcceptTerms": "You must accept the Terms of Use and Privacy Policy to register.",
         "invalidEmail": "Invalid e-mail format",
         "incorrectPassword": "Incorrect password",
+        "incorrectLang": "You must choose a language",
+        "incorrectCountry": "You must choose a country",
         "noLowercasePassword": "Password must contain at least one lowercase letter",
         "noUppercasePassword": "Password must contain at least one uppercase letter",
         "noNumPassword": "Password must contain at least one number",
