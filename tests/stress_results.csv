@@ -1,0 +1,61 @@
+index,username,logged_in,matched,game_over,queue_wait_s,game_duration_s,total_s,status,error
+0,play_f1ghxgj,YES,YES,YES,0.7,23.5,26.2,OK,
+1,play_0fqtb7d,YES,NO,NO,0.0,0.0,38.6,FAILED,join_queue not confirmed by server after 5 attempts
+2,play_7lhnwu8,YES,YES,YES,0.0,23.5,25.6,OK,
+3,play_09gv6jh,YES,YES,YES,1.4,21.3,25.0,OK,
+4,play_hsq0dld,YES,NO,NO,0.0,0.0,39.5,FAILED,join_queue not confirmed by server after 5 attempts
+5,play_r4clkuf,YES,YES,YES,0.0,18.0,21.3,OK,
+6,play_6umi49z,YES,YES,YES,0.1,24.0,26.9,OK,
+7,play_85s4q4y,YES,NO,NO,0.0,0.0,38.1,FAILED,join_queue not confirmed by server after 5 attempts
+8,play_85sf1ut,YES,YES,YES,0.0,24.0,26.3,OK,
+9,play_qi3j1wy,YES,YES,YES,0.0,21.3,23.3,OK,
+10,play_arwr2th,YES,YES,YES,0.0,18.0,19.8,OK,
+11,play_onesc3q,YES,YES,YES,0.5,20.6,22.9,OK,
+12,play_tn6kj45,YES,YES,YES,0.1,24.2,26.3,OK,
+13,play_kxoxdr8,YES,YES,YES,0.0,20.6,22.3,OK,
+14,play_xe1i0p0,YES,YES,YES,0.0,24.1,25.7,OK,
+15,play_1ms279l,YES,NO,NO,0.0,0.0,38.6,FAILED,join_queue not confirmed by server after 5 attempts
+16,play_gby0du3,YES,YES,YES,0.8,16.6,19.5,OK,
+17,play_4eap1m0,YES,YES,YES,0.9,30.5,34.1,OK,
+18,play_rtlf527,YES,YES,YES,0.0,16.6,18.9,OK,
+19,play_qoa5y09,YES,YES,YES,0.0,30.5,33.5,OK,
+20,play_k97r990,YES,YES,YES,0.8,26.3,30.1,OK,
+21,play_anbmcbe,YES,YES,YES,0.0,26.4,29.8,OK,
+22,play_b3s85yr,YES,NO,NO,0.0,0.0,39.7,FAILED,join_queue not confirmed by server after 5 attempts
+23,play_urc24et,YES,YES,YES,0.5,30.4,34.0,OK,
+24,play_6q1t208,YES,YES,YES,0.0,30.4,33.7,OK,
+25,play_zfgxb3y,YES,YES,YES,0.6,15.8,19.4,OK,
+26,play_sni6ks8,YES,YES,YES,0.0,15.6,19.0,OK,
+27,play_nzxig3m,YES,YES,YES,0.0,15.8,18.8,OK,
+28,play_h79ueey,YES,YES,YES,0.1,15.6,18.5,OK,
+29,play_ojo2add,YES,YES,YES,0.0,19.5,22.9,OK,
+30,play_h0zzq6y,YES,YES,YES,1.0,16.5,20.9,OK,
+31,play_4roou8h,YES,YES,YES,0.0,19.5,22.3,OK,
+32,play_5onx7kb,YES,YES,YES,0.0,16.4,20.3,OK,
+33,play_y0u4zm2,YES,YES,YES,0.0,15.4,19.7,OK,
+34,play_au5eyzq,YES,YES,YES,0.8,15.4,19.4,OK,
+35,play_dx0j7ri,YES,YES,YES,0.0,19.3,23.6,OK,
+36,play_cw28ce6,YES,YES,YES,0.0,20.1,23.4,OK,
+37,play_a690hln,YES,YES,YES,0.1,20.1,23.1,OK,
+38,play_1fvyro9,YES,YES,YES,0.4,19.3,22.7,OK,
+39,play_ye7zta8,YES,YES,YES,0.0,11.4,14.7,OK,
+40,play_dd4c5w4,YES,YES,YES,0.2,11.4,14.4,OK,
+41,play_tq7jm5y,YES,YES,YES,0.3,21.8,25.1,OK,
+42,play_l9cpx01,YES,YES,YES,0.0,21.7,24.8,OK,
+43,play_x9lox7z,YES,YES,YES,0.0,19.0,21.9,OK,
+44,play_978evsy,YES,YES,YES,0.0,19.1,21.6,OK,
+45,play_eu9p4xc,YES,NO,NO,0.0,0.0,39.3,FAILED,join_queue not confirmed by server after 5 attempts
+46,play_80bmyws,YES,YES,YES,0.5,24.2,27.7,OK,
+47,play_xhyr7wd,YES,NO,NO,0.0,0.0,39.0,FAILED,join_queue not confirmed by server after 5 attempts
+48,play_no3vxta,YES,NO,NO,0.0,0.0,38.7,FAILED,join_queue not confirmed by server after 5 attempts
+49,play_4j70sfw,YES,YES,YES,0.0,24.2,26.8,OK,
+50,play_3sglj27,YES,YES,YES,0.0,13.8,16.9,OK,
+51,play_kbeq7oc,YES,YES,YES,0.4,13.9,16.6,OK,
+52,play_fjf96sn,YES,YES,YES,0.3,18.2,21.3,OK,
+53,play_7vr6w4q,YES,YES,YES,0.0,18.1,21.0,OK,
+54,play_0n21420,YES,YES,YES,0.0,27.9,31.0,OK,
+55,play_j5om8p5,YES,YES,YES,0.4,27.9,30.7,OK,
+56,play_e3ep65t,YES,YES,YES,0.1,23.2,26.1,OK,
+57,play_qf01w6x,YES,NO,NO,0.0,0.0,38.6,FAILED,join_queue not confirmed by server after 5 attempts
+58,play_o1gn2f7,YES,NO,NO,0.0,0.0,62.5,FAILED,match_found not received after 60s
+59,play_ksmjtkl,YES,YES,YES,0.0,23.1,25.2,OK,

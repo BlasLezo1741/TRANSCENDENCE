@@ -1,14 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-
 // Tipos de datos para nuestro modal
 interface ModalOptions {
     title: string;
     message: string;
-    type?: 'info' | 'confirm' | 'error' | 'success'; // Para cambiar colores si quieres
-    onConfirm?: () => void; // Solo para confirmaciones
-    onCancel?: () => void;  // Solo para confirmaciones
+    type?: 'info' | 'confirm' | 'error' | 'success'; 
+    onConfirm?: () => void; 
+    onCancel?: () => void;  
 }
 
 interface ModalContextType {
@@ -45,7 +44,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
                     hideModal();
                 }
             }
-            if (e.key == 'Enter') {
+            if (e.key === 'Enter') {
                 handleConfirm();
             }
         };
@@ -79,63 +78,41 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         <ModalContext.Provider value={{ showModal, hideModal }}>
             {children}
             
-            {/* --- AQUÍ ESTÁ EL DISEÑO DEL MODAL (Global) --- */}
             {isOpen && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 10000,
-                    display: 'flex', justifyContent: 'center', alignItems: 'center',
-                    backdropFilter: 'blur(3px)'
-                }}>
-                    <div style={{
-                        backgroundColor: '#1a1a1a', 
-                        padding: '30px', 
-                        borderRadius: '12px',
-                        border: '2px solid #ea580c', // Naranja corporativo
-                        textAlign: 'center', 
-                        color: 'white',
-                        maxWidth: '400px', 
-                        minWidth: '300px',
-                        boxShadow: '0 0 25px rgba(234, 88, 12, 0.4)',
-                        animation: 'fadeIn 0.2s ease-out'
-                    }}>
-                        <h2 style={{marginTop: 0, color: '#ea580c', fontSize: '24px'}}>
-                            {modalConfig.title}
-                        </h2>
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center !bg-black/80 backdrop-blur-sm !p-6">
+                    
+                    <div className="!bg-[#111827] !border-2 !border-orange-600 !rounded-3xl !shadow-[0_0_30px_rgba(234,88,12,0.5)] !w-full !max-w-xl flex flex-col overflow-hidden">
                         
-                        <p style={{fontSize: '16px', margin: '20px 0', lineHeight: '1.5', color: '#ddd'}}>
-                            {modalConfig.message}
-                        </p>
-                        
-                        <div style={{display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '25px'}}>
-                            {/* BOTÓN CONFIRMAR / OK */}
-                            <button 
-                                onClick={handleConfirm}
-                                style={{
-                                    backgroundColor: '#ea580c', color: 'white', border: 'none',
-                                    padding: '10px 25px', borderRadius: '6px', cursor: 'pointer', 
-                                    fontWeight: 'bold', fontSize: '14px',
-                                    transition: 'transform 0.1s'
-                                }}
-                                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                            >
-                                {modalConfig.type === 'confirm' ? t('modal.accept_btn').toUpperCase() : 'OK'}
-                            </button>
+                        <div className="!p-6 !border-b !border-orange-600/30 text-center !bg-black/30">
+                            <h2 className="!m-0 !text-2xl !font-extrabold !text-white !tracking-wider !uppercase !leading-tight">
+                                {modalConfig.title}
+                            </h2>
+                        </div>
 
-                            {/* BOTÓN CANCELAR (Solo si es tipo confirm) */}
+                        <div className="!px-10 !pt-12 !pb-8 text-center">
+                            <p className="!text-gray-100 !text-base !leading-loose !tracking-wide !m-0">
+                                {modalConfig.message}
+                            </p>
+                        </div>
+
+                        <div className="!px-10 !pb-10 !pt-4 flex justify-center !gap-6">
+                            
                             {modalConfig.type === 'confirm' && (
                                 <button 
                                     onClick={handleCancel}
-                                    style={{
-                                        backgroundColor: '#333', color: '#ccc', border: '1px solid #666',
-                                        padding: '10px 25px', borderRadius: '6px', cursor: 'pointer', 
-                                        fontWeight: 'bold', fontSize: '14px'
-                                    }}
+                                    className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-gray-700/50 hover:!bg-gray-600 !text-white !font-bold !text-sm !uppercase !tracking-wider !transition-colors !border !border-gray-600 !m-0"
                                 >
-                                    {t('modal.cancel_btn').toUpperCase()}
+                                    {t('modal.cancel_btn', 'CANCELAR')}
                                 </button>
                             )}
+
+                            <button 
+                                onClick={handleConfirm}
+                                className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-orange-600 hover:!bg-orange-700 !text-white !font-extrabold !text-sm !uppercase !tracking-wider !transition-transform hover:scale-105 !shadow-lg !shadow-orange-600/30 !m-0 !border-none"
+                            >
+                                {modalConfig.type === 'confirm' ? t('modal.accept_btn', 'ACEPTAR') : 'OK'}
+                            </button>
+                            
                         </div>
                     </div>
                 </div>

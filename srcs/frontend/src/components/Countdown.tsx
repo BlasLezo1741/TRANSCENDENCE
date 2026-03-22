@@ -27,9 +27,9 @@ export const Countdown = ({ onComplete }: CountdownProps) => {
         }
     }, [count, onComplete]);
 
-return (
-        <div className="countdown-overlay">
-            <div className="countdown-text">
+    return (
+        <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black/30 backdrop-blur-sm z-50 rounded-xl">
+            <div className="text-[150px] font-mono font-bold text-[#ea580c] text-shadow animate-pulse select-none">
                 {showGo ? "GO!" : count}
             </div>
         </div>

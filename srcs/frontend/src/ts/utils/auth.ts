@@ -1,15 +1,15 @@
-// Base de datos simulada
+// Simulated database
 
 // srcs/frontend/src/ts/utils/auth.ts
 
-// Recuperamos la URL del entorno (igual que en socketService)
+// We retrieve the URL from the environment (same as in socketService)
 //const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 interface CheckFormOptions {
     requirePassword?: boolean; // default true
 }
 
-export function checkForm(user: string, email: string, password: string, repeat: string, birth: string, options: CheckFormOptions = { requirePassword: true }) {
+export function checkForm(user: string, email: string, password: string, repeat: string, birth: string, lang: string, country: string, options: CheckFormOptions = { requirePassword: true }) {
     
     if (!user || !user.trim())
         return { ok: false, msg: 'errors.userRequired' };
@@ -48,6 +48,8 @@ export function checkForm(user: string, email: string, password: string, repeat:
         if (!digit.test(password)) return { ok: false, msg: "errors.noNumPassword" };
         if (!min.test(password)) return { ok: false, msg: "errors.badLengthPassword" };
         if (password !== repeat) return { ok: false, msg: "errors.noMatchPassword" };
+        if (!lang) return { ok: false, msg: "errors.incorrectLang" };
+        if (!country) return { ok: false, msg: "errors.incorrectCountry" };
     }
     return { ok: true, msg: "success.password" };
 }
@@ -61,12 +63,12 @@ export async function registUser(
     language: string, 
     enabled2FA: boolean) {
     try {
-        console.log(`Intento de registro en /auth/register`);
+        console.log(`Registration attempt at /auth/register`);
         console.log(`Datos: ${user}, ${email}, ${birth}, ${country}, ${language}, 2FA: ${enabled2FA}`);
         const response = await fetch(`/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // Enviamos nombres claros
+            // We send clear names
             body: JSON.stringify({ 
                 username: user, 
                 password: pass, 

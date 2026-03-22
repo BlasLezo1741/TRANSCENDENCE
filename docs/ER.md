@@ -75,10 +75,13 @@ erDiagram
     PLAYER_FRIEND {
         int f_1 FK,PK
         int f_2 FK,PK
-        date f_date "inicio  o fin de amistad"
+        timestamp f_date "inicio  o fin de amistad"
         boolean f_tipo "TRUE = Creada, FALSE= Rota"
     }
-
+    FRIEND_STATUS {
+        int fs_pk PK
+        jsonb fs_i18n_name
+    }
 
 
     PLAYER_ORGANIZATION {
@@ -91,22 +94,52 @@ erDiagram
         string org_name
     }
 
+    DIRECT_MESSAGE {
+        smallint org_pk PK
+        smallint sender_id FK
+        smallint receiver_id FK
+        string content
+        boolean is_read
+        timestamp created_at
+    }
 
+    CHANNEL {
+        int is PK
+        string name
+        string type
+        string password
+        smallint owner_id FK
+        timestamp created_at
+    }
 
+    CHANNEL_MEMBER{
+        int channel_id FK,PK
+        int user_id FK,PK
+        string role
+        boolean is_muted
+        timestamp joined_at
+    }
 
     PLAYER }o--o{ FRIEND : has
     PLAYER ||--o{ COMPETITOR : is    
-    PLAYER }o--o{ ORGANIZATION : "is member of"
-    PLAYER ||--|| ROLE : has
+    PLAYER ||--o{ PLAYER_ORGANIZATION : "is member of"
+    PLAYER ||--|| P_ROLE : has
     PLAYER ||--|| COUNTRY : has
-    PLAYER ||--|| LANGUAGE : has
+    PLAYER ||--|| P_LANGUAGE : has
     PLAYER ||--|| STATUS : has
     MATCH }o--o{ MATCHMETRIC : has
     MATCH ||--o{ COMPETITOR : has
     MATCH ||--|| MATCH_MODE : has
     METRIC ||--o{ MATCHMETRIC : "has values"
-    METRIC ||--o{ COMPETITORMETRIC : "has values"    
+    METRIC ||--o{ COMPETITORMETRIC : "has values"
+    METRIC ||--o{ METRIC_CATEGORY : has 
     PLAYER ||--o{ COMPETITORMETRIC : has
-    
+    PLAYER_FRIEND ||--o{ FRIEND_STATUS : has
+    PLAYER_FRIEND ||--o{ PLAYER : "has two"
+    DIRECT_MESSAGE ||--o{ PLAYER : "has two"
+    CHANNEL ||--o{ PLAYER : has
+    CHANNEL_MEMBER ||--o{ CHANNEL : has
+    CHANNEL_MEMBER ||--o{ PLAYER : has
+    ORGANIZATION ||--o{ PLAYER_ORGANIZATION : has
 ```
 	

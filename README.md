@@ -48,7 +48,12 @@ Key features at a glance:
    ```bash
    make
    ```
+   Makefile requests secrets. Ask developer for oath information to authenticate wiht 42 network or Google.
+   
+   
    The Makefile populates the `.env` file with defaults where applicable and calls `docker compose up --build`. All services (frontend, backend, database, Prometheus, Grafana, TOTP, Adminer) start automatically.
+
+
 
 4. **Access the application:**
    - Main app: `https://localhost`
@@ -123,6 +128,40 @@ The team organized work iteratively, breaking the project into features and assi
 ### Architecture
 
 The application runs entirely in Docker containers orchestrated by Docker Compose. It follows a clean frontend/backend separation with a dedicated database, a TOTP microservice, and an independent monitoring stack.
+
+```mermaid
+graph TD
+    %% Define Nodes
+    Browser[Browser / Client]
+    Nginx["Nginx (Reverse Proxy & React SPA)"]
+    NestJS["NestJS Backend (Node.js)"]
+    Postgres[("PostgreSQL Database")]
+    TOTP["TOTP Service (Flask)"]
+    Adminer["Adminer (DB Management)"]
+    Prometheus["Prometheus (Metrics)"]
+    Grafana["Grafana (Visualization)"]
+
+    %% Connections
+    Browser -- "HTTPS / UI Access" --> Nginx
+    Nginx <-->|"REST API + WebSockets (Socket.io)"| NestJS
+    NestJS <-->|"SQL (TypeORM/Prisma)"| Postgres
+    Postgres <-->|"Shared Data / Validation"| TOTP
+    
+    %% Tooling & Monitoring
+    Adminer -.->|"Database Admin"| Postgres
+    Prometheus -->|"Scrapes Metrics"| Grafana
+    
+    %% Optional: Backend monitoring
+    NestJS -.->|"Export Metrics"| Prometheus
+    TOTP -.->|"Export Metrics"| Prometheus
+
+    %% Styling
+    style Nginx fill:#f9f,stroke:#333,stroke-width:2px
+    style NestJS fill:#bbf,stroke:#333,stroke-width:2px
+    style Postgres fill:#dfd,stroke:#333,stroke-width:2px
+    style Grafana fill:#fdb,stroke:#333,stroke-width:2px
+
+```
 
 ```
 [Browser] → [Nginx / React SPA]
@@ -251,7 +290,7 @@ Modules are documented in dedicated artifacts. Each link below points to the cor
 | Use an ORM for the database | Web | Minor | 1 | Luis | [ORM_DOCUMENTATION.md](./srcs/backend/doc/ORM_DOCUMENTATION.md) |
 | Standard user management and authentication | User Management | Major | 2 | Xavi / Natalia | [AVATAR_DOCUMENTATION.md](./srcs/frontend/doc/AVATAR_DOCUMENTATION.md)<br> [PROFILE_DOCUMENTATION.md](./srcs/frontend/doc/PROFILE_DOCUMENTATION.md)<br>[FRIENDS_DOCUMENTATION.md](./srcs/frontend/doc/FRIENDS_DOCUMENTATION.md)|
 | Implement remote authentication with OAuth 2.0 | User Management | Minor | 1 | Xavi | [OAUTH_DOCUMENTATION](./srcs/backend/doc/OAUTH_DOCUMENTATION.md)|
-| Implement a complete 2FA (Two-Factor Authentication) system for the users | User Management | Minor | 1 | Luis | [2FA_AUTHENTICATION_DOCUMENTATION.md](./srcs/totp/doc/2FA_DOCUMENTATION.md) <br> [2FA_LOGIN_DOCUMENTATION.md](./srcs/totp/doc/2FA_LOGIN_DOCUMENTATION.md)|
+| Implement a complete 2FA (Two-Factor Authentication) system for the users | User Management | Minor | 1 | Luis | [2FA_AUTHENTICATION_DOCUMENTATION.md](./srcs/totp/doc/2FA_DOCUMENTATION.md) <br> [2FA_LOGIN_DOCUMENTATION.md](./srcs/totp/doc/2FA_LOGIN_DOCUMENTATION.md)<br> [2FA_AUTHENTICATION_DOCUMENTATION_v2.md](./srcs/totp/doc/TWO_FACTOR_AUTHENTICATION_COMPLETE_DOCUMENTATION_V2.md)<br> [2FA_LOGIN_DOCUMENTATION_v2.md](./srcs/totp/doc/2FA_LOGIN_FLOW_UPDATED_V2.md)|
 | Web-based Pong game | Gaming & User Experience | Major | 2 | Adria / Natalia | [PONG_FRONTEND_DOCUMENTATION.md](./srcs/frontend/doc/PONG_FRONTEND_DOCUMENTATION.md) <br> [PONG_BACKEND_DOCUMENTATION.md](./srcs/backend/doc/PONG_BACKEND_DOCUMENTATION.md) |
 | Remote players (real-time multiplayer) | Gaming & User Experience | Major | 2 | Natalia | [WEBSOCKET_SYSTEM_DOCUMENTATION.md](./srcs/backend/doc/WEBSOCKET_SYSTEM_DOCUMENTATION.md) <br>[PONG_BACKEND_DOCUMENTATION.md](./srcs/backend/doc/PONG_BACKEND_DOCUMENTATION.md) |
 | i18n — Support multiple languages (3+) | Accessibility & Internationalization | Minor | 1 | All | [I18N_SYSTEM_DOCUMENTATION.md](./srcs/frontend/doc/I18N_SYSTEM_DOCUMENTATION.md) |
@@ -340,6 +379,3 @@ This project was developed as part of the 42 curriculum. It is submitted for aca
 
 - [Language codes](https://github.com/datasets/language-codes/tree/main)
 - [Country codes — ISO 3166](https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv)
-
-
-7NB6DA7N,CRXED3VR,KEW55AL7,S9DZJJRV,QMET9EEE,TWMPTWVN,2V97N45V,6GXEH7QU,K9RZ71E5,Q3XTEKWE

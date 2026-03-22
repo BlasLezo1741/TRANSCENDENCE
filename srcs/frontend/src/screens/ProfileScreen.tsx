@@ -539,7 +539,6 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         return getDefaultAvatar(userId);
     };
 
-
     // --- COMPONENTES DE PANTALLA ---
 
     const renderInfoScreen = () => {
@@ -557,7 +556,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         console.log("👤 [InfoScreen] Rendering profile. OAuth user:", isOAuthUser);
 
         return (
-            <>
+            <div className="h-[1200px] w-full overflow-y-auto">
                 <h1>{t('prof.title')}</h1>
 
                 {/* Avatar with Edit Button */}
@@ -616,7 +615,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                             console.log("✏️ [InfoScreen] Entering edit mode");
                             setIsEditing(true);
                             }}
-                            className="btn mt-5 text-sm border border-[#4CAF50] bg-white text-[#4CAF50]"
+                            className="btn !mr-2 text-sm border border-[#4CAF50] bg-white text-[#4CAF50]"
                         >
                             {t('prof.edit_btn')} {/* Added Translation key */}
                         </button>
@@ -632,134 +631,144 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     </>
                 ) : (
                     // MODO EDICIÓN
-                    <>
+                    <div className="!px-1">
                         <div className="mb-2.5">
                             <strong>{t('prof.field_id')}:</strong> {userProfile.id} <em>({t('prof.field_id_readonly')})</em> {/* Added Translation key */}
                         </div>
 
-                        <div className="mb-3.5">
-                            <label>
+                        <div className="flex flex-col">
+                            <label className="label-white">
                                 <strong>{t('user')}:</strong>
-                                <input
-                                    type="text"
-                                    value={editForm.nick}
-                                    onChange={(e) => setEditForm({ ...editForm, nick: e.target.value })}
-                                />
                             </label>
+
+                            <input
+                                className="input-white"
+                                type="text"
+                                value={editForm.nick}
+                                onChange={(e) => setEditForm({ ...editForm, nick: e.target.value })}
+                            />
                         </div>
 
-                        <div className="mb-3.5">
-                            <label>
+                        <div className="flex flex-col">
+                            <label className="label-white">
                                 <strong>{t('prof.field_email')}:</strong>
-                                <input
-                                    type="email"
-                                    value={editForm.email}
-                                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                />
                             </label>
+
+                            <input
+                                className="input-white"
+                                type="email"
+                                value={editForm.email}
+                                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                            />
                         </div>
 
-                        <div className="mb-3.5">
-                            <label>
+                        <div className="flex flex-col">
+                            <label className="label-white">
                                 <strong>{t('cumple')}:</strong>
-                                <input
-                                    type="date"
-                                    value={editForm.birth}
-                                    onChange={(e) => setEditForm({ ...editForm, birth: e.target.value })}
-                                />
                             </label>
+                            <input
+                                className="input-white"
+                                type="date"
+                                value={editForm.birth}
+                                onChange={(e) => setEditForm({ ...editForm, birth: e.target.value })}
+                            />
                         </div>
 
-                        <div className="mb-3.5">
-                            <label>
+                        <div className="flex flex-col">
+                            <label className="label-white">
                                 <strong>{t('prof.field_country')}:</strong>
-                                <select
-                                    value={editForm.country}
-                                    onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
-                                    disabled={isLoadingCountries}>
-                                    <option value="">
-                                        {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')}
-                                    </option>
-                                    {countries.map((c) => (
-                                        <option key={c.coun2_pk} value={c.coun2_pk}>
-                                            {countryName(c.coun2_pk, c.coun_name)} ({c.coun2_pk})
-                                        </option>
-                                    ))}
-                                </select>
                             </label>
+                            <select
+                                className="select-white"
+                                value={editForm.country}
+                                onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                                disabled={isLoadingCountries}>
+                                <option className="!bg-black text-[#a1bdf3]" value="">
+                                    {isLoadingCountries ? t('prof.loading_countries') : t('prof.sel_country')}
+                                </option>
+                                {countries.map((c) => (
+                                    <option className="!bg-black text-[#a1bdf3]" key={c.coun2_pk} value={c.coun2_pk}>
+                                        {countryName(c.coun2_pk, c.coun_name)} ({c.coun2_pk})
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
-                        <div className="mb-3.5">
-                            <label>
+                        <div className="flex flex-col">
+                            <label className="label-white">
                                 <strong>{t('lang')}:</strong>
-                                <select
-                                    value={editForm.lang}
-                                    onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
-                                >    
-                                    <option value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
-                                    <option value="es">Español</option>
-                                    <option value="ca">Català</option>
-                                    <option value="en">English</option>
-                                    <option value="fr">Français</option>
-                                </select>
                             </label>
+                            <select
+                                className="select-white"
+                                value={editForm.lang}
+                                onChange={(e) => setEditForm({ ...editForm, lang: e.target.value })}
+                            >    
+                                <option className="!bg-black text-[#a1bdf3]" value="">{t('prof.sel_lang')}</option> {/* Added Translation key */}
+                                <option className="!bg-black text-[#a1bdf3]" value="es">Español</option>
+                                <option className="!bg-black text-[#a1bdf3]" value="ca">Català</option>
+                                <option className="!bg-black text-[#a1bdf3]" value="en">English</option>
+                                <option className="!bg-black text-[#a1bdf3]" value="fr">Français</option>
+                            </select>
                         </div>
 
                         {/* Cambio de contraseña - Solo para usuarios NO OAuth */}
                         {!isOAuthUser && (
                             <>
-                                <hr className="my-5"/>
+                                <hr className="!my-5"/>
                                 <h3>{t('prof.change_pass')}</h3> {/* Added Translation key */}
 
-                                <div className="mb-3.5">
-                                    <label>
+                        		<div className="flex flex-col">
+                                    <label className="label-white">
                                         <strong>{t('prof.current_pass')}:</strong>
-                                        <input
-                                            type="password"
-                                            value={editForm.currentPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
-                                            placeholder={t('prof.current_pass_ph')} // Added Translation key
-                                        />
                                     </label>
+                                    <input
+                                        className="input-white"
+                                        type="password"
+                                        value={editForm.currentPassword}
+                                        onChange={(e) => setEditForm({ ...editForm, currentPassword: e.target.value })}
+                                        placeholder={t('prof.current_pass_ph')} // Added Translation key
+                                    />
                                 </div>
 
-                                <div className="mb-3.5">
-                                    <label>
+                        		<div className="flex flex-col">
+                                    <label className="label-white">
                                         <strong>{t('prof.new_pass')}:</strong>
-                                        <input
-                                            type="password"
-                                            value={editForm.newPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
-                                            placeholder={t('prof.new_pass_ph')} // Added Translation key
-                                        />
                                     </label>
+                                    <input
+                                        className="input-white"
+                                        type="password"
+                                        value={editForm.newPassword}
+                                        onChange={(e) => setEditForm({ ...editForm, newPassword: e.target.value })}
+                                        placeholder={t('prof.new_pass_ph')} // Added Translation key
+                                    />
                                 </div>
 
-                                <div className="mb-3.5">
-                                    <label>
+                        		<div className="flex flex-col">
+                                    <label className="label-white">
                                         <strong>{t('prof.confirm_pass')}:</strong>
-                                        <input
-                                            type="password"
-                                            value={editForm.confirmPassword}
-                                            onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
-                                            placeholder={t('prof.confirm_pass_ph')} // Added Translation key
-                                        />
                                     </label>
+                                    <input
+                                        className="input-white"
+                                        type="password"
+                                        value={editForm.confirmPassword}
+                                        onChange={(e) => setEditForm({ ...editForm, confirmPassword: e.target.value })}
+                                        placeholder={t('prof.confirm_pass_ph')} // Added Translation key
+                                    />
                                 </div>
                             </>
                         )}
 
                         <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                            <button className="btn" onClick={handleUpdateProfile}>
+                            <button className="btn bg-[hsl(139,68%,37%)] text-white" onClick={handleUpdateProfile}>
                                 {t('prof.save_btn')} {/* Added Translation key */}
                             </button>
-                            <button className="btn bg-red-500" onClick={handleCancelEdit}>
+                            <button className="btn bg-red-500 text-white" onClick={handleCancelEdit}>
                                 {t('prof.cancel')} {/* Added Translation key */}
                             </button>
                         </div>
-                    </>
+                    </div>
                 )}
-            </>
+            </div>
         );
     };
 
@@ -771,23 +780,24 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             <>
                 <h1>{firstcap(t('prof.friends_title'))}</h1>
 
-                <div className="mb-7.5 p-4 bg-[#f5f5f5] rounded-lg">
-                    <label>
+                <div className="mb-7.5 !p-2 bg-gray-500 rounded-lg">
+                    <label className="label-white !text-[#a1bdf3] !text-[20px]">
                         {t('prof.invite_label')}
                     </label>
                     
                     <div className="flex items-center gap-3.5">
                         {/* Selector */}
                         <select
+                            className="select-white !text-[#a1bdf3]"
                             value={targetIdInput}
                             onChange={(e) => setTargetIdInput(e.target.value)}
                             disabled={isLoadingCandidates}
                         >
-                            <option value="">
+                            <option className="!bg-black text-[#a1bdf3]" value="">
                                 {isLoadingCandidates ? t('prof.loading_users') : t('prof.sel_player')}
                             </option>
                             {candidates.map((user) => (
-                                <option key={user.id} value={user.id}>
+                                <option className="!bg-black text-[#a1bdf3]" key={user.id} value={user.id}>
                                     {user.nick}
                                 </option>
                             ))}
@@ -807,7 +817,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         <button
                             onClick={handleSendRequest}
                             disabled={!targetIdInput || isLoadingCandidates}
-                            className="btn"
+                            className="btn bg-green-500 text-white"
                         >
                             {t('prof.send_request_btn')}
                         </button>
@@ -870,7 +880,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 <strong>{r.nick}</strong> {t('prof.wants_friend')}
                             </span>
                             <div>
-                                <button className="btn" onClick={() => handleAccept(r.id)}>
+                                <button className="btn bg-green-500 text-white" onClick={() => handleAccept(r.id)}>
                                     {sentence(t('prof.accept_btn'))} {/* Added Translation key */}
                                 </button>
                             </div>
@@ -894,7 +904,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 </h1>
                 
                 {/* 🎛️ SUB-MENÚ DE BOTONES */}
-                <div className="flex gap-[15px] mb-[30px] flex-wrap justify-center">
+                <div className="flex gap-[15px] mb-[30px] flex-wrap justify-center !mb-3">
                     <button 
                         onClick={() => setStatView('leaderboard')}
                         className={`${btnBaseStyle} ${statView === 'leaderboard' ? btnActiveStyle : btnInactiveStyle}`}
@@ -927,8 +937,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     
                     {statView === 'grafana' && (
                         <div className="w-full h-[700px] bg-[#111827] rounded-lg overflow-hidden border border-[#374151] mt-2.5">
-                            <iframe 
-                                src="https://localhost:8443/grafana/d/grhk4qc/transcendence-db-pong?orgId=1&from=now-6h&to=now&timezone=browser&kiosk=tv" 
+                            <iframe  
+                                src="https://localhost:8443/grafana/d/grhk4qc/transcendence-db-pong?orgId=1&from=now-6h&to=now&timezone=browser&kiosk"
                                 width="100%" 
                                 height="100%" 
                                 frameBorder="0"
@@ -942,37 +952,37 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         );
     };
 
-    const liSelectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
+    const selectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
 
     return (
-        <main className="w-full h-[79vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
-            <nav className="h-[79vh] bg-[hsl(139,68%,37%)]">
+        <main className="w-full h-[82vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
+            <nav className="h-[82vh] bg-[hsl(139,68%,37%)]">
                 <ul className="pt-4">
                     <li
                         onClick={() => setActiveTab("info")}
-                        className={`li ${activeTab === "info" ? liSelectedCss : ""}`}>
+                        className={`li ${activeTab === "info" ? selectedCss : ""}`}>
                         {t('prof.tab_info')} {/* Added Translation key */}
                     </li>
                     <li
                         onClick={() => setActiveTab("friends")}
-                        className={`li ${activeTab === "friends" ? liSelectedCss : ""}`}>
+                        className={`li ${activeTab === "friends" ? selectedCss : ""}`}>
                         {t('prof.tab_friends', { count: friends.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("requests")}
-                        className={`li ${activeTab === "requests" ? liSelectedCss : ""}`}>
+                        className={`li ${activeTab === "requests" ? selectedCss : ""}`}>
                         {t('prof.tab_requests', { count: requests.length })}
                     </li>
                     <li
                         onClick={() => setActiveTab("stats")}
-                        className={`li ${activeTab === "stats" ? liSelectedCss : ""}`}>
+                        className={`li ${activeTab === "stats" ? selectedCss : ""}`}>
                         {t('prof.tab_stats')} {/* Added Translation key */}
                     </li>
                 </ul>
             </nav>
 
             <section className="bg-black overflow-y-auto">
-                <div className="w-[90%] mx-auto text-[#a1bdf3]">
+                <div className="w-full mx-auto text-[#a1bdf3] !p-8 md:!p-12 box-border">
                     {activeTab === 'info' && renderInfoScreen()}
                     {activeTab === 'friends' && renderFriendScreen()}
                     {activeTab === 'requests' && renderRequestScreen()}

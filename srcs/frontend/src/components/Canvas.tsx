@@ -451,7 +451,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
         gameRef.current.chat = chatOpen;
     }, [chatOpen]);
 
-    return <canvas ref={canvasRef} className="game-canvas"/>;
+    return <canvas ref={canvasRef} className="w-full h-full border-3 border-white bg-black"/>;
 }
 
 export default Canvas;

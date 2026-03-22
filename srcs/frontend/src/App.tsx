@@ -2,14 +2,13 @@ import { useReducer, useState, useEffect } from 'react';
 import { screenReducer } from './ts/screenConf/screenReducer.ts';
 import { useTranslation } from 'react-i18next';
 
-import type { Screen, GameMode, GameDifficult } from "./ts/types.ts"
+import type { Screen, GameMode, GameDifficult, ScrollOpt } from "./ts/types.ts"
 
 import MenuScreen from './screens/MenuScreen.tsx'
 import SignScreen from './screens/SignScreen.tsx'
 import LoginScreen from './screens/LoginScreen.tsx'
 import PongScreen from './screens/PongScreen.tsx'
 import ProfileScreen from './screens/ProfileScreen.tsx'
-import StatsScreen from './screens/StatsScreen.tsx'
 import InfoScreen from './screens/InfoScreen.tsx'
 import type { States } from './screens/InfoScreen.tsx';
 import OAuthTermsScreen from './screens/OAuthTermsScreen.tsx'
@@ -67,6 +66,8 @@ function App()
   // Error message coming back from OAuth callback (e.g. email conflict)
   const [oauthError, setOAuthError] = useState<string>("");
 
+  const [scrollClass, setScroll] = useState<ScrollOpt>("scroll");
+
   // 🔥 ESTADO PARA LA INVITACIÓN MODAL
   const [inviteRequest, setInviteRequest] = useState<{fromUserId: number, fromUserName: string} | null>(null);
 
@@ -114,6 +115,8 @@ function App()
         console.error("❌ Error processing OAuth token:", err);
       }
     }
+
+    
 
     // New OAuth user — two possible flows depending on where they came from:
     //
@@ -180,6 +183,14 @@ function App()
     }
   }, []); // Run only once on mount
 
+  useEffect(() => {
+    const newScrollClass = ["pong", "profile", "info"].includes(screen) ? "no-scroll" : "scroll";
+    
+    // Solo actualizar el estado si realmente ha cambiado
+    if (scrollClass !== newScrollClass) {
+      setScroll(newScrollClass);
+    }
+  }, [screen, scrollClass]); 
 
   // -----------------------------------------------------------
   // 1. CONEXIÓN AUTOMÁTICA DEL SOCKET
@@ -380,12 +391,9 @@ const handleInviteResponse = (accept: boolean) => {
 // --- RENDERIZADO DE PANTALLAS ---
 function renderScreen()
   {
-    document.body.classList.remove("scroll");
-
     switch (screen)
     {
       case "menu":
-        document.body.classList.add("scroll");
         return <MenuScreen 
           dispatch={dispatch}
           ia={ia}
@@ -419,73 +427,78 @@ function renderScreen()
           roomId={roomId}
           chatOpen={chatOpen}
         />;
-        case "profile":
-          return <ProfileScreen
-            setGlobalUser={setCurrentUser}
-            setGlobalUserId={setCurrentUserId}
-            setGlobalAvatarUrl={setCurrentUserAvatarUrl}
-          />;
-        case "stats":
-          return <StatsScreen />;
-        case "info":
-          return <InfoScreen dispatch={dispatch} option={option} />;
-        case "oauth_terms":
-          // Only reached from LoginScreen OAuth flow (new user, terms not yet accepted)
-          return <OAuthTermsScreen
-            dispatch={dispatch}
-            pendingToken={pendingOAuthToken}
-            setGlobalUser={setCurrentUser}
-          />;
-        default:
-          return null;
+      case "profile":
+        return <ProfileScreen
+          setGlobalUser={setCurrentUser}
+          setGlobalUserId={setCurrentUserId}
+          setGlobalAvatarUrl={setCurrentUserAvatarUrl}
+        />;
+      case "info":
+        return <InfoScreen dispatch={dispatch} option={option} />;
+      case "oauth_terms":
+        // Only reached from LoginScreen OAuth flow (new user, terms not yet accepted)
+        return <OAuthTermsScreen
+          dispatch={dispatch}
+          pendingToken={pendingOAuthToken}
+          setGlobalUser={setCurrentUser}
+        />;
+      default:
+        return null;
     }
   }
 
   return (
-    <div className="app">
+    <div className={`w-full h-screen mx-auto border border-black bg-black grid grid-rows-[auto_50px_1fr_auto] min-h-screen ${scrollClass}`}>
       {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
-      {/* 🔥🔥 MODAL DE INVITACIÓN 🔥🔥 */}
+      {/* 🔥🔥 MODAL DE INVITACIÓN (Estilo Unificado Premium) 🔥🔥 */}
       {inviteRequest && (
-          <div style={{
-              position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-              backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999,
-              display: 'flex', justifyContent: 'center', alignItems: 'center'
-          }}>
-              <div style={{
-                  backgroundColor: '#222', padding: '30px', borderRadius: '10px',
-                  border: '2px solid #ea580c', textAlign: 'center', color: 'white',
-                  maxWidth: '400px', boxShadow: '0 0 20px rgba(234, 88, 12, 0.5)'
-              }}>
-                  <h2 style={{marginTop: 0}}>⚔️ {t('app.pongChallenge')}</h2>
-                  <p style={{fontSize: '18px', margin: '20px 0'}}>
-                      <strong>{inviteRequest.fromUserName === 'app.afriend' ? t('app.afriend') : inviteRequest.fromUserName}</strong>{t('app.wantPlay')}
-                  </p>
-                  <div style={{display: 'flex', gap: '20px', justifyContent: 'center'}}>
-                      <button 
-                          onClick={() => handleInviteResponse(true)}
-                          style={{
-                              backgroundColor: '#22c55e', color: 'white', border: 'none',
-                              padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
-                          }}
-                      >
-                        {t('modal.accept_btn')}
-                      </button>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center !bg-black/80 backdrop-blur-sm !p-6">
+              
+              {/* Contenedor principal idéntico al ModalContext */}
+              <div className="!bg-[#111827] !border-2 !border-orange-600 !rounded-3xl !shadow-[0_0_30px_rgba(234,88,12,0.5)] !w-full !max-w-xl flex flex-col overflow-hidden">
+                  
+                  {/* Cabecera */}
+                  <div className="!p-6 !border-b !border-orange-600/30 text-center !bg-black/30">
+                      <h2 className="!m-0 !text-2xl !font-extrabold !text-white !tracking-wider !uppercase !leading-tight">
+                          ⚔️ {t('app.pongChallenge')}
+                      </h2>
+                  </div>
+
+                  {/* Cuerpo del Mensaje */}
+                  <div className="!px-10 !pt-12 !pb-8 text-center">
+                      <p className="!text-gray-100 !text-base !leading-loose !tracking-wide !m-0">
+                          {/* He puesto el nombre del retador en color naranja para destacarlo */}
+                          <strong className="text-orange-500">
+                              {inviteRequest.fromUserName === 'app.afriend' ? t('app.afriend') : inviteRequest.fromUserName}
+                          </strong> {t('app.wantPlay')}
+                      </p>
+                  </div>
+
+                  {/* Botones (Gris y Naranja) */}
+                  <div className="!px-10 !pb-10 !pt-4 flex justify-center !gap-6">
+                      
+                      {/* Botón Rechazar (Gris Neutro) */}
                       <button 
                           onClick={() => handleInviteResponse(false)}
-                          style={{
-                              backgroundColor: '#ef4444', color: 'white', border: 'none',
-                              padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
-                          }}
+                          className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-gray-700/50 hover:!bg-gray-600 !text-white !font-bold !text-sm !uppercase !tracking-wider !transition-colors !border !border-gray-600 !m-0"
                       >
                           {t('modal.reject_btn')}
                       </button>
+
+                      {/* Botón Aceptar (Naranja Premium) */}
+                      <button 
+                          onClick={() => handleInviteResponse(true)}
+                          className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-orange-600 hover:!bg-orange-700 !text-white !font-extrabold !text-sm !uppercase !tracking-wider !transition-transform hover:scale-105 !shadow-lg !shadow-orange-600/30 !m-0 !border-none"
+                      >
+                          {t('modal.accept_btn')}
+                      </button>
+                      
                   </div>
               </div>
           </div>
       )}
-
       <Header dispatch={dispatch} setIa={setIa} userName={currentUser} userId={currentUserId} userAvatarUrl={currentUserAvatarUrl} profileSynced={profileSynced} onLogout={handleLogout} />
-      <main>{renderScreen()}</main>
+      <main className={scrollClass}>{renderScreen()}</main>
       <Footer dispatch={dispatch} setOption={setOption}/>
     </div>
   );

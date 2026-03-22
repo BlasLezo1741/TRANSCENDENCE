@@ -115,6 +115,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
         setShowTotpInput(false);
         setTotpCode("");
         setPassword("");
+        setUser("");
         setUserId(null);
         setError(""); // Clear error when going back
     }
@@ -125,7 +126,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
 
     return (
         <div>
-            <div>
+            <div className="flex justify-center">
                 <h1 className="text-3xl font-bold text-gray-900">
                     {showTotpInput ? t('veri_2fa') : t('bienvenido')}
                 </h1>
@@ -137,7 +138,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                 )}
             </div>
             
-            <form onSubmit={handleForm} noValidate>
+            <form className="form" onSubmit={handleForm} noValidate>
                 {/* ↑ Add noValidate to disable browser validation */}
                 
                 {error && (
@@ -146,7 +147,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
 
                 {!showTotpInput ? (
                     <>
-                        <label htmlFor="user">
+                        <label className="label-black" htmlFor="user">
                             {t('user')}
                         </label>
                         <input
@@ -158,10 +159,11 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             onBlur={(e) => setUser(e.target.value.trim())}
                             pattern="[\x21-\x7E]+"
                             autoFocus
+                            className="input-black"
                             // Remove 'required' attribute
                         />
 
-                        <label htmlFor="pass">
+                        <label className="label-black" htmlFor="pass">
                             {t('password').charAt(0).toUpperCase() + t('password').slice(1)}
                         </label>
                         <input
@@ -171,12 +173,13 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             onBlur={(e) => setPassword(e.target.value.trim())}
+                            className="input-black"
                             // Remove 'required' attribute
                         />
                     </>
                 ) : (
                     <>
-                        <label htmlFor="totp">
+                        <label className="label-black" htmlFor="totp">
                             {t('cod_2fa')}
                         </label>
                         <input
@@ -194,33 +197,37 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             placeholder={t('placeholder')}
                             title={t('2fa_setup')}
                             autoFocus
+                            className="input-black"
                             // Remove 'required' attribute
                         />
                     </>
                 )}
 
-                <div>
-                    <button
-                        type="button"
-                        onClick={handleBack}
-                        className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
-                        {t('volver')}
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50">
-                        {isLoading ? t('enviando') : (showTotpInput ? t('verificar') : t('enviar'))}
-                    </button>
-                </div>
+                <div className="flex flex-col gap-1">
+                    <div className="flex justify-end gap-2">
+                        <button
+                            type="button"
+                            onClick={handleBack}
+                            className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
+                            {t('borrar_t')}
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50">
+                            {isLoading ? t('enviando') : (showTotpInput ? t('verificar') : t('enviar'))}
+                        </button>
+                    </div>
 
-                <hr />
+                    <hr />
+                </div>
+               
                            
                 {!showTotpInput && (
                     <div className="flex-col">
                         <span className="text-black">{t('init_ses')}</span>
 
-                        <div className="flex-row">
+                        <div className="flex flex-row gap-2">
                             <button
                                 type="button"
                                 onClick={() => handleOAuth('42')}

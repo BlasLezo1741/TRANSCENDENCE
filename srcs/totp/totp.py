@@ -431,7 +431,7 @@ def generate_backup_codes(num_codes=10, length=8):
         # secrets.choice es criptográficamente seguro (mejor que random)
         code = ''.join(secrets.choice(alphabet) for _ in range(length))
         codes.append(code)
-    print(codes)
+    print("Backup Codes Generated: ", codes)
     return codes    
 
 if __name__ == "__main__":

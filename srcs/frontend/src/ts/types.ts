@@ -44,3 +44,5 @@ export type ScoreUpdatePayload = {
     score: [number, number];
     scorerId: string;
 };
+
+export type ScrollOpt = "scroll" | "no-scroll";

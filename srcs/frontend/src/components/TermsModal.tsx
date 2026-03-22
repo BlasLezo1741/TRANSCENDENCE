@@ -46,51 +46,19 @@ const TermsModal = ({ isOpen, onClose, title, fileName }: TermsModalProps) => {
         // Backdrop
         <div
             onClick={onClose}
-            style={{
-                position: "fixed",
-                inset: 0,
-                backgroundColor: "rgba(0,0,0,0.6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 1000,
-            }}
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-[1000]"
         >
             {/* Modal box — stopPropagation prevents backdrop-click from firing inside */}
             <div
                 onClick={(e) => e.stopPropagation()}
-                style={{
-                    background: "#fff",
-                    color: "#000",
-                    borderRadius: "8px",
-                    width: "min(90vw, 680px)",
-                    maxHeight: "80vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                }}
+                className="bg-white text-black rounded-lg w-[min(90vw,680px)] max-h-[80vh] flex flex-col shadow-lg"
             >
                 {/* Header */}
-                <div
-                    style={{
-                        padding: "16px 20px",
-                        borderBottom: "1px solid #ddd",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}
-                >
-                    <h2 style={{ margin: 0, fontSize: "1.1rem" }}>{title}</h2>
+                <div className="border-b border-gray-300 flex justify-between items-center">
+                    <h2 className="text-base text-[20px]"><strong>{title}</strong></h2>
                     <button
                         onClick={onClose}
-                        style={{
-                            background: "none",
-                            border: "none",
-                            fontSize: "1.4rem",
-                            cursor: "pointer",
-                            lineHeight: 1,
-                            color: "#555",
-                        }}
+                        className="btn bg-transparent border-0 text-xl leading-none text-gray-600"
                         aria-label="Close"
                     >
                         ✕
@@ -99,30 +67,19 @@ const TermsModal = ({ isOpen, onClose, title, fileName }: TermsModalProps) => {
 
                 {/* Scrollable body */}
                 <div
-                    style={{
-                        padding: "16px 20px",
-                        overflowY: "auto",
-                        flex: 1,
-                        fontSize: "0.88rem",
-                        lineHeight: 1.6,
-                    }}
+                    className="py-4 px-5 overflow-y-auto flex-1 text-sm leading-6"
                 >
                     {isLoading
                         ? <p>{t("modal.loading")}</p>
-                        : <div dangerouslySetInnerHTML={{ __html: content }} />
+                        : <div className="" dangerouslySetInnerHTML={{ __html: content }} />
                     }
                 </div>
 
                 {/* Footer */}
                 <div
-                    style={{
-                        padding: "12px 20px",
-                        borderTop: "1px solid #ddd",
-                        display: "flex",
-                        justifyContent: "flex-end",
-                    }}
+                    className="py-3 px-5 border-t border-gray-300 flex justify-end"
                 >
-                    <button onClick={onClose}>
+                    <button className="btn bg-red-500 text-white" onClick={onClose}>
                         {t("modal.cancel_btn")}
                     </button>
                 </div>

@@ -11,8 +11,6 @@ import { useTranslation } from 'react-i18next';
 import TermsModal from '../components/TermsModal';
 import type { ScreenProps } from '../ts/screenConf/screenProps';
 
-import '../css/Login.css';
-
 type OAuthTermsScreenProps = ScreenProps & {
     pendingToken: string;
     setGlobalUser: (user: string) => void;
@@ -83,15 +81,15 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
     };
 
     return (
-        <div className="login-form">
+        <div className="w-[60%] mx-auto p-5 bg-whitesmoke">
             <h1>{t('oauth_terms.title')}</h1>
             <p>{t('oauth_terms.subtitle')}</p>
 
-            {error && <span style={{ color: 'red' }}>{error}</span>}
+            {error && <span className="text-red-500">{error}</span>}
 
-            <div className="login-btn" style={{ margin: '20px 0' }}>
+            <div className="flex-row my-5">
                 <input
-                    style={{ flexShrink: 0 }}
+                    className="flex-shrink-0"
                     id="acceptPolicy"
                     type="checkbox"
                     checked={acceptPolicy}
@@ -110,7 +108,7 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
                 </label>
             </div>
 
-            <div className="login-btn form-btn">
+            <div className="py-5 flex flex-row justify-end">
                 <button type="button" onClick={handleCancel}>
                     {t('volver')}
                 </button>

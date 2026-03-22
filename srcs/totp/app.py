@@ -55,10 +55,10 @@ async def verify_totp(request: TotpVerifyRequest):
     print(f"type(currentcode) = {type(currentcode)} - currentcode = {currentcode} ")
     
     if currentcode == request.totp_code:
-        print(f"correcta Verificando TOTP para {request.totp_code} con {request.user_totp_secret}")
+        print(f"Right TOTP verification for {request.totp_code} with {request.user_totp_secret}")
         return {"status": "ok", "verified": True}
     else:
-        print(f"incorrecta Verificando TOTP para {request.totp_code} con {request.user_totp_secret}")
+        print(f"Wrong TOTP verification for  {request.totp_code} with {request.user_totp_secret}")
         return {"status": "error", "verified": False    }
 
 @app.post("/encrypt")

@@ -181,6 +181,8 @@
         "mustAcceptTerms": "Es necesario aceptar los Términos de uso y la Política de privacidad para registrarse.",
         "invalidEmail": "Formato de e-mail incorrecto",
         "incorrectPassword": "Contraseña incorrecta",
+        "incorrectLang": "Tienes que elegir un idioma",
+        "incorrectCountry": "Tienes que elegir un país",
         "noLowercasePassword": "La contraseña debe contener al menos una letra minúscula",
         "noUppercasePassword": "La contraseña debe contener al menos una letra mayúscula",
         "noNumPassword": "La contraseña debe contener al menos un número",

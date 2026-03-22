@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { loadHtmlContent } from '../ts/utils/loadHtmlContent';
 import { useTranslation } from 'react-i18next';
-import "../css/ProfileScreen.css";
 
 export type States = 'a' | 'b' | 'c' | 'd' | 'e';
 
@@ -41,34 +40,37 @@ const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
         loadContent();
     }, [activeTab, i18n.language]);
 
+    const selectedCss = "bg-blue-500 border-b-4 border-azure pointer-events-none";
+
     return (
-        <main className="profile">
+        <main className="w-full h-[82vh] grid grid-cols-[150px_1fr] lg:grid-cols-[150px_1fr_320px]">
             {/* Navigation */}
-            <nav>
-                <ul>
+            <nav className="h-[82vh] bg-[hsl(139,68%,37%)]">
+                <ul className="pt-4">
                     <li
                         onClick={() => setActiveTab("a")}
-                        className={activeTab === "a" ? "selected" : ""}>
+                        className={`li ${activeTab === "a" ? selectedCss : ""}`}
+                    >
                         {t('info.privacy_policy')}
                     </li>
                     <li
                         onClick={() => setActiveTab("b")}
-                        className={activeTab === "b" ? "selected" : ""}>
+                        className={`li ${activeTab === "b" ? selectedCss : ""}`}>
                         {t('info.terms_of_service')}
                     </li>
                     <li
                         onClick={() => setActiveTab("c")}
-                        className={activeTab === "c" ? "selected" : ""}>
+                        className={`li ${activeTab === "c" ? selectedCss : ""}`}>
                         {t('info.about_project')}
                     </li>
                     <li
                         onClick={() => setActiveTab("d")}
-                        className={activeTab === "d" ? "selected" : ""}>
+                        className={`li ${activeTab === "d" ? selectedCss : ""}`}>
                         {t('info.contact')}
                     </li>
                     <li
                         onClick={() => setActiveTab("e")}
-                        className={activeTab === "e" ? "selected" : ""}>
+                        className={`li ${activeTab === "e" ? selectedCss : ""}`}>
                         {t('info.credits')}
                     </li>
                 </ul>
@@ -76,14 +78,16 @@ const InfoScreen = ({dispatch: _dispatch, option}: InfoProps) => {
 
             {/* Content */}
             <section>
-                <div className="p-cont">
+            <div className="w-full mx-auto text-[#a1bdf3] !p-8 md:!p-12 box-border">
                     {loading ? (
                         <p>{t('info.loading')}</p>
                     ) : (
-                        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                        <div className="h-[76vh] w-full overflow-y-auto" dangerouslySetInnerHTML={{ __html: htmlContent }} />
                     )}
                 </div>
             </section>
+            <div className="bg-[#2d2979]"></div>
+
         </main>
     );
 };
