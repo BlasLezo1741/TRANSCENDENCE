@@ -81,54 +81,91 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
     };
 
     return (
-        <div className="w-[60%] mx-auto p-5 bg-whitesmoke">
-            <h1>{t('oauth_terms.title')}</h1>
-            <p>{t('oauth_terms.subtitle')}</p>
+        <div className="flex items-center justify-center min-h-[80vh] !p-4">
+            
+            {/* Contenedor Principal (Estilo PONG Premium) */}
+            <div className="!w-full !max-w-2xl !p-10 !bg-[#111827] !border-2 !border-orange-600 !rounded-3xl !shadow-[0_0_30px_rgba(234,88,12,0.5)] flex flex-col gap-6">
 
-            {error && <span className="text-red-500">{error}</span>}
+                {/* Cabecera */}
+                <div className="text-center border-b border-orange-600/30 pb-5">
+                    <h1 className="!m-0 !text-3xl !font-extrabold !text-white !tracking-wider !uppercase !leading-tight">
+                        {t('oauth_terms.title')}
+                    </h1>
+                </div>
 
-            <div className="flex-row my-5">
-                <input
-                    className="flex-shrink-0"
-                    id="acceptPolicy"
-                    type="checkbox"
-                    checked={acceptPolicy}
-                    onChange={(e) => setAcceptPolicy(e.target.checked)}
+                {/* Subtítulo */}
+                <p className="!text-gray-300 !text-base !leading-loose !tracking-wide !text-center !m-0">
+                    {t('oauth_terms.subtitle')}
+                </p>
+
+                {/* Mensaje de Error (Si lo hay) */}
+                {error && (
+                    <div className="!bg-red-900/40 !border !border-red-500 !text-red-200 !px-4 !py-3 !rounded-xl text-center font-bold">
+                        {error}
+                    </div>
+                )}
+
+                {/* Zona del Checkbox (Destacada sutilmente) */}
+                <div className="!bg-black/40 !p-5 !rounded-xl !border !border-gray-700/50 flex flex-row items-center !gap-4">
+                    <input
+                        className="!w-5 !h-5 !cursor-pointer accent-orange-600"
+                        id="acceptPolicy"
+                        type="checkbox"
+                        checked={acceptPolicy}
+                        onChange={(e) => setAcceptPolicy(e.target.checked)}
+                    />
+                    <label htmlFor="acceptPolicy" className="!text-gray-200 !text-sm !leading-relaxed !cursor-pointer !m-0">
+                        {t('privacy.prefix')}{' '}
+                        <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }} className="!text-orange-400 hover:!text-orange-300 !transition-colors !underline">
+                            <b>{t('info.terms_of_service')}</b>
+                        </a>
+                        {' '}{t('privacy.and')}{' '}
+                        <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} className="!text-orange-400 hover:!text-orange-300 !transition-colors !underline">
+                            <b>{t('info.privacy_policy')}</b>
+                        </a>
+                        {t('privacy.dot')}
+                    </label>
+                </div>
+
+                {/* Botones (Gemelos Premium) */}
+                <div className="!pt-4 flex flex-row justify-center !gap-6">
+                    <button 
+                        type="button" 
+                        onClick={handleCancel}
+                        className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-gray-700/50 hover:!bg-gray-600 !text-white !font-bold !text-sm !uppercase !tracking-wider !transition-colors !border !border-gray-600 !m-0"
+                    >
+                        {t('volver')}
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        onClick={handleAccept} 
+                        disabled={isLoading}
+                        // Lógica de colores: Si está cargando o no ha marcado la casilla, se ve apagado. Si está listo, brilla en naranja.
+                        className={`!px-10 !py-3.5 !min-w-[180px] !rounded-full !text-white !font-extrabold !text-sm !uppercase !tracking-wider !transition-all !m-0 !border-none ${
+                            isLoading || !acceptPolicy 
+                            ? '!bg-orange-900/50 !cursor-not-allowed !text-gray-400' 
+                            : '!bg-orange-600 hover:!bg-orange-700 hover:scale-105 !shadow-lg !shadow-orange-600/30'
+                        }`}
+                    >
+                        {isLoading ? t('enviando') : t('oauth_terms.confirm_btn')}
+                    </button>
+                </div>
+
+                {/* Modales de Políticas */}
+                <TermsModal
+                    isOpen={showTermsModal}
+                    onClose={() => setShowTermsModal(false)}
+                    title={t('info.terms_of_service')}
+                    fileName="terms"
                 />
-                <label htmlFor="acceptPolicy">
-                    {t('privacy.prefix')}{' '}
-                    <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }}>
-                        <u><b>{t('info.terms_of_service')}</b></u>
-                    </a>
-                    {' '}{t('privacy.and')}{' '}
-                    <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }}>
-                        <u><b>{t('info.privacy_policy')}</b></u>
-                    </a>
-                    {t('privacy.dot')}
-                </label>
+                <TermsModal
+                    isOpen={showPrivacyModal}
+                    onClose={() => setShowPrivacyModal(false)}
+                    title={t('info.privacy_policy')}
+                    fileName="privacy"
+                />
             </div>
-
-            <div className="py-5 flex flex-row justify-end">
-                <button type="button" onClick={handleCancel}>
-                    {t('volver')}
-                </button>
-                <button type="button" onClick={handleAccept} disabled={isLoading}>
-                    {isLoading ? t('enviando') : t('oauth_terms.confirm_btn')}
-                </button>
-            </div>
-
-            <TermsModal
-                isOpen={showTermsModal}
-                onClose={() => setShowTermsModal(false)}
-                title={t('info.terms_of_service')}
-                fileName="terms"
-            />
-            <TermsModal
-                isOpen={showPrivacyModal}
-                onClose={() => setShowPrivacyModal(false)}
-                title={t('info.privacy_policy')}
-                fileName="privacy"
-            />
         </div>
     );
 };
