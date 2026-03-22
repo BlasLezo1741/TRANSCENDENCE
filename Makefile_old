@@ -159,7 +159,7 @@ $(DB_DATA_DIR):
 	@docker compose -f srcs/docker-compose.yml down $(SERVICE2) 2>/dev/null || true
 	@if [ -d "$(DB_DATA_DIR)" ]; then \
 		echo "$(DB_DATA_DIR) ya existe. Usando contenedor auxiliar para limpiar contenido..."; \
-		docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/data/dbserver/*; \
+		docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/var/lib/postgresql/$(DB_POSTGRES_VERSION)/docker/*; \
 		echo "Contenido de $(DB_DATA_DIR) eliminado"; \
 	else \
 		mkdir -p $(DB_DATA_DIR); \
@@ -167,7 +167,6 @@ $(DB_DATA_DIR):
 	fi
 	@sync
 	@sleep 1
-# docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/var/lib/postgresql/$(DB_POSTGRES_VERSION)/docker/*; \
 
 # Create grafana data directory if does not exists
 $(GRAFANA_DATA_DIR):
@@ -284,15 +283,14 @@ logs:
 # Eliminar contenedores y volúmenes
 clean: down
 	docker image rm -f $(SERVICES)
+	docker rm $(docker ps -aq)
+	docker volume rm $(docker volume ls -q)
 
 fclean: clean
 # 1. Force remove the local data directories using a temporary container
 # (We do this first so the alpine image is available to be pruned later)
-# docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/data/dbserver /clean_zone/data/grafana /clean_zone/data/prometheus
-	docker run --rm \
-		-v $(TRANSCENDENCE_HOME):/clean_home \
-		-v $(CURRENT_DIR):/clean_repo \
-		alpine rm -rf /clean_home/data/dbserver /clean_home/data/grafana /clean_repo/data/prometheus
+	docker run --rm -v $(TRANSCENDENCE_HOME):/clean_zone alpine rm -rf /clean_zone/data/dbserver /clean_zone/data/grafana /clean_zone/data/prometheus
+
 # 2. Remove containers, networks, AND volumes defined in the compose file
 	docker compose --project-directory srcs -f srcs/docker-compose.yml down -v
 
@@ -306,10 +304,9 @@ fclean: clean
 # (This now includes the 'alpine' image since it is no longer in use)
 	docker container prune -f
 	docker image prune -a -f
-	docker volume prune -a -f
+	docker volume prune -f
 	docker network prune -f
-# 4. Borrar el archivo .env ahora que Docker ya no lo necesita
-	rm -f srcs/.env
+
 
 re: fclean all
 
