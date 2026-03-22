@@ -12,8 +12,14 @@ export const DRIZZLE = 'DRIZZLE';
     {
       provide: DRIZZLE,
       useFactory: () => {
-        // Usamos los datos de tu .env
-        const queryClient = postgres('postgres://postgres:example@dbserver:5432/transcendence');
+        // // Usamos los datos de tu .env
+        // const queryClient = postgres('postgres://postgres:example@dbserver:5432/transcendence');
+        
+        // Construimos la URL de conexión dinámicamente usando las variables del .env
+        const connectionString = process.env.DATABASE_URL || `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.POSTGRES_DB}`;
+        
+        // Conectamos usando esa URL dinámica
+        const queryClient = postgres(connectionString);
         return drizzle(queryClient, { schema: { ...schema, ...relations } });
       },
     },

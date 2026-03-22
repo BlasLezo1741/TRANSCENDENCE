@@ -20,6 +20,8 @@ services:
       - /app/node_modules
     env_file:
       - ../.env
+    environment: # Adiciono esto
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
     networks:
       transcendence_net:
         aliases:
