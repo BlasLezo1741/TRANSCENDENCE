@@ -90,7 +90,17 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         }
 
         // 2. Check local form validation
-        const formResult = checkForm(user, email, password, repeat, birth, language, country);
+        const formResult = checkForm(user, email, password, repeat, birth, 
+            language, country, 
+            { 
+                requireUser: true, 
+                requireEmail: true,
+                requirePassword: true, 
+                requireRepeat: true,
+                requireBirth: true,
+                requireLang: true,
+                requireCountry: true
+            });
         if (!formResult.ok) {
             setError(t(formResult.msg));
             setPassword("");
@@ -154,7 +164,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
         <div className="flex flex-col items-center">
             <h1>{t('crear_cuenta')}</h1>
 
-            <form className="form" onSubmit={handleForm} noValidate>
+            <form className="form" onSubmit={handleForm}>
                 {/* Error message */}
                 {error && (
                     <span className="text-red-500">{error}</span>
@@ -229,6 +239,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         id="country"
                         name="country"
                         value={country}
+                        required
                         onChange={(e) => setCountry(e.target.value)}
                         disabled={isLoadingCountries}>
                         <option value="">
@@ -248,6 +259,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                         name="lang"
                         id="lang"
                         value={language}
+                        required
                         onChange={(e) => setLanguage(e.target.value)}
                     >
                         <option value="">{t('sel_lang')}</option>

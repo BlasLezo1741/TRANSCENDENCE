@@ -5,11 +5,34 @@
 // We retrieve the URL from the environment (same as in socketService)
 //const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
+
 interface CheckFormOptions {
-    requirePassword?: boolean; // default true
+    requireUser?: boolean;
+    requireEmail?: boolean;
+    requirePassword?: boolean;
+    requireRepeat?: boolean;
+    requireBirth?: boolean;
+    requireLang?: boolean;
+    requireCountry?: boolean;
 }
 
-export function checkForm(user: string, email: string, password: string, repeat: string, birth: string, lang: string, country: string, options: CheckFormOptions = { requirePassword: true }) {
+export function checkForm(
+    user: string, 
+    email: string, 
+    password: string, 
+    repeat: string, 
+    birth: string, 
+    lang: string, 
+    country: string, 
+    options: CheckFormOptions = { 
+        requireUser: false, 
+        requireEmail: false,
+        requirePassword: false, 
+        requireRepeat: false,
+        requireBirth: false,
+        requireLang: false,
+        requireCountry: false
+    }) {
     
     if (!user || !user.trim())
         return { ok: false, msg: 'errors.userRequired' };
@@ -48,8 +71,8 @@ export function checkForm(user: string, email: string, password: string, repeat:
         if (!digit.test(password)) return { ok: false, msg: "errors.noNumPassword" };
         if (!min.test(password)) return { ok: false, msg: "errors.badLengthPassword" };
         if (password !== repeat) return { ok: false, msg: "errors.noMatchPassword" };
-        if (!lang) return { ok: false, msg: "errors.incorrectLang" };
-        if (!country) return { ok: false, msg: "errors.incorrectCountry" };
+        // if (!lang) return { ok: false, msg: "errors.incorrectLang" };
+        // if (!country) return { ok: false, msg: "errors.incorrectCountry" };
     }
     return { ok: true, msg: "success.password" };
 }

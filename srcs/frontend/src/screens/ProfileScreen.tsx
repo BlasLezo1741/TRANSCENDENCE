@@ -286,8 +286,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             editForm.email,
             editForm.newPassword,
             editForm.confirmPassword,
-            editForm.birth,
-            { requirePassword: false }
+            editForm.birth
         );
         if (!formResult.ok) {
             console.warn("⚠️ [ProfileScreen] Validation failed:", formResult.msg);
