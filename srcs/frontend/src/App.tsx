@@ -184,11 +184,14 @@ function App()
   }, []); // Run only once on mount
 
   useEffect(() => {
-    const newScrollClass = ["pong", "profile", "info"].includes(screen) ? "no-scroll" : "scroll";
+    let newScrollClass = ["pong", "profile", "info"].includes(screen) ? "no-scroll" : "scroll";
     
     // Solo actualizar el estado si realmente ha cambiado
-    if (scrollClass !== newScrollClass) {
-      setScroll(newScrollClass);
+    if (scrollClass !== newScrollClass)
+	{	
+		if (screen === "pong")
+			newScrollClass += " overflow-x-hidden";
+     	setScroll(newScrollClass);
     }
   }, [screen, scrollClass]); 
 
@@ -448,7 +451,7 @@ function renderScreen()
   }
 
   return (
-    <div className={`w-full h-screen mx-auto border border-black bg-black grid grid-rows-[auto_50px_1fr_auto] min-h-screen ${scrollClass}`}>
+    <div className={`w-full min-h-screen mx-auto border border-black bg-black grid grid-rows-[auto_50px_1fr_auto] ${scrollClass}`}>
       {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
       {/* 🔥🔥 MODAL DE INVITACIÓN (Estilo Unificado Premium) 🔥🔥 */}
       {inviteRequest && (

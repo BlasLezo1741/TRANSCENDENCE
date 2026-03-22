@@ -182,7 +182,7 @@ return (
   <section className="w-full mx-auto flex flex-col justify-center items-center relative">
     {bgImage && (
       <img
-        className="w-[800px] h-[600px] sm:w-[600px] sm:h-[400px] xs:w-[300px] xs:h-[200px] mx-auto object-cover mb-6"
+        className="w-full h-auto max-w-[800px] max-h-[600px] mx-auto object-cover mb-6"
         src={bgImage}
         alt={t('alt_main_image')}
       />
@@ -213,6 +213,7 @@ return (
         )}
       </div>
     )}
+	<br/>
   </section>
 );
 }
