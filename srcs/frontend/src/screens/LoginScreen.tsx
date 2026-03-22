@@ -126,13 +126,13 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
 
     return (
         <div>
-            <div className="flex justify-center">
+            <div className="flex flex-col justify-center items-center">
                 <h1 className="text-3xl font-bold text-gray-900">
                     {showTotpInput ? t('veri_2fa') : t('bienvenido')}
                 </h1>
                 
                 {showTotpInput && (
-                    <p className="text-gray-500 mt-2">
+                    <p className="text-gray-500 mt-0 !mb-2">
                         {t('ingresa_codigo_2fa')}
                     </p>
                 )}
@@ -180,7 +180,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                 ) : (
                     <>
                         <label className="label-black" htmlFor="totp">
-                            {t('cod_2fa')}
+                           {t('cod_2fa')}
                         </label>
                         <input
                             type="text"
@@ -209,7 +209,7 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
                             type="button"
                             onClick={handleBack}
                             className="btn bg-gray-200 text-gray-800 hover:bg-gray-300">
-                            {t('borrar_t')}
+                            {t('volver')}
                         </button>
                         <button
                             type="submit"

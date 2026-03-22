@@ -383,7 +383,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                     <strong className="text-green-500">{success}</strong>
                 )}
 
-                {success && enabled2FA && qrCode && (
+                {success && qrCode && (
                     <button
                         type="button"
                         className="btn bg-blue-500 text-white"
