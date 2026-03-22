@@ -21,8 +21,8 @@
     {
         transform: 
             translate(-26%, 0) 
-            rotate(90deg) 
-            scale(0.5);
+            rotate(0) 
+            scale(0.4);
         transform-origin: center center;
     }
 }

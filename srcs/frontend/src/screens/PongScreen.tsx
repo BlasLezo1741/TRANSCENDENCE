@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Canvas from '../components/Canvas.tsx';
 import { useTranslation } from 'react-i18next';
 import type { ScreenProps } from '../ts/screenConf/screenProps.ts';
@@ -25,17 +25,28 @@ type PongScreenProps = ScreenProps & {
 const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAvatar, opponentAvatar, ballInit, playerSide, roomId, chatOpen }: PongScreenProps) =>
 {
     const { t } = useTranslation();
-    if (!userName){
+
+    const [opponent, setOpponent] = useState<string>(opponentName);
+
+    if (!userName)
+    {
         userName = t('you');
         userAvatar = noAvatarUrl;
     }
-    if (!opponentName){
-        opponentName = t('guest');
-    }
+
+    useEffect(() =>
+    {
+        if (!opponentName)
+        {
+            setOpponent(t('guest'));
+            //opponentName = t('guest');
+        }
+    }, opponentName, t, opponent);
+    
 // Si yo estoy a la izquierda: [Yo] vs [Rival]
   // Si yo estoy a la derecha:   [Rival] vs [Yo]
-    const leftPlayer = playerSide === 'left' ? userName : opponentName;
-    const rightPlayer = playerSide === 'left' ? opponentName : userName;
+    const leftPlayer = playerSide === 'left' ? userName : opponent;
+    const rightPlayer = playerSide === 'left' ? opponent : userName;
 
     const leftAvatarRaw = playerSide === 'left' ? userAvatar : opponentAvatar;
     const rightAvatarRaw = playerSide === 'left' ? opponentAvatar : userAvatar;
