@@ -608,7 +608,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                                 <strong>{t('prof.field_oauth')}:</strong> {userProfile.oauthProvider} {/* Added Translation key */}
                             </div>
                         )}
-
+                        <br />
                         <button
                             onClick={() => {
                             //console.log("✏️ [InfoScreen] Entering edit mode");

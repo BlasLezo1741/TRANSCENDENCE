@@ -58,6 +58,13 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
     // -----------------------------------------------------------
     // INICIO DEL USE EFFECT (Todo ocurre aquí dentro)
     // -----------------------------------------------------------
+
+    const guest = t('guest');
+    const title_end = t('game.ended');
+    const title_dis = t('game.disconnected');
+    const msg_win = t('game.winner');
+    const msg_dis = t('game.messageDisconnected');
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -90,7 +97,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
         } 
         else {
             leftName = userName;
-            rightName = t('guest');
+            rightName = guest;
         }
 
 
@@ -194,8 +201,10 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                 onGameOver(winnerName);
             } else {
                 showModal({
-                    title: t('game.ended'),
-                    message: t('game.winner', { name : winnerName }),
+                    title: title_end,
+                    message: msg_win + ": " + winnerName,
+                    //title: t('game.ended'),
+                    //message: t('game.winner', { name : winnerName }),
                     type: "success",
                     onConfirm: () => {
                         dispatch({ type: "MENU" });
@@ -215,9 +224,11 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             const winnerName = userName;
             //FORZAMOS SIEMPRE EL MENSAJE EMERGENTE PRIMERO
             showModal({
-                title: t('game.disconnected'), // Título de la alerta
+                title: title_dis,
+                message: msg_dis + ": " + opponentName,
+                //title: t('game.disconnected'), // Título de la alerta
                 // message: `El rival ha abandonado la partida. ¡${winnerName} gana por abandono!`,
-                message: t('game.messageDisconnected', { name: opponentName }),
+                //message: t('game.messageDisconnected', { name: opponentName }),
                 type: "info",
                 onConfirm: () => {
                     // Cuando el usuario pulse "Aceptar", le mandamos a las estadísticas
@@ -384,8 +395,10 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                         onGameOver(winnerName);
                     } else {
                         showModal({
-                            title: t('game.ended'),
-                            message: t('game.winner', { name : winnerName }),
+                            title: title_end,
+                            message: msg_win + ": " + winnerName,
+                            //title: t('game.ended'),
+                            //message: t('game.winner', { name : winnerName }),
                             type: "success",
                             onConfirm: () => {
                                 dispatch({ type: "MENU" });
