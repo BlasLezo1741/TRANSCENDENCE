@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from "react";
+import React, {useRef, useEffect, useState} from "react";
 import { Player } from "../ts/models/Player.ts";
 import { Pong } from "../ts/models/Pong.ts";
 import { socket } from '../services/socketService'; 
@@ -50,10 +50,9 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
     // Esto permite que el renderLoop (que corre aislado) lea el valor actual sin reiniciarse
     const activeRef = useRef(isGameActive);
     const { t } = useTranslation();
+
     // Actualizamos la referencia cada vez que cambia la prop
-    useEffect(() => {
-        activeRef.current = isGameActive;
-    }, [isGameActive])
+    useEffect(() => { activeRef.current = isGameActive; }, [isGameActive]);
 
     // -----------------------------------------------------------
     // INICIO DEL USE EFFECT (Todo ocurre aquí dentro)
@@ -265,91 +264,62 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
                 gameRef.current.setPause(!gameRef.current.getPause());  
         };
 
-        let moveInterval: number | null = null;
-
         const handlePointerDown = (e: PointerEvent) =>
         {
-            if (!activeRef.current) return ;
+            if (!activeRef.current || !gameRef.current) return;
 
-            const getPlayerSide = (data: PosData) =>
-            {
-                const isLeft = data.mobile
-                ? data.touchY < data.halfY
-                : data.touchX < data.halfX;
+            const canvas = canvasRef.current;
+            if (!canvas) return;
 
-                data.dirX = isLeft ? "left" : "right";
-                return isLeft ? "left" : "right";
-            };
-
-            const getDirection = (data: PosData) =>
-            {
-                //console.log("X: " + data.touchX);
-                //console.log("Y: " + data.touchY);
-                if (!data.mobile)
-                {
-                    if (data.touchY < data.halfY)
-                        return "up";
-                    return "down";
-                }
-                if (data.touchX < 225)
-                    return "down";
-                return "up";
-            };
-
-            const movePlayer = (dir: DirY, player: Player) =>
-            {
-                if (dir === "up")
-                    player.moveUp();
-                else
-                    player.moveDown();
-            };
-
-            const isMobile = () =>
-            {
-                if (innerWidth <= 660)
-                    return true;
-                return false;
-            };
-
+            // Tomamos rect y aplicamos la escala
             const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
 
-            const posData: PosData =
-            {
-                touchX: e.clientX - rect.left,
-                touchY: e.clientY - rect.top,
-                halfX: canvas.width / 2,
-                halfY: canvas.height / 2,
-                dirX: "",
-                dirY: "",
-                mobile: isMobile()
+            const touchX = (e.clientX - rect.left) * scaleX;
+            const touchY = (e.clientY - rect.top) * scaleY;
+
+            const halfX = canvas.width / 2;
+            const halfY = canvas.height / 2;
+
+            const isMobile = window.innerWidth <= 660;
+
+            const dirY: DirY = isMobile
+                ? touchX < 225 ? "down" : "up"
+                : touchY < halfY ? "up" : "down";
+
+            // Determinar jugador en modo local o IA
+            const player = mode === "ia"
+                ? gameRef.current.player1
+                : mode === "local"
+                ? touchX < halfX
+                    ? gameRef.current.player1
+                    : gameRef.current.player2
+                : gameRef.current.playerNumber === 1
+                ? gameRef.current.player1
+                : gameRef.current.player2;
+
+            // Movimiento continuo usando requestAnimationFrame
+            let moveAnimId: number;
+            const movePlayer = () => {
+                if (!activeRef.current) return;
+                if (dirY === "up") player.moveUp();
+                else player.moveDown();
+                moveAnimId = requestAnimationFrame(movePlayer);
             };
 
-            posData.dirY = getDirection(posData);
+            movePlayer();
 
-            const player = mode === "ia" ? 
-                gameRef.current.player1 : mode === "local" ? 
-                (getPlayerSide(posData) === "left" ?
-                gameRef.current.player1 : gameRef.current.player2) :
-                (gameRef.current.playerNumber === 1 ?
-                gameRef.current.player1 : gameRef.current.player2);
+            const stopMoving = () => cancelAnimationFrame(moveAnimId);
 
-            moveInterval = window.setInterval(() => movePlayer(posData.dirY, player), 16);
-        };
-
-        const stopMoving = () =>
-        {
-            if (moveInterval === null)
-                return ;
-            clearInterval(moveInterval);
-            moveInterval = null;
+            canvas.addEventListener("pointerup", stopMoving, { once: true });
+            canvas.addEventListener("pointercancel", stopMoving, { once: true });
+            canvas.addEventListener("pointerleave", stopMoving, { once: true });
         };
 
         window.addEventListener("keyup", handleKeyUp);
         window.addEventListener("keydown", handleKeyDown);
         canvas.addEventListener("pointerdown", handlePointerDown);
-        canvas.addEventListener("pointerup", stopMoving);
-        canvas.addEventListener("pointercancel", stopMoving);
-        canvas.addEventListener("pointerleave", stopMoving);
 
         // --- BUCLE DE RENDERIZADO (NO FÍSICA) ---
         let animationId: number;
@@ -464,7 +434,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
         gameRef.current.chat = chatOpen;
     }, [chatOpen]);
 
-    return <canvas ref={canvasRef} className="w-full h-full border-3 border-white bg-black"/>;
+    return <canvas ref={canvasRef} className="block border-3 border-white bg-black"/>;
 }
 
 export default Canvas;

@@ -7,7 +7,7 @@ import { Countdown } from '../components/Countdown';
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 import { Leaderboard } from '../components/Leaderboard';
 import noAvatarUrl from '../assets/nouser_chatgpt.png';
-import '../css/PongScreen.css';
+//import '../css/PongScreen.css';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
@@ -73,8 +73,33 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
     setWinnerName(winner);
   };
 
+  const [transform, setTransform] = useState({ scale: 1, translateX: 0 });
+
+  useEffect(() =>
+  {
+      const canvasWidth = 800;
+      const updateTransform = () =>
+      {
+          const w = window.innerWidth;
+          let scale = Math.min(1, (w - 50) / (canvasWidth + 200));
+          let translateX = 0;
+          setTransform({ scale, translateX });
+      };
+
+      updateTransform();
+      window.addEventListener("resize", updateTransform);
+      return () => window.removeEventListener("resize", updateTransform);
+  }, []);
+
+
   return (
-    <div className="game">
+    <div
+        className="w-full h-full mx-auto flex flex-col items-center justify-center"
+        style={{
+            transform: `translateX(${transform.translateX}%) scale(${transform.scale})`,
+            transformOrigin: "center center",
+        }}   
+    >
       
       {/* CABECERA CON AVATARES */}
       <div className="flex justify-between items-center w-[800px] mb-2.5 p-2.5 bg-[rgba(0,0,0,0.5)] rounded-[10px] text-white">

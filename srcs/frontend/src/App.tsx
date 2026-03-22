@@ -189,8 +189,8 @@ function App()
     // Solo actualizar el estado si realmente ha cambiado
     if (scrollClass !== newScrollClass)
 	{	
-		if (screen === "pong")
-			newScrollClass += " overflow-x-hidden";
+		// if (screen === "pong")
+		// 	newScrollClass += " overflow-x-hidden";
      	setScroll(newScrollClass);
     }
   }, [screen, scrollClass]); 
