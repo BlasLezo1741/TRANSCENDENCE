@@ -51,7 +51,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     useEffect(() => {
         const fetchCountries = async () => {
             try {
-                console.log(`reading countries from /countries (Ruta relativa)`);
+                //console.log(`reading countries from /countries (Ruta relativa)`);
                 const response = await fetch('/countries', {
                     method: 'GET',
                     mode: 'cors',
@@ -110,7 +110,7 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 setSuccess(t(result.msg));
                 if (enabled2FA && result.qrCode) {
                     setQrCode(result.qrCode);
-                    console.log(result.backupCodes);
+                    //console.log(result.backupCodes);
                     setBackupCodes(result.backupCodes);
                     setShowOAuthButtons(false);
                 }

@@ -111,9 +111,9 @@ export class ChatService {
       
       // 👇👇👇 DEBUG CLAVE: Mira esto en "docker logs backend" 👇👇👇
       if (friend.pAvatarUrl || friend.avatarUrl) {
-          console.log(`✅ [AVATAR] Encontrado para ${friend.pNick}: ${friend.pAvatarUrl || friend.avatarUrl}`);
+          //console.log(`✅ [AVATAR] Encontrado para ${friend.pNick}: ${friend.pAvatarUrl || friend.avatarUrl}`);
       } else {
-          console.log(`⚠️ [AVATAR] ${friend.pNick} (ID: ${friend.pPk}) no tiene avatar en la DB.`);
+          //console.log(`⚠️ [AVATAR] ${friend.pNick} (ID: ${friend.pPk}) no tiene avatar en la DB.`);
       }
       // 👆👆👆 FIN DEBUG 👆👆👆
 
@@ -136,7 +136,7 @@ export class ChatService {
 
   // 🔥 7. NUEVO MÉTODO: MARCAR COMO LEÍDOS
   async markAsRead(senderId: number, receiverId: number) {
-    console.log(`🧹 [DB] Marcando como leídos mensajes de ${senderId} para ${receiverId}`);
+    //console.log(`🧹 [DB] Marcando como leídos mensajes de ${senderId} para ${receiverId}`);
     
     const result = await this.db.update(schema.directMessage)
         .set({ isRead: true })
@@ -147,7 +147,7 @@ export class ChatService {
         ))
         .returning(); // Para ver cuántos actualizó
     
-    console.log(`✅ [DB] Mensajes actualizados: ${result.length}`);
+    //console.log(`✅ [DB] Mensajes actualizados: ${result.length}`);
     return { success: true, count: result.length };
   }
 

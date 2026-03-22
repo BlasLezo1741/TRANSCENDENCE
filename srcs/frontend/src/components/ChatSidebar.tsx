@@ -74,7 +74,7 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
         fetch(`/chat/users?current=${CURRENT_USER_ID}`)
             .then(res => res.json())
             .then(data => {
-                console.log("📦 Datos RAW de amigos recibidos:", data);
+                //console.log("📦 Datos RAW de amigos recibidos:", data);
                 setContacts((prev: ChatContact[]) => {
                     const localUnreadMap = new Map(prev.map(c => [c.id, c.unread || 0]));
                     
@@ -118,7 +118,7 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
         // No llamamos a loadFriends() porque sería muy pesado recargar todo.
         // Solo actualizamos el array localmente.
         const handleStatusChange = (data: { userId: number, status: 'online' | 'offline' | 'ingame' }) => {
-            console.log("🚦 Cambio de estado recibido:", data);
+            //console.log("🚦 Cambio de estado recibido:", data);
             
             setContacts((prevContacts: ChatContact[]) => prevContacts.map((contact: ChatContact) => {
                 // Si el ID coincide, cambiamos su estado
@@ -147,7 +147,7 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
             setContacts((prevContacts) => prevContacts.map(contact => {
                 // Comparamos IDs (asegurando que sean números)
                 if (Number(contact.id) === Number(payload.id)) {
-                    console.log(`🔄 Actualizando visualmente a ${contact.name}`);
+                    //console.log(`🔄 Actualizando visualmente a ${contact.name}`);
                     return {
                         ...contact,
                         name: payload.name || contact.name,       
@@ -176,7 +176,7 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
             .then(res => res.json())
             .then(data => {
                 // DEBUG: Ver qué está llegando exactamente
-                console.log("📦 Datos recibidos del historial:", data);
+                //console.log("📦 Datos recibidos del historial:", data);
 
                 if (!Array.isArray(data)) return;
 
@@ -290,7 +290,7 @@ export const ChatSidebar = ( {chatOpen, setChatOpen}: ChatProps ) => {
     const handleInviteClick = () => {
         if (!selectedChatId) return;
         
-        console.log(`🏓 Enviando reto a ${selectedChatId}...`);
+        //console.log(`🏓 Enviando reto a ${selectedChatId}...`);
         
         // Emitimos el evento al Gateway
         socket.emit('send_game_invite', { 

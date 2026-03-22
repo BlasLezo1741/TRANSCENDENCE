@@ -32,7 +32,7 @@ export interface UpdateProfileData {
 // Helper to get token
 const getToken = (): string | null => {
     const token = localStorage.getItem("pong_token");
-    console.log("🔑 [user.service] Token retrieved:", token ? "✅ Found" : "❌ Not found");
+    //console.log("🔑 [user.service] Token retrieved:", token ? "✅ Found" : "❌ Not found");
     return token;
 };
 
@@ -57,7 +57,7 @@ function handle401Unauthorized() {
 
 // 1. Get full profile details
 export const getMyProfile = async (): Promise<UserProfile | null> => {
-    console.log("📡 [user.service] getMyProfile() - Starting request...");
+    //console.log("📡 [user.service] getMyProfile() - Starting request...");
     
     try {
         const token = getToken();
@@ -67,7 +67,7 @@ export const getMyProfile = async (): Promise<UserProfile | null> => {
         }
 
         const url = `/auth/profile`;
-        console.log("📡 [user.service] Fetching from:", url);
+        //console.log("📡 [user.service] Fetching from:", url);
 
         const response = await fetch(url, {
             method: 'GET',
@@ -77,7 +77,7 @@ export const getMyProfile = async (): Promise<UserProfile | null> => {
             }
         });
 
-        console.log("📡 [user.service] Response status:", response.status);
+        //console.log("📡 [user.service] Response status:", response.status);
 
         // 🔥 CRITICAL: Handle 401 by auto-logout
         if (response.status === 401) {
@@ -92,7 +92,7 @@ export const getMyProfile = async (): Promise<UserProfile | null> => {
         }
 
         const data = await response.json();
-        console.log("✅ [user.service] Profile fetched successfully:", data);
+        //console.log("✅ [user.service] Profile fetched successfully:", data);
         
         return data;
     } catch (error) {
@@ -103,10 +103,10 @@ export const getMyProfile = async (): Promise<UserProfile | null> => {
 
 // 2. Update profile
 export const updateMyProfile = async (updateData: UpdateProfileData) => {
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log("🔍 [user.service] STEP 8: updateMyProfile called");
-    console.log("🔍 [user.service] Update data received:");
-    console.log(JSON.stringify(updateData, null, 2));
+    //console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    //console.log("🔍 [user.service] STEP 8: updateMyProfile called");
+    //console.log("🔍 [user.service] Update data received:");
+    //console.log(JSON.stringify(updateData, null, 2));
 
     try {
         const token = getToken();
@@ -116,8 +116,8 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
         }
 
         const url = `/auth/profile`;
-        console.log("🔍 [user.service] STEP 9: Sending PUT request to:", url);
-        console.log("🔍 [user.service] Request body:", JSON.stringify(updateData));
+        //console.log("🔍 [user.service] STEP 9: Sending PUT request to:", url);
+        //console.log("🔍 [user.service] Request body:", JSON.stringify(updateData));
 
         const response = await fetch(url, {
             method: 'PUT',
@@ -128,9 +128,9 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
             body: JSON.stringify(updateData)
         });
 
-        console.log("🔍 [user.service] STEP 10: Response received");
-        console.log("🔍 [user.service] Response status:", response.status);
-        console.log("🔍 [user.service] Response ok:", response.ok);
+        //console.log("🔍 [user.service] STEP 10: Response received");
+        //console.log("🔍 [user.service] Response status:", response.status);
+        //console.log("🔍 [user.service] Response ok:", response.ok);
 
         // 🔥 CRITICAL: Handle 401 by auto-logout
         if (response.status === 401) {
@@ -139,9 +139,9 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
         }
 
         const data = await response.json();
-        console.log("🔍 [user.service] STEP 11: Response data:");
-        console.log(JSON.stringify(data, null, 2));
-        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        //console.log("🔍 [user.service] STEP 11: Response data:");
+        //console.log(JSON.stringify(data, null, 2));
+        //console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         if (!response.ok) {
             console.error("❌ [user.service] Update failed");
@@ -151,7 +151,7 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
             };
         }
 
-        console.log("✅ [user.service] Profile updated successfully");
+        //console.log("✅ [user.service] Profile updated successfully");
         return { 
             ok: true, 
             msg: data.message || "Profile updated successfully", 
@@ -170,11 +170,11 @@ export const updateMyProfile = async (updateData: UpdateProfileData) => {
 
 // 3. Get list of countries
 export const getCountries = async (): Promise<Country[]> => {
-    console.log("📡 [user.service] getCountries() - Starting request...");
+    //console.log("📡 [user.service] getCountries() - Starting request...");
 
     try {
         const url = `/auth/countries`;
-        console.log("📡 [user.service] Fetching from:", url);
+        //console.log("📡 [user.service] Fetching from:", url);
 
         const response = await fetch(url, {
             method: 'GET',
@@ -183,7 +183,7 @@ export const getCountries = async (): Promise<Country[]> => {
             }
         });
 
-        console.log("📡 [user.service] Response status:", response.status);
+        //console.log("📡 [user.service] Response status:", response.status);
 
         if (!response.ok) {
             console.error("❌ [user.service] Failed to fetch countries");
@@ -191,7 +191,7 @@ export const getCountries = async (): Promise<Country[]> => {
         }
 
         const data = await response.json();
-        console.log("✅ [user.service] Countries fetched:", data.length, "countries");
+        //console.log("✅ [user.service] Countries fetched:", data.length, "countries");
         
         return data;
     } catch (error) {
@@ -202,7 +202,7 @@ export const getCountries = async (): Promise<Country[]> => {
 
 // 4. Delete (anonymize) my account
 export const deleteMyAccount = async (): Promise<{ ok: boolean; msg: string }> => {
-    console.log("🗑️ [user.service] deleteMyAccount() - Starting...");
+    //console.log("🗑️ [user.service] deleteMyAccount() - Starting...");
 
     try {
         const token = getToken();
@@ -235,7 +235,7 @@ export const deleteMyAccount = async (): Promise<{ ok: boolean; msg: string }> =
         localStorage.removeItem("pong_user_nick");
         localStorage.removeItem("pong_user_id");
 
-        console.log("✅ [user.service] Account deleted successfully");
+        //console.log("✅ [user.service] Account deleted successfully");
         return { ok: true, msg: 'success.accountDeleted' };
     } catch (error) {
         console.error("❌ [user.service] Error in deleteMyAccount():", error);
@@ -244,7 +244,7 @@ export const deleteMyAccount = async (): Promise<{ ok: boolean; msg: string }> =
 };
 
 export const getLeaderboard = async () => {
-    console.log("[user.service] getLeaderboard() - Starting request...");
+    //console.log("[user.service] getLeaderboard() - Starting request...");
 
     try {
         const token = getToken();
@@ -254,7 +254,7 @@ export const getLeaderboard = async () => {
         }
         // Usamos la ruta relativa EXACTAMENTE igual que en getCountries
         const url = `/auth/stats/leaderboard`;
-        console.log("[user.service] Fetching from:", url);
+        //console.log("[user.service] Fetching from:", url);
 
         const response = await fetch(url, {
             method: 'GET',
@@ -264,7 +264,7 @@ export const getLeaderboard = async () => {
             }
         });
 
-        console.log("[user.service] Response status:", response.status);
+        //console.log("[user.service] Response status:", response.status);
         if (response.status === 401) {
             handle401Unauthorized();
             return [];
@@ -276,7 +276,7 @@ export const getLeaderboard = async () => {
         }
 
         const data = await response.json();
-        console.log("✅ [user.service] Leaderboard fetched:", data.length, "players");
+        //console.log("✅ [user.service] Leaderboard fetched:", data.length, "players");
         
         return data;
     } catch (error) {
@@ -287,14 +287,14 @@ export const getLeaderboard = async () => {
 
 // Obtener el historial de partidas del usuario
 export const getMatchHistory = async () => {
-    console.log("📡 [user.service] getMatchHistory() - Starting request...");
+    //console.log("📡 [user.service] getMatchHistory() - Starting request...");
 
     try {
         const token = getToken();
         if (!token) return [];
 
         const url = `/auth/stats/history`;
-        console.log("📡 [user.service] Fetching history from:", url);
+        //console.log("📡 [user.service] Fetching history from:", url);
 
         const response = await fetch(url, {
             method: 'GET',
@@ -312,7 +312,7 @@ export const getMatchHistory = async () => {
         if (!response.ok) throw new Error("Failed to fetch match history");
 
         const data = await response.json();
-        console.log("✅ [user.service] History fetched:", data.length, "matches");
+        //console.log("✅ [user.service] History fetched:", data.length, "matches");
         return data;
     } catch (error) {
         console.error("❌ [user.service] Error in getMatchHistory():", error);

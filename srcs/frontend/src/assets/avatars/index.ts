@@ -64,4 +64,4 @@ export const getDefaultAvatarId = (userId: number): string => {
 };
 
 // Optional: Log loaded avatars for debugging
-console.log(`✅ Loaded ${DEFAULT_AVATARS.length} default avatars`);
+//console.log(`✅ Loaded ${DEFAULT_AVATARS.length} default avatars`);

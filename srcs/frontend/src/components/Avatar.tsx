@@ -25,25 +25,25 @@ export const Avatar: React.FC<AvatarProps> = ({
     
     if (src === 'deleted') {
         avatarSrc = nouserAvatar;
-        console.log('🚫 [Avatar] Using anonymous avatar for deleted user');
+        //console.log('🚫 [Avatar] Using anonymous avatar for deleted user');
     } else if (!src || imgError) {
         // No avatar or error loading - use default based on user ID
         avatarSrc = getDefaultAvatar(userId);
-        console.log('🎨 [Avatar] Using default avatar for user', userId);
+        //console.log('🎨 [Avatar] Using default avatar for user', userId);
     } else if (src.startsWith('http://') || src.startsWith('https://')) {
         // OAuth provider URL - use as is
         avatarSrc = src;
         isOAuthUrl = true;
-        console.log('🌐 [Avatar] Using OAuth URL:', src);
+        //console.log('🌐 [Avatar] Using OAuth URL:', src);
     } else {
         // Avatar ID from gallery - resolve to actual URL
         const resolvedUrl = getAvatarUrlById(src);
         avatarSrc = resolvedUrl || getDefaultAvatar(userId);
-        console.log('🖼️ [Avatar] Resolved avatar ID', src, 'to URL:', avatarSrc);
+        //console.log('🖼️ [Avatar] Resolved avatar ID', src, 'to URL:', avatarSrc);
     }
     
     const handleError = () => {
-        console.log('❌ [Avatar] Failed to load avatar, using default');
+        //console.log('❌ [Avatar] Failed to load avatar, using default');
         setImgError(true);
         setLoading(false);
     };
@@ -56,7 +56,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     };
     
     const handleLoad = () => {
-        console.log('✅ [Avatar] Avatar loaded successfully');
+        //console.log('✅ [Avatar] Avatar loaded successfully');
         setLoading(false);
     };
 

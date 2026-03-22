@@ -185,7 +185,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             if (data.winner === 'left') winnerName = leftName;
             else if (data.winner === 'right') winnerName = rightName;
             
-            console.log("🏁 Game Over. Ganador:", winnerName);
+            //console.log("🏁 Game Over. Ganador:", winnerName);
             // Paramos animación
             cancelAnimationFrame(animationId);
             
@@ -272,8 +272,8 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
 
             const getDirection = (data: PosData) =>
             {
-                console.log("X: " + data.touchX);
-                console.log("Y: " + data.touchY);
+                //console.log("X: " + data.touchX);
+                //console.log("Y: " + data.touchY);
                 if (!data.mobile)
                 {
                     if (data.touchY < data.halfY)

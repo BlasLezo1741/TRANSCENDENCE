@@ -53,11 +53,11 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
                 return; 
             }
             const socketMode = "1v1_remote";
-            console.log("🚀 Enviando al Socket (Online):", socketMode);
+            //console.log("🚀 Enviando al Socket (Online):", socketMode);
             
             joinQueue(userName, socketMode); 
 
-            console.log("⏳ Esperando a que el servidor encuentre rival...");
+            //console.log("⏳ Esperando a que el servidor encuentre rival...");
 
             setStatusText(t('searching_player'));
             setModeActive("online");
@@ -66,7 +66,7 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
         }
 
         // Offline
-        console.log("⚡ Iniciando modo Offline:", mode);
+        //console.log("⚡ Iniciando modo Offline:", mode);
 
         setPlayerSide('left');
 
@@ -109,7 +109,7 @@ const MenuScreen = ({ dispatch, ia, setIa, mode, setMode, setDifficult, userName
 
         setStatusText("");
         setModeActive(null)
-        console.log("❌ Proceso cancelado");
+        //console.log("❌ Proceso cancelado");
     }
 
     const showBtn = () => {

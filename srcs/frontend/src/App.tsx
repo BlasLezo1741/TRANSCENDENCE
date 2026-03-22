@@ -103,7 +103,7 @@ function App()
         // the API automatically when currentUser becomes truthy, so we don't set it here.
         setCurrentUser(payload.nick);
         setCurrentUserId(Number(payload.sub));
-        console.log("🔓 OAuth Login successful:", payload.nick);
+        //console.log("🔓 OAuth Login successful:", payload.nick);
 
         // 3. Clean URL (remove token from address bar)
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -156,7 +156,7 @@ function App()
               localStorage.setItem('pong_token', jwt);
               setCurrentUser(payload.nick);
               setCurrentUserId(Number(payload.sub));
-              console.log("🔓 OAuth registration complete (SignScreen):", payload.nick);
+              //console.log("🔓 OAuth registration complete (SignScreen):", payload.nick);
               dispatch({ type: 'MENU' });
             } else {
               console.error("❌ oauth-complete failed:", result.msg);
@@ -197,7 +197,7 @@ function App()
   // -----------------------------------------------------------
   useEffect(() => {
     if (currentUser) {
-        console.log("🔄 Active user detected. Connecting socket...");
+        //console.log("🔄 Active user detected. Connecting socket...");
         const queryParams = new URLSearchParams(window.location.search);
         const urlId = queryParams.get('uid'); 
         const idToConnect = urlId ? Number(urlId) : Number(localStorage.getItem("pong_user_id"));
@@ -272,8 +272,8 @@ function App()
   // -----------------------------------------------------------------------
   useEffect(() => {
   const handleMatchFound = (payload: any) => {
-          console.log("🔔 [App.tsx] Event match_found received:", payload);
-          console.log("🕵️ [App.tsx] Data from rival:", payload.opponent);
+          //console.log("🔔 [App.tsx] Event match_found received:", payload);
+          //console.log("🕵️ [App.tsx] Data from rival:", payload.opponent);
 
           if (payload.roomId) { 
               
@@ -290,7 +290,7 @@ function App()
 
               // Guardar ID Rival
               if (payload.opponent && payload.opponent.id) {
-                  console.log("✅ ID del oponente:", payload.opponent.id);
+                  //console.log("✅ ID del oponente:", payload.opponent.id);
                   setOpponentId(payload.opponent.id);
               } else {
                   console.error("❌ ID NO ENCONTRADO en el payload. Opponent es:", payload.opponent)
@@ -299,7 +299,7 @@ function App()
 
               // Guardar Avatar Rival
               if (payload.opponent && payload.opponent.avatar) {
-                  console.log("📸 Avatar del oponente recibido:", payload.opponent.avatar);
+                  //console.log("📸 Avatar del oponente recibido:", payload.opponent.avatar);
                   setOpponentAvatar(payload.opponent.avatar);
               } else {
                   setOpponentAvatar(null);
@@ -312,7 +312,7 @@ function App()
 
               // Guardar Lado
               if (payload.side) {
-                  console.log("📍 Lado asignado a este cliente:", payload.side);
+                  //console.log("📍 Lado asignado a este cliente:", payload.side);
                   setPlayerSide(payload.side);
               }
 
@@ -327,7 +327,7 @@ function App()
 
               // CAMBIO DE PANTALLA
               setTimeout(() => {
-                  console.log("🚀 Ejecutando cambio de pantalla a PONG...");
+                  //console.log("🚀 Ejecutando cambio de pantalla a PONG...");
                   dispatch({ type: "PONG" }); 
               }, 50);
           } else {
@@ -337,7 +337,7 @@ function App()
 
       // 🔥 MANEJO DE INVITACIÓN CON MODAL PROPIO (NO window.confirm)
       const handleIncomingInvite = (data: { fromUserId: number, fromUserName: string }) => {
-        console.log("🔔 Invitación recibida (Modal):", data);
+        //console.log("🔔 Invitación recibida (Modal):", data);
         setInviteRequest(data);
       };
 
@@ -359,7 +359,7 @@ function App()
     if (screen === "menu") {
       // Avisamos al servidor SOLO cuando de verdad volvemos al menú
       if (roomId && mode === "remote") {
-        console.log("Avisando al servidor para abandonar la sala:", roomId);
+        //console.log("Avisando al servidor para abandonar la sala:", roomId);
         socket.emit('leave_game', { roomId: roomId });
     }
       setBallInit(null);
@@ -379,11 +379,11 @@ const handleInviteResponse = (accept: boolean) => {
       if (!inviteRequest) return;
 
       if (accept) {
-          console.log("✅ Aceptando reto...");
+          //console.log("✅ Aceptando reto...");
           socket.emit('accept_game_invite', { challengerId: inviteRequest.fromUserId });
           setInviteRequest(null); 
       } else {
-          console.log("❌ Rechazando reto.");
+          //console.log("❌ Rechazando reto.");
           setInviteRequest(null);
       }
   };

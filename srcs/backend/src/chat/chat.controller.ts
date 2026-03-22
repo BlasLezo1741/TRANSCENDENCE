@@ -29,7 +29,7 @@ export class ChatController {
   // Se llama cuando haces clic en un chat para marcar mensajes como leídos
   @Patch('read')
   async markAsRead(@Body() body: { senderId: any, receiverId: any }) {
-      console.log("👀 [BACKEND] Solicitud de lectura recibida:", body);
+      //console.log("👀 [BACKEND] Solicitud de lectura recibida:", body);
 
       // Convertimos a Number para asegurar que la DB no reciba strings
       const sender = Number(body.senderId);

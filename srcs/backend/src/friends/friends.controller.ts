@@ -11,7 +11,7 @@ export class FriendsController {
   // El frontend llama a: /friends/list?userId=1
   @Get('list')
   async getFriends(@Query('userId') userId: string) {
-    console.log(`🔍 [DEBUG] Solicitando lista de amigos para User ID: ${userId}`); // Chivato
+    //console.log(`🔍 [DEBUG] Solicitando lista de amigos para User ID: ${userId}`); // Chivato
     return this.friendsService.getFriends(Number(userId));
   }
   
@@ -21,7 +21,7 @@ export class FriendsController {
   @Post('request')
   async sendRequest(@Body() body: { userId: number, targetId: number }) {
       // LOG PARA DEPURAR: Ver qué llega exactamente
-      console.log("📥 [CONTROLLER] Payload recibido:", body);
+      //console.log("📥 [CONTROLLER] Payload recibido:", body);
 
       // GUARDA DE SEGURIDAD:
       // Si userId o targetId no existen, devolvemos error controlado en vez de romper SQL.
@@ -39,7 +39,7 @@ export class FriendsController {
   // ==========================================
   @Post('accept')
   async acceptRequest(@Body() body: { userId: number, targetId: number }) {
-      console.log(`🤝 [DEBUG] User ${body.userId} acepta a ${body.targetId}`);
+      //console.log(`🤝 [DEBUG] User ${body.userId} acepta a ${body.targetId}`);
       return this.friendsService.acceptRequest(body.userId, body.targetId);
   }
 
@@ -57,7 +57,7 @@ export class FriendsController {
   // Ojo: Lo cambiamos a GET porque fetch por defecto para leer datos suele ser GET
   @Get('pending')
   async getPending(@Query('userId') userId: string) {
-      console.log(`📬 [DEBUG] User ${userId} consulta PENDIENTES`);
+      //console.log(`📬 [DEBUG] User ${userId} consulta PENDIENTES`);
       return this.friendsService.getPendingRequests(Number(userId));
   }
 

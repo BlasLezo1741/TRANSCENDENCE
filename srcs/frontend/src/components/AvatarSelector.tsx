@@ -23,44 +23,44 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
         setAvatars(avatarList);
         
         // DEBUG: Log the avatars array structure
-        console.log('🎨 [AvatarSelector] Loaded avatars:', avatarList);
-        console.log('🎨 [AvatarSelector] Avatar IDs:', avatarList.map(a => a.id));
+        //console.log('🎨 [AvatarSelector] Loaded avatars:', avatarList);
+        //console.log('🎨 [AvatarSelector] Avatar IDs:', avatarList.map(a => a.id));
         
         // Pre-select current avatar if it's from the gallery
         if (currentAvatarUrl && !currentAvatarUrl.startsWith('http')) {
             const matchingAvatar = avatarList.find(a => a.id === currentAvatarUrl);
             if (matchingAvatar) {
                 setSelectedAvatarId(matchingAvatar.id);
-                console.log('🎯 [AvatarSelector] Pre-selected current avatar:', matchingAvatar.id);
+                //console.log('🎯 [AvatarSelector] Pre-selected current avatar:', matchingAvatar.id);
             }
         }
     }, [currentAvatarUrl]);
 
     const handleSelect = () => {
         if (selectedAvatarId) {
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            console.log('🔍 [AvatarSelector] STEP 1: User clicked Select');
-            console.log('🔍 [AvatarSelector] selectedAvatarId:', selectedAvatarId);
-            console.log('🔍 [AvatarSelector] Type:', typeof selectedAvatarId);
+            //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            //console.log('🔍 [AvatarSelector] STEP 1: User clicked Select');
+            //console.log('🔍 [AvatarSelector] selectedAvatarId:', selectedAvatarId);
+            //console.log('🔍 [AvatarSelector] Type:', typeof selectedAvatarId);
             
             // DEBUG: Show all avatar IDs to compare
-            console.log('🔍 [AvatarSelector] All available IDs:', avatars.map(a => a.id));
+            //console.log('🔍 [AvatarSelector] All available IDs:', avatars.map(a => a.id));
             
             // Find the avatar object
             const avatarObj = avatars.find(a => a.id === selectedAvatarId);
             
-            console.log('🔍 [AvatarSelector] Looking for ID:', selectedAvatarId);
-            console.log('🔍 [AvatarSelector] Found avatar object:', avatarObj);
+            //console.log('🔍 [AvatarSelector] Looking for ID:', selectedAvatarId);
+            //console.log('🔍 [AvatarSelector] Found avatar object:', avatarObj);
             
             if (avatarObj) {
-                console.log('🔍 [AvatarSelector] STEP 2: Sending avatar ID:', avatarObj.id);
-                console.log('🔍 [AvatarSelector] Avatar URL is:', avatarObj.url);
-                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                //console.log('🔍 [AvatarSelector] STEP 2: Sending avatar ID:', avatarObj.id);
+                //console.log('🔍 [AvatarSelector] Avatar URL is:', avatarObj.url);
+                //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 onSelect(avatarObj.id);
             } else {
                 console.error('❌ [AvatarSelector] ERROR: Could not find avatar object for ID:', selectedAvatarId);
                 console.error('❌ [AvatarSelector] Available avatars:', avatars);
-                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             }
         } else {
             console.error('❌ [AvatarSelector] ERROR: No avatar selected!');
@@ -79,7 +79,7 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                         <div
                             key={avatar.id}
                             onClick={() => {
-                                console.log('👆 [AvatarSelector] Clicked avatar:', avatar.id);
+                                //console.log('👆 [AvatarSelector] Clicked avatar:', avatar.id);
                                 setSelectedAvatarId(avatar.id);
                             }}
                             className={`cursor-pointer p-2.5 rounded-xl ${selectedAvatarId === avatar.id ? 'border-3 border-[#4CAF50] bg-[#e8f5e9]' : 'border-3 border-transparent bg-[#f5f5f5]'} transition-all duration-200 ease-in-out text-center`}

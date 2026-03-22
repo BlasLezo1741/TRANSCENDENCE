@@ -54,7 +54,7 @@ export const sendFriendRequest = async (targetId: number) => {
 
     const userId = parseInt(storedId); 
 
-    console.log(`📤 [FRONT] Enviando solicitud: Yo (${userId}) -> Él (${targetId})`);
+    //console.log(`📤 [FRONT] Enviando solicitud: Yo (${userId}) -> Él (${targetId})`);
 
     const response = await fetch(`/friends/request`, {
         method: 'POST',

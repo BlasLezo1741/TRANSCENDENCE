@@ -63,8 +63,8 @@ export async function registUser(
     language: string, 
     enabled2FA: boolean) {
     try {
-        console.log(`Registration attempt at /auth/register`);
-        console.log(`Datos: ${user}, ${email}, ${birth}, ${country}, ${language}, 2FA: ${enabled2FA}`);
+        //console.log(`Registration attempt at /auth/register`);
+        //console.log(`Datos: ${user}, ${email}, ${birth}, ${country}, ${language}, 2FA: ${enabled2FA}`);
         const response = await fetch(`/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

@@ -98,7 +98,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   
   //Metodo de control
   afterInit(server: Server) {
-    console.log("🚨🚨🚨 [GATEWAY] SOCKET SERVER INICIADO - INSTANCIA ÚNICA ID:", Math.random());
+    //console.log("🚨🚨🚨 [GATEWAY] SOCKET SERVER INICIADO - INSTANCIA ÚNICA ID:", Math.random());
   }
 
   // --- CONEXIÓN / DESCONEXIÓN ---
@@ -108,7 +108,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleConnection(client: Socket) {
-    //console.log(`✅ Cliente conectado: ${client.id}`);
+    ////console.log(`✅ Cliente conectado: ${client.id}`);
     // NEW: USER IDENTIFICATION LOGIC
     // The frontend sends us ?userId=123 in the connection 
     const userId = client.handshake.query.userId;
@@ -189,7 +189,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     // Esto asegura que si tiene 2 pestañas abiertas, le llegue a las dos.
     this.server.to(`user_${targetUserId}`).emit(event, payload);
     
-    console.log(`📨 Notificación '${event}' enviada a User ${targetUserId}`);
+    //console.log(`📨 Notificación '${event}' enviada a User ${targetUserId}`);
   }
 
   // --- JOIN QUEUE (MATCHMAKING) ---
@@ -290,7 +290,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           ballInit: { x: 0.5, y: 0.5 }
         };
 
-        console.log(`🚀 [STEP 10] Enviando evento match_found a ambos.`);
+        //console.log(`🚀 [STEP 10] Enviando evento match_found a ambos.`);
         opponent.emit('match_found', responseP1);
         client.emit('match_found', responseP2);
 
@@ -300,9 +300,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       }
     // --- ESCENARIO 2: No hay nadie, toca esperar ---
     } else {
-      console.log(`📥 [STEP 5b] Cola vacía. Añadiendo a ${nickname} a la espera.`);
+      //console.log(`📥 [STEP 5b] Cola vacía. Añadiendo a ${nickname} a la espera.`);
       queue.push(client);
-      console.log(`⏳ Jugador ${client.id} añadido a la cola.`);
+      //console.log(`⏳ Jugador ${client.id} añadido a la cola.`);
       
       client.emit('waiting_for_match', { 
         message: 'Buscando oponente...',
@@ -321,7 +321,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const game = this.games.get(roomId);
 
     if (game) {
-      console.log(`🚪 Jugador ${client.id} ha abandonado la sala ${roomId} a medias.`);
+      //console.log(`🚪 Jugador ${client.id} ha abandonado la sala ${roomId} a medias.`);
       
       // LÓGICA DE ABANDONO (Victoria 5-0)
       if (client.id === game.playerLeftId) {
@@ -505,7 +505,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         // the user sees it, and THEN the ending jumps.
         setTimeout(() => {
                 this.server.to(state.roomId).emit('game_over', { roomId: state.roomId, winner: winnerSide });
-                console.log("🏁 Evento game_over enviado.");
+                //console.log("🏁 Evento game_over enviado.");
             }, 500); // 500 milliseconds (half a second)
       }
   }
@@ -566,13 +566,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @ConnectedSocket() client: Socket, 
     @MessageBody() payload: FinishGameDto 
   ) {
-    console.log(`🏁 Petición fin juego: ${payload.roomId} por ${payload.winnerId}`);
+    //console.log(`🏁 Petición fin juego: ${payload.roomId} por ${payload.winnerId}`);
     
     // Recuperar estado antes de borrarlo
     const game = this.games.get(payload.roomId);
     if (!game) return;
     
-    console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario ${payload.winnerId}`);
+    //console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario ${payload.winnerId}`);
     // GUARDAR EN BASE DE DATOS (Una sola vez)
     //await this.saveMatchToDb(game, payload.winnerId);
     await this.saveMatchToDb(game);
@@ -587,7 +587,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     for (const s of sockets) {
         s.leave(payload.roomId);
     }
-    console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
+    //console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
   }
     
   //MÉTODO INSCRIPCION EN LA BASE DE DATOS EXTRAÍDO CORRECTAMENTE
@@ -703,7 +703,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const acceptorDbId = client.data.userId; 
       const challengerDbId = Number(payload.challengerId);
 
-      console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
+      //console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
 
       // 2. Variables for names (Default values)
       // Initializes to null: avoids error "undefined varaible"

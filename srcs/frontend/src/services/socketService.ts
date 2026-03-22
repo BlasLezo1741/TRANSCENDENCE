@@ -7,10 +7,10 @@ const SOCKET_URL = '/';
 
 // 2. Verificación de seguridad
 if (!SOCKET_URL) {
-  console.log(" Intentando conectar al socket en ruta relativa:", SOCKET_URL);
+  //console.log(" Intentando conectar al socket en ruta relativa:", SOCKET_URL);
 }
 
-console.log(" Intentando conectar al socket en:", SOCKET_URL);
+//console.log(" Intentando conectar al socket en:", SOCKET_URL);
 
 // Variables de estado
 let currentRoomId: string | null = null;
@@ -50,7 +50,7 @@ export const connectSocket = (forceId?: number) => {
         
         // Si no está conectado, conectamos
         if (!socket.connected) {
-            console.log("🔌 Conectando socket con ID:", userId);
+            //console.log("🔌 Conectando socket con ID:", userId);
             socket.connect();
         }
     } else {
@@ -70,7 +70,7 @@ export const sendDirectMessage = (receiverId: number, content: string) => {
 
 // --- TESTIGOS DE CONEXIÓN ---
 socket.on('connect', () => {
-  console.log("✅ Conectado al Backend con ID:", socket.id);
+  //console.log("✅ Conectado al Backend con ID:", socket.id);
 });
 
 socket.on('connect_error', (error) => {
@@ -90,7 +90,7 @@ export let matchData = { roomId: "", matchId: 0 };
 export const setMatchData = (roomId: string, matchId: number) => {
     currentRoomId = roomId;
     currentMatchDbId = matchId;
-    console.log(`🔒 Datos de partida guardados en servicio: Room=${roomId}, MatchDB=${matchId}`);
+    //console.log(`🔒 Datos de partida guardados en servicio: Room=${roomId}, MatchDB=${matchId}`);
 };
 
 export const joinQueue = (nickname: string, mode: string) => {
@@ -102,7 +102,7 @@ export const joinQueue = (nickname: string, mode: string) => {
       return;
   }
 
-  console.log(`📡 [Socket] Emitiendo join_queue: Nick=${nickname}, Mode=${mode}`);
+  //console.log(`📡 [Socket] Emitiendo join_queue: Nick=${nickname}, Mode=${mode}`);
   
   // Enviamos el evento con la estructura que espera el Backend
   socket.emit('join_queue', { 
@@ -125,7 +125,7 @@ export const sendMove = (direction: 'up' | 'down' | 'stop') => {
 export const finishGame = (winnerName: string) => {
     // Verificamos que tengamos sala y ID de base de datos
     if (currentRoomId && currentMatchDbId) {
-        console.log(`🏁 Enviando fin de juego. Ganador: ${winnerName} | MatchID: ${currentMatchDbId}`);
+        //console.log(`🏁 Enviando fin de juego. Ganador: ${winnerName} | MatchID: ${currentMatchDbId}`);
         socket.emit('finish_game', {
             roomId: currentRoomId,
             winnerId: winnerName,
@@ -133,7 +133,7 @@ export const finishGame = (winnerName: string) => {
         });
     } else {
         console.warn("⚠️ No se puede finalizar: Faltan datos (Room o DB ID)");
-        console.log("Datos actuales -> Room:", currentRoomId, "DB ID:", currentMatchDbId);
+        //console.log("Datos actuales -> Room:", currentRoomId, "DB ID:", currentMatchDbId);
     }
 };
 
@@ -142,7 +142,7 @@ export const finishGame = (winnerName: string) => {
 export const onMatchFound = (callback: (data: any) => void) => {
   socket.off('match_found');
   socket.on('match_found', (data) => {
-    console.log("🎯 Match encontrado. Sala:", data.roomId, "| DB ID:", data.matchId);
+    //console.log("🎯 Match encontrado. Sala:", data.roomId, "| DB ID:", data.matchId);
     
     currentRoomId = data.roomId;
     currentMatchDbId = data.matchId;
@@ -159,7 +159,7 @@ export const onGameUpdate = (callback: (data: GameUpdatePayload) => void) => {
 export const onGameOver = (callback: (data: any) => void) => {
   socket.off('game_over');
   socket.on('game_over', (data) => {
-    console.log("🏆 Game Over recibido. Ganador:", data.winner);
+    //console.log("🏆 Game Over recibido. Ganador:", data.winner);
     currentRoomId = null;
     currentMatchDbId = null;
     callback(data);

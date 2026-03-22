@@ -19,12 +19,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // --- 1. GESTIÓN DE CONEXIONES ---
   handleConnection(client: Socket) {
-    console.log(`🔌 [CHAT] Cliente conectado: ${client.id}`);
+    //console.log(`🔌 [CHAT] Cliente conectado: ${client.id}`);
     // Aquí podrías leer el token del usuario si lo enviaras
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`❌ [CHAT] Cliente desconectado: ${client.id}`);
+    //console.log(`❌ [CHAT] Cliente desconectado: ${client.id}`);
   }
 
   // --- 2. EVENTOS ---
@@ -32,7 +32,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // A. PING DE PRUEBA (El que ya tenías)
   @SubscribeMessage('ping_chat')
   handlePing(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
-    console.log(`📡 [CHAT] Ping recibido de ${client.id}`);
+    //console.log(`📡 [CHAT] Ping recibido de ${client.id}`);
     client.emit('pong_chat', { msg: 'Pong desde el Backend!', received: data });
   }
 
@@ -42,7 +42,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Creamos una sala única para este usuario: "user_1", "user_2", etc.
     const roomName = `user_${data.userId}`;
     client.join(roomName);
-    console.log(`👤 Usuario ${data.userId} escuchando en sala: ${roomName}`);
+    //console.log(`👤 Usuario ${data.userId} escuchando en sala: ${roomName}`);
   }
 
   // C. ENVIAR MENSAJE (¡LO QUE TE FALTABA!)
@@ -52,7 +52,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket
   ) {
     // 1. Log para ver que ha llegado
-    console.log(`📨 [GATEWAY] Mensaje recibido para ${payload.receiverId}: ${payload.content}`);
+    //console.log(`📨 [GATEWAY] Mensaje recibido para ${payload.receiverId}: ${payload.content}`);
 
     // 2. Obtener quién envía el mensaje
     // NOTA: Como estamos probando, vamos a sacar el ID de la query del socket o asumir que es el 1 temporalmente.
@@ -62,7 +62,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
         // 3. Guardar en Base de Datos
         const savedMsg = await this.chatService.saveDirectMessage(senderId, payload.receiverId, payload.content);
-        console.log("✅ Mensaje guardado en DB:", savedMsg);
+        //console.log("✅ Mensaje guardado en DB:", savedMsg);
 
         // 4. Enviar al Destinatario (a su sala privada)
         this.server.to(`user_${payload.receiverId}`).emit('receive_message', savedMsg);

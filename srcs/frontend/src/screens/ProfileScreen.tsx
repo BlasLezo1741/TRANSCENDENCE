@@ -87,7 +87,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     // --- CARGA DE DATOS ---
 
     const loadUserProfile = async () => {
-        console.log("🔄 [ProfileScreen] loadUserProfile() - Starting...");
+        //console.log("🔄 [ProfileScreen] loadUserProfile() - Starting...");
         
         try {
             setIsLoadingProfile(true);
@@ -98,7 +98,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 throw new Error(t('prof.prof_no_load'));
             }
 
-            console.log("✅ [ProfileScreen] Profile loaded:", profile);
+            //console.log("✅ [ProfileScreen] Profile loaded:", profile);
             setUserProfile(profile);
             
             // Sync header with the real profile data from the DB
@@ -117,7 +117,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 confirmPassword: ''
             });
 
-            console.log("✅ [ProfileScreen] Edit form initialized");
+            //console.log("✅ [ProfileScreen] Edit form initialized");
         } catch (error) {
             console.error('❌ [ProfileScreen] Error loading user profile:', error);
             showModal({
@@ -127,58 +127,58 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             });
         } finally {
             setIsLoadingProfile(false);
-            console.log("🏁 [ProfileScreen] loadUserProfile() - Finished");
+            //console.log("🏁 [ProfileScreen] loadUserProfile() - Finished");
         }
     };
 
     const loadCountries = async () => {
-        console.log("🔄 [ProfileScreen] loadCountries() - Starting...");
+        //console.log("🔄 [ProfileScreen] loadCountries() - Starting...");
         
         try {
             setIsLoadingCountries(true);
             const countriesData = await getCountries();
             
-            console.log("✅ [ProfileScreen] Countries loaded:", countriesData.length);
+            //console.log("✅ [ProfileScreen] Countries loaded:", countriesData.length);
             setCountries(countriesData);
         } catch (error) {
             console.error('❌ [ProfileScreen] Error loading countries:', error);
         } finally {
             setIsLoadingCountries(false);
-            console.log("🏁 [ProfileScreen] loadCountries() - Finished");
+            //console.log("🏁 [ProfileScreen] loadCountries() - Finished");
         }
     };
 
     const loadSocialData = async () => {
-        console.log("🔄 [ProfileScreen] loadSocialData() - Starting...");
+        //console.log("🔄 [ProfileScreen] loadSocialData() - Starting...");
         
         try {
             const f = await getMyFriends();
-            console.log("📦 [ProfileScreen] Friends loaded:", f.length); 
+            //console.log("📦 [ProfileScreen] Friends loaded:", f.length); 
             setFriends(f);
             
             const r = await getPendingRequests();
-            console.log("📨 [ProfileScreen] Requests loaded:", r.length);
+            //console.log("📨 [ProfileScreen] Requests loaded:", r.length);
             setRequests(r);
 
             setIsLoadingCandidates(true);
             const c = await getUsersToInvite();
-            console.log("👥 [ProfileScreen] Candidates loaded:", c.length);
+            //console.log("👥 [ProfileScreen] Candidates loaded:", c.length);
             setCandidates(c);
 
         } catch (e) {
             console.error("❌ [ProfileScreen] Error loading social data:", e);
         } finally {
             setIsLoadingCandidates(false);
-            console.log("🏁 [ProfileScreen] loadSocialData() - Finished");
+            //console.log("🏁 [ProfileScreen] loadSocialData() - Finished");
         }
     };
 
     const handleAvatarSelect = async (newAvatarUrl: string) => {
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('🔍 [ProfileScreen] STEP 3: handleAvatarSelect called');
-        console.log('🔍 [ProfileScreen] Received value:', newAvatarUrl);
-        console.log('🔍 [ProfileScreen] Value type:', typeof newAvatarUrl);
-        console.log('🔍 [ProfileScreen] Is it an ID or URL?', newAvatarUrl.startsWith('http') ? 'URL' : 'ID');
+        //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        //console.log('🔍 [ProfileScreen] STEP 3: handleAvatarSelect called');
+        //console.log('🔍 [ProfileScreen] Received value:', newAvatarUrl);
+        //console.log('🔍 [ProfileScreen] Value type:', typeof newAvatarUrl);
+        //console.log('🔍 [ProfileScreen] Is it an ID or URL?', newAvatarUrl.startsWith('http') ? 'URL' : 'ID');
         
         try {
             // Prepare update data with the new avatar
@@ -191,39 +191,39 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 avatarUrl: newAvatarUrl
             };
     
-            console.log('🔍 [ProfileScreen] STEP 4: Prepared updateData:');
-            console.log(JSON.stringify(updateData, null, 2));
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            //console.log('🔍 [ProfileScreen] STEP 4: Prepared updateData:');
+            //console.log(JSON.stringify(updateData, null, 2));
+            //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
             const result = await updateMyProfile(updateData);
     
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            console.log('🔍 [ProfileScreen] STEP 5: Backend response:');
-            console.log('🔍 [ProfileScreen] Result.ok:', result.ok);
-            console.log('🔍 [ProfileScreen] Result.msg:', result.msg);
-            console.log('🔍 [ProfileScreen] Full result:', result);
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            //console.log('🔍 [ProfileScreen] STEP 5: Backend response:');
+            //console.log('🔍 [ProfileScreen] Result.ok:', result.ok);
+            //console.log('🔍 [ProfileScreen] Result.msg:', result.msg);
+            //console.log('🔍 [ProfileScreen] Full result:', result);
+            //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
             if (result.ok) {
-                console.log('✅ [ProfileScreen] STEP 6: Update successful!');
-                console.log('🔍 [ProfileScreen] Updating local state with:', newAvatarUrl);
+                //console.log('✅ [ProfileScreen] STEP 6: Update successful!');
+                //console.log('🔍 [ProfileScreen] Updating local state with:', newAvatarUrl);
                 
                 setUserProfile(prev => {
                     const updated = prev ? { ...prev, avatarUrl: newAvatarUrl } : null;
-                    console.log('🔍 [ProfileScreen] New userProfile state:', updated);
+                    //console.log('🔍 [ProfileScreen] New userProfile state:', updated);
                     return updated;
                 });
                 
                 // Sync the new avatar to the Header immediately
                 setGlobalAvatarUrl(newAvatarUrl);
                 
-                console.log('🔍 [ProfileScreen] STEP 7: Closing modal');
+                //console.log('🔍 [ProfileScreen] STEP 7: Closing modal');
                 setIsSelectingAvatar(false);
-                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             } else {
                 console.error('❌ [ProfileScreen] STEP 6: Update FAILED!');
                 console.error('❌ [ProfileScreen] Error message:', result.msg);
-                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                //console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 
                 showModal({
                     title: t('error'),
@@ -246,14 +246,14 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     };
 
     const handleRemoveFriend = (friendId: number, friendName: string) => {
-        console.log(`🗑️ [ProfileScreen] Removing friend: ${friendName} (ID: ${friendId})`);
+        //console.log(`🗑️ [ProfileScreen] Removing friend: ${friendName} (ID: ${friendId})`);
         
         showModal({
             title: t('prof.del_friend'),
             message: t('prof.conf_del_friend', { name: friendName }),
             type: "confirm",
             onConfirm: async () => {
-                console.log("✅ [ProfileScreen] User confirmed friend removal");
+                //console.log("✅ [ProfileScreen] User confirmed friend removal");
                 
                 setFriends((prev: Friend[]) => prev.filter((f) => Number(f.id) !== Number(friendId)));
 
@@ -261,7 +261,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     const res = await removeFriend(friendId);
                     
                     if (res.ok) {
-                        console.log("✅ [ProfileScreen] Friend removed successfully");
+                        //console.log("✅ [ProfileScreen] Friend removed successfully");
                         setStatusMsg(t('prof.friend_removed_msg', { name: friendName }));
                     } else {
                         console.error("❌ [ProfileScreen] Failed to remove friend, reloading...");
@@ -277,8 +277,8 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     };
 
     const handleUpdateProfile = async () => {
-        console.log("💾 [ProfileScreen] handleUpdateProfile() - Starting...");
-        console.log("📝 [ProfileScreen] Form data:", editForm);
+        //console.log("💾 [ProfileScreen] handleUpdateProfile() - Starting...");
+        //console.log("📝 [ProfileScreen] Form data:", editForm);
     
         // Format validation via checkForm (email format, birth date, new password strength)
         const formResult = checkForm(
@@ -312,7 +312,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     
         // Sync nick to localStorage and header if changed
         if (editForm.nick !== userProfile?.nick) {
-            console.log("🔄 [ProfileScreen] Updating localStorage with new nick:", editForm.nick);
+            //console.log("🔄 [ProfileScreen] Updating localStorage with new nick:", editForm.nick);
             localStorage.setItem('pong_user_nick', editForm.nick);
             setGlobalUser(editForm.nick);
         }
@@ -330,10 +330,10 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             if (editForm.newPassword) {
                 updateData.currentPassword = editForm.currentPassword;
                 updateData.newPassword = editForm.newPassword;
-                console.log("🔐 [ProfileScreen] Including password change in update");
+                //console.log("🔐 [ProfileScreen] Including password change in update");
             }
     
-            console.log("📡 [ProfileScreen] Sending update request...");
+            //console.log("📡 [ProfileScreen] Sending update request...");
             const result = await updateMyProfile(updateData);
     
             if (!result.ok) {
@@ -341,7 +341,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 throw new Error(result.msg || t('prof.update_error'));
             }
     
-            console.log("✅ [ProfileScreen] Profile updated successfully");
+            //console.log("✅ [ProfileScreen] Profile updated successfully");
     
             showModal({
                 title: t('prof.update_success_title'),
@@ -359,7 +359,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                 confirmPassword: ''
             }));
     
-            console.log("🏁 [ProfileScreen] handleUpdateProfile() - Success");
+            //console.log("🏁 [ProfileScreen] handleUpdateProfile() - Success");
     
         } catch (error: any) {
             console.error('❌ [ProfileScreen] Error updating profile:', error);
@@ -372,7 +372,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     };
 
     const handleCancelEdit = () => {
-        console.log("❌ [ProfileScreen] User cancelled edit mode");
+        //console.log("❌ [ProfileScreen] User cancelled edit mode");
         
         if (!userProfile) return;
         
@@ -389,7 +389,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         });
         setIsEditing(false);
         
-        console.log("✅ [ProfileScreen] Form reset to original values");
+        //console.log("✅ [ProfileScreen] Form reset to original values");
     };
     
     const handleDeleteAccount = () => {
@@ -398,7 +398,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             message: t('prof.delete_account_confirm'),
             type: "confirm",
             onConfirm: async () => {
-                console.log("🗑️ [ProfileScreen] User confirmed account deletion");
+                //console.log("🗑️ [ProfileScreen] User confirmed account deletion");
 
                 const result = await deleteMyAccount();
 
@@ -417,7 +417,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
     // Cargar datos al montar
     useEffect(() => {
-        console.log("🚀 [ProfileScreen] Component mounted - Loading initial data...");
+        //console.log("🚀 [ProfileScreen] Component mounted - Loading initial data...");
         
         loadUserProfile();
         loadCountries();
@@ -425,12 +425,12 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
         // --- HANDLERS DE SOCKET ---
         const handleNewRequest = () => {
-            console.log("📩 [SOCKET] Nueva solicitud recibida");
+            //console.log("📩 [SOCKET] Nueva solicitud recibida");
             setTimeout(() => loadSocialData(), 300);
         };
 
         const handleFriendAccepted = () => {
-            console.log("🤝 [SOCKET] Amistad aceptada");
+            //console.log("🤝 [SOCKET] Amistad aceptada");
             setTimeout(() => {
                 loadSocialData();
                 setStatusMsg(t('prof.friend_added'));
@@ -438,7 +438,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         };
 
         const handleStatusChange = (data: { userId: number, status: 'online' | 'offline' }) => {
-            console.log(`👤 [SOCKET] User status changed: ${data.userId} -> ${data.status}`);
+            //console.log(`👤 [SOCKET] User status changed: ${data.userId} -> ${data.status}`);
             setFriends((prev: Friend[]) => prev.map((f) => {
                 if (Number(f.id) === Number(data.userId)) {
                     return { ...f, status: data.status };
@@ -448,7 +448,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         };
 
         const handleFriendRemoved = (data: any) => {
-            console.log("🚨 [SOCKET] Evento 'friend_removed' llegó con datos:", data);
+            //console.log("🚨 [SOCKET] Evento 'friend_removed' llegó con datos:", data);
 
             if (!data || !data.from) {
                 console.error("❌ El evento llegó sin ID 'from'");
@@ -456,12 +456,12 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
             }
 
             const idQueMeBorro = Number(data.from);
-            console.log(`🔪 Intentando borrar al usuario ID ${idQueMeBorro} de mi lista local...`);
+            //console.log(`🔪 Intentando borrar al usuario ID ${idQueMeBorro} de mi lista local...`);
 
             setFriends((prev: Friend[]) => {
                 const cantidadAntes = prev.length;
                 const nuevaLista = prev.filter(f => Number(f.id) !== idQueMeBorro);
-                console.log(`📉 Cambio visual: ${cantidadAntes} amigos -> ${nuevaLista.length} amigos`);
+                //console.log(`📉 Cambio visual: ${cantidadAntes} amigos -> ${nuevaLista.length} amigos`);
                 return nuevaLista;
             });
             
@@ -470,11 +470,11 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
         // para el avatar
         const handleFriendUpdate = (payload: any) => {
-            console.log("♻️ [SOCKET] Evento friend_update recibido en Perfil:", payload);
+            //console.log("♻️ [SOCKET] Evento friend_update recibido en Perfil:", payload);
 
             setFriends((prevFriends) => prevFriends.map((f) => {
                 if (Number(f.id) === Number(payload.id)) {
-                    console.log(`🔄 Actualizando datos de amigo: ${f.friend_nick} -> ${payload.name}`);
+                    //console.log(`🔄 Actualizando datos de amigo: ${f.friend_nick} -> ${payload.name}`);
                     return {
                         ...f,
                         friend_nick: payload.name || f.friend_nick,
@@ -486,7 +486,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         };
 
         // --- SUSCRIPCIONES ---
-        console.log("🎧 Suscribiéndose a eventos del socket...");
+        //console.log("🎧 Suscribiéndose a eventos del socket...");
         socket.on('friend_request', handleNewRequest);
         socket.on('friend_accepted', handleFriendAccepted);
         socket.on('user_status', handleStatusChange);
@@ -495,7 +495,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
         // --- CLEANUP ---
         return () => {
-            console.log("🔕 Desuscribiéndose eventos del socket...");
+            //console.log("🔕 Desuscribiéndose eventos del socket...");
             socket.off('friend_request', handleNewRequest);
             socket.off('friend_accepted', handleFriendAccepted);
             socket.off('user_status', handleStatusChange);
@@ -507,20 +507,20 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
     const handleSendRequest = async () => {
         if (!targetIdInput) return;
         
-        console.log("📤 [ProfileScreen] Sending friend request to:", targetIdInput);
+        //console.log("📤 [ProfileScreen] Sending friend request to:", targetIdInput);
         
         setIsLoadingCandidates(true);
         const res = await sendFriendRequest(parseInt(targetIdInput));
         setStatusMsg(res.ok ? t('prof.request_sent') : t('error'));
         
-        console.log("📬 [ProfileScreen] Friend request result:", res);
+        //console.log("📬 [ProfileScreen] Friend request result:", res);
         
         setTargetIdInput("");
         loadSocialData();
     };
 
     const handleAccept = async (id: number) => {
-        console.log("✅ [ProfileScreen] Accepting friend request:", id);
+        //console.log("✅ [ProfileScreen] Accepting friend request:", id);
         
         setRequests((prev: PendingRequest[]) => prev.filter((r) => r.id !== id));
         await acceptFriendRequest(id);
@@ -543,7 +543,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
     const renderInfoScreen = () => {
         if (isLoadingProfile) {
-            console.log("⏳ [InfoScreen] Loading profile...");
+            //console.log("⏳ [InfoScreen] Loading profile...");
             return <p>{t('prof.loading')}</p>;
         }
 
@@ -553,7 +553,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
         }
 
         const isOAuthUser = !!userProfile.oauthProvider;
-        console.log("👤 [InfoScreen] Rendering profile. OAuth user:", isOAuthUser);
+        //console.log("👤 [InfoScreen] Rendering profile. OAuth user:", isOAuthUser);
 
         return (
             <div className="h-[1200px] w-full overflow-y-auto">
@@ -571,7 +571,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                         <div className="mt-4">
                             <button
                                 onClick={() => {
-                                    console.log("🖼️ [ProfileScreen] Opening avatar selector");
+                                    //console.log("🖼️ [ProfileScreen] Opening avatar selector");
                                     setIsSelectingAvatar(true);
                                 }}
                                 className="btn border border-[#4CAF50] bg-white text-[#4CAF50] font-bold"
@@ -612,7 +612,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
 
                         <button
                             onClick={() => {
-                            console.log("✏️ [InfoScreen] Entering edit mode");
+                            //console.log("✏️ [InfoScreen] Entering edit mode");
                             setIsEditing(true);
                             }}
                             className="btn !mr-2 text-sm border border-[#4CAF50] bg-white text-[#4CAF50]"
@@ -997,7 +997,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     currentAvatarUrl={userProfile?.avatarUrl}
                     onSelect={handleAvatarSelect}
                     onCancel={() => {
-                        console.log("❌ [ProfileScreen] Avatar selection cancelled");
+                        //console.log("❌ [ProfileScreen] Avatar selection cancelled");
                         setIsSelectingAvatar(false);
                     }}
                 />

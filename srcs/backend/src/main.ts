@@ -40,6 +40,6 @@ async function bootstrap() {
   // Esto permite que el contenedor acepte conexiones de fuera de sí mismo
   await app.listen(port, '0.0.0.0');
   
-  console.log(`🚀 Server running on port: ${port}`);
+  //console.log(`🚀 Server running on port: ${port}`);
 }
 bootstrap();

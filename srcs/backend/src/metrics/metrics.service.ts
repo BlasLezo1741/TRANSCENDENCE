@@ -54,7 +54,7 @@ export class MetricsService {
         const matches = await this.db.execute(sql`SELECT COUNT(*) as count FROM "match"`);
         const matchCount = Number(matches[0].count);
         this.matchesGauge.set(matchCount);
-      } catch (e) { console.log('   - Tabla match no encontrada aún'); }
+      } catch (e) { //console.log('   - Tabla match no encontrada aún'); }
 
       // 3. Amigos
       const friends = await this.db.execute(sql`SELECT COUNT(*) as count FROM player_friend WHERE f_status_fk = 2`);
