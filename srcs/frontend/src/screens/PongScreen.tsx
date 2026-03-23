@@ -91,6 +91,30 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
       return () => window.removeEventListener("resize", updateTransform);
   }, []);
 
+/* useEffect(() =>
+{
+    const canvasWidth = 800;
+    const canvasHeight = 600;
+
+    const updateTransform = () =>
+    {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        const scale = Math.min(
+            1,
+            (w - 50) / canvasWidth,
+            (h - 50) / canvasHeight
+        );
+
+        setTransform({ scale, translateX: 0 });
+    };
+
+    updateTransform();
+    window.addEventListener("resize", updateTransform);
+    return () => window.removeEventListener("resize", updateTransform);
+}, []);
+ */
 
   return (
     <div
