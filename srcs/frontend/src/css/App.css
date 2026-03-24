@@ -52,8 +52,8 @@ form.chat-form {
 
 /* Posicionamiento exacto del Chat Sidebar */
 .chat-layout {
-    top: 115px;
-    height: calc(100vh - 115px);
+    top: 70px;
+    height: calc(100vh - 120px);
 }
 
 .label-black
