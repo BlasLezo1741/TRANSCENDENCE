@@ -33,16 +33,6 @@ const Header = ({dispatch, setIa, userName, userId, userAvatarUrl, profileSynced
         dispatch({ type: "PROFILE" });
     };
 
-    const handleSettings = () =>
-    {
-        dispatch({ type: "SETTINGS" });
-    };
-
-    const handleStats = () =>
-    {
-        dispatch({ type: "STATS" });
-    };
-
     const handleLogoutClick = (e: React.MouseEvent) => {
         e.preventDefault(); // Evitar comportamiento de enlace #
         setOpen(false);
