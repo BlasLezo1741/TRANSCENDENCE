@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { checkForm, registUser } from "../ts/utils/auth";
 import type { ScreenProps } from "../ts/screenConf/screenProps";
 import { useTranslation } from 'react-i18next';
+import { useModal } from "../context/ModalContext";
 import { QRCodeSVG } from 'qrcode.react';
 import TermsModal from "../components/TermsModal";
 import { sentence } from "../ts/utils/string";
@@ -14,6 +15,7 @@ interface Country {
 
 const SignScreen = ({ dispatch }: ScreenProps) => {
     const { t } = useTranslation();
+    const { showModal } = useModal();
 
     // Localised country name resolver — updates automatically when language changes
     const countryName = useCountryNames();
@@ -85,7 +87,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
         // 1. Check terms acceptance
         if (!acceptPolicy) {
-            setError(t('errors.mustAcceptTerms'));
+            showModal({
+                title: t('error'),
+                message: t('errors.mustAcceptTerms'),
+                type: 'error',
+            });
             return;
         }
 
@@ -99,23 +105,37 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
                 requireBirth: true,
             });
         if (!formResult.ok) {
-            setError(t(formResult.msg));
             setPassword("");
             setRepeat("");
+            showModal({
+                title: t('error'),
+                message: t(formResult.msg),
+                type: 'error',
+            });
+            // setError(t(formResult.msg));
+            
             return;
         }
+        if (!country){
+            showModal({
+                title: t('error'),
+                message: t('errors.incorrectCountry'),
+                type: 'error',
+            });
+            //setError(t('errors.incorrectCountry'));
+                return ;
+        }
 
-        if (!language)
-        {
-            setError(t('errors.incorrectLang'));
+        if (!language){
+            showModal({
+                title: t('error'),
+                message: t('errors.incorrectLang'),
+                type: 'error',
+            });
+            //setError(t('errors.incorrectLang'));
             return ;
         }
 
-        if (!country)
-        {
-            setError(t('errors.incorrectCountry'));
-            return ;
-        }
 
         setIsLoading(true);
 
@@ -159,7 +179,11 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
 
     const handleOAuth = (provider: 'google' | '42') => {
         if (!acceptPolicy) {
-            setError(t('errors.mustAcceptTerms'));
+            showModal({
+                title: t('error'),
+                message: t('errors.mustAcceptTerms'),
+                type: 'error',
+            });
             return;
         }
         // Persist the acceptance flag across the OAuth round-trip.
@@ -425,4 +449,4 @@ const SignScreen = ({ dispatch }: ScreenProps) => {
     );
 };
 
-export default SignScreen;
+export default SignScreen;  
