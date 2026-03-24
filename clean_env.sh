@@ -3,10 +3,10 @@ echo "stoping containers"
 docker stop $(docker ps -q)
 docker rm $(docker ps -aq)
 echo "Removing data from persistent volumes"
-docker run --rm -v /home/maria-nm/data/grafana:/target alpine sh -c 'rm -rf /target/* /target/.[!.]* 2>/dev/null; echo done'
-docker run --rm -v /home/maria-nm/data/dbserver:/target alpine sh -c 'rm -rf /target/* /target/.[!.]* 2>/dev/null; echo done'
-rmdir /home/maria-nm/data/grafana
-rmdir /home/maria-nm/data/dbserver
+docker run --rm -v /home/$USER/data/grafana:/target alpine sh -c 'rm -rf /target/* /target/.[!.]* 2>/dev/null; echo done'
+docker run --rm -v /home/$USER/data/dbserver:/target alpine sh -c 'rm -rf /target/* /target/.[!.]* 2>/dev/null; echo done'
+rmdir /home/$USER/data/grafana
+rmdir /home/$USER/data/dbserver
 echo "Cleaning docker system"
 yes | docker system prune -a --volumes > /dev/null 2>&1
 echo "Cleaning npm environment's packages"
