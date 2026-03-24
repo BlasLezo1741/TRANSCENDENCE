@@ -224,7 +224,8 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             //FORZAMOS SIEMPRE EL MENSAJE EMERGENTE PRIMERO
             showModal({
                 title: title_dis,
-                message: msg_dis + ": " + opponentName,
+                message: t('game.messageDisconnected', { name: opponentName }),
+                //msg_dis + ": " + opponentName,
                 //title: t('game.disconnected'), // Título de la alerta
                 // message: `El rival ha abandonado la partida. ¡${winnerName} gana por abandono!`,
                 //message: t('game.messageDisconnected', { name: opponentName }),
