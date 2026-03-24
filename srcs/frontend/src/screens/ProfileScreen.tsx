@@ -937,7 +937,7 @@ const ProfileScreen = ({ setGlobalUser, setGlobalUserId, setGlobalAvatarUrl }: P
                     {statView === 'grafana' && (
                         <div className="w-full h-[700px] bg-[#111827] rounded-lg overflow-hidden border border-[#374151] mt-2.5">
                             <iframe  
-                                src="https://localhost:8443/grafana/d/grhk4qc/transcendence-db-pong?orgId=1&from=now-6h&to=now&timezone=browser&kiosk"
+                                src="/grafana/d/grhk4qc/transcendence-db-pong?orgId=1&from=now-6h&to=now&timezone=browser&kiosk"
                                 width="100%" 
                                 height="100%" 
                                 frameBorder="0"

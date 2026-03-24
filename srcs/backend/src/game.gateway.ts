@@ -715,96 +715,164 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 }
 
 // 2. Accept Invitation
+  // @SubscribeMessage('accept_game_invite')
+  // async handleAcceptInvite(client: Socket, payload: { challengerId: number }) {
+  //   // 1. Get IDs
+  //     const acceptorDbId = client.data.userId; 
+  //     const challengerDbId = Number(payload.challengerId);
+
+  //     //console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
+
+  //     // 2. Variables for names (Default values)
+  //     // Initializes to null: avoids error "undefined varaible"
+  //     let p1Data: any = null;
+  //     let p2Data: any = null;
+      
+  //     let challengerName = "Jugador 1";
+  //     let acceptorName = "Jugador 2";
+
+  //     // 🔥 3. DATABASE QUERY (THE REAL SOLUTION)
+  //     // We use await to ensure we have the names before continuing
+  //     try {
+  //         // We look for the Challenger (P1)
+  //         // NOTE: If `this.findPlayerById` returns the entire object from the database (including `pAvatarUrl`), this works.
+  //         // Otherwise, you should change it to: `await this.db.query.player.findFirst({ where: eq(schema.player.pPk, challengerDbId) });`
+  //         p1Data = await this.findPlayerById(challengerDbId);
+          
+  //         if (p1Data && p1Data.pNick) {
+  //             challengerName = p1Data.pNick;
+  //         }
+          
+
+  //         // We look for the Acceptor (P2)
+  //         p2Data = await this.findPlayerById(acceptorDbId);
+          
+  //         if (p2Data && p2Data.pNick) {
+  //             acceptorName = p2Data.pNick;
+  //         }
+  //     } catch (error) {
+  //         console.error("❌ Error recuperando nombres/avatares de la DB:", error);
+  //     }
+
+  //   // 4. Validate rival's socket
+  //     const challengerSocketId = this.userSockets.get(challengerDbId);
+  //     if (!challengerSocketId) {
+  //       client.emit('invite_error', { msg: "The challenger has disconnected." });
+  //         return;
+  //     }
+  //     const challengerSocket = this.server.sockets.sockets.get(challengerSocketId);
+
+  //   // 5. Create Room
+  //     const roomId = `private_${challengerDbId}_${acceptorDbId}_${Date.now()}`;
+      
+  //     if (challengerSocket) challengerSocket.join(roomId);
+  //     client.join(roomId);
+
+  //     //6. Notify the Frontend (With the Names from the DB adn avatars)
+      
+  //     // //A) For the Challenger (P1 - Left) -> Su rival es P2 (Aceptador)
+  //     this.server.to(challengerSocketId).emit('match_found', {
+  //         roomId: roomId,
+  //         side: 'left',
+  //         opponent: { 
+  //             id: acceptorDbId,
+  //             name: acceptorName, 
+  //             // Usamos pAvatarUrl si existe, si no null
+  //             avatar: p2Data?.pAvatarUrl || null 
+  //         }, 
+  //         matchId: 0 
+  //     });
+
+  //     // B) For the Acceptor (P2 - Right) -> Su rival es P1 (Desafiante)
+  //     this.server.to(client.id).emit('match_found', {
+  //         roomId: roomId,
+  //         side: 'right',
+  //         opponent: { 
+  //             id: challengerDbId,
+  //             name: challengerName, 
+  //             // Usamos pAvatarUrl si existe, si no null
+  //             avatar: p1Data?.pAvatarUrl || null 
+  //         },
+  //         matchId: 0
+  //     });
+
+  //   // 7. Start Game
+  //     this.startGameLoop(
+  //         roomId,
+  //         challengerSocketId,
+  //         client.id,
+  //         challengerDbId,
+  //         acceptorDbId
+  //     );
+  // }
+
   @SubscribeMessage('accept_game_invite')
   async handleAcceptInvite(client: Socket, payload: { challengerId: number }) {
-    // 1. Get IDs
+      
       const acceptorDbId = client.data.userId; 
       const challengerDbId = Number(payload.challengerId);
 
-      //console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
+      // 1. Validar que el Retador sigue conectado (Hacerlo lo primero es la mejor lógica)
+      const challengerSocketId = this.userSockets.get(challengerDbId);
+      if (!challengerSocketId) {
+          client.emit('invite_error', { msg: "The challenger has disconnected." });
+          return;
+      }
+      const challengerSocket = this.server.sockets.sockets.get(challengerSocketId);
 
-      // 2. Variables for names (Default values)
-      // Initializes to null: avoids error "undefined varaible"
-      let p1Data: any = null;
-      let p2Data: any = null;
-      
-      let challengerName = "Jugador 1";
+      // 2. RECUPERAR NOMBRES Y AVATARES DE LA DB (La magia que faltaba)
       let acceptorName = "Jugador 2";
+      let challengerName = "Jugador 1";
+      let acceptorAvatar: string | null = null;
+      let challengerAvatar: string | null = null;
 
-      // 🔥 3. DATABASE QUERY (THE REAL SOLUTION)
-      // We use await to ensure we have the names before continuing
       try {
-          // We look for the Challenger (P1)
-          // NOTE: If `this.findPlayerById` returns the entire object from the database (including `pAvatarUrl`), this works.
-          // Otherwise, you should change it to: `await this.db.query.player.findFirst({ where: eq(schema.player.pPk, challengerDbId) });`
-          p1Data = await this.findPlayerById(challengerDbId);
-          
+          const p1Data = await this.findPlayerById(challengerDbId);
           if (p1Data && p1Data.pNick) {
               challengerName = p1Data.pNick;
+              challengerAvatar = p1Data.pAvatarUrl || null;
           }
-          
 
-          // We look for the Acceptor (P2)
-          p2Data = await this.findPlayerById(acceptorDbId);
-          
+          const p2Data = await this.findPlayerById(acceptorDbId);
           if (p2Data && p2Data.pNick) {
               acceptorName = p2Data.pNick;
+              acceptorAvatar = p2Data.pAvatarUrl || null;
           }
       } catch (error) {
           console.error("❌ Error recuperando nombres/avatares de la DB:", error);
       }
 
-    // 4. Validate rival's socket
-      const challengerSocketId = this.userSockets.get(challengerDbId);
-      if (!challengerSocketId) {
-        client.emit('invite_error', { msg: "The challenger has disconnected." });
-          return;
-      }
-      const challengerSocket = this.server.sockets.sockets.get(challengerSocketId);
-
-    // 5. Create Room
+      // 3. Crear Sala Privada y meter a ambos
       const roomId = `private_${challengerDbId}_${acceptorDbId}_${Date.now()}`;
-      
       if (challengerSocket) challengerSocket.join(roomId);
       client.join(roomId);
 
-      //6. Notify the Frontend (With the Names from the DB adn avatars)
-      
-      // //A) For the Challenger (P1 - Left) -> Su rival es P2 (Aceptador)
+      // 4. Avisar al Retador (P1 - Izquierda) -> Su rival es P2 (Aceptador)
       this.server.to(challengerSocketId).emit('match_found', {
           roomId: roomId,
           side: 'left',
           opponent: { 
-              id: acceptorDbId,
+              id: acceptorDbId, 
               name: acceptorName, 
-              // Usamos pAvatarUrl si existe, si no null
-              avatar: p2Data?.pAvatarUrl || null 
+              avatar: acceptorAvatar 
           }, 
           matchId: 0 
       });
 
-      // B) For the Acceptor (P2 - Right) -> Su rival es P1 (Desafiante)
+      // 5. Avisar al que Acepta (P2 - Derecha) -> Su rival es P1 (Retador)
       this.server.to(client.id).emit('match_found', {
           roomId: roomId,
           side: 'right',
           opponent: { 
-              id: challengerDbId,
+              id: challengerDbId, 
               name: challengerName, 
-              // Usamos pAvatarUrl si existe, si no null
-              avatar: p1Data?.pAvatarUrl || null 
+              avatar: challengerAvatar 
           },
           matchId: 0
       });
 
-    // 7. Start Game
-      this.startGameLoop(
-          roomId,
-          challengerSocketId,
-          client.id,
-          challengerDbId,
-          acceptorDbId
-      );
+      // 6. Iniciar Motor Físico
+      this.startGameLoop(roomId, challengerSocketId, client.id, challengerDbId, acceptorDbId);
   }
-
 
 }

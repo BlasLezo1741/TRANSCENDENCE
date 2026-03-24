@@ -24,9 +24,12 @@ import "./css/App.css";
 
 import { getDefaultAvatar } from './assets/avatars';
 
+import { useModal } from './context/ModalContext';
+
 function App()
 {
   const { t } = useTranslation();
+  const { hideModal } = useModal();
   // 1. LEER EL USUARIO DEL STORAGE ANTES DE INICIALIZAR EL REDUCER
   const savedUserNick = localStorage.getItem("pong_user_nick") || "";
   const savedUserId   = Number(localStorage.getItem("pong_user_id")) || undefined;
@@ -329,11 +332,12 @@ function App()
               // Configurar modo remoto
               setMode("remote");
 
-              // 🔥 IMPORTANTE: Asegurar que se cierra cualquier invitación pendiente
+              // CERRAR TODO LO QUE PUDIERA ESTAR ABIERTO
               setInviteRequest(null);
-
+              setInviteError(null);
               // Cerramos el chat ANTES de pintar la pantalla del juego
               setChatOpen(false);
+              hideModal();
 
               // CAMBIO DE PANTALLA
               setTimeout(() => {

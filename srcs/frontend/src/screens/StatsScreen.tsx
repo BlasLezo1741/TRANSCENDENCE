@@ -3,8 +3,8 @@ const StatsScreen = () =>
 // Definimos la URL con los parámetros necesarios:
     // kiosk=tv: oculta todos los menús de Grafana
     // orgId=1: asegura que entra a tu organización principal
-    const grafanaUrl = "http://localhost:3000/d/transcendence_001?orgId=1&kiosk=tv";
-
+    //const grafanaUrl = "http://localhost:3000/d/transcendence_001?orgId=1&kiosk=tv";
+    const grafanaUrl = "/grafana/d/transcendence_001?orgId=1&kiosk=tv";
     return (
         <section style={{ width: '100%', padding: '20px' }}>
             <h1 style={{ textAlign: 'center' }}>Estadísticas en Tiempo Real</h1>
