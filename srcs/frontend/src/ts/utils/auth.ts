@@ -48,13 +48,6 @@ export function checkForm(
     const today = new Date();
     const minDate = new Date();
     minDate.setFullYear(today.getFullYear() - 150);
-
-    if (!birthDate || isNaN(birthDate.getTime()))
-        return { ok: false, msg: 'errors.noBirthDate'};
-    if (birthDate > today)
-        return { ok: false, msg: 'errors.birthFuture' };
-    if (birthDate < minDate)
-        return { ok: false, msg: 'errors.birthTooOld' };
     if (options.requirePassword || password) {
         const lower = /[a-z]/;
         const upper = /[A-Z]/;
@@ -66,6 +59,13 @@ export function checkForm(
         if (!min.test(password)) return { ok: false, msg: "errors.badLengthPassword" };
         if (password !== repeat) return { ok: false, msg: "errors.noMatchPassword" };
     }
+
+    if (!birthDate || isNaN(birthDate.getTime()))
+        return { ok: false, msg: 'errors.noBirthDate'};
+    if (birthDate > today)
+        return { ok: false, msg: 'errors.birthFuture' };
+    if (birthDate < minDate)
+        return { ok: false, msg: 'errors.birthTooOld' };
     return { ok: true, msg: "success.password" };
 }
 

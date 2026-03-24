@@ -38,8 +38,8 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     const campusCountry = profile._json?.campus?.[0]?.country || null;
     const countryCode = await this.authService.getCountryCode(campusCountry);
   
-    console.warn('[42Strategy] 🔍 Full profile._json dump:');
-    console.warn(JSON.stringify(profile._json, null, 2));
+    //console.warn('[42Strategy] 🔍 Full profile._json dump:');
+    //console.warn(JSON.stringify(profile._json, null, 2));
     const user = {
       oauthId: id,
       oauthProvider: '42',

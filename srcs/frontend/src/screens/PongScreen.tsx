@@ -7,7 +7,6 @@ import { Countdown } from '../components/Countdown';
 import { getAvatarUrlById, getDefaultAvatar } from '../assets/avatars';
 import { Leaderboard } from '../components/Leaderboard';
 import noAvatarUrl from '../assets/nouser_chatgpt.png';
-//import '../css/PongScreen.css';
 
 type PongScreenProps = ScreenProps & {
   mode: GameMode;
@@ -81,25 +80,9 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
     setWinnerName(winner);
   };
 
-  const [transform, setTransform] = useState({ scale: 1, translateX: 0 });
+  const [scale, setScale] = useState(1.0);
 
-  useEffect(() =>
-  {
-      const canvasWidth = 800;
-      const updateTransform = () =>
-      {
-          const w = window.innerWidth;
-          let scale = Math.min(1, (w - 50) / (canvasWidth + 200));
-          let translateX = 0;
-          setTransform({ scale, translateX });
-      };
-
-      updateTransform();
-      window.addEventListener("resize", updateTransform);
-      return () => window.removeEventListener("resize", updateTransform);
-  }, []);
-
-/* useEffect(() =>
+useEffect(() =>
 {
     const canvasWidth = 800;
     const canvasHeight = 600;
@@ -109,26 +92,26 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
         const w = window.innerWidth;
         const h = window.innerHeight;
 
-        const scale = Math.min(
+        const newScale = Math.min(
             1,
             (w - 50) / canvasWidth,
             (h - 50) / canvasHeight
         );
 
-        setTransform({ scale, translateX: 0 });
+        setScale(newScale);
     };
 
     updateTransform();
     window.addEventListener("resize", updateTransform);
     return () => window.removeEventListener("resize", updateTransform);
 }, []);
- */
+
 
   return (
     <div
         className="w-full h-full mx-auto flex flex-col items-center justify-center"
         style={{
-            transform: `translateX(${transform.translateX}%) scale(${transform.scale})`,
+            transform: `scale(${scale})`,
             transformOrigin: "center center",
         }}   
     >

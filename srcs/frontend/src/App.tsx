@@ -469,7 +469,7 @@ function renderScreen()
   }
 
   return (
-    <div className={`w-full min-h-screen mx-auto border border-black bg-black grid grid-rows-[auto_50px_1fr_auto] ${scrollClass}`}>
+    <div translate="no" className={`w-full min-h-screen mx-auto border border-black bg-black grid grid-rows-[auto_50px_1fr_auto] ${scrollClass}`}>
       {currentUser && <ChatSidebar chatOpen={chatOpen} setChatOpen={setChatOpen} />}
       {/* 🔥🔥 MODAL DE INVITACIÓN (Estilo Unificado Premium) 🔥🔥 */}
       {inviteRequest && (
