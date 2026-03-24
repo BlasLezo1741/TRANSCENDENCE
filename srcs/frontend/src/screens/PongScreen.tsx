@@ -75,7 +75,7 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
 
   const [transform, setTransform] = useState({ scale: 1, translateX: 0 });
 
-  useEffect(() =>
+  /*useEffect(() =>
   {
       const canvasWidth = 800;
       const updateTransform = () =>
@@ -90,8 +90,8 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
       window.addEventListener("resize", updateTransform);
       return () => window.removeEventListener("resize", updateTransform);
   }, []);
-
-/* useEffect(() =>
+*/
+useEffect(() =>
 {
     const canvasWidth = 800;
     const canvasHeight = 600;
@@ -114,7 +114,7 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
     window.addEventListener("resize", updateTransform);
     return () => window.removeEventListener("resize", updateTransform);
 }, []);
- */
+
 
   return (
     <div
