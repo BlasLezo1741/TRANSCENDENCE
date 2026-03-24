@@ -34,14 +34,22 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
         userAvatar = noAvatarUrl;
     }
 
-    useEffect(() =>
-    {
-        if (!opponentName)
-        {
+    // useEffect(() =>
+    // {
+    //     if (!opponentName)
+    //     {
+    //         setOpponent(t('guest'));
+    //         //opponentName = t('guest');
+    //     }
+    // }, opponentName, t, opponent);
+
+    useEffect(() => {
+        if (!opponentName) {
             setOpponent(t('guest'));
-            //opponentName = t('guest');
+        } else {
+            setOpponent(opponentName);
         }
-    }, opponentName, t, opponent);
+    }, [opponentName, t]);
     
 // Si yo estoy a la izquierda: [Yo] vs [Rival]
   // Si yo estoy a la derecha:   [Rival] vs [Yo]

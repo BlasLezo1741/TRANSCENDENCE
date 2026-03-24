@@ -1,4 +1,4 @@
-import { useReducer, useState, useEffect } from 'react';
+import { useReducer, useState, useEffect, useRef } from 'react';
 import { screenReducer } from './ts/screenConf/screenReducer.ts';
 import { useTranslation } from 'react-i18next';
 
@@ -35,6 +35,10 @@ function App()
   // Esto evita que React renderice 'LoginScreen' al refrescar y active el borrado de usuario.
   const [screen, dispatch] = useReducer(screenReducer, savedUserNick ? "menu" : "menu" as Screen);
 
+  //Para saber en que pantalla estoy
+  const screenRef = useRef(screen);
+  useEffect(() => { screenRef.current = screen; }, [screen]);
+
   // --- GESTIÓN DE USUARIO REAL, GESTIÓN DE ESTADOS GLOBALES ---
   const [currentUser, setCurrentUser] = useState<string>(savedUserNick);
   const [currentUserId, setCurrentUserId] = useState<number | undefined>(savedUserId);
@@ -68,8 +72,11 @@ function App()
 
   const [scrollClass, setScroll] = useState<ScrollOpt>("scroll");
 
-  // 🔥 ESTADO PARA LA INVITACIÓN MODAL
+  // ESTADO PARA LA INVITACIÓN MODAL
   const [inviteRequest, setInviteRequest] = useState<{fromUserId: number, fromUserName: string} | null>(null);
+  
+  // ESTADO PARA EL MODAL DE AVISOS/ERRORES
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   // -----------------------------------------------------------
   // 0. VERIFICACIÓN OAUTH AL CARGAR LA APP (ANTES QUE TODO) (EVITA DOBLE CLICK EN LOGIN PARA OAUTH)
@@ -338,18 +345,29 @@ function App()
           }
       };
 
-      // 🔥 MANEJO DE INVITACIÓN CON MODAL PROPIO (NO window.confirm)
+      // MANEJO DE INVITACIÓN CON MODAL PROPIO Y PROTECCIÓN DE PARTIDA
       const handleIncomingInvite = (data: { fromUserId: number, fromUserName: string }) => {
-        //console.log("🔔 Invitación recibida (Modal):", data);
+        // Si el usuario ya está jugando, rechazamos silenciosamente
+        if (screenRef.current === "pong") {
+          socket.emit('decline_game_invite', { challengerId: data.fromUserId, reason: 'busy' });
+          return;
+        }
+        // Si está en el menú, perfil, etc... le mostramos el modal
         setInviteRequest(data);
       };
+      // MANEJADOR PARA CUANDO EL RIVAL RECHAZA O ESTÁ OCUPADO
+      const handleInviteError = (data: { msg: string }) => {
+        setInviteError(data.msg);
+    };
 
       socket.on('match_found', handleMatchFound);
       socket.on('incoming_game_invite', handleIncomingInvite);
+      socket.on('invite_error', handleInviteError);
 
       return () => {
           socket.off('match_found', handleMatchFound);
           socket.off('incoming_game_invite', handleIncomingInvite);
+          socket.off('invite_error', handleInviteError);
       };
     }, []);
 
@@ -497,6 +515,33 @@ function renderScreen()
                       </button>
                       
                   </div>
+              </div>
+          </div>
+      )}
+      {inviteError && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+              <div className="bg-gray-900 border border-gray-700 rounded-3xl p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center transform transition-all scale-100">
+                  
+                  {/* Icono decorativo */}
+                  <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-6 border border-gray-700">
+                      <span className="text-4xl">⛔</span>
+                  </div>
+
+                  <h2 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">
+                      {t('error') || 'Aviso'}
+                  </h2>
+                  
+                  <p className="text-gray-300 text-lg mb-8">
+                      {inviteError}
+                  </p>
+
+                  {/* Botón Aceptar (Gris Neutro unificado con tu diseño) */}
+                  <button 
+                      onClick={() => setInviteError(null)}
+                      className="!px-10 !py-3.5 !min-w-[180px] !rounded-full !bg-gray-700/50 hover:!bg-gray-600 !text-white !font-bold !text-sm !uppercase !tracking-wider !transition-colors !border !border-gray-600 !m-0"
+                  >
+                      {t('modal.accept_btn') || 'OK'}
+                  </button>
               </div>
           </div>
       )}

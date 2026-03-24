@@ -684,8 +684,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           return;
       }
 
-    // B. Check if they are already in game (Optional, but recommended)
-    // ... MISSING (Logic to see if targetId is already playing) ...
+      // B. Check if they are already in a REMOTE game
+      for (const game of this.games.values()) {
+          if (game.playerLeftDbId === targetId || game.playerRightDbId === targetId) {
+              client.emit('invite_error', { msg: "The user is currently in a match." });
+              return;
+          }
+      }
 
     // C. We send the invitation to the target
     // We include the senderId and senderName (if you have it in client.data or you look it up)
@@ -695,6 +700,19 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           mode: 'classic' // Or 'custom', if you implement modes
       });
   }
+
+  @SubscribeMessage('decline_game_invite')
+  handleDeclineInvite(@MessageBody() payload: { challengerId: number, reason?: string }) {
+    const challengerDbId = Number(payload.challengerId);
+    const challengerSocketId = this.userSockets.get(challengerDbId);
+
+    if (challengerSocketId) {
+        const msg = payload.reason === 'busy' 
+            ? "The user is currently playing a local match and cannot be disturbed." 
+            : "The user declined your challenge.";
+        this.server.to(challengerSocketId).emit('invite_error', { msg });
+    }
+}
 
 // 2. Accept Invitation
   @SubscribeMessage('accept_game_invite')
