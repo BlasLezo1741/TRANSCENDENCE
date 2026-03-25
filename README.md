@@ -295,7 +295,7 @@ The full entity-relationship diagram is available at [`./docs/ER.md`](./docs/ER.
 
 Modules are documented in dedicated artifacts. Each link below points to the corresponding documentation file.
 
-**Total points: 15** (7 Major × 2pts + 1 Minor × 1pt = 15 — see table below)
+**Total points: 21** (8 Major × 2pts + 5 Minor × 1pt = 21 — see table below)
 
 | Module | Category | Type | Points | Owner(s) | Documentation |
 |--------|----------|------|--------|----------|---------------|
