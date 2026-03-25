@@ -95,7 +95,6 @@ useEffect(() =>
         const newScale = Math.min(
             1,
             (w - 50) / canvasWidth,
-            //(h - 250) / canvasHeight
             (h - 50) / canvasHeight
         );
 
@@ -132,10 +131,10 @@ useEffect(() =>
           {/* INFORMACIÓN CENTRAL */}
           <div className="flex flex-col items-center justify-center">
               {/* Cartel de Modo de Juego (Tamaño aumentado y estilizado) */}
-              <div className="!text-[1.1rem] !font-semibold !px-4 !py-1.5 !bg-black/60 !rounded-lg !border !border-gray-500/50 !text-gray-200 !mb-1 !tracking-wide">
+              <div className="!text-[1.1rem] !font-semibold !px-4 !py-1.5 !bg-black/60 !rounded-lg !border !border-gray-500/50 !text-gray-200 !tracking-wide">
                   {t('juego_mode')}{mode}
               </div>
-              <div className="!text-[2rem] !font-bold !tracking-[5px] !mt-1">VS</div>
+              <div className="!text-[2rem] !font-bold !tracking-[5px]">VS</div>
           </div>
 
           {/* JUGADOR DERECHA */}
@@ -149,7 +148,7 @@ useEffect(() =>
           </div>
       </div>
       
-      <div className="relative w-[800px] h-[600px]">
+      <div className="flex justify-center items-center">
           {isCountingDown && !gameOver && (
               <Countdown onComplete={() => setIsCountingDown(false)} />
           )}
