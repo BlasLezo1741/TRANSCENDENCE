@@ -257,6 +257,11 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!activeRef.current || !gameRef.current) return;
 
+            // 🔥 NUEVO: Evitar que las flechas y el espacio muevan la página
+            if (["ArrowUp", "ArrowDown", " ", "Spacebar"].includes(e.key)) {
+                e.preventDefault();
+            }
+
             if (gameRef.current.keysPressed[e.key]) return;
             
             gameRef.current.keysPressed[e.key] = true;
@@ -435,7 +440,15 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
         gameRef.current.chat = chatOpen;
     }, [chatOpen]);
 
-    return <canvas ref={canvasRef} className="block border-3 border-white bg-black"/>;
+    //return <canvas ref={canvasRef} className="block border-3 border-white bg-black"/>;
+    // 🔥 EL CAMBIO VA AQUÍ (Sustituye tu antiguo return por este) 🔥
+    return (
+        <canvas 
+            ref={canvasRef} 
+            style={{ touchAction: 'none' }} 
+            className="block border-3 border-white bg-black"
+        />
+    );
 }
 
 export default Canvas;

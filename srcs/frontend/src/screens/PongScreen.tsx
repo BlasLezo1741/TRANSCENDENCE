@@ -95,6 +95,7 @@ useEffect(() =>
         const newScale = Math.min(
             1,
             (w - 50) / canvasWidth,
+            //(h - 250) / canvasHeight
             (h - 50) / canvasHeight
         );
 

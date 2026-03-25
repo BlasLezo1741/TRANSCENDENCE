@@ -554,6 +554,8 @@ function renderScreen()
       <Footer dispatch={dispatch} setOption={setOption}/>
     </div>
   );
+
+
 }
 
 export default App;
