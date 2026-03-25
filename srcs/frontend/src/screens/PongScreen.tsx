@@ -148,7 +148,7 @@ useEffect(() =>
           </div>
       </div>
       
-      <div className="flex justify-center items-center">
+      <div className="relative flex justify-center items-center">
           {isCountingDown && !gameOver && (
               <Countdown onComplete={() => setIsCountingDown(false)} />
           )}
