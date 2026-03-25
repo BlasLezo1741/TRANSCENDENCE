@@ -288,11 +288,7 @@ function Canvas({ mode, difficult, dispatch, userName, opponentName = "Oponente"
             const halfX = canvas.width / 2;
             const halfY = canvas.height / 2;
 
-            const isMobile = window.innerWidth <= 660;
-
-            const dirY: DirY = isMobile
-                ? touchX < halfX ? "down" : "up"
-                : touchY < halfY ? "up" : "down";
+            const dirY: DirY = touchY < halfY ? "up" : "down";
 
             // Determinar jugador en modo local o IA
             const player = mode === "ia"
