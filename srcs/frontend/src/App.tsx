@@ -496,7 +496,8 @@ function renderScreen()
                       <p className="!text-gray-100 !text-base !leading-loose !tracking-wide !m-0">
                           {/* He puesto el nombre del retador en color naranja para destacarlo */}
                           <strong className="text-orange-500">
-                              {inviteRequest.fromUserName === 'app.afriend' ? t('app.afriend') : inviteRequest.fromUserName}
+                              {/* {inviteRequest.fromUserName === 'app.afriend' ? t('app.afriend') : inviteRequest.fromUserName} */}
+                              {t(inviteRequest.fromUserName)}
                           </strong> {t('app.wantPlay')}
                       </p>
                   </div>

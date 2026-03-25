@@ -694,6 +694,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     // C. We send the invitation to the target
     // We include the senderId and senderName (if you have it in client.data or you look it up)
+      //console.log("Invitation sender: ", client.data.user.pNick);
       this.server.to(targetSocketId).emit('incoming_game_invite', {
           fromUserId: senderId,
           fromUserName: client.data.user?.pNick || 'app.afriend', // Make sure you have the nick // or "A friend"
