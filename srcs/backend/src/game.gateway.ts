@@ -669,22 +669,53 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 // --- GAME INVITATIONS (PONG) ---
 
 // 1. Send Invitation
+  // @SubscribeMessage('send_game_invite')
+  // handleSendInvite(client: Socket, payload: { targetId: number }) {
+  //     const senderId = client.data.userId; // Or however you get the sender's ID
+  //     const targetId = Number(payload.targetId);
+
+
+  //   // A. We look if the target is connected
+  //     const targetSocketId = this.userSockets.get(targetId);
+
+  //     if (!targetSocketId) {
+  //       // If they're not, we notify the sender
+  //       client.emit('invite_error', { msg: 'game.disconnected' });
+  //         return;
+  //     }
+
+  //     // B. Check if they are already in a REMOTE game
+  //     for (const game of this.games.values()) {
+  //         if (game.playerLeftDbId === targetId || game.playerRightDbId === targetId) {
+  //             client.emit('invite_error', { msg: 'game.busy' });
+  //             return;
+  //         }
+  //     }
+
+  //   // C. We send the invitation to the target
+  //   // We include the senderId and senderName (if you have it in client.data or you look it up)
+  //     this.server.to(targetSocketId).emit('incoming_game_invite', {
+  //         fromUserId: senderId,
+  //         fromUserName: client.data.user?.pNick || 'app.afriend', // Make sure you have the nick // or "A friend"
+  //         mode: 'classic' // Or 'custom', if you implement modes
+  //     });
+  // }
+
   @SubscribeMessage('send_game_invite')
-  handleSendInvite(client: Socket, payload: { targetId: number }) {
-      const senderId = client.data.userId; // Or however you get the sender's ID
+  // 1. IMPORTANTE: Añadimos 'async' aquí
+  async handleSendInvite(client: Socket, payload: { targetId: number }) {
+      const senderId = client.data.userId; 
       const targetId = Number(payload.targetId);
 
-
-    // A. We look if the target is connected
+      // A. Miramos si el objetivo está conectado
       const targetSocketId = this.userSockets.get(targetId);
 
       if (!targetSocketId) {
-        // If they're not, we notify the sender
-        client.emit('invite_error', { msg: 'game.disconnected' });
+          client.emit('invite_error', { msg: 'game.disconnected' });
           return;
       }
 
-      // B. Check if they are already in a REMOTE game
+      // B. Comprobamos si ya está jugando en remoto
       for (const game of this.games.values()) {
           if (game.playerLeftDbId === targetId || game.playerRightDbId === targetId) {
               client.emit('invite_error', { msg: 'game.busy' });
@@ -692,12 +723,22 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           }
       }
 
-    // C. We send the invitation to the target
-    // We include the senderId and senderName (if you have it in client.data or you look it up)
+      // 🔥 NUEVO: Buscamos el nombre real del que envía el reto en la Base de Datos 🔥
+      let senderName = 'app.afriend'; // Nuestro valor por defecto (fallback)
+      try {
+          const senderData = await this.findPlayerById(senderId);
+          if (senderData && senderData.pNick) {
+              senderName = senderData.pNick; // ¡Nombre real encontrado!
+          }
+      } catch (error) {
+          console.error("❌ Error recuperando el nombre del retador:", error);
+      }
+
+      // C. Enviamos la invitación al objetivo con el nombre real
       this.server.to(targetSocketId).emit('incoming_game_invite', {
           fromUserId: senderId,
-          fromUserName: client.data.user?.pNick || 'app.afriend', // Make sure you have the nick // or "A friend"
-          mode: 'classic' // Or 'custom', if you implement modes
+          fromUserName: senderName, // Usamos la variable que acabamos de conseguir
+          mode: 'classic' 
       });
   }
 
