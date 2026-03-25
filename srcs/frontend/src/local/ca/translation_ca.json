@@ -192,7 +192,7 @@
         "userOrEmailExists": "L'usuari o el correu electrònic ja existeix",
         "useOAuthProvider": "Si us plau, inicia sessió amb OAuth (clica a 42 o Google)",
         "useOAuthProviderShort": "Si us plau, inicia sessió amb el teu proveïdor OAuth",
-        "noAuthToken": "Falta el token d'autenticació",
+        "noAuthToken": "Falta el token d'autenticació o ha caducat",
         "sessionExpired": "Sessió expirada",
         "2faNotEnabled": "El 2FA no està activat per a aquest usuari",
         "2faGenerationError": "Error en generar el codi 2FA",

@@ -52,7 +52,11 @@ const LoginScreen = ({ dispatch, setGlobalUser, oauthError, clearOAuthError }: L
             try {
                 const result = await checkLogin(trimmedUser, trimmedPassword);
                 if (!result.ok) {
-                    setError(t(result.msg) || t('errors.unknownError'));
+                    if (!result.msg) {
+                        setError(t('errors.unknownError'));
+                    } else {
+                        setError(t(result.msg));
+                    }
                     setPassword("");
                     return;
                 } else {

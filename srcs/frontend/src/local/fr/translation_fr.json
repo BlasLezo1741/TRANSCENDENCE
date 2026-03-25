@@ -192,7 +192,7 @@
         "userOrEmailExists": "Ce nom d'utilisateur ou cette adresse e-mail existe déjà",
         "useOAuthProvider": "Veuillez vous connecter via OAuth (cliquez sur 42 ou Google)",
         "useOAuthProviderShort": "Veuillez vous connecter avec votre fournisseur OAuth",
-        "noAuthToken": " Jeton d'authentification manquant",
+        "noAuthToken": " Jeton d'authentification manquant ou expiré",
         "sessionExpired": "Session expirée",
         "2faNotEnabled": "Le 2FA n'est pas activé pour cet utilisateur",
         "2faGenerationError": "Erreur lors de la génération du code 2FA",

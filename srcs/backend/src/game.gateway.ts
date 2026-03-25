@@ -486,7 +486,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     if (!game) return;
 
-    // ✅ FIX: y is number | undefined in PaddleMoveDto — guard before assignment
     if (y === undefined) return;
 
     if (client.id === game.playerLeftId) {
@@ -541,17 +540,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         { mcMatchFk: newMatch.mPk, mcPlayerFk: game.playerRightDbId },
       ]);
 
-      // The player table has no win/loss/points counters.
-      // Stats are tracked relationally through the match + competitor + competitormetric tables.
-      // If you want to store per-player scores for this match, insert rows into
-      // schema.competitormetric with the appropriate metric FK and value.
-      // Example (replace SCORE_METRIC_PK with the real metric PK from your metric table):
-      //
-      // const SCORE_METRIC_PK = 1; // TODO: replace with real metric PK
-      // await this.db.insert(schema.competitormetric).values([
-      //   { mcmMatchFk: newMatch.mPk, mcmPlayerFk: game.playerLeftDbId,  mcmMetricFk: SCORE_METRIC_PK, mcmValue: game.score[0] },
-      //   { mcmMatchFk: newMatch.mPk, mcmPlayerFk: game.playerRightDbId, mcmMetricFk: SCORE_METRIC_PK, mcmValue: game.score[1] },
-      // ]);
 
     } catch (err) {
       console.error('❌ Error saving match to DB:', err);
@@ -596,14 +584,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       if (!targetSocketId) {
         // If they're not, we notify the sender
-        client.emit('invite_error', { msg: "The user is not connected." });
+        client.emit('invite_error', { msg: 'game.disconnected' });
           return;
       }
 
       // B. Check if they are already in a REMOTE game
       for (const game of this.games.values()) {
           if (game.playerLeftDbId === targetId || game.playerRightDbId === targetId) {
-              client.emit('invite_error', { msg: "The user is currently in a match." });
+              client.emit('invite_error', { msg: 'game.busy' });
               return;
           }
       }
@@ -641,7 +629,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       // 1. Validar que el Retador sigue conectado (Hacerlo lo primero es la mejor lógica)
       const challengerSocketId = this.userSockets.get(challengerDbId);
       if (!challengerSocketId) {
-          client.emit('invite_error', { msg: "The challenger has disconnected." });
+          client.emit('invite_error', { msg: 'game.disconnected' });
           return;
       }
       const challengerSocket = this.server.sockets.sockets.get(challengerSocketId);

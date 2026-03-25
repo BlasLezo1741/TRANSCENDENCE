@@ -61,7 +61,7 @@ const Header = ({dispatch, setIa, userName, userId, userAvatarUrl, profileSynced
             <header>
                 <div className="home w-[160px]" onClick={() => { setIa(false); dispatch({ type: "MENU" });}}>
                     <img src={homeIcon} alt="Logo" className="w-[50px] h-[50px]"/>
-                    <p className="ml-1">Okinawa</p>
+                    <p className="ml-1">{t('menu')}</p>
                 </div>
                 
                 <div className="w-[420px]">

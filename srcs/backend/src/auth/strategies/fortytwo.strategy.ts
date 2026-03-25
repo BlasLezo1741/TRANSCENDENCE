@@ -50,6 +50,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
       country: countryCode,
     };
 
+
     return user;
   }
 }

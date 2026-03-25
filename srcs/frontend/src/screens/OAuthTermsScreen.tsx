@@ -10,6 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import TermsModal from '../components/TermsModal';
 import type { ScreenProps } from '../ts/screenConf/screenProps';
+import { useModal } from "../context/ModalContext";
 
 type OAuthTermsScreenProps = ScreenProps & {
     pendingToken: string;
@@ -23,6 +24,7 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
     const [isLoading, setIsLoading] = useState(false);
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+    const { showModal } = useModal();
 
     // Keyboard shortcuts: Enter → accept, Escape → back
     // Only fire when no modal is open (modals handle Escape themselves)
@@ -55,7 +57,13 @@ const OAuthTermsScreen = ({ dispatch, pendingToken, setGlobalUser }: OAuthTermsS
             const result = await response.json();
 
             if (!result.ok) {
-                setError(t(result.msg) || t('errors.unknownError'));
+                showModal({
+                    title: t('error'),
+                    message: t(result.msg),
+                    type: 'error',
+                });
+                //setError(t(result.msg) || t('errors.unknownError'));
+                dispatch({ type: 'LOGIN' });
                 return;
             }
 

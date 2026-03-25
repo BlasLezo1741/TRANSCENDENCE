@@ -192,7 +192,7 @@
         "userOrEmailExists": "Username or e-mail already exists",
         "useOAuthProvider": "Please log in via OAuth (click on 42 or Google)",
         "useOAuthProviderShort": "Please log in via your OAuth provider",
-        "noAuthToken": "Missing authentication token",
+        "noAuthToken": "Missing or expired authentication token",
         "sessionExpired": "Session expired",
         "2faNotEnabled": "2FA is not enabled for this user",
         "2faGenerationError": "Error generating the 2FA code",

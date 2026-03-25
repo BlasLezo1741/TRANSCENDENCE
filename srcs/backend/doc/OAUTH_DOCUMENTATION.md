@@ -1327,17 +1327,22 @@ transcendence/
 4. Navigate to "Credentials" → "Create Credentials" → "OAuth 2.0 Client ID"
 5. Configure the OAuth consent screen
 6. Add authorized redirect URIs:
-   - Development: `http://localhost:3000/auth/google/callback`
+   - Development*: `http://localhost:8443/auth/google/callback`
    - Production: `https://yourdomain.com/auth/google/callback`
 7. Copy Client ID and Secret to `.env`
+* Replace 8443 by your active port
 
 ### 42 School OAuth Setup
 
 1. Go to [42 Intra OAuth Applications](https://profile.intra.42.fr/oauth/applications)
 2. Click "Register a new application"
-3. Set redirect URI: `https://yourdomain.com/auth/42/callback`
+3. Set redirect URI: 
+    - Development localhost*: https://localhost:8443/auth/42/callback
+    - Development 42 computers**: https://10.11.8.5:8443/auth/42/callback
+    - Production: `https://yourdomain.com/auth/42/callback`
 4. Copy UID and SECRET to `.env`
-
+* Replace 8443 by your active port.
+** Replace the IP by the server's IP.
 ---
 
 ## Credits

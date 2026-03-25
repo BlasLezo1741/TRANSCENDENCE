@@ -197,7 +197,7 @@ async fortyTwoAuthRedirect(@Req() req, @Res() res: Response) {
   async oauthComplete(@Body() body: { pendingToken: string }) {
     const oauthData = this.authService.verifyPendingOAuthToken(body.pendingToken);
     if (!oauthData) {
-      return { ok: false, msg: 'errors.invalidOrExpiredToken' };
+      return { ok: false, msg: 'errors.noAuthToken' };
     }
 
     try {
