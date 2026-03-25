@@ -409,6 +409,8 @@ const handleInviteResponse = (accept: boolean) => {
           setInviteRequest(null); 
       } else {
           //console.log("❌ Rechazando reto.");
+          // ✅ CHANGED: Emit decline event to backend so the challenger receives 'game.rejected'
+          socket.emit('decline_game_invite', { challengerId: inviteRequest.fromUserId, reason: 'rejected' });
           setInviteRequest(null);
       }
   };
@@ -531,12 +533,9 @@ function renderScreen()
                       <span className="text-4xl">⛔</span>
                   </div>
 
-                  <h2 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">
-                      {t('error') || 'Aviso'}
-                  </h2>
-                  
+                  {/* 'game.busy' or 'game.rejected'*/}
                   <p className="text-gray-300 text-lg mb-8">
-                      {inviteError}
+                      {t(inviteError)}
                   </p>
 
                   {/* Botón Aceptar (Gris Neutro unificado con tu diseño) */}

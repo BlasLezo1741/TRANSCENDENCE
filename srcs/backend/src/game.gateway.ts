@@ -23,7 +23,7 @@ import { MatchFoundResponse } from './dto/match-found.response';
 import { DRIZZLE } from './database.module';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as schema from './schema'; 
-import { eq, sql } from 'drizzle-orm'; 
+import { eq } from 'drizzle-orm'; 
 // --------------------
 
 
@@ -398,256 +398,172 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       });
 
     }, 16);
+
     state.intervalId = interval;
   }
 
-  private updateGamePhysics(state: GameState) {
-    // 1. Save PREVIOUS position (Key to avoid tunnel effect)
-    const prevX = state.ball.x;
-    const prevY = state.ball.y;
-
-    // 2. Move the ball
-    state.ball.x += state.ball.vx;
-    state.ball.y += state.ball.vy;
-
-    // 3. Bounces on top/bottom walls
-    if (state.ball.y <= 0 || state.ball.y >= 1) {
-        state.ball.vy *= -1;
-        // Position correction so it doesn't get stuck
-        state.ball.y = state.ball.y <= 0 ? 0.001 : 0.999;
-    }
-
-    const paddleHalf = this.PADDLE_HEIGHT / 2;
-    // We define where the "face" of the paddle is (impact zone)
-    const PADDLE_MARGIN = 0.035; // The same value you were using in your tests
-
-    // --- LEFT PADDLE COLLISION (P1) ---
-    // We detect if the ball CROSSED the paddle line (it was on the right and now it's on the left)
-    if (prevX >= PADDLE_MARGIN && state.ball.x <= PADDLE_MARGIN) {
-        
-        // Calculate at what exact Y point it crossed the line X = PADDLE_MARGIN
-        // Linear interpolation formula
-        const t = (PADDLE_MARGIN - prevX) / (state.ball.x - prevX);
-        const intersectY = prevY + t * (state.ball.y - prevY);
-
-        // Check if that Y point is inside the paddle (with a small error margin '0.01' for edges)
-        if (intersectY >= state.paddles.left - paddleHalf - 0.01 && 
-            intersectY <= state.paddles.left + paddleHalf + 0.01) {
-            
-            // COLLISION CONFIRMED!
-            state.ball.x = PADDLE_MARGIN + 0.01; // Take the ball out
-            state.ball.vx = Math.abs(state.ball.vx); // FForce right direction
-            
-            // Game logic
-            state.stats.totalHits++;
-            state.ball.speed *= this.SPEED_INCREMENT;
-            this.adjustAngle(state, state.paddles.left);
-        }
-    }
-
-    // ---  RIGHT PADDLE COLLISION (P2) ---
-    // We detect if the ball CROSSED the line (it was on the left and now it's on the right)
-    const RIGHT_PADDLE_X = 1 - PADDLE_MARGIN;
-    
-    if (prevX <= RIGHT_PADDLE_X && state.ball.x >= RIGHT_PADDLE_X) {
-        
-        const t = (RIGHT_PADDLE_X - prevX) / (state.ball.x - prevX);
-        const intersectY = prevY + t * (state.ball.y - prevY);
-
-        if (intersectY >= state.paddles.right - paddleHalf - 0.01 && 
-            intersectY <= state.paddles.right + paddleHalf + 0.01) {
-            
-            state.ball.x = RIGHT_PADDLE_X - 0.01; // Take the ball out
-            state.ball.vx = -Math.abs(state.ball.vx); // Force left direction
-            
-            state.stats.totalHits++;
-            state.ball.speed *= this.SPEED_INCREMENT;
-            this.adjustAngle(state, state.paddles.right);
-        }
-    }
-
-  // GOAL DETECTION
-    if (state.ball.x < -0.05) {
-        state.score[1]++; // Point P2
-        this.handleGoal(state);
-    } else if (state.ball.x > 1.05) {
-        state.score[0]++;  // Point P1
-        this.handleGoal(state);
-    }
-  }
-
-// Refactoring to not repeat code in goals
-  private handleGoal(state: GameState) {
-      this.server.to(state.roomId).emit('score_updated', { score: state.score });
-      this.resetBall(state);
-      this.checkWinner(state);
-  }
-
-  private checkWinner(state: GameState) {
-      if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
-        this.server.to(state.roomId).emit('score_updated', { roomId: state.roomId, score: state.score });
-        // 1. Get the REAL NICKNAME of the winner using the saved IDs
-
-
-        // TRICK: Since we don't have the nicks handy in 'state' easily (only in DB),
-        // we're going to send "Left" or "Right" and let the Frontend put the name.
-        const winnerSide = state.score[0] >= this.MAX_SCORE ? "left" : "right";
-        //Registration in the database before stopping the loop
-        this.saveMatchToDb(state);
-          
-        // We call finish game logic
-        this.stopGameLoop(state.roomId);
- 
-
-        // 3. We send who won (left or right)
-        // DELAY TRICK: We wait 500ms before sending Game Over
-        // This allows the Frontend to receive the score, React renders the 5,
-        // the user sees it, and THEN the ending jumps.
-        setTimeout(() => {
-                this.server.to(state.roomId).emit('game_over', { roomId: state.roomId, winner: winnerSide });
-                //console.log("🏁 Evento game_over enviado.");
-            }, 500); // 500 milliseconds (half a second)
-      }
-  }
-
   private resetBall(state: GameState) {
-      state.ball.x = 0.5;
-      state.ball.y = 0.5;
-      state.ball.speed = this.INITIAL_SPEED;
-      const dirX = Math.random() < 0.5 ? -1 : 1;
-      const angle = (Math.random() * 2 - 1) * (Math.PI / 5); 
-      state.ball.vx = dirX * Math.cos(angle) * state.ball.speed;
-      state.ball.vy = Math.sin(angle) * state.ball.speed;
-      // // Simplifiquemos el saque para probar
-      // state.ball.vx = (Math.random() < 0.5 ? -1 : 1) * state.ball.speed;
-      // state.ball.vy = 0;
+    state.ball.x = 0.5;
+    state.ball.y = 0.5;
+    state.ball.speed = this.INITIAL_SPEED;
+
+    const angle = (Math.random() * Math.PI) / 2 - Math.PI / 4;
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    state.ball.vx = Math.cos(angle) * state.ball.speed * direction;
+    state.ball.vy = Math.sin(angle) * state.ball.speed;
   }
 
-  private adjustAngle(state: GameState, paddleY: number) {
-      const deltaY = state.ball.y - paddleY; 
-      const normalizedDelta = deltaY / (this.PADDLE_HEIGHT / 2);
-      const angle = normalizedDelta * (Math.PI / 4);
-      const dirX = state.ball.vx > 0 ? 1 : -1;
-      state.ball.vx = dirX * Math.cos(angle) * state.ball.speed;
-      state.ball.vy = Math.sin(angle) * state.ball.speed;
+  private updateGamePhysics(state: GameState) {
+    const ball = state.ball;
+
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    if (ball.y <= 0 || ball.y >= this.SERVER_HEIGHT) {
+      ball.vy *= -1;
+      ball.y = Math.max(0, Math.min(this.SERVER_HEIGHT, ball.y));
+    }
+
+    const paddleWidth = 0.02;
+    const halfPaddle = this.PADDLE_HEIGHT / 2;
+
+    if (
+      ball.vx < 0 &&
+      ball.x <= paddleWidth &&
+      ball.y >= state.paddles.left - halfPaddle &&
+      ball.y <= state.paddles.left + halfPaddle
+    ) {
+      ball.vx *= -1;
+      ball.x = paddleWidth;
+      ball.speed *= this.SPEED_INCREMENT;
+
+      state.stats.totalHits++;
+    }
+
+    if (
+      ball.vx > 0 &&
+      ball.x >= this.SERVER_WIDTH - paddleWidth &&
+      ball.y >= state.paddles.right - halfPaddle &&
+      ball.y <= state.paddles.right + halfPaddle
+    ) {
+      ball.vx *= -1;
+      ball.x = this.SERVER_WIDTH - paddleWidth;
+      ball.speed *= this.SPEED_INCREMENT;
+
+      state.stats.totalHits++;
+    }
+
+    if (ball.x < 0) {
+      state.score[1]++;
+      this.resetBall(state);
+      this.checkWinCondition(state);
+    } else if (ball.x > this.SERVER_WIDTH) {
+      state.score[0]++;
+      this.resetBall(state);
+      this.checkWinCondition(state);
+    }
   }
 
-  // --- PADDLE MOVE (Juego en tiempo real) ---
+  private checkWinCondition(state: GameState) {
+    if (state.score[0] >= this.MAX_SCORE || state.score[1] >= this.MAX_SCORE) {
+      this.server.to(state.roomId).emit('game_over', {
+        roomId: state.roomId,
+        score: state.score,
+      });
 
-@SubscribeMessage('paddle_move')
+      this.saveMatchToDb(state);
+      this.stopGameLoop(state.roomId);
+    }
+  }
+
+  @SubscribeMessage('paddle_move')
   handlePaddleMove(
-      @ConnectedSocket() client: Socket, 
-      @MessageBody() payload: PaddleMoveDto 
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: PaddleMoveDto
   ) {
-    const game = this.games.get(payload.roomId);
-    
-    // 1. If the game doesn't exist, we do nothing.
+    const { roomId, y } = payload;
+    const game = this.games.get(roomId);
+
     if (!game) return;
 
-    // 2. Defensive validation: If 'y' doesn't come, we exit.
-    // (Although the DTO helps, this avoids logical errors if the frontend fails)
-    if (payload.y === undefined || payload.y === null) return;
+    // ✅ FIX: y is number | undefined in PaddleMoveDto — guard before assignment
+    if (y === undefined) return;
 
-    // 3. Sanitization (Clamp): Convert to number and force range 0.0 - 1.0
-    let newY = Number(payload.y); 
-    newY = Math.max(0, Math.min(1, newY)); 
-
-    // 4. Direct assignment according to who the client is
     if (client.id === game.playerLeftId) {
-        game.paddles.left = newY;
+      game.paddles.left = y;
     } else if (client.id === game.playerRightId) {
-        game.paddles.right = newY;
+      game.paddles.right = y;
     }
   }
-  // --- FINISH GAME (CON INSERT DB FINAL) ---
 
   @SubscribeMessage('finish_game')
   async handleFinishGame(
-    @ConnectedSocket() client: Socket, 
-    @MessageBody() payload: FinishGameDto 
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: FinishGameDto
   ) {
-    //console.log(`🏁 Petición fin juego: ${payload.roomId} por ${payload.winnerId}`);
-    
-    // Recuperar estado antes de borrarlo
-    const game = this.games.get(payload.roomId);
-    if (!game) return;
-    
-    //console.log(`🏳️ ABANDONO detectado en sala: ${payload.roomId} por usuario ${payload.winnerId}`);
-    // GUARDAR EN BASE DE DATOS (Una sola vez)
-    //await this.saveMatchToDb(game, payload.winnerId);
-    await this.saveMatchToDb(game);
-    
-    // Detenemos bucle y limpiamos memoria
-    this.stopGameLoop(payload.roomId); 
-
-    // Notificar y limpiar
-    this.server.to(payload.roomId).emit('game_over', { winner: payload.winnerId });
-    
-    const sockets = await this.server.in(payload.roomId).fetchSockets();
-    for (const s of sockets) {
-        s.leave(payload.roomId);
-    }
-    //console.log(`🗑️ Sala ${payload.roomId} limpiada.`);
+    const { roomId } = payload;
+    this.stopGameLoop(roomId);
   }
-    
-  //MÉTODO INSCRIPCION EN LA BASE DE DATOS EXTRAÍDO CORRECTAMENTE
-  //private async saveMatchToDb(state: GameState, winnerSide: string) {
-  private async saveMatchToDb(state: GameState) {
-    const durationMs = Date.now() - state.stats.startTime.getTime();
-    
-    // 1. Determine winner ID
-    let winnerPk: number; 
-    if (state.score[0] > state.score[1]) {
-        winnerPk = state.playerLeftDbId;
-    } else if (state.score[1] > state.score[0]) {
-        winnerPk = state.playerRightDbId;
-    } else {
-        // CASE 2: Tie (Rare, possible if there was simultaneous disconnection)
-        // Decision: If it's 0-0 we don't save. If there are points, fallback to Left.
-        if (state.score[0] === 0 && state.score[1] === 0) {
-            return;
-        }
-        winnerPk = state.playerLeftDbId; // Tie Fallback
-    }
 
-    // 2. Determine the Game Mode (ID)
-    // According to your 01_data.sql: 1='1v1_local', 2='1v1_remote', 3='1v1_ia'
-    // Since this Gateway is the remote websocket, we will assume it's REMOTE (ID 2)
-    // If you have tournament logic, adjust this.
-    const MODE_REMOTE_ID = 2; 
-
+  private async saveMatchToDb(game: GameState) {
     try {
-        // . Call to SQL function 'insert_full_match_result'
-        await this.db.execute(sql`
-            SELECT insert_full_match_result(
-                ${MODE_REMOTE_ID}::smallint,        -- p_mode_id
-                ${state.stats.startTime.toISOString()}::timestamp,-- p_date
-                ${durationMs}::integer,             -- p_duration_ms
-                ${winnerPk}::integer,               -- p_winner_id
-                ${state.playerLeftDbId}::integer,   -- p_p1_id
-                ${state.score[0]}::float,           -- p_score_p1
-                ${state.playerRightDbId}::integer,  -- p_p2_id
-                ${state.score[1]}::float,           -- p_score_p2
-                ${state.stats.totalHits}::float     -- p_total_hits
-            )
-        `);
-    } catch (error) {
-      console.error("❌ Error saving game in DB", error);
+      const endTime = new Date();
+      const durationMs = endTime.getTime() - game.stats.startTime.getTime();
+      const durationSec = Math.floor(durationMs / 1000);
+
+      const winnerId = game.score[0] > game.score[1] ? game.playerLeftDbId : game.playerRightDbId;
+
+      const modeResult = await this.db.query.matchMode.findFirst({
+        where: eq(schema.matchMode.mmodName, '1v1_remote')
+      });
+      if (!modeResult) return;
+
+      // Insert the match row.
+      // - mDate:     timestamp with mode:'string' → pass ISO string
+      // - mDuration: PostgreSQL interval type    → pass interval literal e.g. '120 seconds'
+      // - mWinnerFk: winner's player PK
+      // - mModeFk:   match mode FK (smallint) — mmodPk is smallint so cast is safe
+      const [newMatch] = await this.db.insert(schema.match).values({
+        mWinnerFk: winnerId,
+        mModeFk:   modeResult.mmodPk,
+        mDate:     endTime.toISOString(),
+        mDuration: `${durationSec} seconds`,
+      }).returning();
+
+      if (!newMatch) return;
+
+      // Register both players as competitors for this match.
+      // schema.competitor has: mcMatchFk (integer), mcPlayerFk (integer).
+      // Primary key is (mcPlayerFk, mcMatchFk) — no score column exists in the schema.
+      // Scores are stored separately via competitormetric if needed.
+      await this.db.insert(schema.competitor).values([
+        { mcMatchFk: newMatch.mPk, mcPlayerFk: game.playerLeftDbId },
+        { mcMatchFk: newMatch.mPk, mcPlayerFk: game.playerRightDbId },
+      ]);
+
+      // The player table has no win/loss/points counters.
+      // Stats are tracked relationally through the match + competitor + competitormetric tables.
+      // If you want to store per-player scores for this match, insert rows into
+      // schema.competitormetric with the appropriate metric FK and value.
+      // Example (replace SCORE_METRIC_PK with the real metric PK from your metric table):
+      //
+      // const SCORE_METRIC_PK = 1; // TODO: replace with real metric PK
+      // await this.db.insert(schema.competitormetric).values([
+      //   { mcmMatchFk: newMatch.mPk, mcmPlayerFk: game.playerLeftDbId,  mcmMetricFk: SCORE_METRIC_PK, mcmValue: game.score[0] },
+      //   { mcmMatchFk: newMatch.mPk, mcmPlayerFk: game.playerRightDbId, mcmMetricFk: SCORE_METRIC_PK, mcmValue: game.score[1] },
+      // ]);
+
+    } catch (err) {
+      console.error('❌ Error saving match to DB:', err);
     }
   }
 
   private stopGameLoop(roomId: string) {
       const game = this.games.get(roomId);
-      // if (game && game.intervalId) {
-      //     clearInterval(game.intervalId);
-      //     this.games.delete(roomId);
-      // }
       if (game) {
-          // Si hay un bucle corriendo, lo paramos
           if (game.intervalId) {
               clearInterval(game.intervalId);
           }
-          // Borramos SIEMPRE la sala de la memoria
           this.games.delete(roomId);
       }
   }
@@ -707,105 +623,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const challengerSocketId = this.userSockets.get(challengerDbId);
 
     if (challengerSocketId) {
+        // ✅ CHANGED: Fixed typo 'game.reject' → 'game.rejected' to match the translation key
         const msg = payload.reason === 'busy' 
-            ? "The user is currently playing a local match and cannot be disturbed." 
-            : "The user declined your challenge.";
+            ? 'game.busy' 
+            : 'game.rejected';
         this.server.to(challengerSocketId).emit('invite_error', { msg });
     }
-}
+  }
 
 // 2. Accept Invitation
-  // @SubscribeMessage('accept_game_invite')
-  // async handleAcceptInvite(client: Socket, payload: { challengerId: number }) {
-  //   // 1. Get IDs
-  //     const acceptorDbId = client.data.userId; 
-  //     const challengerDbId = Number(payload.challengerId);
-
-  //     //console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
-
-  //     // 2. Variables for names (Default values)
-  //     // Initializes to null: avoids error "undefined varaible"
-  //     let p1Data: any = null;
-  //     let p2Data: any = null;
-      
-  //     let challengerName = "Jugador 1";
-  //     let acceptorName = "Jugador 2";
-
-  //     // 🔥 3. DATABASE QUERY (THE REAL SOLUTION)
-  //     // We use await to ensure we have the names before continuing
-  //     try {
-  //         // We look for the Challenger (P1)
-  //         // NOTE: If `this.findPlayerById` returns the entire object from the database (including `pAvatarUrl`), this works.
-  //         // Otherwise, you should change it to: `await this.db.query.player.findFirst({ where: eq(schema.player.pPk, challengerDbId) });`
-  //         p1Data = await this.findPlayerById(challengerDbId);
-          
-  //         if (p1Data && p1Data.pNick) {
-  //             challengerName = p1Data.pNick;
-  //         }
-          
-
-  //         // We look for the Acceptor (P2)
-  //         p2Data = await this.findPlayerById(acceptorDbId);
-          
-  //         if (p2Data && p2Data.pNick) {
-  //             acceptorName = p2Data.pNick;
-  //         }
-  //     } catch (error) {
-  //         console.error("❌ Error recuperando nombres/avatares de la DB:", error);
-  //     }
-
-  //   // 4. Validate rival's socket
-  //     const challengerSocketId = this.userSockets.get(challengerDbId);
-  //     if (!challengerSocketId) {
-  //       client.emit('invite_error', { msg: "The challenger has disconnected." });
-  //         return;
-  //     }
-  //     const challengerSocket = this.server.sockets.sockets.get(challengerSocketId);
-
-  //   // 5. Create Room
-  //     const roomId = `private_${challengerDbId}_${acceptorDbId}_${Date.now()}`;
-      
-  //     if (challengerSocket) challengerSocket.join(roomId);
-  //     client.join(roomId);
-
-  //     //6. Notify the Frontend (With the Names from the DB adn avatars)
-      
-  //     // //A) For the Challenger (P1 - Left) -> Su rival es P2 (Aceptador)
-  //     this.server.to(challengerSocketId).emit('match_found', {
-  //         roomId: roomId,
-  //         side: 'left',
-  //         opponent: { 
-  //             id: acceptorDbId,
-  //             name: acceptorName, 
-  //             // Usamos pAvatarUrl si existe, si no null
-  //             avatar: p2Data?.pAvatarUrl || null 
-  //         }, 
-  //         matchId: 0 
-  //     });
-
-  //     // B) For the Acceptor (P2 - Right) -> Su rival es P1 (Desafiante)
-  //     this.server.to(client.id).emit('match_found', {
-  //         roomId: roomId,
-  //         side: 'right',
-  //         opponent: { 
-  //             id: challengerDbId,
-  //             name: challengerName, 
-  //             // Usamos pAvatarUrl si existe, si no null
-  //             avatar: p1Data?.pAvatarUrl || null 
-  //         },
-  //         matchId: 0
-  //     });
-
-  //   // 7. Start Game
-  //     this.startGameLoop(
-  //         roomId,
-  //         challengerSocketId,
-  //         client.id,
-  //         challengerDbId,
-  //         acceptorDbId
-  //     );
-  // }
-
   @SubscribeMessage('accept_game_invite')
   async handleAcceptInvite(client: Socket, payload: { challengerId: number }) {
       

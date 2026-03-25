@@ -258,6 +258,8 @@
         "ended": "🏆 MATCH ENDED",
         "winner": "🏆 Winner: {{name}}",
         "disconnected": "🔌 Your opponent has lost connection. ",
-        "messageDisconnected": "{{name}} has left. You won by forfeit!"
+        "messageDisconnected": "{{name}} has left. You won by forfeit!",
+        "busy": "The user is already playing another match. Try later.",
+        "rejected": "The user declined your invitation."
     }
 }

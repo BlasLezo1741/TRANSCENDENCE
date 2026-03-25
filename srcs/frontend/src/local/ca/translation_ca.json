@@ -258,6 +258,8 @@
         "ended": "🏆 Partida Acabada!",
         "winner": "🏆 Guanyador: {{name}}",
         "disconnected": "🔌 Rival Desconnectat",
-        "messageDisconnected": "{{name}} ha perdut la connexió. Has guanyat per abandonament!"
+        "messageDisconnected": "{{name}} ha perdut la connexió. Has guanyat per abandonament!",
+        "busy": "L'usuari està jugant una altra partida. Intenta-ho més tard.",
+        "rejected": "L'usuari ha declinat la teva invitació."
     }
 }
