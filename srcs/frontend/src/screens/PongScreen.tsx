@@ -33,14 +33,6 @@ const PongScreen = ({ dispatch, mode, difficult, userName, opponentName, userAva
         userAvatar = noAvatarUrl;
     }
 
-    // useEffect(() =>
-    // {
-    //     if (!opponentName)
-    //     {
-    //         setOpponent(t('guest'));
-    //         //opponentName = t('guest');
-    //     }
-    // }, opponentName, t, opponent);
 
     useEffect(() => {
         if (!opponentName) {

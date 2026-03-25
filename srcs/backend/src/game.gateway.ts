@@ -669,37 +669,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 // --- GAME INVITATIONS (PONG) ---
 
 // 1. Send Invitation
-  // @SubscribeMessage('send_game_invite')
-  // handleSendInvite(client: Socket, payload: { targetId: number }) {
-  //     const senderId = client.data.userId; // Or however you get the sender's ID
-  //     const targetId = Number(payload.targetId);
-
-
-  //   // A. We look if the target is connected
-  //     const targetSocketId = this.userSockets.get(targetId);
-
-  //     if (!targetSocketId) {
-  //       // If they're not, we notify the sender
-  //       client.emit('invite_error', { msg: 'game.disconnected' });
-  //         return;
-  //     }
-
-  //     // B. Check if they are already in a REMOTE game
-  //     for (const game of this.games.values()) {
-  //         if (game.playerLeftDbId === targetId || game.playerRightDbId === targetId) {
-  //             client.emit('invite_error', { msg: 'game.busy' });
-  //             return;
-  //         }
-  //     }
-
-  //   // C. We send the invitation to the target
-  //   // We include the senderId and senderName (if you have it in client.data or you look it up)
-  //     this.server.to(targetSocketId).emit('incoming_game_invite', {
-  //         fromUserId: senderId,
-  //         fromUserName: client.data.user?.pNick || 'app.afriend', // Make sure you have the nick // or "A friend"
-  //         mode: 'classic' // Or 'custom', if you implement modes
-  //     });
-  // }
 
   @SubscribeMessage('send_game_invite')
   // 1. IMPORTANTE: Añadimos 'async' aquí
@@ -756,96 +725,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 }
 
 // 2. Accept Invitation
-  // @SubscribeMessage('accept_game_invite')
-  // async handleAcceptInvite(client: Socket, payload: { challengerId: number }) {
-  //   // 1. Get IDs
-  //     const acceptorDbId = client.data.userId; 
-  //     const challengerDbId = Number(payload.challengerId);
-
-  //     //console.log(`🤝 [GATEWAY] Buscando datos reales para: ${challengerDbId} vs ${acceptorDbId}`);
-
-  //     // 2. Variables for names (Default values)
-  //     // Initializes to null: avoids error "undefined varaible"
-  //     let p1Data: any = null;
-  //     let p2Data: any = null;
-      
-  //     let challengerName = "Jugador 1";
-  //     let acceptorName = "Jugador 2";
-
-  //     // 🔥 3. DATABASE QUERY (THE REAL SOLUTION)
-  //     // We use await to ensure we have the names before continuing
-  //     try {
-  //         // We look for the Challenger (P1)
-  //         // NOTE: If `this.findPlayerById` returns the entire object from the database (including `pAvatarUrl`), this works.
-  //         // Otherwise, you should change it to: `await this.db.query.player.findFirst({ where: eq(schema.player.pPk, challengerDbId) });`
-  //         p1Data = await this.findPlayerById(challengerDbId);
-          
-  //         if (p1Data && p1Data.pNick) {
-  //             challengerName = p1Data.pNick;
-  //         }
-          
-
-  //         // We look for the Acceptor (P2)
-  //         p2Data = await this.findPlayerById(acceptorDbId);
-          
-  //         if (p2Data && p2Data.pNick) {
-  //             acceptorName = p2Data.pNick;
-  //         }
-  //     } catch (error) {
-  //         console.error("❌ Error recuperando nombres/avatares de la DB:", error);
-  //     }
-
-  //   // 4. Validate rival's socket
-  //     const challengerSocketId = this.userSockets.get(challengerDbId);
-  //     if (!challengerSocketId) {
-  //       client.emit('invite_error', { msg: "The challenger has disconnected." });
-  //         return;
-  //     }
-  //     const challengerSocket = this.server.sockets.sockets.get(challengerSocketId);
-
-  //   // 5. Create Room
-  //     const roomId = `private_${challengerDbId}_${acceptorDbId}_${Date.now()}`;
-      
-  //     if (challengerSocket) challengerSocket.join(roomId);
-  //     client.join(roomId);
-
-  //     //6. Notify the Frontend (With the Names from the DB adn avatars)
-      
-  //     // //A) For the Challenger (P1 - Left) -> Su rival es P2 (Aceptador)
-  //     this.server.to(challengerSocketId).emit('match_found', {
-  //         roomId: roomId,
-  //         side: 'left',
-  //         opponent: { 
-  //             id: acceptorDbId,
-  //             name: acceptorName, 
-  //             // Usamos pAvatarUrl si existe, si no null
-  //             avatar: p2Data?.pAvatarUrl || null 
-  //         }, 
-  //         matchId: 0 
-  //     });
-
-  //     // B) For the Acceptor (P2 - Right) -> Su rival es P1 (Desafiante)
-  //     this.server.to(client.id).emit('match_found', {
-  //         roomId: roomId,
-  //         side: 'right',
-  //         opponent: { 
-  //             id: challengerDbId,
-  //             name: challengerName, 
-  //             // Usamos pAvatarUrl si existe, si no null
-  //             avatar: p1Data?.pAvatarUrl || null 
-  //         },
-  //         matchId: 0
-  //     });
-
-  //   // 7. Start Game
-  //     this.startGameLoop(
-  //         roomId,
-  //         challengerSocketId,
-  //         client.id,
-  //         challengerDbId,
-  //         acceptorDbId
-  //     );
-  // }
 
   @SubscribeMessage('accept_game_invite')
   async handleAcceptInvite(client: Socket, payload: { challengerId: number }) {

@@ -53,54 +53,6 @@ all: $(DB_DATA_DIR) $(GRAFANA_DATA_DIR) $(PROMETHEUS_DATA_DIR) update-env
 	echo $(CODESPACE_NAME)
 	docker compose --project-directory srcs -f srcs/docker-compose.yml up --build -d
 
-# Actualizar URLs en .env para la nueva arquitectura Nginx (HTTPS)
-# update-env:
-# 	echo "Skip update"
-# Actualizar URLs en .env para la nueva arquitectura Nginx (HTTPS en puerto 8443)
-# update-env:
-# 	@if [ -f srcs/.env ]; then \
-# 		echo "srcs/.env ya existe, omitiendo configuración."; \
-# 	else \
-# 		cp srcs/.env.example srcs/.env ;\
-# 		printf "POSTGRES_USER: ";             read POSTGRES_USER; \
-# 		printf "POSTGRES_PASSWORD: ";          stty -echo; read POSTGRES_PASSWORD;          stty echo; echo ""; \
-# 		printf "OAUTH_GOOGLE_CLIENT_SECRET: "; stty -echo; read OAUTH_GOOGLE_CLIENT_SECRET; stty echo; echo ""; \
-# 		printf "OAUTH_42_CLIENT_SECRET: ";     stty -echo; read OAUTH_42_CLIENT_SECRET;     stty echo; echo ""; \
-# 		sed -i "s|^POSTGRES_USER=.*|POSTGRES_USER=$$POSTGRES_USER|"                         srcs/.env; \
-# 		sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$$POSTGRES_PASSWORD|"             srcs/.env; \
-# 		sed -i "s|^OAUTH_GOOGLE_CLIENT_SECRET=.*|OAUTH_GOOGLE_CLIENT_SECRET=$$OAUTH_GOOGLE_CLIENT_SECRET|" srcs/.env; \
-# 		sed -i "s|^OAUTH_42_CLIENT_SECRET=.*|OAUTH_42_CLIENT_SECRET=$$OAUTH_42_CLIENT_SECRET|"             srcs/.env; \
-# 		echo "✔  .env actualizado correctamente." ; \
-# 	fi ; \
-# 	echo "Leyendo entorno y configurando Proxy Nginx en puerto 8443..." \
-# 	if [ -n "$$(CODESPACE_NAME)" ]; then \
-# 		echo " Modo: Codespaces detectado"; \
-# 		BASE_URL="https://$$(CODESPACE_NAME)-8443.app.github.dev"; \
-# 	elif grep -q Microsoft /proc/version 2>/dev/null || [ -n "$$WSL_DISTRO_NAME" ]; then \
-# 		echo " Modo: WSL (Windows) detectado"; \
-# 		BASE_URL="https://localhost:8443"; \
-# 	elif [ "$$(uname -s)" = "Darwin" ]; then \
-# 		echo " Modo: Mac OS (42) detectado"; \
-# 		MAC_IP=$$(ipconfig getifaddr en0 || ipconfig getifaddr en1 || echo "localhost"); \
-# 		echo " IP Local (Mac): $$MAC_IP"; \
-# 		BASE_URL="https://$$MAC_IP:8443"; \
-# 	else \
-# 		echo "🐧 Modo: Linux Nativo detectado"; \
-# 		LINUX_IP=$$(hostname -I | awk '{print $$1}'); \
-# 		if [ -z "$$LINUX_IP" ]; then LINUX_IP="localhost"; fi; \
-# 		echo " IP Local (Linux): $$LINUX_IP"; \
-# 		BASE_URL="https://$$LINUX_IP:8443"; \
-# 	fi; \
-# 	echo " Nginx Entrypoint configurado en: $$BASE_URL"; \
-# 	sed -i.bak "s|^VITE_BACKEND_URL=.*|VITE_BACKEND_URL=$$BASE_URL|" $(ENV_FILE); \
-# 	sed -i.bak "s|^VITE_FRONTEND_URL=.*|VITE_FRONTEND_URL=$$BASE_URL|" $(ENV_FILE); \
-# 	sed -i.bak "s|^VITE_AUF_API_URL=.*|VITE_AUF_API_URL=$$BASE_URL|" $(ENV_FILE); \
-# 	sed -i.bak "s|^VITE_AUS_API_URL=.*|VITE_AUS_API_URL=$$BASE_URL|" $(ENV_FILE); \
-# 	sed -i.bak "s|^GF_SERVER_ROOT_URL=.*|GF_SERVER_ROOT_URL=$$BASE_URL/grafana/|" $(ENV_FILE); \
-# 	sed -i.bak "s|^OAUTH_42_CALLBACK_URL=.*|OAUTH_42_CALLBACK_URL=$$BASE_URL/auth/42/callback|" $(ENV_FILE); \
-# 	sed -i.bak "s|^OAUTH_GOOGLE_CALLBACK_URL=.*|OAUTH_GOOGLE_CALLBACK_URL=$$BASE_URL/auth/google/callback|" $(ENV_FILE); \
-# 	rm -f $(ENV_FILE).bak
-
 update-env:
 	@if [ -f srcs/.env ]; then \
 		echo "srcs/.env ya existe, omitiendo configuración."; \

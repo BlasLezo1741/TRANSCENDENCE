@@ -38,28 +38,43 @@ Key features at a glance:
    cd ft_transcendence
    ```
 
-2. **Configure environment variables:**
-   ```bash
-   cp .env.example .env
-   # Edit .env and fill in all required values
-   ```
-
-3. **Build and launch with Make:**
+2. **Build and launch with Make:**
    ```bash
    make
    ```
-   Makefile requests secrets. Ask developer for oath information to authenticate wiht 42 network or Google.
+
+Makefile requests these secrets. 
+   
+```bash
+   POSTGRES_PASSWORD:
+   GRAFANA_USER:
+   GRAFANA_PASSWORD:
+   OAUTH_GOOGLE_CLIENT_ID:
+   OAUTH_GOOGLE_CLIENT_SECRET:
+   OAUTH_42_CLIENT_ID:
+   OAUTH_42_CLIENT_SECRET:
+   GITHUB_TOKEN:
+```
+
+Define Postgres' password at will, as well as Grafana credentials.
+   
+Ask developer for OAuth information to authenticate wiht 42 network or Google. As also GitHub Security token to watch
    
    
-   The Makefile populates the `.env` file with defaults where applicable and calls `docker compose up --build`. All services (frontend, backend, database, Prometheus, Grafana, TOTP, Adminer) start automatically.
+The Makefile populates the `.env` file with defaults where applicable and calls `docker compose up --build`. All services (frontend, backend, dbserver, prometheus, grafana, TOTP, adminer and nginx) start automatically.
 
 
 
 4. **Access the application:**
    - Main app: `https://localhost`
-   - Grafana dashboards: `http://localhost:3100`
-   - Adminer (DB admin): `http://localhost:8080`
-   - Prometheus: `http://localhost:9090`
+   - Grafana dashboards: `http://localhost:8443/grafana`
+   - Adminer (DB admin): `http://localhost:8443/adminer`
+
+4.1. **Adminer session**:
+
+Configure login dialog as shown in the image. You can check such values inside file .env 
+
+![alt text](./docs/adminer_login.png)
 
 5. **Stop the project:**
    ```bash
